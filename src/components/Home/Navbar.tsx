@@ -2,25 +2,27 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "../../assets/logo.png";
 
+const ease = [0.23, 1, 0.32, 1] as const;
+
 const flipVariants = {
   front: {
     rotateX: 0,
-    transition: { duration: 0.35, ease: [0.23, 1, 0.32, 1] },
+    transition: { duration: 0.35, ease },
   },
   back: {
     rotateX: -90,
-    transition: { duration: 0.35, ease: [0.23, 1, 0.32, 1] },
+    transition: { duration: 0.35, ease },
   },
 };
 
 const backFaceVariants = {
   hidden: {
     rotateX: 90,
-    transition: { duration: 0.35, ease: [0.23, 1, 0.32, 1] },
+    transition: { duration: 0.35, ease },
   },
   visible: {
     rotateX: 0,
-    transition: { duration: 0.35, ease: [0.23, 1, 0.32, 1] },
+    transition: { duration: 0.35, ease },
   },
 };
 
@@ -29,7 +31,7 @@ const glowVariants = {
   hover: {
     scale: 2.2,
     opacity: 1,
-    transition: { duration: 0.45, ease: [0.23, 1, 0.32, 1] },
+    transition: { duration: 0.45, ease },
   },
 };
 
@@ -93,8 +95,8 @@ const Navbar = () => {
             <img className="w-30" src={Logo} alt="Logo" />
           </div>
           <ul className="hidden lg:flex items-center gap-7">
-            <li><FlipLink label="Buy" href="#" /></li>
-            <li><FlipLink label="Rent" href="#" /></li>
+            <li><FlipLink label="Buy" href="/buy" /></li>
+            <li><FlipLink label="Rent" href="/rent" /></li>
             <li><FlipLink label="Sell" href="#" /></li>
             <li><FlipLink label="Find Agent" href="#" /></li>
           </ul>
@@ -131,8 +133,8 @@ const Navbar = () => {
             exit={{ opacity: 0, y: -10 }}
             className="fixed inset-x-0 top-16 z-40 backdrop-blur-xl bg-white/60 border-b border-white/30 shadow-lg lg:hidden py-4 px-6 flex flex-col gap-3 text-sm font-medium text-primary-dark"
           >
-            <a href="#" className="py-2 hover:text-primary">Buy</a>
-            <a href="#" className="py-2 hover:text-primary">Rent</a>
+            <a href="/buy" className="py-2 hover:text-primary">Buy</a>
+            <a href="/rent" className="py-2 hover:text-primary">Rent</a>
             <a href="#" className="py-2 hover:text-primary">Sell</a>
             <a href="#" className="py-2 hover:text-primary">Find Agent</a>
             <hr className="border-border-light" />
