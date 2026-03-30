@@ -108,7 +108,7 @@ const CtaBanner = () => {
                   {stats.map((stat, i) => (
                     <div
                       key={i}
-                      className="bg-white/60 backdrop-blur-sm border border-border-light rounded-[16px] px-5 py-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                      className="bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl px-5 py-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
                     >
                       <div className="flex items-center gap-2 text-text-secondary mb-2">
                         <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary">

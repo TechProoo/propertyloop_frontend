@@ -95,19 +95,34 @@ const Navbar = () => {
             <img className="w-30" src={Logo} alt="Logo" />
           </div>
           <ul className="hidden lg:flex items-center gap-7">
-            <li><FlipLink label="Buy" href="/buy" /></li>
-            <li><FlipLink label="Rent" href="/rent" /></li>
-            <li><FlipLink label="Sell" href="#" /></li>
-            <li><FlipLink label="Find Agent" href="#" /></li>
+            <li>
+              <FlipLink label="Buy" href="/buy" />
+            </li>
+            <li>
+              <FlipLink label="Rent" href="/rent" />
+            </li>
+            <li>
+              <FlipLink label="Sell" href="/sell" />
+            </li>
+            <li className="">
+              <FlipLink label="Find Agent" href="#" />
+            </li>
           </ul>
         </div>
 
         {/* Right Nav Links */}
         <ul className="hidden lg:flex items-center gap-7">
-          <li><FlipLink label="Add Property" href="#" /></li>
-          <li><FlipLink label="About Us" href="#" /></li>
           <li>
-            <a href="#" className="text-sm font-medium text-primary-dark hover:text-primary transition-colors">
+            <FlipLink label="Add Property" href="#" />
+          </li>
+          <li>
+            <FlipLink label="About Us" href="#" />
+          </li>
+          <li>
+            <a
+              href="#"
+              className="text-sm font-medium text-white bg-primary px-10 py-2 rounded-4xl hover:bg-transparent hover:border-2 hover:border-primary hover:text-primary transition-colors"
+            >
               Join
             </a>
           </li>
@@ -119,9 +134,15 @@ const Navbar = () => {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
         >
-          <span className={`block w-6 h-0.5 bg-primary-dark transition-transform ${mobileMenuOpen ? "rotate-45 translate-y-2" : ""}`} />
-          <span className={`block w-6 h-0.5 bg-primary-dark transition-opacity ${mobileMenuOpen ? "opacity-0" : ""}`} />
-          <span className={`block w-6 h-0.5 bg-primary-dark transition-transform ${mobileMenuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+          <span
+            className={`block w-6 h-0.5 bg-primary-dark transition-transform ${mobileMenuOpen ? "rotate-45 translate-y-2" : ""}`}
+          />
+          <span
+            className={`block w-6 h-0.5 bg-primary-dark transition-opacity ${mobileMenuOpen ? "opacity-0" : ""}`}
+          />
+          <span
+            className={`block w-6 h-0.5 bg-primary-dark transition-transform ${mobileMenuOpen ? "-rotate-45 -translate-y-2" : ""}`}
+          />
         </button>
       </nav>
 
@@ -133,14 +154,31 @@ const Navbar = () => {
             exit={{ opacity: 0, y: -10 }}
             className="fixed inset-x-0 top-16 z-40 backdrop-blur-xl bg-white/60 border-b border-white/30 shadow-lg lg:hidden py-4 px-6 flex flex-col gap-3 text-sm font-medium text-primary-dark"
           >
-            <a href="/buy" className="py-2 hover:text-primary">Buy</a>
-            <a href="/rent" className="py-2 hover:text-primary">Rent</a>
-            <a href="#" className="py-2 hover:text-primary">Sell</a>
-            <a href="#" className="py-2 hover:text-primary">Find Agent</a>
+            <a href="/buy" className="py-2 hover:text-primary">
+              Buy
+            </a>
+            <a href="/rent" className="py-2 hover:text-primary">
+              Rent
+            </a>
+            <a href="/sell" className="py-2 hover:text-primary">
+              Sell
+            </a>
+            <a href="#" className="py-2 hover:text-primary">
+              Find Agent
+            </a>
             <hr className="border-border-light" />
-            <a href="#" className="py-2 hover:text-primary">Add Property</a>
-            <a href="#" className="py-2 hover:text-primary">About Us</a>
-            <a href="#" className="py-2 hover:text-primary font-semibold">Join</a>
+            <a href="#" className="py-2 hover:text-primary">
+              Add Property
+            </a>
+            <a href="#" className="py-2 hover:text-primary">
+              About Us
+            </a>
+            <a
+              href="#"
+              className="py-2 hover:text-primary bg-text-body font-semibold"
+            >
+              Join
+            </a>
           </motion.div>
         )}
       </AnimatePresence>

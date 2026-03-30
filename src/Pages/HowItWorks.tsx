@@ -8,7 +8,6 @@ import {
   BookOpen,
   ArrowRight,
   ArrowLeft,
-  ArrowUpRight,
   Lock,
   CreditCard,
   Handshake,
@@ -249,10 +248,6 @@ const HowItWorks = () => {
                     </p>
                   </div>
 
-                  {/* Arrow — clipped circle bottom-right */}
-                  <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
-                    <ArrowUpRight className="absolute top-4 left-5 w-5 h-5 text-white" />
-                  </div>
                 </div>
               ))}
             </div>
