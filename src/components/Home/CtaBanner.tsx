@@ -80,7 +80,7 @@ const CtaBanner = () => {
 
                 {/* Right — phone mockup */}
                 <div className="shrink-0 hidden lg:flex items-center justify-center">
-                  <div className="relative w-[220px] h-[380px] bg-white/70 backdrop-blur-md border border-border-light rounded-[36px] p-3 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+                  <div className="relative w-55 h-95 bg-white/70 backdrop-blur-md border border-border-light rounded-[36px] p-3 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
                     <div className="w-full h-full rounded-[28px] bg-bg-accent border border-border-light flex flex-col items-center justify-center gap-4">
                       {/* Notch */}
                       <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-5 bg-white rounded-full border border-border-light" />
@@ -139,7 +139,7 @@ const CtaBanner = () => {
 
           {/* Modal card */}
           <div
-            className="relative w-full max-w-sm overflow-hidden bg-white/85 backdrop-blur-md border border-border-light rounded-[24px] shadow-[0_8px_40px_rgba(0,0,0,0.12)] p-8"
+            className="relative w-full max-w-sm overflow-hidden bg-white/85 backdrop-blur-md border border-border-light rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.12)] p-8"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}

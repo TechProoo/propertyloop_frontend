@@ -104,8 +104,8 @@ const Navbar = () => {
             <li>
               <FlipLink label="Sell" href="/sell" />
             </li>
-            <li className="">
-              <FlipLink label="Find Agent" href="#" />
+            <li>
+              <FlipLink label="Find Agent" href="/find-agent" />
             </li>
           </ul>
         </div>
@@ -113,15 +113,15 @@ const Navbar = () => {
         {/* Right Nav Links */}
         <ul className="hidden lg:flex items-center gap-7">
           <li>
-            <FlipLink label="Add Property" href="#" />
+            <FlipLink label="Add Property" href="/add-property" />
           </li>
           <li>
-            <FlipLink label="About Us" href="#" />
+            <FlipLink label="About Us" href="/about" />
           </li>
           <li>
             <a
-              href="#"
-              className="text-sm font-medium text-white bg-primary px-10 py-2 rounded-4xl hover:bg-transparent hover:border-2 hover:border-primary hover:text-primary transition-colors"
+              href="/onboarding"
+              className="text-sm font-medium text-primary-dark hover:text-primary transition-colors"
             >
               Join
             </a>
@@ -163,20 +163,17 @@ const Navbar = () => {
             <a href="/sell" className="py-2 hover:text-primary">
               Sell
             </a>
-            <a href="#" className="py-2 hover:text-primary">
+            <a href="/find-agent" className="py-2 hover:text-primary">
               Find Agent
             </a>
             <hr className="border-border-light" />
-            <a href="#" className="py-2 hover:text-primary">
+            <a href="/add-property" className="py-2 hover:text-primary">
               Add Property
             </a>
-            <a href="#" className="py-2 hover:text-primary">
+            <a href="/about" className="py-2 hover:text-primary">
               About Us
             </a>
-            <a
-              href="#"
-              className="py-2 hover:text-primary bg-text-body font-semibold"
-            >
+            <a href="/onboarding" className="py-2 hover:text-primary font-semibold">
               Join
             </a>
           </motion.div>

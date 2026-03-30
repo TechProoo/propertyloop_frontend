@@ -107,7 +107,7 @@ const Hero = () => {
       {/* Content layer */}
       <div className="relative z-10 h-full flex flex-col justify-between px-6 md:px-12 lg:px-20 pb-8 pt-4 lg:pt-8 pointer-events-none">
         {/* Top content */}
-        <div className="pointer-events-auto mt-30">
+        <div className="pointer-events-auto">
           {/* Heading */}
           <h1 className="font-heading text-[2.2rem] sm:text-[2.8rem] lg:text-[3.2rem] xl:text-[3.8rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
             Find your home, <br />

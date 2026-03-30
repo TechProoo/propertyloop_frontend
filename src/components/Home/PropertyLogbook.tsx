@@ -25,7 +25,8 @@ const timelineEntries = [
     icon: <Zap className="w-4 h-4" />,
     title: "Electrical Rewiring",
     vendor: "BrightSpark Electricals",
-    description: "Full rewiring of second floor bedrooms and new circuit breaker",
+    description:
+      "Full rewiring of second floor bedrooms and new circuit breaker",
     cost: "₦120,000",
     status: "Verified",
   },
@@ -52,7 +53,8 @@ const timelineEntries = [
     icon: <ThermometerSun className="w-4 h-4" />,
     title: "AC Installation",
     vendor: "CoolBreeze HVAC",
-    description: "Installed 3 split-unit air conditioners across main living areas",
+    description:
+      "Installed 3 split-unit air conditioners across main living areas",
     cost: "₦350,000",
     status: "Verified",
   },
@@ -74,13 +76,12 @@ const PropertyLogbook = () => {
         {/* Header */}
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-20">
           {/* Left — intro (sticky on desktop) */}
-          <div className="lg:w-[380px] shrink-0 lg:sticky lg:top-8 lg:self-start">
+          <div className="lg:w-95 shrink-0 lg:sticky lg:top-8 lg:self-start">
             <p className="text-primary text-sm font-medium tracking-wide uppercase mb-2">
               Property Logbook
             </p>
             <h2 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
-              Every Repair.{" "}
-              <span className="text-primary">Every Record.</span>
+              Every Repair. <span className="text-primary">Every Record.</span>
             </h2>
             <p className="text-text-secondary text-sm leading-relaxed mt-4">
               Every property on PropertyLoop gets a permanent digital logbook.
@@ -124,14 +125,14 @@ const PropertyLogbook = () => {
           {/* Right — timeline */}
           <div className="flex-1 relative">
             {/* Vertical line */}
-            <div className="absolute left-[23px] top-0 bottom-0 w-px bg-border-light" />
+            <div className="absolute left-5.75 top-0 bottom-0 w-px bg-border-light" />
 
             <div className="flex flex-col gap-5">
               {timelineEntries.map((entry, i) => (
                 <div key={i} className="flex gap-5 relative group">
                   {/* Timeline dot */}
                   <div className="shrink-0 relative z-10 mt-5">
-                    <div className="w-[46px] h-[46px] rounded-full bg-white/80 backdrop-blur-sm border border-border-light shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center text-primary">
+                    <div className="w-11.5 h-11.5 rounded-full bg-white/80 backdrop-blur-sm border border-border-light shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center text-primary">
                       {entry.icon}
                     </div>
                   </div>

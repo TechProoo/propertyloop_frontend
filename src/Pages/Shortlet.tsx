@@ -9,11 +9,6 @@ import {
   Search,
   SlidersHorizontal,
   MapPin,
-  Building2,
-  Home,
-  LandPlot,
-  Store,
-  LayoutGrid,
   ChevronDown,
   Star,
   Phone,
@@ -24,197 +19,227 @@ import {
   ShieldCheck,
   GraduationCap,
   Car,
-  TrendingDown,
-  ArrowDown,
   Calendar,
+  Wifi,
+  ParkingCircle,
+  UtensilsCrossed,
+  Dumbbell,
+  Waves,
+  Coffee,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 
+/* ─── Data ─── */
+
 const categories = [
+  { icon: <Waves className="w-5 h-5" />, label: "Luxury Stays", count: 1240 },
+  { icon: <Coffee className="w-5 h-5" />, label: "Studios", count: 2180 },
+  { icon: <Wifi className="w-5 h-5" />, label: "Work-Friendly", count: 980 },
   {
-    icon: <Building2 className="w-5 h-5" />,
-    label: "Flats & Apartments",
-    count: 3420,
-  },
-  { icon: <Home className="w-5 h-5" />, label: "Houses", count: 2180 },
-  { icon: <LandPlot className="w-5 h-5" />, label: "Lands", count: 1560 },
-  {
-    icon: <Store className="w-5 h-5" />,
-    label: "Commercial Property",
-    count: 890,
+    icon: <UtensilsCrossed className="w-5 h-5" />,
+    label: "Self-Catering",
+    count: 1560,
   },
   {
-    icon: <LayoutGrid className="w-5 h-5" />,
-    label: "All Property",
-    count: 8050,
+    icon: <Star className="w-5 h-5" />,
+    label: "All Shortlets",
+    count: 5960,
   },
 ];
 
 const listings = {
-  "Flats & Apartments": [
-    {
-      image:
-        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
-      price: "₦65,000,000",
-      title: "Luxury 3-Bed Flat in Lekki",
-      address: "Lekki Phase 1, Lagos",
-      beds: 3,
-      baths: 3,
-      sqft: "2,400",
-      rating: 4.8,
-      agent: "Prime Realty",
-    },
+  "Luxury Stays": [
     {
       image:
         "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
-      price: "₦120,000,000",
-      title: "Penthouse with Ocean View",
+      price: "₦85,000",
+      period: "night",
+      title: "Luxury Penthouse with City View",
       address: "Victoria Island, Lagos",
-      beds: 4,
-      baths: 3,
-      sqft: "3,800",
+      beds: 3,
+      baths: 2,
+      sqft: "2,400",
       rating: 4.9,
       agent: "Island Properties",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
-      price: "₦45,000,000",
-      title: "Modern 2-Bed Apartment",
-      address: "Ikoyi, Lagos",
-      beds: 2,
-      baths: 2,
-      sqft: "1,600",
-      rating: 4.7,
-      agent: "Prestige Homes",
-    },
-  ],
-  Houses: [
-    {
-      image:
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-      price: "₦185,000,000",
-      title: "Contemporary Villa with Garden",
-      address: "Lekki Phase 1, Lagos",
-      beds: 4,
-      baths: 3,
-      sqft: "6,800",
-      rating: 4.9,
-      agent: "Prime Realty",
+      amenities: ["WiFi", "Pool", "Gym", "Parking"],
     },
     {
       image:
         "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
-      price: "₦450,000,000",
-      title: "Waterfront Mansion with Pool",
+      price: "₦150,000",
+      period: "night",
+      title: "Waterfront Villa with Private Pool",
       address: "Banana Island, Lagos",
-      beds: 6,
-      baths: 5,
-      sqft: "12,000",
+      beds: 4,
+      baths: 3,
+      sqft: "4,200",
       rating: 4.9,
       agent: "Royal Estate Advisors",
+      amenities: ["WiFi", "Pool", "Chef", "Security"],
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+      price: "₦120,000",
+      period: "night",
+      title: "Designer Duplex with Rooftop Terrace",
+      address: "Ikoyi, Lagos",
+      beds: 3,
+      baths: 3,
+      sqft: "3,200",
+      rating: 4.8,
+      agent: "Prestige Homes",
+      amenities: ["WiFi", "Terrace", "Gym", "Parking"],
+    },
+  ],
+  Studios: [
+    {
+      image:
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
+      price: "₦35,000",
+      period: "night",
+      title: "Chic Studio in the Heart of Lekki",
+      address: "Lekki Phase 1, Lagos",
+      beds: 1,
+      baths: 1,
+      sqft: "550",
+      rating: 4.7,
+      agent: "Prime Realty",
+      amenities: ["WiFi", "Kitchen", "AC"],
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
+      price: "₦28,000",
+      period: "night",
+      title: "Modern Studio with Workspace",
+      address: "Yaba, Lagos",
+      beds: 1,
+      baths: 1,
+      sqft: "480",
+      rating: 4.6,
+      agent: "Sapphire Homes",
+      amenities: ["WiFi", "Desk", "Kitchen"],
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
+      price: "₦42,000",
+      period: "night",
+      title: "Premium Studio with Balcony",
+      address: "Victoria Island, Lagos",
+      beds: 1,
+      baths: 1,
+      sqft: "620",
+      rating: 4.8,
+      agent: "Island Properties",
+      amenities: ["WiFi", "Balcony", "Pool"],
+    },
+  ],
+  "Work-Friendly": [
+    {
+      image:
+        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
+      price: "₦55,000",
+      period: "night",
+      title: "Executive Apartment with Office",
+      address: "Ikeja GRA, Lagos",
+      beds: 2,
+      baths: 1,
+      sqft: "1,200",
+      rating: 4.8,
+      agent: "Horizon Properties",
+      amenities: ["WiFi", "Office", "Printer", "Parking"],
     },
     {
       image:
         "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
-      price: "₦95,000,000",
-      title: "Semi-Detached Duplex with BQ",
-      address: "Gbagada, Lagos",
-      beds: 4,
-      baths: 3,
-      sqft: "5,200",
-      rating: 4.7,
-      agent: "Cityscape Properties",
-    },
-  ],
-  Lands: [
-    {
-      image:
-        "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop",
-      price: "₦30,000,000",
-      title: "500sqm Plot in Gated Estate",
-      address: "Ajah, Lagos",
-      beds: 0,
-      baths: 0,
-      sqft: "500",
-      rating: 4.6,
-      agent: "Metro Living Realty",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?w=600&h=400&fit=crop",
-      price: "₦85,000,000",
-      title: "1000sqm Waterfront Plot",
-      address: "Lekki Phase 2, Lagos",
-      beds: 0,
-      baths: 0,
-      sqft: "1,000",
-      rating: 4.8,
-      agent: "Island Properties",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?w=600&h=400&fit=crop",
-      price: "₦150,000,000",
-      title: "Prime Corner Plot with C of O",
-      address: "Victoria Island, Lagos",
-      beds: 0,
-      baths: 0,
-      sqft: "800",
-      rating: 4.9,
-      agent: "Prestige Homes",
-    },
-  ],
-  "Commercial Property": [
-    {
-      image:
-        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
-      price: "₦350,000,000",
-      title: "Office Complex on Allen Avenue",
+      price: "₦48,000",
+      period: "night",
+      title: "Tech-Ready Flat Near Airport",
       address: "Ikeja, Lagos",
-      beds: 0,
-      baths: 4,
-      sqft: "8,500",
-      rating: 4.7,
-      agent: "Cityscape Properties",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
-      price: "₦220,000,000",
-      title: "Retail Space on Admiralty Way",
-      address: "Lekki Phase 1, Lagos",
-      beds: 0,
+      beds: 2,
       baths: 2,
-      sqft: "4,200",
-      rating: 4.8,
-      agent: "Prime Realty",
+      sqft: "1,100",
+      rating: 4.7,
+      agent: "Horizon Properties",
+      amenities: ["WiFi", "Desk", "Kitchen", "AC"],
     },
     {
       image:
         "https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=600&h=400&fit=crop",
-      price: "₦500,000,000",
-      title: "Warehouse with Loading Bay",
-      address: "Apapa, Lagos",
-      beds: 0,
+      price: "₦65,000",
+      period: "night",
+      title: "Business Suite with Meeting Room",
+      address: "Victoria Island, Lagos",
+      beds: 2,
       baths: 2,
-      sqft: "15,000",
+      sqft: "1,500",
+      rating: 4.9,
+      agent: "Island Properties",
+      amenities: ["WiFi", "Meeting Room", "Concierge"],
+    },
+  ],
+  "Self-Catering": [
+    {
+      image:
+        "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&h=400&fit=crop",
+      price: "₦45,000",
+      period: "night",
+      title: "Family Apartment with Full Kitchen",
+      address: "Ajah, Lagos",
+      beds: 2,
+      baths: 2,
+      sqft: "1,400",
+      rating: 4.7,
+      agent: "Metro Living Realty",
+      amenities: ["WiFi", "Kitchen", "Washer", "Parking"],
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=600&h=400&fit=crop",
+      price: "₦65,000",
+      period: "night",
+      title: "Spacious 3-Bed with Chef's Kitchen",
+      address: "Lekki Phase 1, Lagos",
+      beds: 3,
+      baths: 2,
+      sqft: "2,100",
+      rating: 4.8,
+      agent: "Prime Realty",
+      amenities: ["WiFi", "Kitchen", "Garden", "BBQ"],
+    },
+    {
+      image:
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
+      price: "₦38,000",
+      period: "night",
+      title: "Cosy 1-Bed with Kitchenette",
+      address: "Gbagada, Lagos",
+      beds: 1,
+      baths: 1,
+      sqft: "700",
       rating: 4.6,
-      agent: "Royal Estate Advisors",
+      agent: "Cityscape Properties",
+      amenities: ["WiFi", "Kitchenette", "AC"],
     },
   ],
 };
 
 type CategoryKey = keyof typeof listings;
 
-const Buy = () => {
-  const [activeCategory, setActiveCategory] = useState("All Property");
+/* ─── Component ─── */
+
+const Shortlet = () => {
+  const [activeCategory, setActiveCategory] = useState("All Shortlets");
   const [searchQuery, setSearchQuery] = useState("");
   const [contactCard, setContactCard] = useState<number | null>(null);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
 
   const getListings = () => {
-    if (activeCategory === "All Property") {
+    if (activeCategory === "All Shortlets") {
       return Object.values(listings).flat();
     }
     return listings[activeCategory as CategoryKey] || [];
@@ -235,42 +260,38 @@ const Buy = () => {
             </Link>
             <span>/</span>
             <span className="text-primary-dark font-medium">
-              Property For Sale
+              Shortlet Stays
             </span>
           </div>
 
-          {/* Hero header — with bg image */}
+          {/* ─── Hero ─── */}
           <div className="relative overflow-hidden rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] mb-10">
-            {/* Background image */}
             <div
               className="absolute inset-0 bg-cover bg-center"
               style={{
                 backgroundImage:
-                  "url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1400&h=600&fit=crop)",
+                  "url(https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1400&h=600&fit=crop)",
               }}
             />
-            {/* Overlay gradient */}
             <div className="absolute inset-0 bg-linear-to-r from-primary-dark/90 via-primary-dark/75 to-primary-dark/40" />
-            {/* Decorative circles */}
             <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/5" />
             <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-white/5" />
 
             <div className="relative z-10 p-8 sm:p-10 lg:p-14">
               <h1 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3.5rem] leading-[1.1] font-bold text-white tracking-tight">
-                Property <span className="text-white/70">For Sale</span>
+                Shortlet <span className="text-white/70">Stays</span>
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
-                Browse verified listings from KYC-checked agents. Every property
-                includes price history, verified documents, and neighbourhood
-                intelligence.
+                Book verified short-term apartments by the night. Instant
+                booking, transparent pricing, and Paystack-powered payments.
+                Every stay is managed by a verified agent.
               </p>
 
-              {/* Stats pills */}
               <div className="flex flex-wrap gap-3 mt-6">
                 {[
-                  { value: "8,050+", label: "Properties" },
-                  { value: "1,200+", label: "Agents" },
-                  { value: "5", label: "Cities" },
+                  { value: "5,960+", label: "Shortlets" },
+                  { value: "Instant", label: "Booking" },
+                  { value: "Paystack", label: "Payments" },
                 ].map((s) => (
                   <div
                     key={s.label}
@@ -284,7 +305,7 @@ const Buy = () => {
                 ))}
               </div>
 
-              {/* Search bar — glass on dark */}
+              {/* Search bar */}
               <div className="mt-8 bg-white/10 backdrop-blur-md border border-white/15 rounded-[18px] p-3 flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
@@ -292,7 +313,7 @@ const Buy = () => {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by location, property name, or keyword..."
+                    placeholder="Search by location or property name..."
                     className="w-full h-12 pl-11 pr-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-colors"
                   />
                 </div>
@@ -308,9 +329,55 @@ const Buy = () => {
             </div>
           </div>
 
+          {/* ─── Date Picker Bar ─── */}
+          <div className="mb-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] px-6 py-4 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <div className="flex items-center gap-2 text-primary shrink-0">
+                <Calendar className="w-5 h-5" />
+                <span className="font-heading font-bold text-primary-dark text-sm">
+                  Your Dates
+                </span>
+              </div>
+              <div className="flex-1 flex flex-col sm:flex-row gap-3 w-full">
+                <div className="flex-1 relative">
+                  <input
+                    type="date"
+                    value={checkIn}
+                    onChange={(e) => setCheckIn(e.target.value)}
+                    className="w-full h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                    placeholder="Check-in"
+                  />
+                </div>
+                <div className="flex-1 relative">
+                  <input
+                    type="date"
+                    value={checkOut}
+                    onChange={(e) => setCheckOut(e.target.value)}
+                    className="w-full h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                    placeholder="Check-out"
+                  />
+                </div>
+                <select className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none sm:w-48">
+                  <option>All Lagos</option>
+                  <option>Victoria Island</option>
+                  <option>Lekki</option>
+                  <option>Ikoyi</option>
+                  <option>Ajah</option>
+                  <option>Banana Island</option>
+                  <option>Ikeja</option>
+                  <option>Yaba</option>
+                  <option>Gbagada</option>
+                </select>
+              </div>
+              <button className="shrink-0 h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2 shadow-lg shadow-glow/40">
+                <Search className="w-4 h-4" />
+                Search
+              </button>
+            </div>
+          </div>
+
           {/* ─── Neighbourhood Intelligence ─── */}
           <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
-            {/* Header row */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -321,14 +388,14 @@ const Buy = () => {
                     Neighbourhood Intelligence
                   </p>
                   <h3 className="font-heading font-bold text-primary-dark text-base">
-                    Lekki Phase 1, Lagos
+                    Victoria Island, Lagos
                   </h3>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  Overall: 8.3/10
+                  Overall: 8.7/10
                 </span>
                 <button className="h-9 px-4 rounded-full border border-border-light bg-white/80 backdrop-blur-sm text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
                   Change area
@@ -336,60 +403,58 @@ const Buy = () => {
               </div>
             </div>
 
-            {/* Score cards */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {[
                 {
                   icon: <Zap className="w-4 h-4" />,
                   label: "Power Supply",
-                  score: 7.8,
-                  max: 10,
-                  color: "#F5A623",
-                  bg: "bg-[#FFF8ED]",
-                  desc: "Moderate — 16-20hrs daily",
-                },
-                {
-                  icon: <Droplets className="w-4 h-4" />,
-                  label: "Flood Risk",
-                  score: 2.1,
-                  max: 10,
-                  color: "#1f6f43",
-                  bg: "bg-primary/5",
-                  desc: "Very low — no history",
-                },
-                {
-                  icon: <Car className="w-4 h-4" />,
-                  label: "Road Quality",
-                  score: 8.4,
-                  max: 10,
-                  color: "#1f6f43",
-                  bg: "bg-primary/5",
-                  desc: "Tarred, well-maintained",
-                },
-                {
-                  icon: <ShieldCheck className="w-4 h-4" />,
-                  label: "Safety Index",
-                  score: 8.0,
-                  max: 10,
-                  color: "#1f6f43",
-                  bg: "bg-primary/5",
-                  desc: "Gated, 24hr security",
-                },
-                {
-                  icon: <GraduationCap className="w-4 h-4" />,
-                  label: "Schools Nearby",
                   score: 9.2,
                   max: 10,
                   color: "#1f6f43",
                   bg: "bg-primary/5",
-                  desc: "12 schools within 3km",
+                  desc: "Excellent — 22-24hrs daily",
+                },
+                {
+                  icon: <Droplets className="w-4 h-4" />,
+                  label: "Flood Risk",
+                  score: 3.5,
+                  max: 10,
+                  color: "#F5A623",
+                  bg: "bg-[#FFF8ED]",
+                  desc: "Low — minor seasonal",
+                },
+                {
+                  icon: <Car className="w-4 h-4" />,
+                  label: "Road Quality",
+                  score: 8.8,
+                  max: 10,
+                  color: "#1f6f43",
+                  bg: "bg-primary/5",
+                  desc: "Excellent, well-paved",
+                },
+                {
+                  icon: <ShieldCheck className="w-4 h-4" />,
+                  label: "Safety Index",
+                  score: 9.0,
+                  max: 10,
+                  color: "#1f6f43",
+                  bg: "bg-primary/5",
+                  desc: "High security presence",
+                },
+                {
+                  icon: <GraduationCap className="w-4 h-4" />,
+                  label: "Nightlife & Dining",
+                  score: 9.5,
+                  max: 10,
+                  color: "#1f6f43",
+                  bg: "bg-primary/5",
+                  desc: "Restaurants, bars, lounges",
                 },
               ].map((item) => (
                 <div
                   key={item.label}
                   className="group relative bg-white/80 backdrop-blur-md border border-white/50 rounded-2xl p-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
                 >
-                  {/* Icon + Score row */}
                   <div className="flex items-start justify-between mb-3">
                     <div
                       className={`w-9 h-9 rounded-xl ${item.bg} flex items-center justify-center`}
@@ -404,13 +469,9 @@ const Buy = () => {
                       {item.score}
                     </span>
                   </div>
-
-                  {/* Label */}
                   <p className="font-heading font-semibold text-primary-dark text-[13px] leading-tight">
                     {item.label}
                   </p>
-
-                  {/* Progress bar */}
                   <div className="w-full h-1 rounded-full bg-border-light overflow-hidden mt-2.5 mb-2">
                     <div
                       className="h-full rounded-full"
@@ -420,8 +481,6 @@ const Buy = () => {
                       }}
                     />
                   </div>
-
-                  {/* Description */}
                   <p className="text-text-subtle text-[11px] leading-snug">
                     {item.desc}
                   </p>
@@ -430,7 +489,7 @@ const Buy = () => {
             </div>
           </div>
 
-          {/* Category sidebar + listings */}
+          {/* ─── Category sidebar + listings ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
             {/* Left — category nav */}
             <div className="lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
@@ -462,10 +521,10 @@ const Buy = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-heading font-bold text-[14px] leading-tight">
-                          {cat.label} For Sale
+                          {cat.label}
                         </p>
                         <p className="text-text-secondary text-xs mt-0.5">
-                          {cat.count.toLocaleString()} listings
+                          {cat.count.toLocaleString()} stays
                         </p>
                       </div>
                       <ChevronDown
@@ -483,13 +542,13 @@ const Buy = () => {
               {/* Quick stats */}
               <div className="mt-5 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
                 <h4 className="font-heading font-bold text-primary-dark text-sm mb-3">
-                  Market Snapshot
+                  Shortlet Snapshot
                 </h4>
                 <div className="flex flex-col gap-3">
                   {[
-                    { label: "Avg. price (Lagos)", value: "₦125M" },
-                    { label: "New this week", value: "342" },
-                    { label: "Verified agents", value: "1,200+" },
+                    { label: "Avg. nightly rate", value: "₦65,000" },
+                    { label: "New this week", value: "124" },
+                    { label: "Instant booking", value: "Available" },
                   ].map((stat) => (
                     <div
                       key={stat.label}
@@ -505,6 +564,42 @@ const Buy = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Amenities filter */}
+              <div className="mt-5 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+                <h4 className="font-heading font-bold text-primary-dark text-sm mb-3">
+                  Popular Amenities
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { icon: <Wifi className="w-3 h-3" />, label: "WiFi" },
+                    {
+                      icon: <Waves className="w-3 h-3" />,
+                      label: "Pool",
+                    },
+                    {
+                      icon: <ParkingCircle className="w-3 h-3" />,
+                      label: "Parking",
+                    },
+                    {
+                      icon: <Dumbbell className="w-3 h-3" />,
+                      label: "Gym",
+                    },
+                    {
+                      icon: <UtensilsCrossed className="w-3 h-3" />,
+                      label: "Kitchen",
+                    },
+                  ].map((a) => (
+                    <button
+                      key={a.label}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border-light bg-white/60 text-text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
+                    >
+                      {a.icon}
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Right — listing cards */}
@@ -516,15 +611,15 @@ const Buy = () => {
                   <span className="font-bold text-primary-dark">
                     {currentListings.length}
                   </span>{" "}
-                  properties in{" "}
+                  stays in{" "}
                   <span className="font-bold text-primary-dark">
-                    {activeCategory === "All Property"
+                    {activeCategory === "All Shortlets"
                       ? "All Categories"
                       : activeCategory}
                   </span>
                 </p>
                 <select className="h-9 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-xs focus:outline-none focus:border-primary transition-colors appearance-none pr-8">
-                  <option>Newest first</option>
+                  <option>Top rated</option>
                   <option>Price: Low to High</option>
                   <option>Price: High to Low</option>
                   <option>Most popular</option>
@@ -536,11 +631,13 @@ const Buy = () => {
                 {currentListings.map((listing, i) => (
                   <div
                     key={i}
-                    onClick={() => setContactCard(contactCard === i ? null : i)}
+                    onClick={() =>
+                      setContactCard(contactCard === i ? null : i)
+                    }
                     className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                   >
                     {/* Image */}
-                    <div className="h-44 overflow-hidden rounded-t-[20px] relative">
+                    <div className="h-48 overflow-hidden rounded-t-[20px] relative">
                       <img
                         src={listing.image}
                         alt={listing.title}
@@ -551,16 +648,14 @@ const Buy = () => {
                         {listing.rating}
                       </span>
                       <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
-                        For Sale
+                        {listing.price}
+                        <span className="text-white/60">/{listing.period}</span>
                       </span>
                     </div>
 
                     {/* Glass content */}
                     <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                      <p className="font-heading font-bold text-primary-dark text-[18px]">
-                        {listing.price}
-                      </p>
-                      <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1 truncate">
+                      <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug truncate">
                         {listing.title}
                       </h3>
                       <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
@@ -570,27 +665,42 @@ const Buy = () => {
 
                       <div className="h-px bg-border-light mt-3 mb-3" />
 
-                      <div className="flex items-center gap-4 text-text-secondary text-xs pr-10">
-                        {listing.beds > 0 && (
+                      <div className="flex items-center justify-between text-xs pr-10">
+                        <div className="flex items-center gap-4 text-text-secondary">
                           <span className="flex items-center gap-1.5">
                             <Bed className="w-3.5 h-3.5" />
-                            {listing.beds} Beds
+                            {listing.beds} Bed{listing.beds > 1 ? "s" : ""}
                           </span>
-                        )}
-                        {listing.baths > 0 && (
                           <span className="flex items-center gap-1.5">
                             <Bath className="w-3.5 h-3.5" />
-                            {listing.baths} Baths
+                            {listing.baths} Bath{listing.baths > 1 ? "s" : ""}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Maximize className="w-3.5 h-3.5" />
+                            {listing.sqft}m²
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Amenity pills */}
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {listing.amenities.slice(0, 3).map((a) => (
+                          <span
+                            key={a}
+                            className="px-2 py-0.5 rounded-full bg-bg-accent text-text-secondary text-[10px] font-medium border border-border-light"
+                          >
+                            {a}
+                          </span>
+                        ))}
+                        {listing.amenities.length > 3 && (
+                          <span className="px-2 py-0.5 rounded-full bg-bg-accent text-text-subtle text-[10px] font-medium border border-border-light">
+                            +{listing.amenities.length - 3}
                           </span>
                         )}
-                        <span className="flex items-center gap-1.5">
-                          <Maximize className="w-3.5 h-3.5" />
-                          {listing.sqft}m²
-                        </span>
                       </div>
                     </div>
 
-                    {/* Arrow — clipped circle */}
+                    {/* Arrow */}
                     <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
                       <ArrowUpRight className="absolute top-4 left-5 w-5 h-5 text-white" />
                     </div>
@@ -606,7 +716,6 @@ const Buy = () => {
                           className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-primary-dark/80 backdrop-blur-md rounded-[20px]"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          {/* Close */}
                           <motion.button
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
@@ -621,7 +730,6 @@ const Buy = () => {
                             <X className="w-4 h-4" />
                           </motion.button>
 
-                          {/* Agent name */}
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -633,14 +741,13 @@ const Buy = () => {
                             className="text-center"
                           >
                             <p className="text-white/60 text-xs">
-                              Contact Agent
+                              Book via Agent
                             </p>
                             <p className="font-heading font-bold text-white text-base mt-1">
                               {listing.agent}
                             </p>
                           </motion.div>
 
-                          {/* Buttons */}
                           <div className="flex gap-4">
                             <motion.a
                               initial={{ opacity: 0, scale: 0.5, y: 20 }}
@@ -668,7 +775,7 @@ const Buy = () => {
                                 duration: 0.4,
                                 ease: [0.23, 1, 0.32, 1],
                               }}
-                              href={`https://wa.me/2341234567890?text=Hi, I'm interested in ${listing.title} at ${listing.address}`}
+                              href={`https://wa.me/2341234567890?text=Hi, I'm interested in booking ${listing.title} at ${listing.address}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex flex-col items-center gap-2"
@@ -682,7 +789,6 @@ const Buy = () => {
                             </motion.a>
                           </div>
 
-                          {/* Details button */}
                           <motion.button
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -693,11 +799,10 @@ const Buy = () => {
                             }}
                             className="mt-1 h-10 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all duration-300 inline-flex items-center gap-2"
                           >
-                            <ArrowUpRight className="w-4 h-4" />
-                            View details
+                            <Calendar className="w-4 h-4" />
+                            Book Now
                           </motion.button>
 
-                          {/* Property name */}
                           <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -716,174 +821,34 @@ const Buy = () => {
               {/* Load more */}
               <div className="mt-10 text-center">
                 <button className="h-11 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
-                  Load more properties
+                  Load more shortlets
                 </button>
               </div>
             </div>
           </div>
-          {/* ─── Price History / Recently Reduced ─── */}
-          <div className="mb-20">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-[#e74c3c]/10 flex items-center justify-center">
-                    <TrendingDown className="w-4 h-4 text-[#e74c3c]" />
-                  </div>
-                  <p className="text-[#e74c3c] text-sm font-medium tracking-wide uppercase">
-                    Price Drops
-                  </p>
-                </div>
-                <h2 className="font-heading text-[1.5rem] sm:text-[2rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
-                  Recently <span className="text-primary">Reduced</span>
-                </h2>
-                <p className="text-text-secondary text-sm leading-relaxed mt-2 max-w-lg">
-                  Properties with verified price reductions. Full price history
-                  on every listing — no hidden inflation.
-                </p>
-              </div>
-              <button className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
-                View all reductions
-              </button>
+
+          {/* ─── Trust banner ─── */}
+          <div className="mb-20 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] px-8 py-6 flex flex-col sm:flex-row items-center gap-6">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-7 h-7 text-primary" />
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-                  title: "4-Bed Villa, Lekki Phase 1",
-                  address: "Lekki Phase 1, Lagos",
-                  current: "₦165,000,000",
-                  history: [
-                    { price: "₦185M", date: "Jan 2026" },
-                    { price: "₦175M", date: "Feb 2026" },
-                    { price: "₦165M", date: "Mar 2026" },
-                  ],
-                  drop: "11%",
-                },
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
-                  title: "Penthouse, Victoria Island",
-                  address: "Victoria Island, Lagos",
-                  current: "₦290,000,000",
-                  history: [
-                    { price: "₦320M", date: "Dec 2025" },
-                    { price: "₦305M", date: "Feb 2026" },
-                    { price: "₦290M", date: "Mar 2026" },
-                  ],
-                  drop: "9%",
-                },
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
-                  title: "Waterfront Duplex, Ikoyi",
-                  address: "Ikoyi, Lagos",
-                  current: "₦410,000,000",
-                  history: [
-                    { price: "₦450M", date: "Nov 2025" },
-                    { price: "₦430M", date: "Jan 2026" },
-                    { price: "₦410M", date: "Mar 2026" },
-                  ],
-                  drop: "9%",
-                },
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
-                  title: "Terrace House, Ajah",
-                  address: "Ajah, Lagos",
-                  current: "₦62,000,000",
-                  history: [
-                    { price: "₦75M", date: "Oct 2025" },
-                    { price: "₦68M", date: "Jan 2026" },
-                    { price: "₦62M", date: "Mar 2026" },
-                  ],
-                  drop: "17%",
-                },
-              ].map((prop, i) => (
-                <div
-                  key={i}
-                  className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-                >
-                  {/* Image */}
-                  <div className="h-36 overflow-hidden rounded-t-[20px] relative">
-                    <img
-                      src={prop.image}
-                      alt={prop.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    {/* Drop badge */}
-                    <span className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#e74c3c]/90 backdrop-blur-sm text-white text-xs font-bold">
-                      <ArrowDown className="w-3 h-3" />
-                      {prop.drop}
-                    </span>
-                  </div>
-
-                  {/* Glass content */}
-                  <div className="mx-3 mb-3 -mt-5 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-4 pt-4 pb-4 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                    {/* Current price */}
-                    <p className="font-heading font-bold text-primary-dark text-[17px]">
-                      {prop.current}
-                    </p>
-                    <h3 className="font-heading font-bold text-primary-dark text-[13px] leading-snug mt-1 truncate">
-                      {prop.title}
-                    </h3>
-                    <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {prop.address}
-                    </p>
-
-                    <div className="h-px bg-border-light mt-3 mb-3" />
-
-                    {/* Price timeline */}
-                    <div className="relative">
-                      <p className="text-text-subtle text-[10px] uppercase tracking-wide mb-2">
-                        Price History
-                      </p>
-                      <div className="flex flex-col gap-2">
-                        {prop.history.map((h, j) => (
-                          <div key={j} className="flex items-center gap-2">
-                            {/* Dot + line */}
-                            <div className="flex flex-col items-center">
-                              <div
-                                className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                  j === prop.history.length - 1
-                                    ? "bg-primary"
-                                    : "bg-border-light"
-                                }`}
-                              />
-                              {j < prop.history.length - 1 && (
-                                <div className="w-px h-3 bg-border-light" />
-                              )}
-                            </div>
-                            <div className="flex items-center justify-between flex-1 min-w-0">
-                              <span
-                                className={`text-xs font-medium ${
-                                  j === prop.history.length - 1
-                                    ? "text-primary-dark font-bold"
-                                    : "text-text-subtle line-through"
-                                }`}
-                              >
-                                {h.price}
-                              </span>
-                              <span className="text-text-subtle text-[10px] flex items-center gap-1">
-                                <Calendar className="w-2.5 h-2.5" />
-                                {h.date}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Arrow — clipped circle */}
-                  <div className="w-16 h-16 bg-[#1a1a1a] rounded-full absolute -right-4 -bottom-4 z-20 group-hover:bg-primary transition-colors duration-300">
-                    <ArrowUpRight className="absolute top-3 left-4 w-4 h-4 text-white" />
-                  </div>
-                </div>
-              ))}
+            <div className="flex-1 text-center sm:text-left">
+              <h3 className="font-heading font-bold text-primary-dark text-lg">
+                Every stay is Paystack-protected
+              </h3>
+              <p className="text-text-secondary text-sm mt-1">
+                All shortlet bookings are processed through Paystack with
+                escrow protection. Your payment is held securely until check-in
+                is confirmed — giving you peace of mind on every booking.
+              </p>
             </div>
+            <Link
+              to="/onboarding"
+              className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2"
+            >
+              <Calendar className="w-4 h-4" />
+              List your shortlet
+            </Link>
           </div>
         </div>
       </main>
@@ -893,4 +858,4 @@ const Buy = () => {
   );
 };
 
-export default Buy;
+export default Shortlet;

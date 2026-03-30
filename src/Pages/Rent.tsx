@@ -252,7 +252,7 @@ const Rent = () => {
           </div>
 
           {/* Hero header — with bg image */}
-          <div className="relative overflow-hidden rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] mb-10">
+          <div className="relative overflow-hidden rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] mb-10">
             <div
               className="absolute inset-0 bg-cover bg-center"
               style={{
@@ -260,7 +260,7 @@ const Rent = () => {
                   "url(https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1400&h=600&fit=crop)",
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#1a3d2a]/90 via-[#1a3d2a]/75 to-[#1a3d2a]/40" />
+            <div className="absolute inset-0 bg-linear-to-r from-primary-dark/90 via-primary-dark/75 to-primary-dark/40" />
             <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/5" />
             <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-white/5" />
 
@@ -270,8 +270,8 @@ const Rent = () => {
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
                 Find your next rental from verified agents. Every listing
-                includes verified documents, rental history, and escrow-protected
-                deposit payments.
+                includes verified documents, rental history, and
+                escrow-protected deposit payments.
               </p>
 
               <div className="flex flex-wrap gap-3 mt-6">
@@ -316,7 +316,7 @@ const Rent = () => {
           </div>
 
           {/* ─── Neighbourhood Intelligence ─── */}
-          <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
+          <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -392,7 +392,7 @@ const Rent = () => {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="group relative bg-white/80 backdrop-blur-md border border-white/50 rounded-[16px] p-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
+                  className="group relative bg-white/80 backdrop-blur-md border border-white/50 rounded-2xl p-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div
@@ -431,7 +431,7 @@ const Rent = () => {
           {/* Category sidebar + listings */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
             {/* Left — category nav */}
-            <div className="lg:w-[280px] shrink-0 lg:sticky lg:top-8 lg:self-start">
+            <div className="lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-light">
                   <h3 className="font-heading font-bold text-primary-dark text-sm">
@@ -529,13 +529,11 @@ const Rent = () => {
               </div>
 
               {/* Cards grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-7">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
                 {currentListings.map((listing, i) => (
                   <div
                     key={i}
-                    onClick={() =>
-                      setContactCard(contactCard === i ? null : i)
-                    }
+                    onClick={() => setContactCard(contactCard === i ? null : i)}
                     className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                   >
                     {/* Image */}
@@ -606,13 +604,17 @@ const Rent = () => {
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.25 }}
-                          className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-[#1a3d2a]/80 backdrop-blur-md rounded-[20px]"
+                          className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-primary-dark/80 backdrop-blur-md rounded-[20px]"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <motion.button
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: 0.15, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                            transition={{
+                              delay: 0.15,
+                              duration: 0.3,
+                              ease: [0.23, 1, 0.32, 1],
+                            }}
                             onClick={() => setContactCard(null)}
                             className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/25 transition-colors"
                           >
@@ -622,7 +624,11 @@ const Rent = () => {
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1, duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+                            transition={{
+                              delay: 0.1,
+                              duration: 0.35,
+                              ease: [0.23, 1, 0.32, 1],
+                            }}
                             className="text-center"
                           >
                             <p className="text-white/60 text-xs">
@@ -637,7 +643,11 @@ const Rent = () => {
                             <motion.a
                               initial={{ opacity: 0, scale: 0.5, y: 20 }}
                               animate={{ opacity: 1, scale: 1, y: 0 }}
-                              transition={{ delay: 0.2, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                              transition={{
+                                delay: 0.2,
+                                duration: 0.4,
+                                ease: [0.23, 1, 0.32, 1],
+                              }}
                               href="tel:+2341234567890"
                               className="flex flex-col items-center gap-2"
                             >
@@ -651,7 +661,11 @@ const Rent = () => {
                             <motion.a
                               initial={{ opacity: 0, scale: 0.5, y: 20 }}
                               animate={{ opacity: 1, scale: 1, y: 0 }}
-                              transition={{ delay: 0.3, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                              transition={{
+                                delay: 0.3,
+                                duration: 0.4,
+                                ease: [0.23, 1, 0.32, 1],
+                              }}
                               href={`https://wa.me/2341234567890?text=Hi, I'm interested in renting ${listing.title} at ${listing.address}`}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -669,7 +683,11 @@ const Rent = () => {
                           <motion.button
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4, duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+                            transition={{
+                              delay: 0.4,
+                              duration: 0.35,
+                              ease: [0.23, 1, 0.32, 1],
+                            }}
                             className="mt-1 h-10 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all duration-300 inline-flex items-center gap-2"
                           >
                             <ArrowUpRight className="w-4 h-4" />

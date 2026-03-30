@@ -3,21 +3,21 @@ import Logo from "../../assets/logo.png";
 
 const footerLinks = {
   Explore: [
-    { label: "Buy", href: "#" },
-    { label: "Rent", href: "#" },
-    { label: "Shortlet", href: "#" },
-    { label: "New Developments", href: "#" },
-    { label: "Find Agent", href: "#" },
+    { label: "Buy", href: "/buy" },
+    { label: "Rent", href: "/rent" },
+    { label: "Shortlet", href: "/shortlet" },
+    { label: "New Developments", href: "/new-developments" },
+    { label: "Find Agent", href: "/find-agent" },
   ],
   Services: [
-    { label: "Service Loop", href: "#" },
-    { label: "Plumbing", href: "#" },
-    { label: "Electrical", href: "#" },
-    { label: "Cleaning", href: "#" },
-    { label: "Building", href: "#" },
+    { label: "Service Loop", href: "/services" },
+    { label: "Plumbing", href: "/services" },
+    { label: "Electrical", href: "/services" },
+    { label: "Cleaning", href: "/services" },
+    { label: "Building", href: "/services" },
   ],
   Company: [
-    { label: "About Us", href: "#" },
+    { label: "About Us", href: "/about" },
     { label: "How It Works", href: "/how-it-works" },
     { label: "Careers", href: "#" },
     { label: "Blog", href: "#" },
@@ -36,7 +36,7 @@ const Footer = () => {
     <footer className="w-full px-6 md:px-12 lg:px-20 pt-16 pb-8 bg-bg">
       <div className="max-w-7xl mx-auto">
         {/* Main footer card */}
-        <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-8 sm:p-10 lg:p-14">
+        <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-3xladow-[0_4px_20px_rgba(0,0,0,0.04)] p-8 sm:p-10 lg:p-14">
           {/* Top — logo + links grid */}
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
             {/* Brand column */}

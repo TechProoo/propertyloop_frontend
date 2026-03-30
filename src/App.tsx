@@ -5,6 +5,14 @@ import HowItWorks from './Pages/HowItWorks'
 import Buy from './Pages/Buy'
 import Rent from './Pages/Rent'
 import Sell from './Pages/Sell'
+import Onboarding from './Pages/Onboarding'
+import FindAgent from './Pages/FindAgent'
+import AgentProfile from './Pages/AgentProfile'
+import AddProperty from './Pages/AddProperty'
+import About from './Pages/About'
+import Shortlet from './Pages/Shortlet'
+import NewDevelopments from './Pages/NewDevelopments'
+import Services from './Pages/Services'
 
 function App() {
   return (
@@ -15,6 +23,14 @@ function App() {
         <Route path="/buy" element={<Buy />} />
         <Route path="/rent" element={<Rent />} />
         <Route path="/sell" element={<Sell />} />
+        <Route path="/shortlet" element={<Shortlet />} />
+        <Route path="/new-developments" element={<NewDevelopments />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/find-agent" element={<FindAgent />} />
+        <Route path="/agent/:id" element={<AgentProfile />} />
+        <Route path="/add-property" element={<AddProperty />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/services" element={<Services />} />
       </Routes>
     </BrowserRouter>
   )

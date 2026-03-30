@@ -13,6 +13,7 @@ import {
   Handshake,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
+import Footer from "@/components/Home/Footer";
 
 const steps = [
   {
@@ -143,9 +144,18 @@ const HowItWorks = () => {
               </p>
               <div className="flex flex-wrap gap-3 mt-8">
                 {[
-                  { icon: <Shield className="w-4 h-4 text-primary" />, text: "Escrow protected" },
-                  { icon: <UserCheck className="w-4 h-4 text-primary" />, text: "KYC-verified vendors" },
-                  { icon: <BookOpen className="w-4 h-4 text-primary" />, text: "Auto-logged history" },
+                  {
+                    icon: <Shield className="w-4 h-4 text-primary" />,
+                    text: "Escrow protected",
+                  },
+                  {
+                    icon: <UserCheck className="w-4 h-4 text-primary" />,
+                    text: "KYC-verified vendors",
+                  },
+                  {
+                    icon: <BookOpen className="w-4 h-4 text-primary" />,
+                    text: "Auto-logged history",
+                  },
                 ].map((badge, i) => (
                   <div
                     key={i}
@@ -247,7 +257,6 @@ const HowItWorks = () => {
                       {step.description}
                     </p>
                   </div>
-
                 </div>
               ))}
             </div>
@@ -317,6 +326,7 @@ const HowItWorks = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

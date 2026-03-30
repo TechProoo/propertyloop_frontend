@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
   ArrowRight,
-  ArrowLeft,
   UserCheck,
   ClipboardCheck,
   MessageSquare,
@@ -17,8 +16,6 @@ import {
   CheckCircle,
   Star,
   Home,
-  Phone,
-  MapPin,
   Clock,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
@@ -240,7 +237,7 @@ const Sell = () => {
           </div>
 
           {/* ─── 1. Hero ─── */}
-          <div className="relative overflow-hidden rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] mb-20">
+          <div className="relative overflow-hidden rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] mb-20">
             <div
               className="absolute inset-0 bg-cover bg-center"
               style={{
@@ -248,7 +245,7 @@ const Sell = () => {
                   "url(https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1400&h=600&fit=crop)",
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#1a3d2a]/90 via-[#1a3d2a]/75 to-[#1a3d2a]/40" />
+            <div className="absolute inset-0 bg-linear-to-r from-primary-dark/90 via-primary-dark/75 to-primary-dark/40" />
             <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/5" />
             <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-white/5" />
 
@@ -496,7 +493,7 @@ const Sell = () => {
                             <CheckCircle className="w-3.5 h-3.5 text-primary" />
                             {badge}
                           </span>
-                        )
+                        ),
                       )}
                     </div>
 
