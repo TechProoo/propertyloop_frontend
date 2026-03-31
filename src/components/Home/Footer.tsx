@@ -19,15 +19,15 @@ const footerLinks = {
   Company: [
     { label: "About Us", href: "/about" },
     { label: "How It Works", href: "/how-it-works" },
-    { label: "Careers", href: "#" },
-    { label: "Blog", href: "#" },
-    { label: "Contact", href: "#" },
+    { label: "Careers", href: "/careers" },
+    { label: "Blog", href: "/blog" },
+    { label: "Contact", href: "/contact" },
   ],
   Legal: [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Escrow Policy", href: "#" },
-    { label: "Agent Agreement", href: "#" },
+    { label: "Privacy Policy", href: "/legal/privacy" },
+    { label: "Terms of Service", href: "/legal/terms" },
+    { label: "Escrow Policy", href: "/legal/escrow-policy" },
+    { label: "Agent Agreement", href: "/legal/agent-agreement" },
   ],
 };
 
@@ -40,7 +40,7 @@ const Footer = () => {
           {/* Top — logo + links grid */}
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
             {/* Brand column */}
-            <div className="lg:w-[280px] shrink-0">
+            <div className="lg:w-70 shrink-0">
               <img className="w-30" src={Logo} alt="PropertyLoop" />
               <p className="text-text-secondary text-sm leading-relaxed mt-4 max-w-xs">
                 From first search to signed contract — and everything that
@@ -103,15 +103,15 @@ const Footer = () => {
               reserved.
             </p>
             <div className="flex items-center gap-6 text-text-subtle text-xs">
-              <a href="#" className="hover:text-primary transition-colors">
+              <Link to="/legal/privacy" className="hover:text-primary transition-colors">
                 Privacy
-              </a>
-              <a href="#" className="hover:text-primary transition-colors">
+              </Link>
+              <Link to="/legal/terms" className="hover:text-primary transition-colors">
                 Terms
-              </a>
-              <a href="#" className="hover:text-primary transition-colors">
+              </Link>
+              <Link to="/legal/privacy" className="hover:text-primary transition-colors">
                 Cookies
-              </a>
+              </Link>
             </div>
           </div>
         </div>

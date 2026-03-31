@@ -186,8 +186,8 @@ const Signup = ({ data, updateData, onBack, onContinue }: Props) => {
         {/* Terms */}
         <p className="text-text-subtle text-[11px] mt-5 leading-relaxed text-center">
           By creating an account, you agree to PropertyLoop's{" "}
-          <a href="#" className="text-primary underline">Terms of Service</a> and{" "}
-          <a href="#" className="text-primary underline">Privacy Policy</a>.
+          <a href="/legal/terms" className="text-primary underline">Terms of Service</a> and{" "}
+          <a href="/legal/privacy" className="text-primary underline">Privacy Policy</a>.
         </p>
 
         {/* Buttons */}
@@ -217,7 +217,7 @@ const Signup = ({ data, updateData, onBack, onContinue }: Props) => {
       {/* Sign in link */}
       <p className="text-center text-text-secondary text-sm mt-6">
         Already have an account?{" "}
-        <a href="#" className="text-primary font-semibold hover:underline">
+        <a href="/login" className="text-primary font-semibold hover:underline">
           Sign in
         </a>
       </p>

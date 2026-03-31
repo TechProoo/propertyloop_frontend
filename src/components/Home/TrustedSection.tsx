@@ -90,10 +90,10 @@ const TrustedSection = () => {
           {features.map((feature, i) => (
             <div key={i} className="group relative">
               {/* Concave notch — page-bg circle behind the icon */}
-              <div className="absolute -top-[14px] -left-[14px] w-[68px] h-[68px] rounded-full bg-bg z-[1]" />
+              <div className="absolute -top-3.5 -left-3.5 w-17 h-17 rounded-full bg-bg z-1" />
 
               {/* Icon — sits in the notch */}
-              <div className="absolute -top-[6px] -left-[6px] z-[2] w-[52px] h-[52px] rounded-full bg-[#FFF3E6] flex items-center justify-center shadow-[0_2px_8px_rgba(245,166,35,0.15)]">
+              <div className="absolute -top-1.5 -left-1.5 z-2 w-13 h-13 rounded-full bg-[#FFF3E6] flex items-center justify-center shadow-[0_2px_8px_rgba(245,166,35,0.15)]">
                 <div className="w-9 h-9 rounded-full bg-[#FFE4B8] flex items-center justify-center text-[#F5A623]">
                   {feature.icon}
                 </div>

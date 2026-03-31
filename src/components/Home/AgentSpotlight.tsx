@@ -93,9 +93,9 @@ const AgentSpotlight = () => {
               No individual landlord posts — just professionals you can trust.
             </p>
           </div>
-          <button className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
+          <a href="/find-agent" className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center">
             View all agents
-          </button>
+          </a>
         </div>
 
         {/* Agent cards — 3 per row */}

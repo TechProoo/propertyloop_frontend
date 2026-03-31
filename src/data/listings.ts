@@ -1,3 +1,10 @@
+export interface Document {
+  name: string;
+  type: "C of O" | "Survey Plan" | "Building Permit" | "Receipt";
+  verified: boolean;
+  date: string;
+}
+
 export interface Listing {
   id: string;
   image: string;
@@ -19,6 +26,7 @@ export interface Listing {
   features: string[];
   yearBuilt: string;
   verified: boolean;
+  documents?: Document[];
 }
 
 export const listings: Listing[] = [
@@ -47,6 +55,11 @@ export const listings: Listing[] = [
     features: ["24hr Power", "Swimming Pool", "Gym", "CCTV", "Elevator", "Parking (2 spots)", "Smart Home", "Marble Floors"],
     yearBuilt: "2023",
     verified: true,
+    documents: [
+      { name: "Certificate of Occupancy", type: "C of O", verified: true, date: "Sep 2022" },
+      { name: "Approved Survey Plan", type: "Survey Plan", verified: true, date: "Aug 2022" },
+      { name: "Lagos State Building Permit", type: "Building Permit", verified: true, date: "Mar 2021" },
+    ],
   },
   {
     id: "penthouse-ocean-vi",
@@ -72,6 +85,10 @@ export const listings: Listing[] = [
     features: ["Ocean View", "Rooftop Terrace", "Home Cinema", "Wine Cellar", "Smart Home", "Concierge", "Parking (3 spots)", "24hr Power"],
     yearBuilt: "2024",
     verified: true,
+    documents: [
+      { name: "Certificate of Occupancy", type: "C of O", verified: true, date: "Jan 2024" },
+      { name: "Deed of Assignment", type: "Receipt", verified: true, date: "Dec 2023" },
+    ],
   },
   {
     id: "villa-garden-lekki",

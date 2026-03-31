@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpRight,
@@ -232,6 +232,7 @@ type CategoryKey = keyof typeof listings;
 /* ─── Component ─── */
 
 const Shortlet = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All Shortlets");
   const [searchQuery, setSearchQuery] = useState("");
   const [contactCard, setContactCard] = useState<number | null>(null);
@@ -797,6 +798,7 @@ const Shortlet = () => {
                               duration: 0.35,
                               ease: [0.23, 1, 0.32, 1],
                             }}
+                            onClick={() => navigate("/shortlet-booking")}
                             className="mt-1 h-10 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all duration-300 inline-flex items-center gap-2"
                           >
                             <Calendar className="w-4 h-4" />

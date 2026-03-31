@@ -898,11 +898,11 @@ const AddProperty = () => {
                         <span className="text-text-secondary text-sm leading-relaxed">
                           I confirm that the information provided is accurate
                           and I agree to PropertyLoop's{" "}
-                          <a href="#" className="text-primary underline">
+                          <a href="/legal/terms" className="text-primary underline">
                             Terms of Service
                           </a>{" "}
                           and{" "}
-                          <a href="#" className="text-primary underline">
+                          <a href="/legal/agent-agreement" className="text-primary underline">
                             Agent Agreement
                           </a>
                           .
