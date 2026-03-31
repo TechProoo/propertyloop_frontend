@@ -170,7 +170,7 @@ export const ImageGallery = forwardRef<ImageGalleryHandle, ImageGalleryProps>(
         {!hideNavButtons && (
           <>
             <button
-              className="absolute -left-5 top-1/2 z-101 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/50 backdrop-blur-md bg-white/60 shadow-lg outline-none transition-all duration-300 hover:scale-110 hover:bg-white/80 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="absolute left-2 sm:-left-5 top-1/2 z-101 flex h-11 w-11 sm:h-10 sm:w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-white/70 sm:border sm:border-white/50 backdrop-blur-md bg-white/90 sm:bg-white/60 shadow-[0_4px_16px_rgba(0,0,0,0.2)] outline-none transition-all duration-300 hover:scale-110 hover:bg-white/80 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
               onClick={prev}
               disabled={disabled}
               aria-label="Previous Image"
@@ -179,7 +179,7 @@ export const ImageGallery = forwardRef<ImageGalleryHandle, ImageGalleryProps>(
             </button>
 
             <button
-              className="absolute -right-5 top-1/2 z-101 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/50 backdrop-blur-md bg-white/60 shadow-lg outline-none transition-all duration-300 hover:scale-110 hover:bg-white/80 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="absolute right-2 sm:-right-5 top-1/2 z-101 flex h-11 w-11 sm:h-10 sm:w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-2 border-white/70 sm:border sm:border-white/50 backdrop-blur-md bg-white/90 sm:bg-white/60 shadow-[0_4px_16px_rgba(0,0,0,0.2)] outline-none transition-all duration-300 hover:scale-110 hover:bg-white/80 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
               onClick={next}
               disabled={disabled}
               aria-label="Next Image"
