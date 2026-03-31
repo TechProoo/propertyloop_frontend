@@ -9,16 +9,12 @@ import {
   Lock,
   CreditCard,
   Clock,
-  Home,
   MapPin,
   Bed,
   Bath,
-  Maximize,
   Star,
   FileSignature,
-  Banknote,
   KeyRound,
-  UserCheck,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";

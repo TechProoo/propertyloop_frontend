@@ -1,80 +1,6 @@
 import { useState } from "react";
 import { ArrowUpRight, Bed, Bath, Maximize, Play, X } from "lucide-react";
-
-const videoListings = [
-  {
-    video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    thumbnail:
-      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600&h=400&fit=crop",
-    price: "₦250,000,000",
-    title: "Luxury Smart Home with Rooftop Terrace",
-    address: "Lekki Phase 1, Lagos, Nigeria",
-    beds: 5,
-    baths: 4,
-    sqft: "7,500",
-    duration: "2:34",
-  },
-  {
-    video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    thumbnail:
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&h=400&fit=crop",
-    price: "₦380,000,000",
-    title: "Waterfront Penthouse with Infinity Pool",
-    address: "Ikoyi, Lagos, Nigeria",
-    beds: 4,
-    baths: 3,
-    sqft: "6,200",
-    duration: "3:12",
-  },
-  {
-    video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    thumbnail:
-      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&h=400&fit=crop",
-    price: "₦150,000,000",
-    title: "Contemporary Villa in Gated Community",
-    address: "Victoria Island, Lagos, Nigeria",
-    beds: 4,
-    baths: 3,
-    sqft: "5,800",
-    duration: "1:58",
-  },
-  {
-    video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    thumbnail:
-      "https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?w=600&h=400&fit=crop",
-    price: "₦520,000,000",
-    title: "Beachfront Estate with Private Garden",
-    address: "Banana Island, Lagos, Nigeria",
-    beds: 6,
-    baths: 5,
-    sqft: "10,400",
-    duration: "4:05",
-  },
-  {
-    video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    thumbnail:
-      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=600&h=400&fit=crop",
-    price: "₦88,000,000",
-    title: "Modern Duplex with Landscaped Yard",
-    address: "Ajah, Lagos, Nigeria",
-    beds: 3,
-    baths: 3,
-    sqft: "4,600",
-    duration: "2:15",
-  },
-  {
-    video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    thumbnail:
-      "https://images.unsplash.com/photo-1600573472592-401b489a3cdc?w=600&h=400&fit=crop",
-    price: "₦195,000,000",
-    title: "Minimalist Townhouse with Smart Features",
-    address: "Gbagada, Lagos, Nigeria",
-    beds: 4,
-    baths: 4,
-    sqft: "5,200",
-    duration: "3:40",
-  },
-];
+import { videoListings } from "../../data/videos";
 
 const VideoListings = () => {
   const [playingIdx, setPlayingIdx] = useState<number | null>(null);
@@ -93,9 +19,9 @@ const VideoListings = () => {
               verified agents before you visit in person.
             </p>
           </div>
-          <button className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
+          <a href="/video-tours" className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center">
             View all
-          </button>
+          </a>
         </div>
 
         {/* Cards grid — 3 per row */}
@@ -159,7 +85,7 @@ const VideoListings = () => {
               </div>
 
               {/* Content — glass morphism panel */}
-              <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+              <a href={`/video-tour/${home.id}`} className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] block">
                 {/* Price */}
                 <p className="font-heading font-bold text-primary-dark text-[18px]">
                   {home.price}
@@ -193,7 +119,7 @@ const VideoListings = () => {
                     {home.sqft}m²
                   </span>
                 </div>
-              </div>
+              </a>
 
               {/* Arrow — clipped circle at bottom-right corner */}
               <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">

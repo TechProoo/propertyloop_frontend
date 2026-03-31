@@ -16,8 +16,6 @@ import {
   Maximize,
   Lock,
   Clock,
-  Wifi,
-  Waves,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";

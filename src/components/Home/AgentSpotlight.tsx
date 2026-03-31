@@ -5,75 +5,9 @@ import {
   Home,
   Phone,
 } from "lucide-react";
+import { agents as sharedAgents } from "../../data/agents";
 
-const agents = [
-  {
-    photo:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
-    name: "Adebayo Johnson",
-    agency: "Prime Realty Lagos",
-    location: "Lekki, Lagos",
-    rating: 4.9,
-    listings: 42,
-    soldRented: 187,
-    verified: true,
-  },
-  {
-    photo:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face",
-    name: "Chioma Okafor",
-    agency: "Island Properties",
-    location: "Victoria Island, Lagos",
-    rating: 4.8,
-    listings: 38,
-    soldRented: 156,
-    verified: true,
-  },
-  {
-    photo:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
-    name: "Emeka Nwosu",
-    agency: "Prestige Homes",
-    location: "Ikoyi, Lagos",
-    rating: 4.9,
-    listings: 55,
-    soldRented: 231,
-    verified: true,
-  },
-  {
-    photo:
-      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop&crop=face",
-    name: "Tunde Bakare",
-    agency: "Royal Estate Advisors",
-    location: "Banana Island, Lagos",
-    rating: 4.7,
-    listings: 29,
-    soldRented: 124,
-    verified: true,
-  },
-  {
-    photo:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face",
-    name: "Aisha Mohammed",
-    agency: "Metro Living Realty",
-    location: "Ajah, Lagos",
-    rating: 4.8,
-    listings: 47,
-    soldRented: 198,
-    verified: true,
-  },
-  {
-    photo:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face",
-    name: "Femi Adeyemi",
-    agency: "Cityscape Properties",
-    location: "Gbagada, Lagos",
-    rating: 4.6,
-    listings: 33,
-    soldRented: 142,
-    verified: true,
-  },
-];
+const agents = sharedAgents.slice(0, 6);
 
 const AgentSpotlight = () => {
   return (
@@ -101,9 +35,10 @@ const AgentSpotlight = () => {
         {/* Agent cards — 3 per row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {agents.map((agent, i) => (
-            <div
+            <a
               key={i}
-              className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+              href={`/agent/${agent.id}`}
+              className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
               {/* Photo */}
               <div className="h-52 overflow-hidden rounded-t-[20px] relative">
@@ -154,7 +89,7 @@ const AgentSpotlight = () => {
               <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
                 <ArrowUpRight className="absolute top-4 left-5 w-5 h-5 text-white" />
               </div>
-            </div>
+            </a>
           ))}
         </div>
 
@@ -173,10 +108,10 @@ const AgentSpotlight = () => {
               and protect buyers and tenants.
             </p>
           </div>
-          <button className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2">
+          <a href="/find-agent" className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2">
             <Phone className="w-4 h-4" />
             Contact an agent
-          </button>
+          </a>
         </div>
       </div>
     </section>

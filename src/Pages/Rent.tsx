@@ -803,9 +803,9 @@ const Rent = () => {
                   every listing — no hidden inflation.
                 </p>
               </div>
-              <button className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
+              <a href="/reductions" className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center">
                 View all reductions
-              </button>
+              </a>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -933,9 +933,6 @@ const Rent = () => {
                     </div>
                   </div>
 
-                  <div className="w-16 h-16 bg-[#1a1a1a] rounded-full absolute -right-4 -bottom-4 z-20 group-hover:bg-primary transition-colors duration-300">
-                    <ArrowUpRight className="absolute top-3 left-4 w-4 h-4 text-white" />
-                  </div>
                 </div>
               ))}
             </div>

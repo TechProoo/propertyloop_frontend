@@ -218,20 +218,24 @@ const Login = () => {
                       icon: <Home className="w-4 h-4" />,
                       label: "Continue as Buyer / Renter",
                       desc: "Browse properties and shortlets",
+                      href: "/dashboard",
                     },
                     {
                       icon: <Briefcase className="w-4 h-4" />,
                       label: "Continue as Agent",
                       desc: "Manage listings and leads",
+                      href: "/agent-dashboard",
                     },
                     {
                       icon: <Wrench className="w-4 h-4" />,
                       label: "Continue as Vendor",
                       desc: "Accept service jobs",
+                      href: "/services",
                     },
                   ].map((role) => (
-                    <button
+                    <a
                       key={role.label}
+                      href={role.href}
                       className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl bg-white/50 border border-border-light hover:border-primary hover:bg-white/70 hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all text-left"
                     >
                       <div className="w-9 h-9 rounded-xl bg-bg-accent flex items-center justify-center text-primary shrink-0">
@@ -245,7 +249,7 @@ const Login = () => {
                           {role.desc}
                         </p>
                       </div>
-                    </button>
+                    </a>
                   ))}
                 </div>
               </div>

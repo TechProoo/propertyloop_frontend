@@ -5,7 +5,6 @@ import {
   ArrowUpRight,
   Search,
   SlidersHorizontal,
-  MapPin,
   ChevronDown,
   Star,
   Phone,

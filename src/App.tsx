@@ -24,6 +24,9 @@ import Contact from './Pages/Contact'
 import Legal from './Pages/Legal'
 import Careers from './Pages/Careers'
 import Blog from './Pages/Blog'
+import VideoTours from './Pages/VideoTours'
+import VideoTourDetail from './Pages/VideoTourDetail'
+import Reductions from './Pages/Reductions'
 
 function App() {
   return (
@@ -53,6 +56,9 @@ function App() {
         <Route path="/careers" element={<Careers />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/legal/:slug" element={<Legal />} />
+        <Route path="/video-tours" element={<VideoTours />} />
+        <Route path="/video-tour/:id" element={<VideoTourDetail />} />
+        <Route path="/reductions" element={<Reductions />} />
       </Routes>
     </BrowserRouter>
   )

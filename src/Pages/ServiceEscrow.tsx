@@ -20,8 +20,6 @@ import {
   ThumbsUp,
   FileCheck,
   MapPin,
-  Phone,
-  MessageCircle,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";

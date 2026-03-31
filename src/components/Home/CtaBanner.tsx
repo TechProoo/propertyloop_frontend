@@ -64,10 +64,10 @@ const CtaBanner = () => {
 
                   {/* CTA buttons */}
                   <div className="flex flex-wrap gap-4 mt-8">
-                    <button className="h-12 px-8 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]">
+                    <a href="/onboarding" className="h-12 px-8 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]">
                       Sign up free
                       <ArrowRight className="w-4 h-4" />
-                    </button>
+                    </a>
                     <button
                       onClick={() => setShowModal(true)}
                       className="h-12 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark font-medium text-sm hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center gap-2"

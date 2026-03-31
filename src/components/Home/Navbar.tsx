@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Logo from "../../assets/logo.png";
 
@@ -35,13 +36,21 @@ const glowVariants = {
   },
 };
 
-const FlipLink = ({ label, href }: { label: string; href: string }) => {
+const FlipLink = ({
+  label,
+  href,
+  isActive = false,
+}: {
+  label: string;
+  href: string;
+  isActive?: boolean;
+}) => {
   const [hovered, setHovered] = useState(false);
 
   return (
     <a
       href={href}
-      className="relative inline-flex items-center py-2 px-1"
+      className={`relative inline-flex items-center py-2 px-1 ${isActive ? "after:absolute after:bottom-0 after:left-1 after:right-1 after:h-[2px] after:bg-primary after:rounded-full" : ""}`}
       style={{ perspective: "500px" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -54,14 +63,14 @@ const FlipLink = ({ label, href }: { label: string; href: string }) => {
         }}
         variants={glowVariants}
         initial="idle"
-        animate={hovered ? "hover" : "idle"}
+        animate={hovered || isActive ? "hover" : "idle"}
       />
       <div
         className="relative h-5 overflow-hidden"
         style={{ transformStyle: "preserve-3d" }}
       >
         <motion.span
-          className="block text-sm font-medium text-primary-dark whitespace-nowrap"
+          className={`block text-sm whitespace-nowrap ${isActive ? "font-semibold text-primary" : "font-medium text-primary-dark"}`}
           style={{ backfaceVisibility: "hidden" }}
           variants={flipVariants}
           initial="front"
@@ -85,27 +94,29 @@ const FlipLink = ({ label, href }: { label: string; href: string }) => {
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const path = location.pathname;
 
   return (
     <>
       <nav className="w-full px-6 md:px-12 lg:px-20 py-4 flex items-center justify-between relative z-50">
         {/* Left group: Logo + Nav Links */}
         <div className="flex items-center gap-10">
-          <div>
+          <a href="/">
             <img className="w-30" src={Logo} alt="Logo" />
-          </div>
+          </a>
           <ul className="hidden lg:flex items-center gap-7">
             <li>
-              <FlipLink label="Buy" href="/buy" />
+              <FlipLink label="Buy" href="/buy" isActive={path === "/buy"} />
             </li>
             <li>
-              <FlipLink label="Rent" href="/rent" />
+              <FlipLink label="Rent" href="/rent" isActive={path === "/rent"} />
             </li>
             <li>
-              <FlipLink label="Sell" href="/sell" />
+              <FlipLink label="Sell" href="/sell" isActive={path === "/sell"} />
             </li>
             <li>
-              <FlipLink label="Find Agent" href="/find-agent" />
+              <FlipLink label="Find Agent" href="/find-agent" isActive={path === "/find-agent"} />
             </li>
           </ul>
         </div>
@@ -113,15 +124,23 @@ const Navbar = () => {
         {/* Right Nav Links */}
         <ul className="hidden lg:flex items-center gap-7">
           <li>
-            <FlipLink label="Add Property" href="/add-property" />
+            <FlipLink label="Add Property" href="/add-property" isActive={path === "/add-property"} />
           </li>
           <li>
-            <FlipLink label="About Us" href="/about" />
+            <FlipLink label="About Us" href="/about" isActive={path === "/about"} />
+          </li>
+          <li>
+            <a
+              href="/login"
+              className="text-sm font-medium text-primary-dark hover:text-primary transition-colors"
+            >
+              Login
+            </a>
           </li>
           <li>
             <a
               href="/onboarding"
-              className="text-sm font-medium text-primary-dark hover:text-primary transition-colors"
+              className="text-sm font-medium text-white bg-primary px-6 py-2 rounded-4xl hover:bg-primary-dark transition-colors"
             >
               Join
             </a>
@@ -154,24 +173,27 @@ const Navbar = () => {
             exit={{ opacity: 0, y: -10 }}
             className="fixed inset-x-0 top-16 z-40 backdrop-blur-xl bg-white/60 border-b border-white/30 shadow-lg lg:hidden py-4 px-6 flex flex-col gap-3 text-sm font-medium text-primary-dark"
           >
-            <a href="/buy" className="py-2 hover:text-primary">
+            <a href="/buy" className={`py-2 hover:text-primary ${path === "/buy" ? "text-primary font-semibold" : ""}`}>
               Buy
             </a>
-            <a href="/rent" className="py-2 hover:text-primary">
+            <a href="/rent" className={`py-2 hover:text-primary ${path === "/rent" ? "text-primary font-semibold" : ""}`}>
               Rent
             </a>
-            <a href="/sell" className="py-2 hover:text-primary">
+            <a href="/sell" className={`py-2 hover:text-primary ${path === "/sell" ? "text-primary font-semibold" : ""}`}>
               Sell
             </a>
-            <a href="/find-agent" className="py-2 hover:text-primary">
+            <a href="/find-agent" className={`py-2 hover:text-primary ${path === "/find-agent" ? "text-primary font-semibold" : ""}`}>
               Find Agent
             </a>
             <hr className="border-border-light" />
-            <a href="/add-property" className="py-2 hover:text-primary">
+            <a href="/add-property" className={`py-2 hover:text-primary ${path === "/add-property" ? "text-primary font-semibold" : ""}`}>
               Add Property
             </a>
-            <a href="/about" className="py-2 hover:text-primary">
+            <a href="/about" className={`py-2 hover:text-primary ${path === "/about" ? "text-primary font-semibold" : ""}`}>
               About Us
+            </a>
+            <a href="/login" className={`py-2 hover:text-primary ${path === "/login" ? "text-primary font-semibold" : ""}`}>
+              Login
             </a>
             <a href="/onboarding" className="py-2 hover:text-primary font-semibold">
               Join

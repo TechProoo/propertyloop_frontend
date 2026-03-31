@@ -4,13 +4,6 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 /* Fix default marker icon (Leaflet + bundler issue) */
-const defaultIcon = L.divIcon({
-  className: "",
-  html: `<div style="background:#1f6f43;color:#fff;font-weight:700;font-size:11px;font-family:'Libre Franklin',sans-serif;padding:4px 10px;border-radius:20px;white-space:nowrap;box-shadow:0 2px 8px rgba(31,111,67,0.35);border:2px solid #fff;transform:translate(-50%,-50%)"></div>`,
-  iconSize: [0, 0],
-  iconAnchor: [0, 0],
-});
-
 const priceIcon = (price: string) =>
   L.divIcon({
     className: "",

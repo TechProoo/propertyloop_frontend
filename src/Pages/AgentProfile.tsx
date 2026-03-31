@@ -19,7 +19,6 @@ import {
   Maximize,
   TrendingUp,
   Users,
-  CalendarDays,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";

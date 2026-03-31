@@ -2,15 +2,12 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowRight,
   MapPin,
   Phone,
   Mail,
   Clock,
   CheckCircle,
   Send,
-  MessageCircle,
-  User,
 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";

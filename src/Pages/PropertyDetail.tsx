@@ -211,7 +211,7 @@ const PropertyDetail = () => {
                   : "Buy"}
             </Link>
             <span>/</span>
-            <span className="text-primary-dark font-medium truncate max-w-[200px]">
+            <span className="text-primary-dark font-medium truncate max-w-50">
               {listing.title}
             </span>
           </div>
@@ -518,14 +518,14 @@ const PropertyDetail = () => {
 
                 <div className="relative">
                   {/* Vertical line */}
-                  <div className="absolute left-[15px] top-3 bottom-3 w-px bg-border-light" />
+                  <div className="absolute left-3.75 top-3 bottom-3 w-px bg-border-light" />
 
                   <div className="flex flex-col gap-4">
                     {priceHistory.map((entry, i) => (
                       <div key={i} className="flex items-start gap-4 relative">
                         {/* Dot */}
                         <div
-                          className={`w-[31px] h-[31px] rounded-full flex items-center justify-center shrink-0 relative z-10 border-2 border-[#f5f0eb] ${
+                          className={`w-7.75 h-7.75 rounded-full flex items-center justify-center shrink-0 relative z-10 border-2 border-[#f5f0eb] ${
                             i === 0
                               ? "bg-primary text-white"
                               : entry.change !== null
@@ -712,7 +712,7 @@ const PropertyDetail = () => {
 
                 {/* Timeline */}
                 <div className="relative">
-                  <div className="absolute left-[18px] top-3 bottom-3 w-px bg-border-light" />
+                  <div className="absolute left-4.5 top-3 bottom-3 w-px bg-border-light" />
 
                   <div className="flex flex-col gap-4">
                     {logbookEntries.map((entry, i) => (
@@ -763,7 +763,7 @@ const PropertyDetail = () => {
             </div>
 
             {/* Right — agent + similar */}
-            <div className="lg:w-[380px] shrink-0">
+            <div className="lg:w-95 shrink-0">
               {/* Agent card */}
               {agent && (
                 <motion.div
@@ -1049,10 +1049,28 @@ const PropertyDetail = () => {
                   )}
                 </p>
                 <div className="h-px bg-white/20 my-4" />
-                <div className="flex items-center gap-2 text-white/70 text-xs">
+                <div className="flex items-center gap-2 text-white/70 text-xs mb-4">
                   <ShieldCheck className="w-4 h-4" />
                   <span>Escrow-protected transaction via Paystack</span>
                 </div>
+                {listing.type === "rent" && (
+                  <Link
+                    to="/rental-escrow"
+                    className="w-full h-10 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center justify-center gap-2"
+                  >
+                    Start Rental Process
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                )}
+                {listing.type === "shortlet" && (
+                  <Link
+                    to="/shortlet-booking"
+                    className="w-full h-10 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center justify-center gap-2"
+                  >
+                    Book Now
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                )}
               </motion.div>
 
               {/* Similar properties */}
