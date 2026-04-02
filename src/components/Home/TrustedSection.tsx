@@ -1,9 +1,9 @@
 import { ArrowRight, Globe, Star, Building } from "lucide-react";
 
 const stats = [
-  { value: "100M", label: "Happy buyers" },
-  { value: "40M", label: "Client review" },
-  { value: "4.6", label: "Positive Rating" },
+  { value: "8,000+", label: "Happy users" },
+  { value: "2,500+", label: "Client reviews" },
+  { value: "4.8", label: "Positive Rating" },
 ];
 
 const features = [
@@ -44,7 +44,7 @@ const TrustedSection = () => {
             <h2 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
               Trusted by
               <br />
-              <span className="text-primary">100 Million</span> buyers
+              <span className="text-primary">Thousands</span> of Nigerians
             </h2>
             <p className="text-text-secondary text-sm leading-relaxed mt-6 max-w-md">
               Only we connect you directly to the person that knows the most

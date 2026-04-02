@@ -665,7 +665,7 @@ const ServiceEscrow = () => {
             </div>
 
             {/* Right — Transaction Summary */}
-            <div className="lg:w-[360px] shrink-0 flex flex-col gap-6">
+            <div className="lg:w-90 shrink-0 flex flex-col gap-6">
               {/* Transaction card */}
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
                 <h3 className="font-heading font-bold text-primary-dark text-sm mb-4">
@@ -689,7 +689,7 @@ const ServiceEscrow = () => {
                 <div className="flex flex-col gap-2.5 text-sm">
                   <div className="flex justify-between">
                     <span className="text-text-secondary">Job</span>
-                    <span className="text-primary-dark font-medium text-right text-xs max-w-[180px]">
+                    <span className="text-primary-dark font-medium text-right text-xs max-w-45">
                       {mockTransaction.job.title}
                     </span>
                   </div>

@@ -110,7 +110,7 @@ const Contact = () => {
             </div>
 
             {/* Right — Info + Map */}
-            <div className="lg:w-[400px] shrink-0 flex flex-col gap-6">
+            <div className="lg:w-100 shrink-0 flex flex-col gap-6">
               <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.4, ease }} className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
                 <h3 className="font-heading font-bold text-primary-dark text-sm mb-4">Office</h3>
                 <div className="flex flex-col gap-4">

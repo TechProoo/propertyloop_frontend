@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -217,7 +218,14 @@ const platformStats = [
 /* ─── Component ─── */
 
 const Sell = () => {
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const [submitted, setSubmitted] = useState(false);
+
+  const handleCardClick = () => {
+    if (!isLoggedIn) { navigate("/onboarding"); return; }
+    navigate("/find-agent");
+  };
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
@@ -411,6 +419,7 @@ const Sell = () => {
               {agents.map((agent, i) => (
                 <div
                   key={i}
+                  onClick={handleCardClick}
                   className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                 >
                   {/* Photo */}

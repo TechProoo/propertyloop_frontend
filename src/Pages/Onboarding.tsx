@@ -49,14 +49,14 @@ const Onboarding = () => {
     <div className="min-h-screen bg-bg relative overflow-hidden">
       {/* Decorative background shapes */}
       <div
-        className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-30 pointer-events-none"
+        className="absolute top-0 right-0 w-150 h-150 rounded-full opacity-30 pointer-events-none"
         style={{
           background:
             "radial-gradient(circle, rgba(31,111,67,0.08) 0%, transparent 70%)",
         }}
       />
       <div
-        className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-30 pointer-events-none"
+        className="absolute bottom-0 left-0 w-100 h-100 rounded-full opacity-30 pointer-events-none"
         style={{
           background:
             "radial-gradient(circle, rgba(31,111,67,0.06) 0%, transparent 70%)",

@@ -15,6 +15,7 @@ const footerLinks = {
     { label: "Electrical", href: "/services" },
     { label: "Cleaning", href: "/services" },
     { label: "Building", href: "/services" },
+    { label: "Materials", href: "/marketplace" },
   ],
   Company: [
     { label: "About Us", href: "/about" },

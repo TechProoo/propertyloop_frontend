@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
 import {
   ArrowUpRight,
   Bed,
@@ -33,6 +34,7 @@ import Footer from "../components/Home/Footer";
 import { listings as sharedListings } from "../data/listings";
 import PropertyMap from "../components/ui/PropertyMap";
 import type { MapListing } from "../components/ui/PropertyMap";
+import BookmarkButton from "../components/ui/BookmarkButton";
 
 const categories = [
   {
@@ -165,6 +167,7 @@ type CategoryKey = keyof typeof listings;
 
 const Buy = () => {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const [activeCategory, setActiveCategory] = useState("All Property");
   const [searchQuery, setSearchQuery] = useState("");
   const [contactCard, setContactCard] = useState<number | null>(null);
@@ -427,7 +430,7 @@ const Buy = () => {
                     onMarkerClick={(i) =>
                       setContactCard(contactCard === i ? null : i)
                     }
-                    className="h-[400px]"
+                    className="h-100"
                   />
                 </motion.div>
               )}
@@ -662,7 +665,10 @@ const Buy = () => {
                 {currentListings.map((listing, i) => (
                   <div
                     key={i}
-                    onClick={() => setContactCard(contactCard === i ? null : i)}
+                    onClick={() => {
+                      if (!isLoggedIn) { navigate("/onboarding"); return; }
+                      setContactCard(contactCard === i ? null : i);
+                    }}
                     onMouseEnter={() => setHoveredCard(i)}
                     onMouseLeave={() => setHoveredCard(null)}
                     className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
@@ -681,6 +687,7 @@ const Buy = () => {
                       <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
                         For Sale
                       </span>
+                      <BookmarkButton id={`buy-${listing.title.replace(/\s/g, "-").toLowerCase()}`} type="property" className="absolute bottom-3 right-3" size="sm" />
                     </div>
 
                     {/* Glass content */}

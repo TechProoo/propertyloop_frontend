@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import AuthGate from "../ui/AuthGate";
 import {
   ArrowUpRight,
   Wrench,
@@ -142,7 +143,7 @@ const ServiceLoop = () => {
         {/* Vendor cards — 3 per row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {vendors.map((vendor, i) => (
-            <a
+            <AuthGate
               key={i}
               href="/services"
               className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
@@ -210,7 +211,7 @@ const ServiceLoop = () => {
               <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
                 <ArrowUpRight className="absolute top-4 left-5 w-5 h-5 text-white" />
               </div>
-            </a>
+            </AuthGate>
           ))}
         </div>
 

@@ -31,6 +31,10 @@ import {
   FileText,
   Briefcase,
   ClipboardList,
+  ArrowLeft,
+  Send,
+  Download,
+  Upload,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import { getAgentById } from "../data/agents";
@@ -113,12 +117,74 @@ const recentActivity = [
   { icon: <Star className="w-4 h-4" />, text: "New 5-star review from Kemi Adeyemi", time: "2 days ago", bg: "bg-[#FFF8ED]", color: "text-[#F5A623]" },
 ];
 
+/* ─── Mock Viewings ─── */
+const upcomingViewings = [
+  { date: "Apr 3", time: "10:00 AM", client: "Tayo Ogunleye", property: "Luxury 3-Bed Flat in Lekki", phone: "+234 801 234 5678", status: "Confirmed" },
+  { date: "Apr 5", time: "2:30 PM", client: "Sandra Eze", property: "Contemporary Villa with Garden", phone: "+234 802 345 6789", status: "Pending" },
+  { date: "Apr 7", time: "11:00 AM", client: "Ibrahim Sanni", property: "Penthouse with Ocean View", phone: "+234 803 456 7890", status: "Confirmed" },
+  { date: "Apr 10", time: "9:00 AM", client: "Amaka Obi", property: "Serviced 3-Bed Flat", phone: "+234 804 567 8901", status: "Pending" },
+];
+
+/* ─── Mock Documents ─── */
+const documents = [
+  { name: "C of O - Luxury 3-Bed Lekki", type: "Certificate of Occupancy", date: "Mar 15, 2026", size: "2.4 MB" },
+  { name: "Survey Plan - Villa Garden", type: "Survey Plan", date: "Mar 10, 2026", size: "1.8 MB" },
+  { name: "Deed of Assignment - Penthouse VI", type: "Deed of Assignment", date: "Feb 28, 2026", size: "3.1 MB" },
+  { name: "Building Approval - Serviced Flat", type: "Building Approval", date: "Feb 20, 2026", size: "1.2 MB" },
+  { name: "Power of Attorney - Lekki Plot", type: "Power of Attorney", date: "Jan 15, 2026", size: "890 KB" },
+];
+
+/* ─── Mock Conversations ─── */
+const agentConversations = [
+  {
+    id: "ac-1", name: "Tayo Ogunleye", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
+    role: "Buyer" as const, phone: "2348012345678", lastMessage: "Is the Lekki flat still available?", time: "10 min ago", unread: 2,
+    messages: [
+      { sender: "them" as const, text: "Good morning, I saw the Luxury 3-Bed Flat listing in Lekki.", time: "Yesterday, 9:15 AM" },
+      { sender: "you" as const, text: "Hello Tayo! Yes, it's still available. Would you like to schedule a viewing?", time: "Yesterday, 10:02 AM" },
+      { sender: "them" as const, text: "Yes please! I'm free Thursday morning.", time: "Yesterday, 10:30 AM" },
+      { sender: "them" as const, text: "Is the Lekki flat still available?", time: "10 min ago" },
+    ],
+  },
+  {
+    id: "ac-2", name: "Sandra Eze", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face",
+    role: "Buyer" as const, phone: "2348023456789", lastMessage: "Can we negotiate the price for the villa?", time: "2 hours ago", unread: 1,
+    messages: [
+      { sender: "them" as const, text: "Hi, I'm interested in the Contemporary Villa with Garden.", time: "Today, 8:00 AM" },
+      { sender: "you" as const, text: "Great choice! The asking price is ₦185M. Would you like to view it?", time: "Today, 8:45 AM" },
+      { sender: "them" as const, text: "Can we negotiate the price for the villa?", time: "2 hours ago" },
+    ],
+  },
+  {
+    id: "ac-3", name: "Ibrahim Sanni", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face",
+    role: "Renter" as const, phone: "2348034567890", lastMessage: "I'll take the penthouse. Let's proceed with the paperwork.", time: "Yesterday", unread: 0,
+    messages: [
+      { sender: "them" as const, text: "Hello, I viewed the Penthouse yesterday and I'm very impressed.", time: "Mon, 2:00 PM" },
+      { sender: "you" as const, text: "Glad to hear that! Would you like to make an offer?", time: "Mon, 2:30 PM" },
+      { sender: "them" as const, text: "I'll take the penthouse. Let's proceed with the paperwork.", time: "Yesterday" },
+    ],
+  },
+  {
+    id: "ac-4", name: "Amaka Obi", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face",
+    role: "Buyer" as const, phone: "2348045678901", lastMessage: "What documents do I need for the purchase?", time: "2 days ago", unread: 0,
+    messages: [
+      { sender: "them" as const, text: "I want to go ahead with buying the Serviced 3-Bed Flat.", time: "Sat, 10:00 AM" },
+      { sender: "you" as const, text: "Wonderful! I'll prepare the documentation. You'll need a valid ID and proof of funds.", time: "Sat, 10:30 AM" },
+      { sender: "them" as const, text: "What documents do I need for the purchase?", time: "2 days ago" },
+    ],
+  },
+];
+
 /* ─── Component ─── */
 
 const AgentDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
+  const [selectedConvo, setSelectedConvo] = useState(agentConversations[0].id);
+  const [chatInput, setChatInput] = useState("");
+  const [localMessages, setLocalMessages] = useState(() => Object.fromEntries(agentConversations.map((c) => [c.id, [...c.messages]])));
+  const [mobileChat, setMobileChat] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#f5f0eb] flex">
@@ -242,7 +308,7 @@ const AgentDashboard = () => {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={{ duration: 0.3, ease }}
-              className="fixed left-0 top-0 bottom-0 w-[260px] z-50 lg:hidden flex flex-col"
+              className="fixed left-0 top-0 bottom-0 w-65 z-50 lg:hidden flex flex-col"
               style={{ background: "hsl(160, 30%, 12%)" }}
             >
               <div className="flex items-center justify-between px-4 py-5 border-b" style={{ borderColor: "hsl(160, 20%, 22%)" }}>
@@ -299,11 +365,11 @@ const AgentDashboard = () => {
       {/* ─── Main Content ─── */}
       <div className="flex-1 min-w-0">
         {/* Top Bar */}
-        <div className="sticky top-0 z-30 bg-[#f5f0eb]/80 backdrop-blur-md border-b border-border-light px-6 py-3 flex items-center justify-between">
+        <div className="sticky top-0 z-30 bg-white/60 backdrop-blur-xl border-b border-white/40 px-6 py-3 flex items-center justify-between shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden w-9 h-9 rounded-xl bg-white/80 border border-border-light flex items-center justify-center text-primary-dark hover:bg-primary hover:text-white transition-all"
+              className="lg:hidden w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-primary-dark hover:bg-primary hover:text-white transition-all shadow-sm"
             >
               <Menu className="w-4 h-4" />
             </button>
@@ -324,7 +390,7 @@ const AgentDashboard = () => {
               <PlusCircle className="w-3.5 h-3.5" />
               Add Listing
             </Link>
-            <button className="relative w-9 h-9 rounded-xl bg-white/80 border border-border-light flex items-center justify-center text-text-secondary hover:bg-white transition-all">
+            <button className="relative w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-text-secondary hover:bg-white transition-all shadow-sm">
               <Bell className="w-4 h-4" />
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
                 3
@@ -390,7 +456,7 @@ const AgentDashboard = () => {
                 <div className="flex-1 flex flex-col gap-6">
                   {/* Recent Leads */}
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                    <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
+                    <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
                       <h3 className="font-heading font-bold text-primary-dark text-base">
                         Recent Leads
                       </h3>
@@ -398,7 +464,7 @@ const AgentDashboard = () => {
                         12 new
                       </span>
                     </div>
-                    <div className="divide-y divide-border-light">
+                    <div className="divide-y divide-white/30">
                       {recentLeads.map((lead, i) => (
                         <div
                           key={i}
@@ -433,7 +499,7 @@ const AgentDashboard = () => {
                         </div>
                       ))}
                     </div>
-                    <div className="px-6 py-3 border-t border-border-light">
+                    <div className="px-6 py-3 border-t border-white/30">
                       <button className="text-primary text-xs font-medium hover:underline flex items-center gap-1">
                         View all leads
                         <ArrowRight className="w-3 h-3" />
@@ -443,7 +509,7 @@ const AgentDashboard = () => {
 
                   {/* My Listings */}
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                    <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
+                    <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
                       <h3 className="font-heading font-bold text-primary-dark text-base">
                         My Listings
                       </h3>
@@ -460,7 +526,7 @@ const AgentDashboard = () => {
                         <Link
                           key={listing.id}
                           to={`/property/${listing.id}`}
-                          className="group flex gap-4 bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl p-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
+                          className="group flex gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
                         >
                           <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 relative">
                             <img
@@ -504,7 +570,7 @@ const AgentDashboard = () => {
                 </div>
 
                 {/* Right */}
-                <div className="xl:w-[360px] shrink-0 flex flex-col gap-6">
+                <div className="xl:w-90 shrink-0 flex flex-col gap-6">
                   {/* Performance */}
                   <div className="bg-primary rounded-[20px] p-6 text-white">
                     <h3 className="font-heading font-bold text-base mb-4">
@@ -544,7 +610,7 @@ const AgentDashboard = () => {
                       Recent Activity
                     </h3>
                     <div className="relative">
-                      <div className="absolute left-[18px] top-2 bottom-2 w-px bg-border-light" />
+                      <div className="absolute left-4.5 top-2 bottom-2 w-px bg-white/40" />
                       <div className="flex flex-col gap-4">
                         {recentActivity.map((item, i) => (
                           <div key={i} className="flex items-start gap-3 relative">
@@ -581,7 +647,7 @@ const AgentDashboard = () => {
                         <Link
                           key={action.label}
                           to={action.href}
-                          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl bg-white/60 border border-border-light hover:border-primary hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200"
+                          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 hover:border-primary hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200"
                         >
                           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
                             {action.icon}
@@ -599,29 +665,290 @@ const AgentDashboard = () => {
             </motion.div>
           )}
 
-          {/* ─── Placeholder for other tabs ─── */}
-          {activeNav !== "overview" && (
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease }}
-              className="flex flex-col items-center justify-center py-20"
-            >
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                {navItems.find((n) => n.id === activeNav)?.icon}
+          {/* ─── My Listings Panel ─── */}
+          {activeNav === "listings" && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}>
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
+                  <h2 className="font-heading font-bold text-primary-dark text-base">My Listings ({agentListings.length})</h2>
+                  <Link to="/add-property" className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm"><PlusCircle className="w-3.5 h-3.5" /> Add Listing</Link>
+                </div>
+                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {agentListings.map((listing) => (
+                    <Link key={listing.id} to={`/property/${listing.id}`} className="group bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300">
+                      <div className="h-36 overflow-hidden relative">
+                        <img src={listing.image} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">{listing.type === "sale" ? "For Sale" : "For Rent"}</span>
+                      </div>
+                      <div className="p-3">
+                        <p className="font-heading font-bold text-primary-dark text-sm">{listing.price}</p>
+                        <p className="text-primary-dark text-xs leading-snug mt-0.5 truncate">{listing.title}</p>
+                        <p className="text-text-secondary text-xs mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" /> {listing.location}</p>
+                        <div className="flex items-center gap-3 text-text-secondary text-[11px] mt-1.5">
+                          <span className="flex items-center gap-1"><Bed className="w-3 h-3" /> {listing.beds}</span>
+                          <span className="flex items-center gap-1"><Bath className="w-3 h-3" /> {listing.baths}</span>
+                          <span className="flex items-center gap-1"><Maximize className="w-3 h-3" /> {listing.sqft}m²</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2 text-[11px]">
+                          <span className="flex items-center gap-1 text-text-secondary"><Eye className="w-3 h-3" /> 142 views</span>
+                          <span className="flex items-center gap-1 text-text-secondary"><Users className="w-3 h-3" /> 8 leads</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                {agentListings.length === 0 && (
+                  <div className="text-center py-16">
+                    <Home className="w-12 h-12 text-text-subtle mx-auto mb-3" />
+                    <p className="text-primary-dark font-heading font-bold text-base">No listings yet</p>
+                    <p className="text-text-secondary text-sm mt-1">Add your first property listing</p>
+                    <Link to="/add-property" className="mt-4 inline-flex items-center gap-2 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors"><PlusCircle className="w-4 h-4" /> Add Listing</Link>
+                  </div>
+                )}
               </div>
-              <h2 className="font-heading font-bold text-primary-dark text-xl">
-                {navItems.find((n) => n.id === activeNav)?.label}
-              </h2>
-              <p className="text-text-secondary text-sm mt-2">
-                This section is coming soon
-              </p>
-              <button
-                onClick={() => setActiveNav("overview")}
-                className="mt-4 h-10 px-6 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all"
-              >
-                Back to Overview
-              </button>
+            </motion.div>
+          )}
+
+          {/* ─── Leads Panel ─── */}
+          {activeNav === "leads" && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}>
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
+                  <h2 className="font-heading font-bold text-primary-dark text-base">All Leads ({recentLeads.length})</h2>
+                  <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">12 new this week</span>
+                </div>
+                <div className="divide-y divide-white/30">
+                  {recentLeads.map((lead, i) => (
+                    <div key={i} className="px-6 py-4 flex items-center gap-4 hover:bg-white/30 transition-colors">
+                      <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold shrink-0">{lead.name.charAt(0)}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-heading font-semibold text-primary-dark text-sm">{lead.name}</p>
+                        <p className="text-text-secondary text-xs truncate">{lead.property}</p>
+                        <p className="text-text-subtle text-[11px] mt-0.5 flex items-center gap-1"><Clock className="w-3 h-3" /> {lead.time}</p>
+                      </div>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium shrink-0 ${statusColors[lead.status]}`}>{lead.status}</span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <a href={`tel:${lead.phone}`} className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"><Phone className="w-3.5 h-3.5" /></a>
+                        <a href={`https://wa.me/${lead.phone.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-[#25D366]/10 flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all"><MessageCircle className="w-3.5 h-3.5" /></a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ─── Analytics Panel ─── */}
+          {activeNav === "analytics" && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }} className="flex flex-col gap-6">
+              {/* Stats */}
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                {stats.map((s, i) => (
+                  <div key={i} className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-5">
+                    <div className={`w-10 h-10 rounded-2xl ${s.bg} flex items-center justify-center ${s.color} mb-3`}>{s.icon}</div>
+                    <p className="font-heading font-bold text-primary-dark text-xl">{s.value}</p>
+                    <p className="text-text-secondary text-xs mt-0.5">{s.label}</p>
+                    <p className="text-primary text-[11px] font-medium mt-1 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {s.change}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col xl:flex-row gap-6">
+                {/* Performance Breakdown */}
+                <div className="flex-1 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
+                  <h3 className="font-heading font-bold text-primary-dark text-base mb-5">Monthly Performance</h3>
+                  <div className="flex flex-col gap-4">
+                    {[
+                      { label: "Properties Listed", value: "12", change: "+3" },
+                      { label: "Total Views", value: "4,285", change: "+18%" },
+                      { label: "Leads Generated", value: "68", change: "+24%" },
+                      { label: "Viewings Scheduled", value: "32", change: "+15%" },
+                      { label: "Deals Closed", value: "5", change: "+2" },
+                      { label: "Revenue", value: "₦48M", change: "+32%" },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between py-2 border-b border-white/20 last:border-0">
+                        <span className="text-text-secondary text-sm">{item.label}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="font-heading font-bold text-primary-dark text-sm">{item.value}</span>
+                          <span className="text-primary text-xs font-medium flex items-center gap-0.5"><TrendingUp className="w-3 h-3" /> {item.change}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Lead Sources */}
+                <div className="xl:w-90 shrink-0 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
+                  <h3 className="font-heading font-bold text-primary-dark text-base mb-5">Lead Sources</h3>
+                  <div className="flex flex-col gap-3">
+                    {[
+                      { source: "PropertyLoop Search", count: 34, pct: 50, color: "bg-primary" },
+                      { source: "Direct Contact", count: 18, pct: 26, color: "bg-blue-500" },
+                      { source: "Referrals", count: 10, pct: 15, color: "bg-[#F5A623]" },
+                      { source: "Social Media", count: 6, pct: 9, color: "bg-purple-500" },
+                    ].map((item, i) => (
+                      <div key={i}>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-sm text-primary-dark font-medium">{item.source}</span>
+                          <span className="text-xs text-text-secondary">{item.count} leads ({item.pct}%)</span>
+                        </div>
+                        <div className="h-2 rounded-full bg-white/50 overflow-hidden">
+                          <div className={`h-full rounded-full ${item.color}`} style={{ width: `${item.pct}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ─── Messages Panel ─── */}
+          {activeNav === "messages" && (() => {
+            const activeConvo = agentConversations.find((c) => c.id === selectedConvo) || agentConversations[0];
+            const activeMessages = localMessages[activeConvo.id] || [];
+
+            const handleSend = () => {
+              if (!chatInput.trim()) return;
+              setLocalMessages((prev) => ({ ...prev, [activeConvo.id]: [...(prev[activeConvo.id] || []), { sender: "you" as const, text: chatInput.trim(), time: "Just now" }] }));
+              setChatInput("");
+            };
+
+            return (
+              <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}>
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden" style={{ height: "calc(100vh - 140px)" }}>
+                  <div className="flex h-full">
+                    {/* Left: List */}
+                    <div className={`${mobileChat ? "hidden md:flex" : "flex"} flex-col w-full md:w-85 lg:w-90 shrink-0 border-r border-white/30 bg-white/30 backdrop-blur-sm`}>
+                      <div className="px-4 pt-4 pb-3 border-b border-white/30">
+                        <p className="font-heading font-bold text-primary-dark text-sm">Conversations</p>
+                      </div>
+                      <div className="flex-1 overflow-y-auto">
+                        {agentConversations.map((convo) => (
+                          <button key={convo.id} onClick={() => { setSelectedConvo(convo.id); setMobileChat(true); }} className={`w-full flex items-start gap-3 px-4 py-3.5 text-left transition-all hover:bg-white/40 ${selectedConvo === convo.id ? "bg-white/50 backdrop-blur-sm border-l-2 border-primary" : "border-l-2 border-transparent"}`}>
+                            <div className="relative shrink-0">
+                              <img src={convo.avatar} alt={convo.name} className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm" />
+                              {convo.unread > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">{convo.unread}</span>}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <p className={`text-sm truncate ${convo.unread > 0 ? "font-bold text-primary-dark" : "font-medium text-primary-dark"}`}>{convo.name}</p>
+                                  <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 bg-blue-50 text-blue-600">{convo.role}</span>
+                                </div>
+                                <span className="text-text-subtle text-[10px] shrink-0">{convo.time}</span>
+                              </div>
+                              <p className={`text-xs mt-0.5 truncate ${convo.unread > 0 ? "text-primary-dark font-medium" : "text-text-secondary"}`}>{convo.lastMessage}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right: Chat */}
+                    <div className={`${mobileChat ? "flex" : "hidden md:flex"} flex-col flex-1 min-w-0`}>
+                      <div className="px-5 py-3.5 border-b border-white/30 bg-white/20 backdrop-blur-sm flex items-center gap-3">
+                        <button onClick={() => setMobileChat(false)} className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:bg-white/80 transition-colors shrink-0"><ArrowLeft className="w-4 h-4" /></button>
+                        <img src={activeConvo.avatar} alt={activeConvo.name} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-heading font-bold text-primary-dark text-sm truncate">{activeConvo.name}</p>
+                            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 bg-blue-50 text-blue-600">{activeConvo.role}</span>
+                          </div>
+                          <p className="text-text-subtle text-[11px]">Active now</p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <a href={`tel:+${activeConvo.phone}`} className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"><Phone className="w-3.5 h-3.5" /></a>
+                          <a href={`https://wa.me/${activeConvo.phone}`} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-[#25D366]/10 flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all"><MessageCircle className="w-3.5 h-3.5" /></a>
+                        </div>
+                      </div>
+                      <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
+                        {activeMessages.map((msg, i) => (
+                          <div key={i} className={`flex ${msg.sender === "you" ? "justify-end" : "justify-start"}`}>
+                            <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.sender === "you" ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}>
+                              <p className="text-sm leading-relaxed">{msg.text}</p>
+                              <p className={`text-[10px] mt-1 ${msg.sender === "you" ? "text-white/60" : "text-text-subtle"}`}>{msg.time}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="px-4 py-3 border-t border-white/30 bg-white/20 backdrop-blur-sm">
+                        <div className="flex items-center gap-2">
+                          <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleSend()} placeholder="Type a message..." className="flex-1 h-10 px-4 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
+                          <button onClick={handleSend} disabled={!chatInput.trim()} className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 shadow-sm"><Send className="w-4 h-4" /></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })()}
+
+          {/* ─── Viewings Panel ─── */}
+          {activeNav === "viewings" && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}>
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
+                  <h2 className="font-heading font-bold text-primary-dark text-base">Upcoming Viewings ({upcomingViewings.length})</h2>
+                </div>
+                <div className="p-4 flex flex-col gap-3">
+                  {upcomingViewings.map((v, i) => (
+                    <div key={i} className="flex items-center gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all">
+                      <div className="w-14 h-16 rounded-xl bg-primary/10 flex flex-col items-center justify-center shrink-0">
+                        <span className="font-heading font-bold text-primary text-base leading-none">{v.date.split(" ")[1]}</span>
+                        <span className="text-primary text-[10px] mt-0.5">{v.date.split(" ")[0]}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-heading font-semibold text-primary-dark text-sm">{v.property}</p>
+                        <p className="text-text-secondary text-xs mt-0.5">{v.time} · {v.client}</p>
+                        <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${v.status === "Confirmed" ? "bg-primary/10 text-primary" : "bg-[#FFF8ED] text-[#F5A623]"}`}>{v.status}</span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <a href={`tel:${v.phone}`} className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"><Phone className="w-3.5 h-3.5" /></a>
+                        <a href={`https://wa.me/${v.phone.replace(/[^0-9]/g, "")}`} target="_blank" rel="noopener noreferrer" className="w-8 h-8 rounded-lg bg-[#25D366]/10 flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all"><MessageCircle className="w-3.5 h-3.5" /></a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ─── Documents Panel ─── */}
+          {activeNav === "documents" && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}>
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
+                  <h2 className="font-heading font-bold text-primary-dark text-base">Documents ({documents.length})</h2>
+                  <button className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm"><Upload className="w-3.5 h-3.5" /> Upload</button>
+                </div>
+                <div className="divide-y divide-white/30">
+                  {documents.map((doc, i) => (
+                    <div key={i} className="px-6 py-4 flex items-center gap-4 hover:bg-white/30 transition-colors">
+                      <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0"><FileText className="w-5 h-5" /></div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-heading font-semibold text-primary-dark text-sm truncate">{doc.name}</p>
+                        <p className="text-text-secondary text-xs mt-0.5">{doc.type} · {doc.size}</p>
+                      </div>
+                      <span className="text-text-subtle text-xs shrink-0 hidden sm:block">{doc.date}</span>
+                      <button className="w-8 h-8 rounded-lg bg-white/50 backdrop-blur-sm border border-white/40 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shrink-0"><Download className="w-3.5 h-3.5" /></button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ─── Settings Placeholder ─── */}
+          {activeNav === "settings" && (
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}>
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] flex flex-col items-center justify-center py-20">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4"><Settings className="w-7 h-7 text-primary" /></div>
+                <h2 className="font-heading font-bold text-primary-dark text-xl">Settings</h2>
+                <p className="text-text-secondary text-sm mt-2">This section is coming soon</p>
+                <button onClick={() => setActiveNav("overview")} className="mt-4 h-10 px-6 rounded-full border border-white/40 bg-white/60 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all">Back to Overview</button>
+              </div>
             </motion.div>
           )}
         </div>

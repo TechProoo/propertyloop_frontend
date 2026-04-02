@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../../context/AuthContext";
 import Logo from "../../assets/logo.png";
 
 const ease = [0.23, 1, 0.32, 1] as const;
@@ -50,7 +51,7 @@ const FlipLink = ({
   return (
     <a
       href={href}
-      className={`relative inline-flex items-center py-2 px-1 ${isActive ? "after:absolute after:bottom-0 after:left-1 after:right-1 after:h-[2px] after:bg-primary after:rounded-full" : ""}`}
+      className={`relative inline-flex items-center py-2 px-1 ${isActive ? "after:absolute after:bottom-0 after:left-1 after:right-1 after:h-0.5 after:bg-primary after:rounded-full" : ""}`}
       style={{ perspective: "500px" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -96,6 +97,8 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const path = location.pathname;
+  const { user, isLoggedIn, logout } = useAuth();
+  const dashboardHref = user?.role === "agent" ? "/agent-dashboard" : "/dashboard";
 
   return (
     <>
@@ -116,7 +119,18 @@ const Navbar = () => {
               <FlipLink label="Sell" href="/sell" isActive={path === "/sell"} />
             </li>
             <li>
-              <FlipLink label="Service Loop" href="/services" isActive={path === "/services"} />
+              <FlipLink
+                label="Service Loop"
+                href="/services"
+                isActive={path === "/services"}
+              />
+            </li>
+            <li>
+              <FlipLink
+                label="Materials"
+                href="/marketplace"
+                isActive={path === "/marketplace"}
+              />
             </li>
           </ul>
         </div>
@@ -124,27 +138,57 @@ const Navbar = () => {
         {/* Right Nav Links */}
         <ul className="hidden lg:flex items-center gap-7">
           <li>
-            <FlipLink label="Add Property" href="/add-property" isActive={path === "/add-property"} />
+            <FlipLink
+              label="Add Property"
+              href="/add-property"
+              isActive={path === "/add-property"}
+            />
           </li>
           <li>
-            <FlipLink label="About Us" href="/about" isActive={path === "/about"} />
+            <FlipLink
+              label="About Us"
+              href="/about"
+              isActive={path === "/about"}
+            />
           </li>
-          <li>
-            <a
-              href="/login"
-              className="text-sm font-medium text-primary-dark hover:text-primary transition-colors"
-            >
-              Login
-            </a>
-          </li>
-          <li>
-            <a
-              href="/onboarding"
-              className="text-sm font-medium text-white bg-primary px-6 py-2 rounded-4xl hover:bg-primary-dark transition-colors"
-            >
-              Join
-            </a>
-          </li>
+          {isLoggedIn ? (
+            <>
+              <li>
+                <FlipLink
+                  label="Dashboard"
+                  href={dashboardHref}
+                  isActive={path === "/dashboard" || path === "/agent-dashboard"}
+                />
+              </li>
+              <li>
+                <button
+                  onClick={() => { logout(); window.location.href = "/"; }}
+                  className="text-sm font-medium text-text-secondary hover:text-primary transition-colors"
+                >
+                  Logout
+                </button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <a
+                  href="/login"
+                  className="text-sm font-medium text-primary-dark hover:text-primary transition-colors"
+                >
+                  Login
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/onboarding"
+                  className="text-sm font-medium text-white bg-primary px-6 py-2 rounded-4xl hover:bg-primary-dark transition-colors"
+                >
+                  Join
+                </a>
+              </li>
+            </>
+          )}
         </ul>
 
         {/* Mobile hamburger */}
@@ -173,31 +217,80 @@ const Navbar = () => {
             exit={{ opacity: 0, y: -10 }}
             className="fixed inset-x-0 top-16 z-40 backdrop-blur-xl bg-white/60 border-b border-white/30 shadow-lg lg:hidden py-4 px-6 flex flex-col gap-3 text-sm font-medium text-primary-dark"
           >
-            <a href="/buy" className={`py-2 hover:text-primary ${path === "/buy" ? "text-primary font-semibold" : ""}`}>
+            <a
+              href="/buy"
+              className={`py-2 hover:text-primary ${path === "/buy" ? "text-primary font-semibold" : ""}`}
+            >
               Buy
             </a>
-            <a href="/rent" className={`py-2 hover:text-primary ${path === "/rent" ? "text-primary font-semibold" : ""}`}>
+            <a
+              href="/rent"
+              className={`py-2 hover:text-primary ${path === "/rent" ? "text-primary font-semibold" : ""}`}
+            >
               Rent
             </a>
-            <a href="/sell" className={`py-2 hover:text-primary ${path === "/sell" ? "text-primary font-semibold" : ""}`}>
+            <a
+              href="/sell"
+              className={`py-2 hover:text-primary ${path === "/sell" ? "text-primary font-semibold" : ""}`}
+            >
               Sell
             </a>
-            <a href="/services" className={`py-2 hover:text-primary ${path === "/services" ? "text-primary font-semibold" : ""}`}>
+            <a
+              href="/services"
+              className={`py-2 hover:text-primary ${path === "/services" ? "text-primary font-semibold" : ""}`}
+            >
               Service Loop
             </a>
+            <a
+              href="/marketplace"
+              className={`py-2 hover:text-primary ${path === "/marketplace" ? "text-primary font-semibold" : ""}`}
+            >
+              Materials
+            </a>
             <hr className="border-border-light" />
-            <a href="/add-property" className={`py-2 hover:text-primary ${path === "/add-property" ? "text-primary font-semibold" : ""}`}>
+            <a
+              href="/add-property"
+              className={`py-2 hover:text-primary ${path === "/add-property" ? "text-primary font-semibold" : ""}`}
+            >
               Add Property
             </a>
-            <a href="/about" className={`py-2 hover:text-primary ${path === "/about" ? "text-primary font-semibold" : ""}`}>
+            <a
+              href="/about"
+              className={`py-2 hover:text-primary ${path === "/about" ? "text-primary font-semibold" : ""}`}
+            >
               About Us
             </a>
-            <a href="/login" className={`py-2 hover:text-primary ${path === "/login" ? "text-primary font-semibold" : ""}`}>
-              Login
-            </a>
-            <a href="/onboarding" className="py-2 hover:text-primary font-semibold">
-              Join
-            </a>
+            {isLoggedIn ? (
+              <>
+                <a
+                  href={dashboardHref}
+                  className={`py-2 hover:text-primary font-semibold ${path === "/dashboard" || path === "/agent-dashboard" ? "text-primary" : ""}`}
+                >
+                  Dashboard
+                </a>
+                <button
+                  onClick={() => { logout(); window.location.href = "/"; }}
+                  className="py-2 text-left hover:text-primary text-text-secondary"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <a
+                  href="/login"
+                  className={`py-2 hover:text-primary ${path === "/login" ? "text-primary font-semibold" : ""}`}
+                >
+                  Login
+                </a>
+                <a
+                  href="/onboarding"
+                  className="py-2 hover:text-primary font-semibold"
+                >
+                  Join
+                </a>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

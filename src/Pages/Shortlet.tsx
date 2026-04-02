@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
+import BookmarkButton from "../components/ui/BookmarkButton";
 
 /* ─── Data ─── */
 
@@ -652,6 +653,7 @@ const Shortlet = () => {
                         {listing.price}
                         <span className="text-white/60">/{listing.period}</span>
                       </span>
+                      <BookmarkButton id={`shortlet-${listing.title.replace(/\s/g, "-").toLowerCase()}`} type="property" className="absolute bottom-3 right-3" size="sm" />
                     </div>
 
                     {/* Glass content */}

@@ -247,7 +247,7 @@ const RentalEscrow = () => {
             </div>
 
             {/* Right — Property summary */}
-            <div className="lg:w-[340px] shrink-0">
+            <div className="lg:w-85 shrink-0">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden sticky top-8">
                 <img src={rental.image} alt={rental.title} className="w-full h-40 object-cover" />
                 <div className="p-5">

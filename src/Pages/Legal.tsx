@@ -156,7 +156,7 @@ const Legal = () => {
 
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
             {/* Sidebar TOC */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }} className="lg:w-[260px] shrink-0 lg:sticky lg:top-8 lg:self-start">
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }} className="lg:w-65 shrink-0 lg:sticky lg:top-8 lg:self-start">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">{page.icon}</div>

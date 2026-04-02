@@ -24,7 +24,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Share2,
-  Heart,
   ClipboardList,
   TrendingDown,
   Wrench,
@@ -42,6 +41,7 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import { getListingById, listings } from "../data/listings";
+import BookmarkButton from "../components/ui/BookmarkButton";
 import { getAgentById } from "../data/agents";
 
 const ease = [0.23, 1, 0.32, 1] as const;
@@ -223,7 +223,7 @@ const PropertyDetail = () => {
             transition={{ duration: 0.5, ease }}
             className="relative overflow-hidden rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] mb-8"
           >
-            <div className="relative h-[300px] sm:h-[400px] lg:h-[500px]">
+            <div className="relative h-75 sm:h-100 lg:h-125">
               <img
                 src={listing.images[activeImage]}
                 alt={listing.title}
@@ -272,9 +272,7 @@ const PropertyDetail = () => {
                 <button className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-white/40 transition-all">
                   <Share2 className="w-4 h-4" />
                 </button>
-                <button className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-white/40 transition-all">
-                  <Heart className="w-4 h-4" />
-                </button>
+                <BookmarkButton id={listing.id} type="property" />
               </div>
 
               {/* Image counter */}
