@@ -237,7 +237,7 @@ const About = () => {
             </div>
 
             <div className="flex flex-col lg:flex-row gap-8">
-              <div className="flex-1 bg-white/60 backdrop-blur-sm border border-border-light rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-8 sm:p-10">
+              <div className="flex-1 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-8 sm:p-10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                     <Globe className="w-6 h-6" />
@@ -281,7 +281,7 @@ const About = () => {
 
               {/* Values */}
               <div className="lg:w-[380px] shrink-0 flex flex-col gap-5">
-                <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-8">
+                <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-8">
                   <h3 className="font-heading font-bold text-primary-dark text-lg mb-5">
                     Our Values
                   </h3>
@@ -312,8 +312,8 @@ const About = () => {
                   <p className="text-white/70 text-sm leading-relaxed">
                     PropertyLoop does not accept listings from individual
                     landlords. All listings are posted and managed by
-                    KYC-verified real estate agents — raising listing quality and
-                    making agents core platform stakeholders.
+                    KYC-verified real estate agents — raising listing quality
+                    and making agents core platform stakeholders.
                   </p>
                   <Link
                     to="/find-agent"

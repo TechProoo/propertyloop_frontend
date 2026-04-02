@@ -22,7 +22,7 @@ type UserRole = "buyer" | "agent" | "vendor";
 const roleDashboard: Record<UserRole, string> = {
   buyer: "/dashboard",
   agent: "/agent-dashboard",
-  vendor: "/dashboard",
+  vendor: "/vendor-dashboard",
 };
 
 const Login = () => {

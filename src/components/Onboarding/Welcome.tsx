@@ -66,8 +66,8 @@ const roleConfig = {
     heading: "Application submitted!",
     subheading:
       "We'll verify your profile and onboard you to the Service Loop within 24–48 hours.",
-    cta: "Browse Services",
-    ctaHref: "/services",
+    cta: "Go to Dashboard",
+    ctaHref: "/vendor-dashboard",
     features: [
       {
         icon: <Briefcase className="w-5 h-5" />,

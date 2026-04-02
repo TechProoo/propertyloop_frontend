@@ -33,11 +33,12 @@ import Marketplace from './Pages/Marketplace'
 import ProductDetail from './Pages/ProductDetail'
 import Cart from './Pages/Cart'
 import BookService from './Pages/BookService'
+import VendorDashboard from './Pages/VendorDashboard'
 
 const roleDashboard: Record<string, string> = {
   buyer: "/dashboard",
   agent: "/agent-dashboard",
-  vendor: "/dashboard",
+  vendor: "/vendor-dashboard",
 };
 
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) {
@@ -71,8 +72,9 @@ function App() {
         <Route path="/services" element={<Services />} />
         <Route path="/property/:id" element={<PropertyDetail />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["buyer", "vendor"]}><Dashboard /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute allowedRoles={["buyer"]}><Dashboard /></ProtectedRoute>} />
         <Route path="/agent-dashboard" element={<ProtectedRoute allowedRoles={["agent"]}><AgentDashboard /></ProtectedRoute>} />
+        <Route path="/vendor-dashboard" element={<ProtectedRoute allowedRoles={["vendor"]}><VendorDashboard /></ProtectedRoute>} />
         <Route path="/escrow" element={<ServiceEscrow />} />
         <Route path="/shortlet-booking" element={<ShortletBooking />} />
         <Route path="/rental-escrow" element={<RentalEscrow />} />
