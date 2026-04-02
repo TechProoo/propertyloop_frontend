@@ -107,5 +107,39 @@ body {
   height: 100%;
   /* overflow: hidden; */
   font-family: var(--font-body);
+  font-size: 16px;
   scroll-behavior: smooth;
+}
+
+/* ── Accessibility: enforce minimum readable font sizes ── */
+
+/* Base body text — bump xs from 12px→14px */
+.text-xs {
+  font-size: 0.875rem !important; /* 14px instead of 12px */
+  line-height: 1.4 !important;
+}
+
+/* Catch tiny inline sizes and make them readable */
+[class*="text-[10px]"] {
+  font-size: 0.75rem !important; /* 12px instead of 10px */
+}
+[class*="text-[11px]"] {
+  font-size: 0.8125rem !important; /* 13px instead of 11px */
+}
+[class*="text-[13px]"] {
+  font-size: 0.875rem !important; /* 14px instead of 13px */
+}
+
+/* Ensure text-sm stays comfortable */
+.text-sm {
+  font-size: 0.9375rem !important; /* 15px instead of 14px */
+  line-height: 1.5 !important;
+}
+
+/* Labels and small UI text — minimum 13px */
+label,
+select,
+input,
+textarea {
+  font-size: max(0.875rem, 1em);
 }

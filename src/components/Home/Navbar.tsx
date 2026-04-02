@@ -116,7 +116,7 @@ const Navbar = () => {
               <FlipLink label="Sell" href="/sell" isActive={path === "/sell"} />
             </li>
             <li>
-              <FlipLink label="Find Agent" href="/find-agent" isActive={path === "/find-agent"} />
+              <FlipLink label="Service Loop" href="/services" isActive={path === "/services"} />
             </li>
           </ul>
         </div>
@@ -182,8 +182,8 @@ const Navbar = () => {
             <a href="/sell" className={`py-2 hover:text-primary ${path === "/sell" ? "text-primary font-semibold" : ""}`}>
               Sell
             </a>
-            <a href="/find-agent" className={`py-2 hover:text-primary ${path === "/find-agent" ? "text-primary font-semibold" : ""}`}>
-              Find Agent
+            <a href="/services" className={`py-2 hover:text-primary ${path === "/services" ? "text-primary font-semibold" : ""}`}>
+              Service Loop
             </a>
             <hr className="border-border-light" />
             <a href="/add-property" className={`py-2 hover:text-primary ${path === "/add-property" ? "text-primary font-semibold" : ""}`}>
