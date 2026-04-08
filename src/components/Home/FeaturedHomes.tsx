@@ -85,14 +85,17 @@ const FeaturedHomes = () => {
               history and transparent pricing.
             </p>
           </div>
-          <a href="/buy" className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center">
+          <a
+            href="/buy"
+            className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
+          >
             View all
           </a>
         </div>
 
         {/* Cards grid — 3 per row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredHomes.map((home, i) => (
+          {featuredHomes.slice(0, 3).map((home, i) => (
             <AuthGate
               key={i}
               href="/buy"

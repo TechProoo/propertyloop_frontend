@@ -106,7 +106,7 @@ const VideoTours = () => {
           </div>
 
           {/* Results */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
             <p className="text-text-secondary text-sm">
               Showing{" "}
               <span className="font-bold text-primary-dark">

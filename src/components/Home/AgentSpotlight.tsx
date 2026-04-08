@@ -1,14 +1,8 @@
-import {
-  ArrowUpRight,
-  CheckCircle,
-  Star,
-  Home,
-  Phone,
-} from "lucide-react";
+import { ArrowUpRight, CheckCircle, Star, Home, Phone } from "lucide-react";
 import { agents as sharedAgents } from "../../data/agents";
 import AuthGate from "../ui/AuthGate";
 
-const agents = sharedAgents.slice(0, 6);
+const agents = sharedAgents.slice(0, 3);
 
 const AgentSpotlight = () => {
   return (
@@ -28,7 +22,10 @@ const AgentSpotlight = () => {
               No individual landlord posts — just professionals you can trust.
             </p>
           </div>
-          <a href="/find-agent" className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center">
+          <a
+            href="/find-agent"
+            className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
+          >
             View all agents
           </a>
         </div>
@@ -109,7 +106,10 @@ const AgentSpotlight = () => {
               and protect buyers and tenants.
             </p>
           </div>
-          <a href="/find-agent" className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2">
+          <a
+            href="/find-agent"
+            className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2"
+          >
             <Phone className="w-4 h-4" />
             Contact an agent
           </a>

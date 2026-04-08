@@ -29,7 +29,11 @@ import BookmarkButton from "../components/ui/BookmarkButton";
 /* ─── Data ─── */
 
 const categories = [
-  { icon: <LayoutGrid className="w-5 h-5" />, label: "All Services", count: 1840 },
+  {
+    icon: <LayoutGrid className="w-5 h-5" />,
+    label: "All Services",
+    count: 1840,
+  },
   { icon: <Wrench className="w-5 h-5" />, label: "Plumbing", count: 342 },
   { icon: <Zap className="w-5 h-5" />, label: "Electrical", count: 298 },
   { icon: <HardHat className="w-5 h-5" />, label: "Building", count: 215 },
@@ -42,8 +46,18 @@ const categories = [
 ];
 
 const locations = [
-  "All Locations", "Lekki", "Victoria Island", "Ikoyi", "Ajah",
-  "Gbagada", "Surulere", "Ikeja", "Maryland", "Yaba", "Magodo", "Ojodu",
+  "All Locations",
+  "Lekki",
+  "Victoria Island",
+  "Ikoyi",
+  "Ajah",
+  "Gbagada",
+  "Surulere",
+  "Ikeja",
+  "Maryland",
+  "Yaba",
+  "Magodo",
+  "Ojodu",
 ];
 
 const ratingFilters = ["Any Rating", "4.5+", "4.7+", "4.9+"];
@@ -58,10 +72,18 @@ const Services = () => {
 
   const filtered = vendors.filter((v) => {
     const q = searchQuery.toLowerCase();
-    const matchesSearch = !q || v.name.toLowerCase().includes(q) || v.category.toLowerCase().includes(q) || v.location.toLowerCase().includes(q);
-    const matchesCategory = activeCategory === "All Services" || v.category === activeCategory;
-    const matchesLocation = activeLocation === "All Locations" || v.location.includes(activeLocation);
-    const matchesRating = activeRating === "Any Rating" || v.rating >= parseFloat(activeRating.replace("+", ""));
+    const matchesSearch =
+      !q ||
+      v.name.toLowerCase().includes(q) ||
+      v.category.toLowerCase().includes(q) ||
+      v.location.toLowerCase().includes(q);
+    const matchesCategory =
+      activeCategory === "All Services" || v.category === activeCategory;
+    const matchesLocation =
+      activeLocation === "All Locations" || v.location.includes(activeLocation);
+    const matchesRating =
+      activeRating === "Any Rating" ||
+      v.rating >= parseFloat(activeRating.replace("+", ""));
     return matchesSearch && matchesCategory && matchesLocation && matchesRating;
   });
 
@@ -71,14 +93,22 @@ const Services = () => {
       <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 text-text-secondary text-sm mb-8">
-            <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+            <Link to="/" className="hover:text-primary transition-colors">
+              Home
+            </Link>
             <span>/</span>
             <span className="text-primary-dark font-medium">Service Loop</span>
           </div>
 
           {/* ─── Hero ─── */}
           <div className="relative overflow-hidden rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] mb-10">
-            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1400&h=600&fit=crop)" }} />
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage:
+                  "url(https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1400&h=600&fit=crop)",
+              }}
+            />
             <div className="absolute inset-0 bg-linear-to-r from-primary-dark/90 via-primary-dark/75 to-primary-dark/40" />
             <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/5" />
             <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-white/5" />
@@ -87,12 +117,22 @@ const Services = () => {
                 The Service <span className="text-white/70">Loop</span>
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
-                Hire verified plumbers, electricians, builders, cleaners, and more — all with escrow-protected payments via Paystack.
+                Hire verified plumbers, electricians, builders, cleaners, and
+                more — all with escrow-protected payments via Paystack.
               </p>
               <div className="flex flex-wrap gap-3 mt-6">
-                {[{ value: "1,840+", label: "Verified Vendors" }, { value: "Escrow", label: "Protected" }, { value: "4.8", label: "Avg. Rating" }].map((s) => (
-                  <div key={s.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-sm">
-                    <span className="font-heading font-bold text-white">{s.value}</span>
+                {[
+                  { value: "1,840+", label: "Verified Vendors" },
+                  { value: "Escrow", label: "Protected" },
+                  { value: "4.8", label: "Avg. Rating" },
+                ].map((s) => (
+                  <div
+                    key={s.label}
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-sm"
+                  >
+                    <span className="font-heading font-bold text-white">
+                      {s.value}
+                    </span>
                     <span className="text-white/50">{s.label}</span>
                   </div>
                 ))}
@@ -100,7 +140,13 @@ const Services = () => {
               <div className="mt-8 bg-white/10 backdrop-blur-md border border-white/15 rounded-[18px] p-3 flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                  <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by service, vendor name, or location..." className="w-full h-12 pl-11 pr-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-colors" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by service, vendor name, or location..."
+                    className="w-full h-12 pl-11 pr-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-colors"
+                  />
                 </div>
                 <button className="shrink-0 h-12 px-6 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm font-medium hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2">
                   <SlidersHorizontal className="w-4 h-4" /> Filters
@@ -112,30 +158,76 @@ const Services = () => {
             </div>
           </div>
 
+          {/* ─── Mobile Category Strip ─── */}
+          <div className="lg:hidden overflow-x-auto -mx-6 px-6 pb-4 mb-6">
+            <div className="flex gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.label}
+                  onClick={() => setActiveCategory(cat.label)}
+                  className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all ${
+                    activeCategory === cat.label
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white/80 text-primary-dark border-border-light hover:border-primary"
+                  }`}
+                >
+                  {cat.icon}
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* ─── Sidebar + Grid ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
-            <div className="lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
+            <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="px-5 py-4 border-b border-border-light"><h3 className="font-heading font-bold text-primary-dark text-sm">Services</h3></div>
+                <div className="px-5 py-4 border-b border-border-light">
+                  <h3 className="font-heading font-bold text-primary-dark text-sm">
+                    Services
+                  </h3>
+                </div>
                 <div className="p-2 max-h-[420px] overflow-y-auto">
                   {categories.map((cat) => (
-                    <button key={cat.label} onClick={() => setActiveCategory(cat.label)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all duration-200 ${activeCategory === cat.label ? "bg-primary/10 text-primary" : "text-primary-dark hover:bg-bg-accent"}`}>
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${activeCategory === cat.label ? "bg-primary text-white" : "bg-white/80 border border-border-light text-text-secondary"}`}>{cat.icon}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-heading font-bold text-[14px] leading-tight">{cat.label}</p>
-                        <p className="text-text-secondary text-xs mt-0.5">{cat.count} vendors</p>
+                    <button
+                      key={cat.label}
+                      onClick={() => setActiveCategory(cat.label)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all duration-200 ${activeCategory === cat.label ? "bg-primary/10 text-primary" : "text-primary-dark hover:bg-bg-accent"}`}
+                    >
+                      <div
+                        className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${activeCategory === cat.label ? "bg-primary text-white" : "bg-white/80 border border-border-light text-text-secondary"}`}
+                      >
+                        {cat.icon}
                       </div>
-                      <ChevronDown className={`w-4 h-4 shrink-0 -rotate-90 ${activeCategory === cat.label ? "text-primary" : "text-text-subtle"}`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-heading font-bold text-[14px] leading-tight">
+                          {cat.label}
+                        </p>
+                        <p className="text-text-secondary text-xs mt-0.5">
+                          {cat.count} vendors
+                        </p>
+                      </div>
+                      <ChevronDown
+                        className={`w-4 h-4 shrink-0 -rotate-90 ${activeCategory === cat.label ? "text-primary" : "text-text-subtle"}`}
+                      />
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="mt-5 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="px-5 py-4 border-b border-border-light"><h3 className="font-heading font-bold text-primary-dark text-sm">Location</h3></div>
+                <div className="px-5 py-4 border-b border-border-light">
+                  <h3 className="font-heading font-bold text-primary-dark text-sm">
+                    Location
+                  </h3>
+                </div>
                 <div className="p-3 flex flex-wrap gap-2">
                   {locations.map((loc) => (
-                    <button key={loc} onClick={() => setActiveLocation(loc)} className={`px-3.5 py-2 rounded-full text-xs font-medium border transition-all duration-200 ${activeLocation === loc ? "bg-primary text-white border-primary" : "bg-white/60 text-primary-dark border-border-light hover:border-primary hover:text-primary"}`}>
+                    <button
+                      key={loc}
+                      onClick={() => setActiveLocation(loc)}
+                      className={`px-3.5 py-2 rounded-full text-xs font-medium border transition-all duration-200 ${activeLocation === loc ? "bg-primary text-white border-primary" : "bg-white/60 text-primary-dark border-border-light hover:border-primary hover:text-primary"}`}
+                    >
                       {loc === "All Locations" ? "All" : loc}
                     </button>
                   ))}
@@ -143,11 +235,23 @@ const Services = () => {
               </div>
 
               <div className="mt-5 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="px-5 py-4 border-b border-border-light"><h3 className="font-heading font-bold text-primary-dark text-sm">Rating</h3></div>
+                <div className="px-5 py-4 border-b border-border-light">
+                  <h3 className="font-heading font-bold text-primary-dark text-sm">
+                    Rating
+                  </h3>
+                </div>
                 <div className="p-3 flex flex-wrap gap-2">
                   {ratingFilters.map((rf) => (
-                    <button key={rf} onClick={() => setActiveRating(rf)} className={`px-3.5 py-2 rounded-full text-xs font-medium border transition-all duration-200 inline-flex items-center gap-1.5 ${activeRating === rf ? "bg-primary text-white border-primary" : "bg-white/60 text-primary-dark border-border-light hover:border-primary hover:text-primary"}`}>
-                      {rf !== "Any Rating" && <Star className={`w-3 h-3 ${activeRating === rf ? "text-white fill-white" : "text-[#F5A623] fill-[#F5A623]"}`} />}
+                    <button
+                      key={rf}
+                      onClick={() => setActiveRating(rf)}
+                      className={`px-3.5 py-2 rounded-full text-xs font-medium border transition-all duration-200 inline-flex items-center gap-1.5 ${activeRating === rf ? "bg-primary text-white border-primary" : "bg-white/60 text-primary-dark border-border-light hover:border-primary hover:text-primary"}`}
+                    >
+                      {rf !== "Any Rating" && (
+                        <Star
+                          className={`w-3 h-3 ${activeRating === rf ? "text-white fill-white" : "text-[#F5A623] fill-[#F5A623]"}`}
+                        />
+                      )}
                       {rf}
                     </button>
                   ))}
@@ -155,12 +259,25 @@ const Services = () => {
               </div>
 
               <div className="mt-5 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-                <h4 className="font-heading font-bold text-primary-dark text-sm mb-3">Service Loop Stats</h4>
+                <h4 className="font-heading font-bold text-primary-dark text-sm mb-3">
+                  Service Loop Stats
+                </h4>
                 <div className="flex flex-col gap-3">
-                  {[{ label: "Total vendors", value: "1,840+" }, { label: "Jobs completed", value: "12,500+" }, { label: "Avg. response time", value: "< 1hr" }].map((stat) => (
-                    <div key={stat.label} className="flex items-center justify-between">
-                      <span className="text-text-secondary text-xs">{stat.label}</span>
-                      <span className="font-heading font-bold text-primary-dark text-sm">{stat.value}</span>
+                  {[
+                    { label: "Total vendors", value: "1,840+" },
+                    { label: "Jobs completed", value: "12,500+" },
+                    { label: "Avg. response time", value: "< 1hr" },
+                  ].map((stat) => (
+                    <div
+                      key={stat.label}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="text-text-secondary text-xs">
+                        {stat.label}
+                      </span>
+                      <span className="font-heading font-bold text-primary-dark text-sm">
+                        {stat.value}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -169,9 +286,18 @@ const Services = () => {
 
             {/* Right — vendor cards */}
             <div className="flex-1">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <p className="text-text-secondary text-sm">
-                  Showing <span className="font-bold text-primary-dark">{filtered.length}</span> vendors in <span className="font-bold text-primary-dark">{activeCategory === "All Services" ? "All Services" : activeCategory}</span>
+                  Showing{" "}
+                  <span className="font-bold text-primary-dark">
+                    {filtered.length}
+                  </span>{" "}
+                  vendors in{" "}
+                  <span className="font-bold text-primary-dark">
+                    {activeCategory === "All Services"
+                      ? "All Services"
+                      : activeCategory}
+                  </span>
                 </p>
                 <select className="h-9 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-xs focus:outline-none focus:border-primary transition-colors appearance-none pr-8">
                   <option>Top rated</option>
@@ -183,33 +309,65 @@ const Services = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
                 {filtered.map((vendor) => (
-                  <Link key={vendor.id} to={`/book-service/${vendor.id}`} className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 block">
+                  <Link
+                    key={vendor.id}
+                    to={`/book-service/${vendor.id}`}
+                    className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 block"
+                  >
                     <div className="h-44 overflow-hidden rounded-t-[20px] relative">
-                      <img src={vendor.image} alt={vendor.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                      <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">{vendor.category}</span>
-                      <BookmarkButton id={vendor.id} type="service" className="absolute bottom-3 right-3" size="sm" />
+                      <img
+                        src={vendor.image}
+                        alt={vendor.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
+                        {vendor.category}
+                      </span>
+                      <BookmarkButton
+                        id={vendor.id}
+                        type="service"
+                        className="absolute bottom-3 right-3"
+                        size="sm"
+                      />
                     </div>
 
                     <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
                       <div className="flex items-center gap-3 mb-3">
-                        <img src={vendor.avatar} alt={vendor.name} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" />
+                        <img
+                          src={vendor.avatar}
+                          alt={vendor.name}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                        />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug truncate">{vendor.name}</h3>
-                            {vendor.verified && <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />}
+                            <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug truncate">
+                              {vendor.name}
+                            </h3>
+                            {vendor.verified && (
+                              <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
+                            )}
                           </div>
-                          <p className="text-text-secondary text-xs flex items-center gap-1"><MapPin className="w-3 h-3" /> {vendor.location}</p>
+                          <p className="text-text-secondary text-xs flex items-center gap-1">
+                            <MapPin className="w-3 h-3" /> {vendor.location}
+                          </p>
                         </div>
                       </div>
                       <div className="h-px bg-border-light mb-3" />
                       <div className="flex items-center justify-between text-xs pr-10">
                         <div className="flex items-center gap-4 text-text-secondary">
-                          <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" /> {vendor.rating}</span>
+                          <span className="flex items-center gap-1">
+                            <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
+                            {vendor.rating}
+                          </span>
                           <span>{vendor.jobs} jobs</span>
-                          <span className="flex items-center gap-1 text-primary font-medium"><Shield className="w-3.5 h-3.5" /> Escrow</span>
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            <Shield className="w-3.5 h-3.5" /> Escrow
+                          </span>
                         </div>
                       </div>
-                      <p className="font-heading font-bold text-primary-dark text-sm mt-2.5">{vendor.price}</p>
+                      <p className="font-heading font-bold text-primary-dark text-sm mt-2.5">
+                        {vendor.price}
+                      </p>
                     </div>
 
                     <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
@@ -221,16 +379,34 @@ const Services = () => {
 
               {filtered.length === 0 && (
                 <div className="text-center py-20">
-                  <div className="w-16 h-16 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-4"><Wrench className="w-7 h-7 text-text-subtle" /></div>
-                  <h3 className="font-heading font-bold text-primary-dark text-lg">No vendors found</h3>
-                  <p className="text-text-secondary text-sm mt-2">Try adjusting your filters.</p>
-                  <button onClick={() => { setSearchQuery(""); setActiveCategory("All Services"); setActiveLocation("All Locations"); setActiveRating("Any Rating"); }} className="mt-4 h-10 px-6 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">Clear all filters</button>
+                  <div className="w-16 h-16 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-4">
+                    <Wrench className="w-7 h-7 text-text-subtle" />
+                  </div>
+                  <h3 className="font-heading font-bold text-primary-dark text-lg">
+                    No vendors found
+                  </h3>
+                  <p className="text-text-secondary text-sm mt-2">
+                    Try adjusting your filters.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      setActiveCategory("All Services");
+                      setActiveLocation("All Locations");
+                      setActiveRating("Any Rating");
+                    }}
+                    className="mt-4 h-10 px-6 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+                  >
+                    Clear all filters
+                  </button>
                 </div>
               )}
 
               {filtered.length > 0 && (
                 <div className="mt-10 text-center">
-                  <button className="h-11 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">Load more vendors</button>
+                  <button className="h-11 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
+                    Load more vendors
+                  </button>
                 </div>
               )}
             </div>
@@ -238,12 +414,22 @@ const Services = () => {
 
           {/* ─── Trust Banner ─── */}
           <div className="mb-20 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] px-8 py-6 flex flex-col sm:flex-row items-center gap-6">
-            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><Shield className="w-7 h-7 text-primary" /></div>
-            <div className="flex-1 text-center sm:text-left">
-              <h3 className="font-heading font-bold text-primary-dark text-lg">Every payment is escrow-protected</h3>
-              <p className="text-text-secondary text-sm mt-1">Your money is held securely via Paystack escrow. Vendors only get paid when you confirm the job is complete.</p>
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <Shield className="w-7 h-7 text-primary" />
             </div>
-            <Link to="/onboarding" className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2">
+            <div className="flex-1 text-center sm:text-left">
+              <h3 className="font-heading font-bold text-primary-dark text-lg">
+                Every payment is escrow-protected
+              </h3>
+              <p className="text-text-secondary text-sm mt-1">
+                Your money is held securely via Paystack escrow. Vendors only
+                get paid when you confirm the job is complete.
+              </p>
+            </div>
+            <Link
+              to="/onboarding"
+              className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2"
+            >
               <ShieldCheck className="w-4 h-4" /> Become a vendor
             </Link>
           </div>

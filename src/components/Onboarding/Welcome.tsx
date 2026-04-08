@@ -105,7 +105,12 @@ const Welcome = ({ data }: Props) => {
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 20,
+            delay: 0.1,
+          }}
           className="w-20 h-20 rounded-full bg-primary flex items-center justify-center shadow-[0_8px_32px_rgba(31,111,67,0.3)]"
         >
           <CheckCircle2 className="w-10 h-10 text-white" />

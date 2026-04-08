@@ -106,7 +106,10 @@ const ShortletSpotlight = () => {
               transparent pricing, and Paystack-powered payments.
             </p>
           </div>
-          <a href="/shortlet" className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center">
+          <a
+            href="/shortlet"
+            className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
+          >
             View all shortlets
           </a>
         </div>
@@ -168,7 +171,7 @@ const ShortletSpotlight = () => {
 
         {/* Shortlet cards — 3 per row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {shortlets.map((stay, i) => (
+          {shortlets.slice(0, 3).map((stay, i) => (
             <AuthGate
               key={i}
               href="/shortlet"
@@ -189,9 +192,7 @@ const ShortletSpotlight = () => {
                 {/* Nightly badge */}
                 <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
                   {stay.price}
-                  <span className="font-normal opacity-70">
-                    /{stay.period}
-                  </span>
+                  <span className="font-normal opacity-70">/{stay.period}</span>
                 </span>
               </div>
 

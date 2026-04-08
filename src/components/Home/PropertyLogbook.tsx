@@ -128,7 +128,7 @@ const PropertyLogbook = () => {
             <div className="absolute left-5.75 top-0 bottom-0 w-px bg-border-light" />
 
             <div className="flex flex-col gap-5">
-              {timelineEntries.map((entry, i) => (
+              {timelineEntries.slice(0, 3).map((entry, i) => (
                 <div key={i} className="flex gap-5 relative group">
                   {/* Timeline dot */}
                   <div className="shrink-0 relative z-10 mt-5">

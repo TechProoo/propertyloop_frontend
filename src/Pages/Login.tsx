@@ -26,7 +26,7 @@ const roleDashboard: Record<UserRole, string> = {
 };
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, isRegistered } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,6 +46,12 @@ const Login = () => {
 
   const handleSubmit = () => {
     if (validate()) {
+      if (!isRegistered(email)) {
+        setErrors({
+          email: "No account found with this email. Please sign up first.",
+        });
+        return;
+      }
       login({ name: email.split("@")[0], email, role: selectedRole });
       setSubmitted(true);
     }
@@ -213,11 +219,23 @@ const Login = () => {
                     Sign in as
                   </label>
                   <div className="grid grid-cols-3 gap-2">
-                    {([
-                      { role: "buyer" as UserRole, icon: <Home className="w-4 h-4" />, label: "Buyer" },
-                      { role: "agent" as UserRole, icon: <Briefcase className="w-4 h-4" />, label: "Agent" },
-                      { role: "vendor" as UserRole, icon: <Wrench className="w-4 h-4" />, label: "Vendor" },
-                    ]).map((item) => (
+                    {[
+                      {
+                        role: "buyer" as UserRole,
+                        icon: <Home className="w-4 h-4" />,
+                        label: "Buyer",
+                      },
+                      {
+                        role: "agent" as UserRole,
+                        icon: <Briefcase className="w-4 h-4" />,
+                        label: "Agent",
+                      },
+                      {
+                        role: "vendor" as UserRole,
+                        icon: <Wrench className="w-4 h-4" />,
+                        label: "Vendor",
+                      },
+                    ].map((item) => (
                       <button
                         key={item.role}
                         type="button"
@@ -228,10 +246,14 @@ const Login = () => {
                             : "bg-white/50 border-white/40 text-text-secondary hover:border-primary/40 hover:bg-white/70"
                         }`}
                       >
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${selectedRole === item.role ? "bg-primary text-white" : "bg-white/60 text-text-secondary"}`}>
+                        <div
+                          className={`w-8 h-8 rounded-xl flex items-center justify-center ${selectedRole === item.role ? "bg-primary text-white" : "bg-white/60 text-text-secondary"}`}
+                        >
                           {item.icon}
                         </div>
-                        <span className="text-xs font-medium">{item.label}</span>
+                        <span className="text-xs font-medium">
+                          {item.label}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -244,7 +266,12 @@ const Login = () => {
                   whileTap={{ scale: 0.98 }}
                   className="mt-6 w-full h-12 rounded-full bg-primary text-white font-heading font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]"
                 >
-                  Sign In as {selectedRole === "buyer" ? "Buyer / Renter" : selectedRole === "agent" ? "Agent" : "Vendor"}
+                  Sign In as{" "}
+                  {selectedRole === "buyer"
+                    ? "Buyer / Renter"
+                    : selectedRole === "agent"
+                      ? "Agent"
+                      : "Vendor"}
                   <ArrowRight className="w-4 h-4" />
                 </motion.button>
               </div>

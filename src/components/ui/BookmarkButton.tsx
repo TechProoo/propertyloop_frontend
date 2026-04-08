@@ -1,4 +1,5 @@
 import { Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useBookmarks } from "../../context/BookmarkContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -12,10 +13,9 @@ interface Props {
 const BookmarkButton = ({ id, type, className = "", size = "md" }: Props) => {
   const { isLoggedIn } = useAuth();
   const { isBookmarked, toggle } = useBookmarks();
+  const navigate = useNavigate();
 
-  if (!isLoggedIn) return null;
-
-  const active = isBookmarked(id, type);
+  const active = isLoggedIn && isBookmarked(id, type);
   const sizeClass = size === "sm" ? "w-8 h-8" : "w-9 h-9";
   const iconSize = size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4";
 
@@ -24,6 +24,10 @@ const BookmarkButton = ({ id, type, className = "", size = "md" }: Props) => {
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (!isLoggedIn) {
+          navigate("/login");
+          return;
+        }
         toggle(id, type);
       }}
       className={`${sizeClass} rounded-full flex items-center justify-center transition-all duration-200 ${
@@ -31,7 +35,9 @@ const BookmarkButton = ({ id, type, className = "", size = "md" }: Props) => {
           ? "bg-red-500 text-white shadow-lg"
           : "bg-white/80 backdrop-blur-sm border border-white/50 text-text-subtle hover:text-red-400 hover:border-red-200"
       } ${className}`}
-      title={active ? "Remove bookmark" : "Save"}
+      title={
+        !isLoggedIn ? "Log in to save" : active ? "Remove bookmark" : "Save"
+      }
     >
       <Heart className={`${iconSize} ${active ? "fill-white" : ""}`} />
     </button>

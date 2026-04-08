@@ -37,7 +37,7 @@ const Footer = () => {
     <footer className="w-full px-6 md:px-12 lg:px-20 pt-16 pb-8 bg-bg">
       <div className="max-w-7xl mx-auto">
         {/* Main footer card */}
-        <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-3xladow-[0_4px_20px_rgba(0,0,0,0.04)] p-8 sm:p-10 lg:p-14">
+        <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-8 sm:p-10 lg:p-14">
           {/* Top — logo + links grid */}
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
             {/* Brand column */}
@@ -49,13 +49,23 @@ const Footer = () => {
               </p>
               {/* Social placeholder */}
               <div className="flex gap-3 mt-6">
-                {["X", "IG", "LI", "FB"].map((s) => (
+                {[
+                  { label: "X", href: "https://x.com/propertyloop" },
+                  { label: "IG", href: "https://instagram.com/propertyloop" },
+                  {
+                    label: "LI",
+                    href: "https://linkedin.com/company/propertyloop",
+                  },
+                  { label: "FB", href: "https://facebook.com/propertyloop" },
+                ].map((s) => (
                   <a
-                    key={s}
-                    href="#"
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm border border-border-light flex items-center justify-center text-text-subtle text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
                   >
-                    {s}
+                    {s.label}
                   </a>
                 ))}
               </div>
@@ -104,13 +114,22 @@ const Footer = () => {
               reserved.
             </p>
             <div className="flex items-center gap-6 text-text-subtle text-xs">
-              <Link to="/legal/privacy" className="hover:text-primary transition-colors">
+              <Link
+                to="/legal/privacy"
+                className="hover:text-primary transition-colors"
+              >
                 Privacy
               </Link>
-              <Link to="/legal/terms" className="hover:text-primary transition-colors">
+              <Link
+                to="/legal/terms"
+                className="hover:text-primary transition-colors"
+              >
                 Terms
               </Link>
-              <Link to="/legal/privacy" className="hover:text-primary transition-colors">
+              <Link
+                to="/legal/privacy"
+                className="hover:text-primary transition-colors"
+              >
                 Cookies
               </Link>
             </div>

@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpRight,
   ArrowLeft,
@@ -19,6 +20,9 @@ import {
   Maximize,
   TrendingUp,
   Users,
+  Flag,
+  Send,
+  X,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -41,7 +45,8 @@ const agentListings: Record<
 > = {
   "adebayo-johnson": [
     {
-      image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
       price: "₦185,000,000",
       title: "Contemporary Villa with Garden",
       address: "Lekki Phase 1, Lagos",
@@ -51,7 +56,8 @@ const agentListings: Record<
       type: "For Sale",
     },
     {
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
       price: "₦65,000,000",
       title: "Luxury 3-Bed Flat in Lekki",
       address: "Lekki Phase 1, Lagos",
@@ -61,7 +67,8 @@ const agentListings: Record<
       type: "For Sale",
     },
     {
-      image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
       price: "₦3,200,000 /yr",
       title: "Modern Terrace in Gated Estate",
       address: "Lekki Phase 1, Lagos",
@@ -73,7 +80,8 @@ const agentListings: Record<
   ],
   "chioma-okafor": [
     {
-      image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
       price: "₦120,000,000",
       title: "Penthouse with Ocean View",
       address: "Victoria Island, Lagos",
@@ -83,7 +91,8 @@ const agentListings: Record<
       type: "For Sale",
     },
     {
-      image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
       price: "₦85,000 /night",
       title: "Luxury Shortlet Apartment",
       address: "Victoria Island, Lagos",
@@ -95,7 +104,8 @@ const agentListings: Record<
   ],
   "emeka-nwosu": [
     {
-      image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
       price: "₦450,000,000",
       title: "Waterfront Mansion with Pool",
       address: "Ikoyi, Lagos",
@@ -105,7 +115,8 @@ const agentListings: Record<
       type: "For Sale",
     },
     {
-      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
       price: "₦220,000,000",
       title: "Premium Office Space",
       address: "Ikoyi, Lagos",
@@ -115,7 +126,8 @@ const agentListings: Record<
       type: "Commercial",
     },
     {
-      image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
       price: "₦95,000,000",
       title: "Semi-Detached Duplex with BQ",
       address: "Ikoyi, Lagos",
@@ -130,7 +142,8 @@ const agentListings: Record<
 /* Default listings for agents without specific ones */
 const defaultListings = [
   {
-    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
     price: "₦75,000,000",
     title: "Modern Family Home",
     address: "Lagos",
@@ -140,7 +153,8 @@ const defaultListings = [
     type: "For Sale",
   },
   {
-    image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
     price: "₦2,800,000 /yr",
     title: "Spacious 3-Bed Apartment",
     address: "Lagos",
@@ -175,6 +189,192 @@ const reviews = [
 ];
 
 const ease = [0.23, 1, 0.32, 1] as const;
+
+/* ─── Review / Dispute Section ─── */
+const ReviewDisputeSection = ({
+  targetName,
+  targetType,
+}: {
+  targetName: string;
+  targetType: "agent" | "vendor";
+}) => {
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showDisputeForm, setShowDisputeForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [disputeText, setDisputeText] = useState("");
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [disputeSubmitted, setDisputeSubmitted] = useState(false);
+
+  const handleReviewSubmit = () => {
+    if (reviewRating > 0 && reviewText.trim()) {
+      setReviewSubmitted(true);
+      setTimeout(() => {
+        setShowReviewForm(false);
+        setReviewSubmitted(false);
+        setReviewRating(0);
+        setReviewText("");
+      }, 2000);
+    }
+  };
+
+  const handleDisputeSubmit = () => {
+    if (disputeText.trim()) {
+      setDisputeSubmitted(true);
+      setTimeout(() => {
+        setShowDisputeForm(false);
+        setDisputeSubmitted(false);
+        setDisputeText("");
+      }, 2000);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.25, duration: 0.4, ease }}
+      className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8 mt-6"
+    >
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          onClick={() => {
+            setShowReviewForm(!showReviewForm);
+            setShowDisputeForm(false);
+          }}
+          className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
+        >
+          <Star className="w-4 h-4" /> Write a Review
+        </button>
+        <button
+          onClick={() => {
+            setShowDisputeForm(!showDisputeForm);
+            setShowReviewForm(false);
+          }}
+          className="flex-1 h-11 rounded-full bg-white/60 border border-border-light text-text-secondary text-sm font-medium hover:border-red-300 hover:text-red-500 transition-all inline-flex items-center justify-center gap-2"
+        >
+          <Flag className="w-4 h-4" /> Report{" "}
+          {targetType === "agent" ? "Agent" : "Vendor"}
+        </button>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {showReviewForm && (
+          <motion.div
+            key="review"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-5 overflow-hidden"
+          >
+            {reviewSubmitted ? (
+              <div className="text-center py-6">
+                <CheckCircle className="w-10 h-10 text-primary mx-auto mb-2" />
+                <p className="font-heading font-bold text-primary-dark">
+                  Review submitted!
+                </p>
+                <p className="text-text-secondary text-xs mt-1">
+                  Thank you for your feedback.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-heading font-semibold text-primary-dark text-sm">
+                    Rate {targetName}
+                  </p>
+                  <button
+                    onClick={() => setShowReviewForm(false)}
+                    className="text-text-subtle hover:text-primary-dark"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-1 mb-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setReviewRating(star)}
+                      className="transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`w-6 h-6 ${star <= reviewRating ? "text-[#F5A623] fill-[#F5A623]" : "text-border-light"}`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  placeholder="Share your experience..."
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+                />
+                <button
+                  onClick={handleReviewSubmit}
+                  disabled={reviewRating === 0 || !reviewText.trim()}
+                  className="mt-3 h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Send className="w-3.5 h-3.5" /> Submit Review
+                </button>
+              </>
+            )}
+          </motion.div>
+        )}
+
+        {showDisputeForm && (
+          <motion.div
+            key="dispute"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-5 overflow-hidden"
+          >
+            {disputeSubmitted ? (
+              <div className="text-center py-6">
+                <CheckCircle className="w-10 h-10 text-primary mx-auto mb-2" />
+                <p className="font-heading font-bold text-primary-dark">
+                  Report submitted!
+                </p>
+                <p className="text-text-secondary text-xs mt-1">
+                  Our team will review your report within 24-48 hours.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-heading font-semibold text-primary-dark text-sm">
+                    Report {targetName}
+                  </p>
+                  <button
+                    onClick={() => setShowDisputeForm(false)}
+                    className="text-text-subtle hover:text-primary-dark"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <textarea
+                  value={disputeText}
+                  onChange={(e) => setDisputeText(e.target.value)}
+                  placeholder="Describe the issue..."
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+                />
+                <button
+                  onClick={handleDisputeSubmit}
+                  disabled={!disputeText.trim()}
+                  className="mt-3 h-10 px-6 rounded-full bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Flag className="w-3.5 h-3.5" /> Submit Report
+                </button>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+};
 
 /* ─── Component ─── */
 
@@ -217,7 +417,7 @@ const AgentProfile = () => {
     .filter(
       (a) =>
         a.id !== agent.id &&
-        a.specialty.some((s) => agent.specialty.includes(s))
+        a.specialty.some((s) => agent.specialty.includes(s)),
     )
     .slice(0, 3);
 
@@ -311,7 +511,9 @@ const AgentProfile = () => {
                   <div className="flex flex-wrap gap-3 mt-5">
                     {[
                       {
-                        icon: <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />,
+                        icon: (
+                          <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
+                        ),
                         value: agent.rating.toString(),
                         label: "Rating",
                       },
@@ -529,10 +731,16 @@ const AgentProfile = () => {
                   ))}
                 </div>
               </motion.div>
+
+              {/* Write Review / Report */}
+              <ReviewDisputeSection
+                targetName={agent.name}
+                targetType="agent"
+              />
             </div>
 
             {/* Right — Listings + Similar agents */}
-            <div className="lg:w-[420px] shrink-0">
+            <div className="lg:w-105 shrink-0">
               {/* Active Listings */}
               <motion.div
                 initial={{ opacity: 0, y: 15 }}

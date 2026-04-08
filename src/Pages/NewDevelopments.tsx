@@ -64,7 +64,8 @@ const categories = [
 
 const developments: Development[] = [
   {
-    image: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop",
     title: "Emerald Bay Estate",
     developer: "Prime Realty Lagos",
     address: "Lekki Phase 2, Lagos",
@@ -76,7 +77,8 @@ const developments: Development[] = [
     status: "Selling",
   },
   {
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
     title: "The Pinnacle Towers",
     developer: "Island Properties",
     address: "Victoria Island, Lagos",
@@ -88,7 +90,8 @@ const developments: Development[] = [
     status: "Selling",
   },
   {
-    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
     title: "Lekki Gardens Phase 3",
     developer: "Prestige Homes",
     address: "Lekki, Lagos",
@@ -100,7 +103,8 @@ const developments: Development[] = [
     status: "Almost Sold Out",
   },
   {
-    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
     title: "Oceanview Terraces",
     developer: "Royal Estate Advisors",
     address: "Banana Island, Lagos",
@@ -112,7 +116,8 @@ const developments: Development[] = [
     status: "Pre-Launch",
   },
   {
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
     title: "Heritage Park Estate",
     developer: "Cityscape Properties",
     address: "Gbagada, Lagos",
@@ -124,7 +129,8 @@ const developments: Development[] = [
     status: "Selling",
   },
   {
-    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
     title: "The Axis Hub",
     developer: "Horizon Properties",
     address: "Ikeja, Lagos",
@@ -136,7 +142,8 @@ const developments: Development[] = [
     status: "Selling",
   },
   {
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
     title: "Sapphire Court Residences",
     developer: "Sapphire Homes",
     address: "Yaba, Lagos",
@@ -148,7 +155,8 @@ const developments: Development[] = [
     status: "Almost Sold Out",
   },
   {
-    image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&h=400&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&h=400&fit=crop",
     title: "Greenfield Villas",
     developer: "Metro Living Realty",
     address: "Ajah, Lagos",
@@ -165,22 +173,26 @@ const steps = [
   {
     icon: <Search className="w-6 h-6" />,
     title: "Browse Developments",
-    description: "Explore verified new builds and off-plan properties from trusted developers across Lagos.",
+    description:
+      "Explore verified new builds and off-plan properties from trusted developers across Lagos.",
   },
   {
     icon: <ClipboardCheck className="w-6 h-6" />,
     title: "Reserve Your Unit",
-    description: "Secure your preferred unit with an escrow-protected deposit via Paystack. No risk.",
+    description:
+      "Secure your preferred unit with an escrow-protected deposit via Paystack. No risk.",
   },
   {
     icon: <TrendingUp className="w-6 h-6" />,
     title: "Track Progress",
-    description: "Get regular construction updates, photos, and milestone notifications from your developer.",
+    description:
+      "Get regular construction updates, photos, and milestone notifications from your developer.",
   },
   {
     icon: <KeyRound className="w-6 h-6" />,
     title: "Complete Purchase",
-    description: "Sign your agreement via DocuSeal, complete payment, and collect your keys on handover day.",
+    description:
+      "Sign your agreement via DocuSeal, complete payment, and collect your keys on handover day.",
   },
 ];
 
@@ -202,8 +214,7 @@ const NewDevelopments = () => {
     return developments.filter((d) => {
       const matchesCategory =
         activeCategory === "All Developments" || d.type === activeCategory;
-      const matchesStatus =
-        activeStatus === "All" || d.status === activeStatus;
+      const matchesStatus = activeStatus === "All" || d.status === activeStatus;
       const q = searchQuery.toLowerCase();
       const matchesSearch =
         !q ||
@@ -298,10 +309,30 @@ const NewDevelopments = () => {
             </div>
           </div>
 
+          {/* ─── Mobile Category Strip ─── */}
+          <div className="lg:hidden overflow-x-auto -mx-6 px-6 pb-4 mb-6">
+            <div className="flex gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.label}
+                  onClick={() => setActiveCategory(cat.label)}
+                  className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all ${
+                    activeCategory === cat.label
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white/80 text-primary-dark border-border-light hover:border-primary"
+                  }`}
+                >
+                  {cat.icon}
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* ─── Sidebar + Grid ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
             {/* Left — sidebar */}
-            <div className="lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
+            <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               {/* Categories */}
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-light">
@@ -394,7 +425,7 @@ const NewDevelopments = () => {
                       >
                         {s}
                       </button>
-                    )
+                    ),
                   )}
                 </div>
               </div>
@@ -403,7 +434,7 @@ const NewDevelopments = () => {
             {/* Right — development cards */}
             <div className="flex-1">
               {/* Results header */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <p className="text-text-secondary text-sm">
                   Showing{" "}
                   <span className="font-bold text-primary-dark">
@@ -424,9 +455,7 @@ const NewDevelopments = () => {
                 {filtered.map((dev, i) => (
                   <div
                     key={i}
-                    onClick={() =>
-                      setContactCard(contactCard === i ? null : i)
-                    }
+                    onClick={() => setContactCard(contactCard === i ? null : i)}
                     className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                   >
                     {/* Image */}
@@ -483,7 +512,7 @@ const NewDevelopments = () => {
                           </span>
                           <span className="text-text-subtle">
                             {Math.round(
-                              dev.totalUnits * (1 - dev.soldPercentage / 100)
+                              dev.totalUnits * (1 - dev.soldPercentage / 100),
                             )}{" "}
                             remaining
                           </span>

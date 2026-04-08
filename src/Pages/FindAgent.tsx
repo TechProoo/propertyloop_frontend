@@ -77,7 +77,9 @@ const FindAgent = () => {
       const matchesRating =
         activeRating === "Any Rating" ||
         agent.rating >= parseFloat(activeRating.replace("+", ""));
-      return matchesSearch && matchesLocation && matchesSpecialty && matchesRating;
+      return (
+        matchesSearch && matchesLocation && matchesSpecialty && matchesRating
+      );
     });
   };
 
@@ -113,8 +115,7 @@ const FindAgent = () => {
 
             <div className="relative z-10 p-8 sm:p-10 lg:p-14">
               <h1 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3.5rem] leading-[1.1] font-bold text-white tracking-tight">
-                Find Your{" "}
-                <span className="text-white/70">Trusted Agent</span>
+                Find Your <span className="text-white/70">Trusted Agent</span>
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
                 Every agent on PropertyLoop is KYC-verified through Smile
@@ -165,10 +166,30 @@ const FindAgent = () => {
             </div>
           </div>
 
+          {/* ─── Mobile Specialty Strip ─── */}
+          <div className="lg:hidden overflow-x-auto -mx-6 px-6 pb-4 mb-6">
+            <div className="flex gap-2">
+              {specialties.map((spec) => (
+                <button
+                  key={spec.label}
+                  onClick={() => setActiveSpecialty(spec.label)}
+                  className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all ${
+                    activeSpecialty === spec.label
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white/80 text-primary-dark border-border-light hover:border-primary"
+                  }`}
+                >
+                  {spec.icon}
+                  {spec.label === "All" ? "All Specialties" : spec.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* ─── Sidebar + Grid ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
             {/* Left — filters */}
-            <div className="lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
+            <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               {/* Specialty filter */}
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-light">
@@ -198,14 +219,16 @@ const FindAgent = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-heading font-bold text-[14px] leading-tight">
-                          {spec.label === "All" ? "All Specialties" : spec.label}
+                          {spec.label === "All"
+                            ? "All Specialties"
+                            : spec.label}
                         </p>
                         <p className="text-text-secondary text-xs mt-0.5">
                           {
                             agents.filter(
                               (a) =>
                                 spec.label === "All" ||
-                                a.specialty.includes(spec.label)
+                                a.specialty.includes(spec.label),
                             ).length
                           }{" "}
                           agents
@@ -310,7 +333,7 @@ const FindAgent = () => {
             {/* Right — agent cards */}
             <div className="flex-1">
               {/* Results header */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <p className="text-text-secondary text-sm">
                   Showing{" "}
                   <span className="font-bold text-primary-dark">
@@ -336,9 +359,7 @@ const FindAgent = () => {
                 {filteredAgents.map((agent, i) => (
                   <div
                     key={i}
-                    onClick={() =>
-                      setContactCard(contactCard === i ? null : i)
-                    }
+                    onClick={() => setContactCard(contactCard === i ? null : i)}
                     className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                   >
                     {/* Photo */}

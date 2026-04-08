@@ -380,7 +380,7 @@ const Shortlet = () => {
 
           {/* ─── Neighbourhood Intelligence ─── */}
           <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                   <MapPin className="w-5 h-5" />
@@ -491,10 +491,30 @@ const Shortlet = () => {
             </div>
           </div>
 
+          {/* ─── Mobile Category Strip ─── */}
+          <div className="lg:hidden overflow-x-auto -mx-6 px-6 pb-4 mb-6">
+            <div className="flex gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.label}
+                  onClick={() => setActiveCategory(cat.label)}
+                  className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all ${
+                    activeCategory === cat.label
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white/80 text-primary-dark border-border-light hover:border-primary"
+                  }`}
+                >
+                  {cat.icon}
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* ─── Category sidebar + listings ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
             {/* Left — category nav */}
-            <div className="lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
+            <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-light">
                   <h3 className="font-heading font-bold text-primary-dark text-sm">
@@ -607,7 +627,7 @@ const Shortlet = () => {
             {/* Right — listing cards */}
             <div className="flex-1">
               {/* Results header */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <p className="text-text-secondary text-sm">
                   Showing{" "}
                   <span className="font-bold text-primary-dark">
@@ -633,9 +653,7 @@ const Shortlet = () => {
                 {currentListings.map((listing, i) => (
                   <div
                     key={i}
-                    onClick={() =>
-                      setContactCard(contactCard === i ? null : i)
-                    }
+                    onClick={() => setContactCard(contactCard === i ? null : i)}
                     className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                   >
                     {/* Image */}
@@ -653,7 +671,12 @@ const Shortlet = () => {
                         {listing.price}
                         <span className="text-white/60">/{listing.period}</span>
                       </span>
-                      <BookmarkButton id={`shortlet-${listing.title.replace(/\s/g, "-").toLowerCase()}`} type="property" className="absolute bottom-3 right-3" size="sm" />
+                      <BookmarkButton
+                        id={`shortlet-${listing.title.replace(/\s/g, "-").toLowerCase()}`}
+                        type="property"
+                        className="absolute bottom-3 right-3"
+                        size="sm"
+                      />
                     </div>
 
                     {/* Glass content */}
@@ -841,9 +864,9 @@ const Shortlet = () => {
                 Every stay is Paystack-protected
               </h3>
               <p className="text-text-secondary text-sm mt-1">
-                All shortlet bookings are processed through Paystack with
-                escrow protection. Your payment is held securely until check-in
-                is confirmed — giving you peace of mind on every booking.
+                All shortlet bookings are processed through Paystack with escrow
+                protection. Your payment is held securely until check-in is
+                confirmed — giving you peace of mind on every booking.
               </p>
             </div>
             <Link

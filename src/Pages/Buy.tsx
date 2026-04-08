@@ -59,106 +59,178 @@ const categories = [
 const listings = {
   "Flats & Apartments": [
     {
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
       price: "₦65,000,000",
       title: "Luxury 3-Bed Flat in Lekki",
       address: "Lekki Phase 1, Lagos",
-      beds: 3, baths: 3, sqft: "2,400", rating: 4.8, agent: "Prime Realty",
-      lat: 6.4478, lng: 3.4723,
+      beds: 3,
+      baths: 3,
+      sqft: "2,400",
+      rating: 4.8,
+      agent: "Prime Realty",
+      lat: 6.4478,
+      lng: 3.4723,
     },
     {
-      image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
       price: "₦120,000,000",
       title: "Penthouse with Ocean View",
       address: "Victoria Island, Lagos",
-      beds: 4, baths: 3, sqft: "3,800", rating: 4.9, agent: "Island Properties",
-      lat: 6.4281, lng: 3.4219,
+      beds: 4,
+      baths: 3,
+      sqft: "3,800",
+      rating: 4.9,
+      agent: "Island Properties",
+      lat: 6.4281,
+      lng: 3.4219,
     },
     {
-      image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
       price: "₦45,000,000",
       title: "Modern 2-Bed Apartment",
       address: "Ikoyi, Lagos",
-      beds: 2, baths: 2, sqft: "1,600", rating: 4.7, agent: "Prestige Homes",
-      lat: 6.4494, lng: 3.4345,
+      beds: 2,
+      baths: 2,
+      sqft: "1,600",
+      rating: 4.7,
+      agent: "Prestige Homes",
+      lat: 6.4494,
+      lng: 3.4345,
     },
   ],
   Houses: [
     {
-      image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
       price: "₦185,000,000",
       title: "Contemporary Villa with Garden",
       address: "Lekki Phase 1, Lagos",
-      beds: 4, baths: 3, sqft: "6,800", rating: 4.9, agent: "Prime Realty",
-      lat: 6.4412, lng: 3.4815,
+      beds: 4,
+      baths: 3,
+      sqft: "6,800",
+      rating: 4.9,
+      agent: "Prime Realty",
+      lat: 6.4412,
+      lng: 3.4815,
     },
     {
-      image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
       price: "₦450,000,000",
       title: "Waterfront Mansion with Pool",
       address: "Banana Island, Lagos",
-      beds: 6, baths: 5, sqft: "12,000", rating: 4.9, agent: "Royal Estate Advisors",
-      lat: 6.4571, lng: 3.4282,
+      beds: 6,
+      baths: 5,
+      sqft: "12,000",
+      rating: 4.9,
+      agent: "Royal Estate Advisors",
+      lat: 6.4571,
+      lng: 3.4282,
     },
     {
-      image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
       price: "₦95,000,000",
       title: "Semi-Detached Duplex with BQ",
       address: "Gbagada, Lagos",
-      beds: 4, baths: 3, sqft: "5,200", rating: 4.7, agent: "Cityscape Properties",
-      lat: 6.5530, lng: 3.3870,
+      beds: 4,
+      baths: 3,
+      sqft: "5,200",
+      rating: 4.7,
+      agent: "Cityscape Properties",
+      lat: 6.553,
+      lng: 3.387,
     },
   ],
   Lands: [
     {
-      image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop",
       price: "₦30,000,000",
       title: "500sqm Plot in Gated Estate",
       address: "Ajah, Lagos",
-      beds: 0, baths: 0, sqft: "500", rating: 4.6, agent: "Metro Living Realty",
-      lat: 6.4698, lng: 3.5852,
+      beds: 0,
+      baths: 0,
+      sqft: "500",
+      rating: 4.6,
+      agent: "Metro Living Realty",
+      lat: 6.4698,
+      lng: 3.5852,
     },
     {
-      image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?w=600&h=400&fit=crop",
       price: "₦85,000,000",
       title: "1000sqm Waterfront Plot",
       address: "Lekki Phase 2, Lagos",
-      beds: 0, baths: 0, sqft: "1,000", rating: 4.8, agent: "Island Properties",
-      lat: 6.4380, lng: 3.5320,
+      beds: 0,
+      baths: 0,
+      sqft: "1,000",
+      rating: 4.8,
+      agent: "Island Properties",
+      lat: 6.438,
+      lng: 3.532,
     },
     {
-      image: "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?w=600&h=400&fit=crop",
       price: "₦150,000,000",
       title: "Prime Corner Plot with C of O",
       address: "Victoria Island, Lagos",
-      beds: 0, baths: 0, sqft: "800", rating: 4.9, agent: "Prestige Homes",
-      lat: 6.4315, lng: 3.4160,
+      beds: 0,
+      baths: 0,
+      sqft: "800",
+      rating: 4.9,
+      agent: "Prestige Homes",
+      lat: 6.4315,
+      lng: 3.416,
     },
   ],
   "Commercial Property": [
     {
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
       price: "₦350,000,000",
       title: "Office Complex on Allen Avenue",
       address: "Ikeja, Lagos",
-      beds: 0, baths: 4, sqft: "8,500", rating: 4.7, agent: "Cityscape Properties",
-      lat: 6.6018, lng: 3.3515,
+      beds: 0,
+      baths: 4,
+      sqft: "8,500",
+      rating: 4.7,
+      agent: "Cityscape Properties",
+      lat: 6.6018,
+      lng: 3.3515,
     },
     {
-      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
       price: "₦220,000,000",
       title: "Retail Space on Admiralty Way",
       address: "Lekki Phase 1, Lagos",
-      beds: 0, baths: 2, sqft: "4,200", rating: 4.8, agent: "Prime Realty",
-      lat: 6.4500, lng: 3.4750,
+      beds: 0,
+      baths: 2,
+      sqft: "4,200",
+      rating: 4.8,
+      agent: "Prime Realty",
+      lat: 6.45,
+      lng: 3.475,
     },
     {
-      image: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=600&h=400&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=600&h=400&fit=crop",
       price: "₦500,000,000",
       title: "Warehouse with Loading Bay",
       address: "Apapa, Lagos",
-      beds: 0, baths: 2, sqft: "15,000", rating: 4.6, agent: "Royal Estate Advisors",
-      lat: 6.4488, lng: 3.3590,
+      beds: 0,
+      baths: 2,
+      sqft: "15,000",
+      rating: 4.6,
+      agent: "Royal Estate Advisors",
+      lat: 6.4488,
+      lng: 3.359,
     },
   ],
 };
@@ -203,6 +275,15 @@ const Buy = () => {
         const p = parseInt(l.price.replace(/[₦,]/g, ""));
         return p >= min && (max ? p <= max : true);
       });
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (l) =>
+          l.title.toLowerCase().includes(q) ||
+          l.address.toLowerCase().includes(q) ||
+          l.agent.toLowerCase().includes(q),
+      );
     }
     return result;
   };
@@ -333,11 +414,33 @@ const Buy = () => {
                           onChange={(e) => setPriceRange(e.target.value)}
                           className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
                         >
-                          <option value="any" className="text-primary-dark">Any Price</option>
-                          <option value="0-50000000" className="text-primary-dark">Under ₦50M</option>
-                          <option value="50000000-100000000" className="text-primary-dark">₦50M – ₦100M</option>
-                          <option value="100000000-300000000" className="text-primary-dark">₦100M – ₦300M</option>
-                          <option value="300000000-0" className="text-primary-dark">₦300M+</option>
+                          <option value="any" className="text-primary-dark">
+                            Any Price
+                          </option>
+                          <option
+                            value="0-50000000"
+                            className="text-primary-dark"
+                          >
+                            Under ₦50M
+                          </option>
+                          <option
+                            value="50000000-100000000"
+                            className="text-primary-dark"
+                          >
+                            ₦50M – ₦100M
+                          </option>
+                          <option
+                            value="100000000-300000000"
+                            className="text-primary-dark"
+                          >
+                            ₦100M – ₦300M
+                          </option>
+                          <option
+                            value="300000000-0"
+                            className="text-primary-dark"
+                          >
+                            ₦300M+
+                          </option>
                         </select>
                       </div>
 
@@ -351,11 +454,21 @@ const Buy = () => {
                           onChange={(e) => setBedsFilter(e.target.value)}
                           className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
                         >
-                          <option value="any" className="text-primary-dark">Any</option>
-                          <option value="1" className="text-primary-dark">1+</option>
-                          <option value="2" className="text-primary-dark">2+</option>
-                          <option value="3" className="text-primary-dark">3+</option>
-                          <option value="4" className="text-primary-dark">4+</option>
+                          <option value="any" className="text-primary-dark">
+                            Any
+                          </option>
+                          <option value="1" className="text-primary-dark">
+                            1+
+                          </option>
+                          <option value="2" className="text-primary-dark">
+                            2+
+                          </option>
+                          <option value="3" className="text-primary-dark">
+                            3+
+                          </option>
+                          <option value="4" className="text-primary-dark">
+                            4+
+                          </option>
                         </select>
                       </div>
 
@@ -369,10 +482,18 @@ const Buy = () => {
                           onChange={(e) => setBathsFilter(e.target.value)}
                           className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
                         >
-                          <option value="any" className="text-primary-dark">Any</option>
-                          <option value="1" className="text-primary-dark">1+</option>
-                          <option value="2" className="text-primary-dark">2+</option>
-                          <option value="3" className="text-primary-dark">3+</option>
+                          <option value="any" className="text-primary-dark">
+                            Any
+                          </option>
+                          <option value="1" className="text-primary-dark">
+                            1+
+                          </option>
+                          <option value="2" className="text-primary-dark">
+                            2+
+                          </option>
+                          <option value="3" className="text-primary-dark">
+                            3+
+                          </option>
                         </select>
                       </div>
 
@@ -440,7 +561,7 @@ const Buy = () => {
           {/* ─── Neighbourhood Intelligence ─── */}
           <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
             {/* Header row */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                   <MapPin className="w-5 h-5" />
@@ -559,10 +680,30 @@ const Buy = () => {
             </div>
           </div>
 
+          {/* ─── Mobile Category Strip ─── */}
+          <div className="lg:hidden overflow-x-auto -mx-6 px-6 pb-4 mb-6">
+            <div className="flex gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.label}
+                  onClick={() => setActiveCategory(cat.label)}
+                  className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all ${
+                    activeCategory === cat.label
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white/80 text-primary-dark border-border-light hover:border-primary"
+                  }`}
+                >
+                  {cat.icon}
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Category sidebar + listings */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
             {/* Left — category nav */}
-            <div className="lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
+            <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-light">
                   <h3 className="font-heading font-bold text-primary-dark text-sm">
@@ -639,7 +780,7 @@ const Buy = () => {
             {/* Right — listing cards */}
             <div className="flex-1">
               {/* Results header */}
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <p className="text-text-secondary text-sm">
                   Showing{" "}
                   <span className="font-bold text-primary-dark">
@@ -661,193 +802,229 @@ const Buy = () => {
               </div>
 
               {/* Cards grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
-                {currentListings.map((listing, i) => (
-                  <div
-                    key={i}
+              {currentListings.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-7 h-7 text-text-subtle" />
+                  </div>
+                  <h3 className="font-heading font-bold text-primary-dark text-lg">
+                    No properties found
+                  </h3>
+                  <p className="text-text-secondary text-sm mt-2">
+                    Try adjusting your filters or search query.
+                  </p>
+                  <button
                     onClick={() => {
-                      if (!isLoggedIn) { navigate("/onboarding"); return; }
-                      setContactCard(contactCard === i ? null : i);
+                      setSearchQuery("");
+                      setActiveCategory("All Property");
+                      setPriceRange("any");
+                      setBedsFilter("any");
+                      setBathsFilter("any");
                     }}
-                    onMouseEnter={() => setHoveredCard(i)}
-                    onMouseLeave={() => setHoveredCard(null)}
-                    className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                    className="mt-4 h-10 px-6 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all"
                   >
-                    {/* Image */}
-                    <div className="h-44 overflow-hidden rounded-t-[20px] relative">
-                      <img
-                        src={listing.image}
-                        alt={listing.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <span className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-medium text-primary-dark">
-                        <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                        {listing.rating}
-                      </span>
-                      <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
-                        For Sale
-                      </span>
-                      <BookmarkButton id={`buy-${listing.title.replace(/\s/g, "-").toLowerCase()}`} type="property" className="absolute bottom-3 right-3" size="sm" />
-                    </div>
-
-                    {/* Glass content */}
-                    <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                      <p className="font-heading font-bold text-primary-dark text-[18px]">
-                        {listing.price}
-                      </p>
-                      <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1 truncate">
-                        {listing.title}
-                      </h3>
-                      <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {listing.address}
-                      </p>
-
-                      <div className="h-px bg-border-light mt-3 mb-3" />
-
-                      <div className="flex items-center gap-4 text-text-secondary text-xs pr-10">
-                        {listing.beds > 0 && (
-                          <span className="flex items-center gap-1.5">
-                            <Bed className="w-3.5 h-3.5" />
-                            {listing.beds} Beds
-                          </span>
-                        )}
-                        {listing.baths > 0 && (
-                          <span className="flex items-center gap-1.5">
-                            <Bath className="w-3.5 h-3.5" />
-                            {listing.baths} Baths
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1.5">
-                          <Maximize className="w-3.5 h-3.5" />
-                          {listing.sqft}m²
+                    Clear All Filters
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
+                  {currentListings.map((listing, i) => (
+                    <div
+                      key={i}
+                      onClick={() => {
+                        if (!isLoggedIn) {
+                          navigate("/onboarding");
+                          return;
+                        }
+                        setContactCard(contactCard === i ? null : i);
+                      }}
+                      onMouseEnter={() => setHoveredCard(i)}
+                      onMouseLeave={() => setHoveredCard(null)}
+                      className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                    >
+                      {/* Image */}
+                      <div className="h-44 overflow-hidden rounded-t-[20px] relative">
+                        <img
+                          src={listing.image}
+                          alt={listing.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <span className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-medium text-primary-dark">
+                          <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
+                          {listing.rating}
                         </span>
+                        <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
+                          For Sale
+                        </span>
+                        <BookmarkButton
+                          id={`buy-${listing.title.replace(/\s/g, "-").toLowerCase()}`}
+                          type="property"
+                          className="absolute bottom-3 right-3"
+                          size="sm"
+                        />
                       </div>
-                    </div>
 
-                    {/* Arrow — clipped circle */}
-                    <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
-                      <ArrowUpRight className="absolute top-4 left-5 w-5 h-5 text-white" />
-                    </div>
+                      {/* Glass content */}
+                      <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+                        <p className="font-heading font-bold text-primary-dark text-[18px]">
+                          {listing.price}
+                        </p>
+                        <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1 truncate">
+                          {listing.title}
+                        </h3>
+                        <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {listing.address}
+                        </p>
 
-                    {/* Contact overlay */}
-                    <AnimatePresence>
-                      {contactCard === i && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.25 }}
-                          className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-primary-dark/80 backdrop-blur-md rounded-[20px]"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {/* Close */}
-                          <motion.button
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{
-                              delay: 0.15,
-                              duration: 0.3,
-                              ease: [0.23, 1, 0.32, 1],
-                            }}
-                            onClick={() => setContactCard(null)}
-                            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/25 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </motion.button>
+                        <div className="h-px bg-border-light mt-3 mb-3" />
 
-                          {/* Agent name */}
+                        <div className="flex items-center gap-4 text-text-secondary text-xs pr-10">
+                          {listing.beds > 0 && (
+                            <span className="flex items-center gap-1.5">
+                              <Bed className="w-3.5 h-3.5" />
+                              {listing.beds} Beds
+                            </span>
+                          )}
+                          {listing.baths > 0 && (
+                            <span className="flex items-center gap-1.5">
+                              <Bath className="w-3.5 h-3.5" />
+                              {listing.baths} Baths
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1.5">
+                            <Maximize className="w-3.5 h-3.5" />
+                            {listing.sqft}m²
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Arrow — clipped circle */}
+                      <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
+                        <ArrowUpRight className="absolute top-4 left-5 w-5 h-5 text-white" />
+                      </div>
+
+                      {/* Contact overlay */}
+                      <AnimatePresence>
+                        {contactCard === i && (
                           <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                              delay: 0.1,
-                              duration: 0.35,
-                              ease: [0.23, 1, 0.32, 1],
-                            }}
-                            className="text-center"
-                          >
-                            <p className="text-white/60 text-xs">
-                              Contact Agent
-                            </p>
-                            <p className="font-heading font-bold text-white text-base mt-1">
-                              {listing.agent}
-                            </p>
-                          </motion.div>
-
-                          {/* Buttons */}
-                          <div className="flex gap-4">
-                            <motion.a
-                              initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                              animate={{ opacity: 1, scale: 1, y: 0 }}
-                              transition={{
-                                delay: 0.2,
-                                duration: 0.4,
-                                ease: [0.23, 1, 0.32, 1],
-                              }}
-                              href="tel:+2341234567890"
-                              className="flex flex-col items-center gap-2"
-                            >
-                              <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">
-                                <Phone className="w-6 h-6" />
-                              </div>
-                              <span className="text-white/70 text-xs">
-                                Call
-                              </span>
-                            </motion.a>
-                            <motion.a
-                              initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                              animate={{ opacity: 1, scale: 1, y: 0 }}
-                              transition={{
-                                delay: 0.3,
-                                duration: 0.4,
-                                ease: [0.23, 1, 0.32, 1],
-                              }}
-                              href={`https://wa.me/2341234567890?text=Hi, I'm interested in ${listing.title} at ${listing.address}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex flex-col items-center gap-2"
-                            >
-                              <div className="w-14 h-14 rounded-full bg-[#25D366]/20 backdrop-blur-sm border border-[#25D366]/30 flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all duration-300">
-                                <MessageCircle className="w-6 h-6" />
-                              </div>
-                              <span className="text-white/70 text-xs">
-                                WhatsApp
-                              </span>
-                            </motion.a>
-                          </div>
-
-                          {/* Details button */}
-                          <motion.button
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                              delay: 0.4,
-                              duration: 0.35,
-                              ease: [0.23, 1, 0.32, 1],
-                            }}
-                            onClick={() => navigate(getPropertyLink(listing.title))}
-                            className="mt-1 h-10 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all duration-300 inline-flex items-center gap-2"
-                          >
-                            <ArrowUpRight className="w-4 h-4" />
-                            View details
-                          </motion.button>
-
-                          {/* Property name */}
-                          <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5, duration: 0.3 }}
-                            className="text-white/40 text-xs text-center px-6 mt-1 truncate max-w-full"
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-primary-dark/80 backdrop-blur-md rounded-[20px]"
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            {listing.title}
-                          </motion.p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))}
-              </div>
+                            {/* Close */}
+                            <motion.button
+                              initial={{ opacity: 0, scale: 0.5 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{
+                                delay: 0.15,
+                                duration: 0.3,
+                                ease: [0.23, 1, 0.32, 1],
+                              }}
+                              onClick={() => setContactCard(null)}
+                              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/25 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </motion.button>
+
+                            {/* Agent name */}
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{
+                                delay: 0.1,
+                                duration: 0.35,
+                                ease: [0.23, 1, 0.32, 1],
+                              }}
+                              className="text-center"
+                            >
+                              <p className="text-white/60 text-xs">
+                                Contact Agent
+                              </p>
+                              <p className="font-heading font-bold text-white text-base mt-1">
+                                {listing.agent}
+                              </p>
+                            </motion.div>
+
+                            {/* Buttons */}
+                            <div className="flex gap-4">
+                              <motion.a
+                                initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                transition={{
+                                  delay: 0.2,
+                                  duration: 0.4,
+                                  ease: [0.23, 1, 0.32, 1],
+                                }}
+                                href="tel:+2341234567890"
+                                className="flex flex-col items-center gap-2"
+                              >
+                                <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">
+                                  <Phone className="w-6 h-6" />
+                                </div>
+                                <span className="text-white/70 text-xs">
+                                  Call
+                                </span>
+                              </motion.a>
+                              <motion.a
+                                initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                transition={{
+                                  delay: 0.3,
+                                  duration: 0.4,
+                                  ease: [0.23, 1, 0.32, 1],
+                                }}
+                                href={`https://wa.me/2341234567890?text=Hi, I'm interested in ${listing.title} at ${listing.address}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex flex-col items-center gap-2"
+                              >
+                                <div className="w-14 h-14 rounded-full bg-[#25D366]/20 backdrop-blur-sm border border-[#25D366]/30 flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all duration-300">
+                                  <MessageCircle className="w-6 h-6" />
+                                </div>
+                                <span className="text-white/70 text-xs">
+                                  WhatsApp
+                                </span>
+                              </motion.a>
+                            </div>
+
+                            {/* Details button */}
+                            <motion.button
+                              initial={{ opacity: 0, y: 15 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{
+                                delay: 0.4,
+                                duration: 0.35,
+                                ease: [0.23, 1, 0.32, 1],
+                              }}
+                              onClick={() =>
+                                navigate(getPropertyLink(listing.title))
+                              }
+                              className="mt-1 h-10 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all duration-300 inline-flex items-center gap-2"
+                            >
+                              <ArrowUpRight className="w-4 h-4" />
+                              View details
+                            </motion.button>
+
+                            {/* Property name */}
+                            <motion.p
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.5, duration: 0.3 }}
+                              className="text-white/40 text-xs text-center px-6 mt-1 truncate max-w-full"
+                            >
+                              {listing.title}
+                            </motion.p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Load more */}
               <div className="mt-10 text-center">
@@ -877,7 +1054,10 @@ const Buy = () => {
                   on every listing — no hidden inflation.
                 </p>
               </div>
-              <a href="/reductions" className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center">
+              <a
+                href="/reductions"
+                className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
+              >
                 View all reductions
               </a>
             </div>
@@ -1012,7 +1192,6 @@ const Buy = () => {
                       </div>
                     </div>
                   </div>
-
                 </div>
               ))}
             </div>

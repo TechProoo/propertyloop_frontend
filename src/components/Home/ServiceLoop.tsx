@@ -122,7 +122,10 @@ const ServiceLoop = () => {
               is done.
             </p>
           </div>
-          <a href="/services" className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center">
+          <a
+            href="/services"
+            className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
+          >
             Browse all vendors
           </a>
         </div>
@@ -142,7 +145,7 @@ const ServiceLoop = () => {
 
         {/* Vendor cards — 3 per row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {vendors.map((vendor, i) => (
+          {vendors.slice(0, 3).map((vendor, i) => (
             <AuthGate
               key={i}
               href="/services"

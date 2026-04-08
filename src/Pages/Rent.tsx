@@ -59,106 +59,190 @@ const categories = [
 const listings = {
   "Flats & Apartments": [
     {
-      image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
-      price: "₦3,500,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
+      price: "₦3,500,000",
+      period: "year",
       title: "Serviced 3-Bed Flat with Pool",
       address: "Lekki Phase 1, Lagos",
-      beds: 3, baths: 3, sqft: "2,400", rating: 4.8, agent: "Prime Realty",
-      lat: 6.4478, lng: 3.4723,
+      beds: 3,
+      baths: 3,
+      sqft: "2,400",
+      rating: 4.8,
+      agent: "Prime Realty",
+      lat: 6.4478,
+      lng: 3.4723,
     },
     {
-      image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
-      price: "₦8,000,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
+      price: "₦8,000,000",
+      period: "year",
       title: "Luxury Penthouse with Ocean View",
       address: "Victoria Island, Lagos",
-      beds: 4, baths: 3, sqft: "3,800", rating: 4.9, agent: "Island Properties",
-      lat: 6.4281, lng: 3.4219,
+      beds: 4,
+      baths: 3,
+      sqft: "3,800",
+      rating: 4.9,
+      agent: "Island Properties",
+      lat: 6.4281,
+      lng: 3.4219,
     },
     {
-      image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
-      price: "₦2,800,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
+      price: "₦2,800,000",
+      period: "year",
       title: "Modern 2-Bed Apartment",
       address: "Ikoyi, Lagos",
-      beds: 2, baths: 2, sqft: "1,600", rating: 4.7, agent: "Prestige Homes",
-      lat: 6.4494, lng: 3.4345,
+      beds: 2,
+      baths: 2,
+      sqft: "1,600",
+      rating: 4.7,
+      agent: "Prestige Homes",
+      lat: 6.4494,
+      lng: 3.4345,
     },
   ],
   Houses: [
     {
-      image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-      price: "₦12,000,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+      price: "₦12,000,000",
+      period: "year",
       title: "4-Bed Detached Villa with Garden",
       address: "Lekki Phase 1, Lagos",
-      beds: 4, baths: 3, sqft: "6,800", rating: 4.9, agent: "Prime Realty",
-      lat: 6.4412, lng: 3.4815,
+      beds: 4,
+      baths: 3,
+      sqft: "6,800",
+      rating: 4.9,
+      agent: "Prime Realty",
+      lat: 6.4412,
+      lng: 3.4815,
     },
     {
-      image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
-      price: "₦25,000,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
+      price: "₦25,000,000",
+      period: "year",
       title: "Waterfront Mansion with Pool",
       address: "Banana Island, Lagos",
-      beds: 6, baths: 5, sqft: "12,000", rating: 4.9, agent: "Royal Estate Advisors",
-      lat: 6.4571, lng: 3.4282,
+      beds: 6,
+      baths: 5,
+      sqft: "12,000",
+      rating: 4.9,
+      agent: "Royal Estate Advisors",
+      lat: 6.4571,
+      lng: 3.4282,
     },
     {
-      image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
-      price: "₦5,500,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
+      price: "₦5,500,000",
+      period: "year",
       title: "Semi-Detached Duplex with BQ",
       address: "Gbagada, Lagos",
-      beds: 4, baths: 3, sqft: "5,200", rating: 4.7, agent: "Cityscape Properties",
-      lat: 6.5530, lng: 3.3870,
+      beds: 4,
+      baths: 3,
+      sqft: "5,200",
+      rating: 4.7,
+      agent: "Cityscape Properties",
+      lat: 6.553,
+      lng: 3.387,
     },
   ],
   "Office Space": [
     {
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
-      price: "₦18,000,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
+      price: "₦18,000,000",
+      period: "year",
       title: "Open-Plan Office on Allen Avenue",
       address: "Ikeja, Lagos",
-      beds: 0, baths: 4, sqft: "8,500", rating: 4.7, agent: "Cityscape Properties",
-      lat: 6.6018, lng: 3.3515,
+      beds: 0,
+      baths: 4,
+      sqft: "8,500",
+      rating: 4.7,
+      agent: "Cityscape Properties",
+      lat: 6.6018,
+      lng: 3.3515,
     },
     {
-      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
-      price: "₦10,000,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
+      price: "₦10,000,000",
+      period: "year",
       title: "Co-Working Hub on Admiralty Way",
       address: "Lekki Phase 1, Lagos",
-      beds: 0, baths: 2, sqft: "4,200", rating: 4.8, agent: "Prime Realty",
-      lat: 6.4500, lng: 3.4750,
+      beds: 0,
+      baths: 2,
+      sqft: "4,200",
+      rating: 4.8,
+      agent: "Prime Realty",
+      lat: 6.45,
+      lng: 3.475,
     },
     {
-      image: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=600&h=400&fit=crop",
-      price: "₦6,000,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=600&h=400&fit=crop",
+      price: "₦6,000,000",
+      period: "year",
       title: "Private Office Suite with Reception",
       address: "Victoria Island, Lagos",
-      beds: 0, baths: 2, sqft: "2,800", rating: 4.6, agent: "Island Properties",
-      lat: 6.4315, lng: 3.4160,
+      beds: 0,
+      baths: 2,
+      sqft: "2,800",
+      rating: 4.6,
+      agent: "Island Properties",
+      lat: 6.4315,
+      lng: 3.416,
     },
   ],
   "Land Lease": [
     {
-      image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop",
-      price: "₦2,000,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop",
+      price: "₦2,000,000",
+      period: "year",
       title: "500sqm Plot in Gated Estate",
       address: "Ajah, Lagos",
-      beds: 0, baths: 0, sqft: "500", rating: 4.6, agent: "Metro Living Realty",
-      lat: 6.4698, lng: 3.5852,
+      beds: 0,
+      baths: 0,
+      sqft: "500",
+      rating: 4.6,
+      agent: "Metro Living Realty",
+      lat: 6.4698,
+      lng: 3.5852,
     },
     {
-      image: "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?w=600&h=400&fit=crop",
-      price: "₦5,500,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?w=600&h=400&fit=crop",
+      price: "₦5,500,000",
+      period: "year",
       title: "1000sqm Waterfront Land Lease",
       address: "Lekki Phase 2, Lagos",
-      beds: 0, baths: 0, sqft: "1,000", rating: 4.8, agent: "Island Properties",
-      lat: 6.4380, lng: 3.5320,
+      beds: 0,
+      baths: 0,
+      sqft: "1,000",
+      rating: 4.8,
+      agent: "Island Properties",
+      lat: 6.438,
+      lng: 3.532,
     },
     {
-      image: "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?w=600&h=400&fit=crop",
-      price: "₦8,000,000", period: "year",
+      image:
+        "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?w=600&h=400&fit=crop",
+      price: "₦8,000,000",
+      period: "year",
       title: "Prime Corner Plot on Long Lease",
       address: "Victoria Island, Lagos",
-      beds: 0, baths: 0, sqft: "800", rating: 4.9, agent: "Prestige Homes",
-      lat: 6.4315, lng: 3.4160,
+      beds: 0,
+      baths: 0,
+      sqft: "800",
+      rating: 4.9,
+      agent: "Prestige Homes",
+      lat: 6.4315,
+      lng: 3.416,
     },
   ],
 };
@@ -319,36 +403,101 @@ const Rent = () => {
                   >
                     <div className="mt-4 bg-white/10 backdrop-blur-md border border-white/15 rounded-[18px] p-4 flex flex-col sm:flex-row gap-3">
                       <div className="flex-1">
-                        <label className="text-white/50 text-[11px] font-medium mb-1.5 block">Rent Range (Annual)</label>
-                        <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)} className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none">
-                          <option value="any" className="text-primary-dark">Any Price</option>
-                          <option value="0-3000000" className="text-primary-dark">Under ₦3M/yr</option>
-                          <option value="3000000-8000000" className="text-primary-dark">₦3M – ₦8M/yr</option>
-                          <option value="8000000-15000000" className="text-primary-dark">₦8M – ₦15M/yr</option>
-                          <option value="15000000-0" className="text-primary-dark">₦15M+/yr</option>
+                        <label className="text-white/50 text-[11px] font-medium mb-1.5 block">
+                          Rent Range (Annual)
+                        </label>
+                        <select
+                          value={priceRange}
+                          onChange={(e) => setPriceRange(e.target.value)}
+                          className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
+                        >
+                          <option value="any" className="text-primary-dark">
+                            Any Price
+                          </option>
+                          <option
+                            value="0-3000000"
+                            className="text-primary-dark"
+                          >
+                            Under ₦3M/yr
+                          </option>
+                          <option
+                            value="3000000-8000000"
+                            className="text-primary-dark"
+                          >
+                            ₦3M – ₦8M/yr
+                          </option>
+                          <option
+                            value="8000000-15000000"
+                            className="text-primary-dark"
+                          >
+                            ₦8M – ₦15M/yr
+                          </option>
+                          <option
+                            value="15000000-0"
+                            className="text-primary-dark"
+                          >
+                            ₦15M+/yr
+                          </option>
                         </select>
                       </div>
                       <div className="flex-1">
-                        <label className="text-white/50 text-[11px] font-medium mb-1.5 block">Bedrooms</label>
-                        <select value={bedsFilter} onChange={(e) => setBedsFilter(e.target.value)} className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none">
-                          <option value="any" className="text-primary-dark">Any</option>
-                          <option value="1" className="text-primary-dark">1+</option>
-                          <option value="2" className="text-primary-dark">2+</option>
-                          <option value="3" className="text-primary-dark">3+</option>
-                          <option value="4" className="text-primary-dark">4+</option>
+                        <label className="text-white/50 text-[11px] font-medium mb-1.5 block">
+                          Bedrooms
+                        </label>
+                        <select
+                          value={bedsFilter}
+                          onChange={(e) => setBedsFilter(e.target.value)}
+                          className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
+                        >
+                          <option value="any" className="text-primary-dark">
+                            Any
+                          </option>
+                          <option value="1" className="text-primary-dark">
+                            1+
+                          </option>
+                          <option value="2" className="text-primary-dark">
+                            2+
+                          </option>
+                          <option value="3" className="text-primary-dark">
+                            3+
+                          </option>
+                          <option value="4" className="text-primary-dark">
+                            4+
+                          </option>
                         </select>
                       </div>
                       <div className="flex-1">
-                        <label className="text-white/50 text-[11px] font-medium mb-1.5 block">Bathrooms</label>
-                        <select value={bathsFilter} onChange={(e) => setBathsFilter(e.target.value)} className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none">
-                          <option value="any" className="text-primary-dark">Any</option>
-                          <option value="1" className="text-primary-dark">1+</option>
-                          <option value="2" className="text-primary-dark">2+</option>
-                          <option value="3" className="text-primary-dark">3+</option>
+                        <label className="text-white/50 text-[11px] font-medium mb-1.5 block">
+                          Bathrooms
+                        </label>
+                        <select
+                          value={bathsFilter}
+                          onChange={(e) => setBathsFilter(e.target.value)}
+                          className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
+                        >
+                          <option value="any" className="text-primary-dark">
+                            Any
+                          </option>
+                          <option value="1" className="text-primary-dark">
+                            1+
+                          </option>
+                          <option value="2" className="text-primary-dark">
+                            2+
+                          </option>
+                          <option value="3" className="text-primary-dark">
+                            3+
+                          </option>
                         </select>
                       </div>
                       <div className="flex items-end">
-                        <button onClick={() => { setPriceRange("any"); setBedsFilter("any"); setBathsFilter("any"); }} className="h-10 px-5 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-medium hover:bg-white/20 transition-all">
+                        <button
+                          onClick={() => {
+                            setPriceRange("any");
+                            setBedsFilter("any");
+                            setBathsFilter("any");
+                          }}
+                          className="h-10 px-5 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-medium hover:bg-white/20 transition-all"
+                        >
                           Clear
                         </button>
                       </div>
@@ -364,17 +513,37 @@ const Rent = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary" />
-                <h3 className="font-heading font-bold text-primary-dark text-sm">Map View</h3>
-                <span className="text-text-subtle text-xs">— {currentListings.length} rentals</span>
+                <h3 className="font-heading font-bold text-primary-dark text-sm">
+                  Map View
+                </h3>
+                <span className="text-text-subtle text-xs">
+                  — {currentListings.length} rentals
+                </span>
               </div>
-              <button onClick={() => setShowMap(!showMap)} className="h-8 px-4 rounded-full bg-white/80 border border-border-light text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all">
+              <button
+                onClick={() => setShowMap(!showMap)}
+                className="h-8 px-4 rounded-full bg-white/80 border border-border-light text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all"
+              >
                 {showMap ? "Hide Map" : "Show Map"}
               </button>
             </div>
             <AnimatePresence>
               {showMap && (
-                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
-                  <PropertyMap listings={mapListings} activeIndex={hoveredCard} onMarkerClick={(i) => setContactCard(contactCard === i ? null : i)} className="h-100" />
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <PropertyMap
+                    listings={mapListings}
+                    activeIndex={hoveredCard}
+                    onMarkerClick={(i) =>
+                      setContactCard(contactCard === i ? null : i)
+                    }
+                    className="h-100"
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -382,7 +551,7 @@ const Rent = () => {
 
           {/* ─── Neighbourhood Intelligence ─── */}
           <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                   <MapPin className="w-5 h-5" />
@@ -493,10 +662,30 @@ const Rent = () => {
             </div>
           </div>
 
+          {/* ─── Mobile Category Strip ─── */}
+          <div className="lg:hidden overflow-x-auto -mx-6 px-6 pb-4 mb-6">
+            <div className="flex gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.label}
+                  onClick={() => setActiveCategory(cat.label)}
+                  className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all ${
+                    activeCategory === cat.label
+                      ? "bg-primary text-white border-primary"
+                      : "bg-white/80 text-primary-dark border-border-light hover:border-primary"
+                  }`}
+                >
+                  {cat.icon}
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Category sidebar + listings */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
             {/* Left — category nav */}
-            <div className="lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
+            <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-light">
                   <h3 className="font-heading font-bold text-primary-dark text-sm">
@@ -572,7 +761,7 @@ const Rent = () => {
 
             {/* Right — listing cards */}
             <div className="flex-1">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <p className="text-text-secondary text-sm">
                   Showing{" "}
                   <span className="font-bold text-primary-dark">
@@ -599,7 +788,10 @@ const Rent = () => {
                   <div
                     key={i}
                     onClick={() => {
-                      if (!isLoggedIn) { navigate("/onboarding"); return; }
+                      if (!isLoggedIn) {
+                        navigate("/onboarding");
+                        return;
+                      }
                       setContactCard(contactCard === i ? null : i);
                     }}
                     onMouseEnter={() => setHoveredCard(i)}
@@ -620,7 +812,12 @@ const Rent = () => {
                       <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
                         For Rent
                       </span>
-                      <BookmarkButton id={`rent-${listing.title.replace(/\s/g, "-").toLowerCase()}`} type="property" className="absolute bottom-3 right-3" size="sm" />
+                      <BookmarkButton
+                        id={`rent-${listing.title.replace(/\s/g, "-").toLowerCase()}`}
+                        type="property"
+                        className="absolute bottom-3 right-3"
+                        size="sm"
+                      />
                     </div>
 
                     {/* Glass content */}
@@ -759,7 +956,9 @@ const Rent = () => {
                               duration: 0.35,
                               ease: [0.23, 1, 0.32, 1],
                             }}
-                            onClick={() => navigate(getPropertyLink(listing.title))}
+                            onClick={() =>
+                              navigate(getPropertyLink(listing.title))
+                            }
                             className="mt-1 h-10 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all duration-300 inline-flex items-center gap-2"
                           >
                             <ArrowUpRight className="w-4 h-4" />
@@ -810,7 +1009,10 @@ const Rent = () => {
                   every listing — no hidden inflation.
                 </p>
               </div>
-              <a href="/reductions" className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center">
+              <a
+                href="/reductions"
+                className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
+              >
                 View all reductions
               </a>
             </div>
@@ -939,7 +1141,6 @@ const Rent = () => {
                       </div>
                     </div>
                   </div>
-
                 </div>
               ))}
             </div>

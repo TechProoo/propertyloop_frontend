@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
@@ -98,7 +98,16 @@ const Navbar = () => {
   const location = useLocation();
   const path = location.pathname;
   const { user, isLoggedIn, logout } = useAuth();
-  const dashboardHref = user?.role === "agent" ? "/agent-dashboard" : "/dashboard";
+
+  // Close mobile menu on scroll
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleScroll = () => setMobileMenuOpen(false);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [mobileMenuOpen]);
+  const dashboardHref =
+    user?.role === "agent" ? "/agent-dashboard" : "/dashboard";
 
   return (
     <>
@@ -127,7 +136,7 @@ const Navbar = () => {
             </li>
             <li>
               <FlipLink
-                label="Materials"
+                label="Building Materials"
                 href="/marketplace"
                 isActive={path === "/marketplace"}
               />
@@ -154,16 +163,24 @@ const Navbar = () => {
           {isLoggedIn ? (
             <>
               <li>
-                <FlipLink
-                  label="Dashboard"
+                <a
                   href={dashboardHref}
-                  isActive={path === "/dashboard" || path === "/agent-dashboard"}
-                />
+                  className={`text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
+                    path === "/dashboard" || path === "/agent-dashboard"
+                      ? "bg-primary text-white"
+                      : "bg-primary/10 text-primary-dark hover:bg-primary/20"
+                  }`}
+                >
+                  Dashboard
+                </a>
               </li>
               <li>
                 <button
-                  onClick={() => { logout(); window.location.href = "/"; }}
-                  className="text-sm font-medium text-text-secondary hover:text-primary transition-colors"
+                  onClick={() => {
+                    logout();
+                    window.location.href = "/";
+                  }}
+                  className="text-sm font-medium px-4 py-2 rounded-full bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
                 >
                   Logout
                 </button>
@@ -245,7 +262,7 @@ const Navbar = () => {
               href="/marketplace"
               className={`py-2 hover:text-primary ${path === "/marketplace" ? "text-primary font-semibold" : ""}`}
             >
-              Materials
+              Building Materials
             </a>
             <hr className="border-border-light" />
             <a
@@ -264,13 +281,20 @@ const Navbar = () => {
               <>
                 <a
                   href={dashboardHref}
-                  className={`py-2 hover:text-primary font-semibold ${path === "/dashboard" || path === "/agent-dashboard" ? "text-primary" : ""}`}
+                  className={`py-2 px-4 rounded-full font-semibold transition-colors ${
+                    path === "/dashboard" || path === "/agent-dashboard"
+                      ? "bg-primary text-white"
+                      : "bg-primary/10 text-primary-dark hover:bg-primary/20"
+                  }`}
                 >
                   Dashboard
                 </a>
                 <button
-                  onClick={() => { logout(); window.location.href = "/"; }}
-                  className="py-2 text-left hover:text-primary text-text-secondary"
+                  onClick={() => {
+                    logout();
+                    window.location.href = "/";
+                  }}
+                  className="py-2 px-4 rounded-full text-left bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
                 >
                   Logout
                 </button>

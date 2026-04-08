@@ -19,14 +19,17 @@ const VideoListings = () => {
               verified agents before you visit in person.
             </p>
           </div>
-          <a href="/video-tours" className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center">
+          <a
+            href="/video-tours"
+            className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
+          >
             View all
           </a>
         </div>
 
         {/* Cards grid — 3 per row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {videoListings.map((home, i) => (
+          {videoListings.slice(0, 3).map((home, i) => (
             <div
               key={i}
               className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
@@ -85,7 +88,10 @@ const VideoListings = () => {
               </div>
 
               {/* Content — glass morphism panel */}
-              <a href={`/video-tour/${home.id}`} className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] block">
+              <a
+                href={`/video-tour/${home.id}`}
+                className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] block"
+              >
                 {/* Price */}
                 <p className="font-heading font-bold text-primary-dark text-[18px]">
                   {home.price}

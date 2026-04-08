@@ -280,7 +280,7 @@ const About = () => {
               </div>
 
               {/* Values */}
-              <div className="lg:w-[380px] shrink-0 flex flex-col gap-5">
+              <div className="lg:w-95 shrink-0 flex flex-col gap-5">
                 <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-8">
                   <h3 className="font-heading font-bold text-primary-dark text-lg mb-5">
                     Our Values
