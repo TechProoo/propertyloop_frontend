@@ -12,67 +12,11 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
+import { blogPosts as posts } from "../data/blogPosts";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
 const categories = ["All", "Market Insights", "Guides", "Product Updates", "Agent Tips"];
-
-const posts = [
-  {
-    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&h=400&fit=crop",
-    category: "Market Insights",
-    title: "Lagos Property Market Q1 2026: What the Numbers Tell Us",
-    excerpt: "Lekki leads with 18% price growth, Victoria Island stabilises, and Ajah emerges as the new value corridor for first-time buyers.",
-    author: "Adebayo Johnson",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-    date: "Mar 28, 2026",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-    category: "Guides",
-    title: "First-Time Buyer's Guide: Everything You Need to Know in Nigeria",
-    excerpt: "From C of O verification to escrow payments — a complete walkthrough of buying your first property on PropertyLoop.",
-    author: "Chioma Okafor",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face",
-    date: "Mar 22, 2026",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
-    category: "Product Updates",
-    title: "Introducing the Property Logbook: Every Repair, Every Record",
-    excerpt: "We've launched the Property Logbook — a permanent digital maintenance history attached to every property on the platform.",
-    author: "PropertyLoop Team",
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=40&h=40&fit=crop&crop=face",
-    date: "Mar 15, 2026",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
-    category: "Agent Tips",
-    title: "How Top Agents Close 50+ Deals a Year on PropertyLoop",
-    excerpt: "We interviewed our highest-performing agents to learn their strategies for lead conversion, client retention, and portfolio growth.",
-    author: "Emeka Nwosu",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face",
-    date: "Mar 10, 2026",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&h=400&fit=crop",
-    category: "Market Insights",
-    title: "Shortlet Market Boom: Why Lagos Is Africa's Airbnb Capital",
-    excerpt: "Short-term rentals in Lagos grew 42% in 2025. Here's where the demand is, what guests want, and how to capitalise.",
-    author: "Aisha Mohammed",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face",
-    date: "Mar 5, 2026",
-  },
-  {
-    image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
-    category: "Guides",
-    title: "How Service Escrow Protects You When Hiring a Vendor",
-    excerpt: "Understanding how Paystack escrow works, what happens during disputes, and why you should never pay vendors directly again.",
-    author: "PropertyLoop Team",
-    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=40&h=40&fit=crop&crop=face",
-    date: "Feb 28, 2026",
-  },
-];
 
 const catIcons: Record<string, React.ReactNode> = {
   "Market Insights": <TrendingUp className="w-3 h-3" />,
@@ -122,7 +66,7 @@ const Blog = () => {
           {/* Articles grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-20">
             {filtered.map((post, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3, ease }} className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+              <motion.div key={i} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3, ease }} onClick={() => (window.location.href = `/blog/${post.slug}`)} className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer">
                 {/* Image */}
                 <div className="h-48 overflow-hidden rounded-t-[20px] relative">
                   <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

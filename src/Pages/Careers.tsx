@@ -24,16 +24,7 @@ const ease = [0.23, 1, 0.32, 1] as const;
 
 const departments = ["All", "Engineering", "Product", "Marketing", "Operations", "Design"];
 
-const jobs = [
-  { title: "Senior Frontend Engineer", dept: "Engineering", location: "Lagos / Remote", type: "Full-time", posted: "2 days ago" },
-  { title: "Backend Engineer (Node.js)", dept: "Engineering", location: "Lagos / Remote", type: "Full-time", posted: "3 days ago" },
-  { title: "Product Designer", dept: "Design", location: "Lagos", type: "Full-time", posted: "1 week ago" },
-  { title: "Product Manager", dept: "Product", location: "Lagos", type: "Full-time", posted: "1 week ago" },
-  { title: "Growth Marketing Lead", dept: "Marketing", location: "Lagos / Remote", type: "Full-time", posted: "2 weeks ago" },
-  { title: "DevOps Engineer", dept: "Engineering", location: "Remote", type: "Contract", posted: "2 weeks ago" },
-  { title: "Operations Coordinator", dept: "Operations", location: "Lagos", type: "Full-time", posted: "3 weeks ago" },
-  { title: "Content Writer (Real Estate)", dept: "Marketing", location: "Remote", type: "Contract", posted: "3 weeks ago" },
-];
+const jobs: { id: string; title: string; dept: string; location: string; type: string; posted: string }[] = [];
 
 const deptIcons: Record<string, React.ReactNode> = {
   Engineering: <Code className="w-4 h-4" />,
@@ -76,7 +67,7 @@ const Careers = () => {
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">Help us build the platform that's transforming how Nigerians buy, rent, and manage property.</p>
               <div className="flex flex-wrap gap-3 mt-6">
-                {[{ value: "12", label: "Open Roles" }, { value: "5", label: "Departments" }, { value: "Remote", label: "Friendly" }].map((s) => (
+                {[{ value: "0", label: "Open Roles" }, { value: "5", label: "Departments" }, { value: "Remote", label: "Friendly" }].map((s) => (
                   <div key={s.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-sm">
                     <span className="font-heading font-bold text-white">{s.value}</span>
                     <span className="text-white/50">{s.label}</span>
@@ -99,7 +90,7 @@ const Careers = () => {
           {/* Job listings */}
           <div className="flex flex-col gap-4 mb-20">
             {filtered.map((job, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3, ease }} className="group bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-300 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <motion.div key={job.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05, duration: 0.3, ease }} className="group bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-300 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                   {deptIcons[job.dept] || <Briefcase className="w-5 h-5" />}
                 </div>
@@ -112,15 +103,30 @@ const Careers = () => {
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {job.posted}</span>
                   </div>
                 </div>
-                <button className="shrink-0 h-10 px-5 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center gap-2 group-hover:bg-primary group-hover:text-white group-hover:border-primary">
-                  Apply Now <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
+                <Link to={`/careers/${job.id}`} className="shrink-0 h-10 px-5 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center gap-2 group-hover:bg-primary group-hover:text-white group-hover:border-primary">
+                  View Role <ArrowUpRight className="w-3.5 h-3.5" />
+                </Link>
               </motion.div>
             ))}
             {filtered.length === 0 && (
-              <div className="text-center py-16">
-                <p className="text-text-secondary text-sm">No open roles in this department right now.</p>
-                <button onClick={() => setActiveDept("All")} className="mt-3 text-primary text-sm font-medium hover:underline">View all roles</button>
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[24px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-10 sm:p-14 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/15 flex items-center justify-center mx-auto mb-5">
+                  <Briefcase className="w-7 h-7 text-primary" />
+                </div>
+                <h3 className="font-heading font-bold text-primary-dark text-xl sm:text-2xl">
+                  No jobs available right now
+                </h3>
+                <p className="text-text-secondary text-sm mt-3 max-w-md mx-auto leading-relaxed">
+                  We're not actively hiring at the moment, but PropertyLoop is growing fast and that won't last long. Drop us a note and we'll keep you in mind when the next role opens.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
+                  <Link to="/contact" className="h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]">
+                    Get in touch <ArrowUpRight className="w-4 h-4" />
+                  </Link>
+                  <Link to="/about" className="h-11 px-6 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all">
+                    Learn about us
+                  </Link>
+                </div>
               </div>
             )}
           </div>

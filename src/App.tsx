@@ -34,6 +34,13 @@ import ProductDetail from "./Pages/ProductDetail";
 import Cart from "./Pages/Cart";
 import BookService from "./Pages/BookService";
 import VendorDashboard from "./Pages/VendorDashboard";
+import BlogPost from "./Pages/BlogPost";
+import JobDetail from "./Pages/JobDetail";
+import Settings from "./Pages/Settings";
+import ForgotPassword from "./Pages/ForgotPassword";
+import Checkout from "./Pages/Checkout";
+import OrderConfirmation from "./Pages/OrderConfirmation";
+import Messages from "./Pages/Messages";
 import NotFound from "./Pages/NotFound";
 
 const roleDashboard: Record<string, string> = {
@@ -116,6 +123,30 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/careers/:id" element={<JobDetail />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/messages"
+              element={
+                <ProtectedRoute>
+                  <Messages />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route
+              path="/order-confirmation/:id"
+              element={<OrderConfirmation />}
+            />
             <Route path="/legal/:slug" element={<Legal />} />
             <Route path="/video-tours" element={<VideoTours />} />
             <Route path="/video-tour/:id" element={<VideoTourDetail />} />

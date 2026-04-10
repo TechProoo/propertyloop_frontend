@@ -173,12 +173,12 @@ const Login = () => {
                       <label className="text-xs font-heading font-semibold text-primary-dark">
                         Password
                       </label>
-                      <a
-                        href="/contact"
+                      <Link
+                        to="/forgot-password"
                         className="text-xs text-primary font-medium hover:underline"
                       >
                         Forgot password?
-                      </a>
+                      </Link>
                     </div>
                     <div className={wrapperClass("password")}>
                       <Lock className="absolute left-3.5 w-4 h-4 text-text-subtle" />
