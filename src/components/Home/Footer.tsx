@@ -8,6 +8,7 @@ const footerLinks = {
     { label: "Shortlet", href: "/shortlet" },
     { label: "New Developments", href: "/new-developments" },
     { label: "Find Agent", href: "/find-agent" },
+    { label: "Property Logbook", href: "/dashboard" },
   ],
   Services: [
     { label: "Service Loop", href: "/services" },

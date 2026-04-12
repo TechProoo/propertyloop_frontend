@@ -32,6 +32,7 @@ import {
   addMessage,
   type ChatMessage,
 } from "../data/chat";
+import { addBooking } from "../data/bookings";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -323,6 +324,20 @@ const BookService = () => {
       setProcessing(true);
       setTimeout(() => {
         setProcessing(false);
+        addBooking({
+          id: `SVC-${Date.now()}`,
+          vendorId: vendor.id,
+          vendorName: vendor.name,
+          vendorAvatar: vendor.avatar,
+          category: vendor.category,
+          jobDescription,
+          preferredDate,
+          preferredTime,
+          negotiationNotes: propertyAddress,
+          total,
+          status: "pending",
+          createdAt: new Date().toISOString(),
+        });
         setCurrentStep("confirmed");
       }, 2000);
       return;
@@ -484,20 +499,22 @@ const BookService = () => {
                         </div>
                         <div>
                           <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                            Property Address
+                            Negotiation Notes
                           </label>
                           <div className="relative">
-                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-subtle" />
-                            <input
-                              type="text"
+                            <MessageCircle className="absolute left-4 top-3.5 w-4 h-4 text-text-subtle" />
+                            <textarea
                               value={propertyAddress}
                               onChange={(e) =>
                                 setPropertyAddress(e.target.value)
                               }
-                              placeholder="Where should the vendor come?"
-                              className="w-full h-11 pl-11 pr-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                              placeholder="State your negotiation — chat with vendor to agree on scope and pricing before confirming."
+                              className="w-full h-20 pl-11 pr-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
                             />
                           </div>
+                          <p className="text-[11px] text-text-subtle mt-1 ml-1">
+                            Property address will be shared after negotiation is concluded.
+                          </p>
                         </div>
                       </div>
 
@@ -539,7 +556,7 @@ const BookService = () => {
                           },
                           { label: "Time", value: preferredTime },
                           {
-                            label: "Address",
+                            label: "Negotiation",
                             value: propertyAddress || "Not set",
                           },
                         ].map((r) => (
@@ -786,7 +803,8 @@ const BookService = () => {
             {/* Right — Vendor summary */}
             {currentStep !== "confirmed" && (
               <div className="lg:w-85 shrink-0">
-                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden sticky top-8">
+                <div className="sticky top-8 flex flex-col gap-4">
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                   <img
                     src={vendor.image}
                     alt={vendor.name}
@@ -853,14 +871,6 @@ const BookService = () => {
                       >
                         <Phone className="w-3 h-3" /> Call
                       </a>
-                      <a
-                        href={`https://wa.me/${vendor.phone}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 h-9 rounded-full bg-[#25D366] text-white text-xs font-medium hover:bg-[#20bd5a] transition-colors inline-flex items-center justify-center gap-1"
-                      >
-                        <MessageCircle className="w-3 h-3" /> WhatsApp
-                      </a>
                     </div>
                   </div>
                 </div>
@@ -869,7 +879,7 @@ const BookService = () => {
                 <VendorReviewSection vendorName={vendor.name} />
 
                 {/* ─── Mini Chat Widget ─── */}
-                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden mt-4 sticky top-[calc(100vh-400px)]">
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                   {/* Chat Header — Toggle */}
                   <button
                     onClick={() => setChatOpen(!chatOpen)}
@@ -966,6 +976,7 @@ const BookService = () => {
                     )}
                   </AnimatePresence>
                 </div>
+              </div>
               </div>
             )}
           </div>

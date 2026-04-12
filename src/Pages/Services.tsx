@@ -34,15 +34,15 @@ const categories = [
     label: "All Services",
     count: 1840,
   },
-  { icon: <Wrench className="w-5 h-5" />, label: "Plumbing", count: 342 },
-  { icon: <Zap className="w-5 h-5" />, label: "Electrical", count: 298 },
   { icon: <HardHat className="w-5 h-5" />, label: "Building", count: 215 },
+  { icon: <Hammer className="w-5 h-5" />, label: "Carpentry", count: 108 },
   { icon: <Sparkles className="w-5 h-5" />, label: "Cleaning", count: 380 },
+  { icon: <Zap className="w-5 h-5" />, label: "Electrical", count: 298 },
+  { icon: <Wind className="w-5 h-5" />, label: "HVAC", count: 40 },
+  { icon: <Leaf className="w-5 h-5" />, label: "Landscaping", count: 72 },
   { icon: <Paintbrush className="w-5 h-5" />, label: "Painting", count: 265 },
   { icon: <PipetteIcon className="w-5 h-5" />, label: "Plaster", count: 120 },
-  { icon: <Hammer className="w-5 h-5" />, label: "Carpentry", count: 108 },
-  { icon: <Leaf className="w-5 h-5" />, label: "Landscaping", count: 72 },
-  { icon: <Wind className="w-5 h-5" />, label: "HVAC", count: 40 },
+  { icon: <Wrench className="w-5 h-5" />, label: "Plumbing", count: 342 },
 ];
 
 const locations = [
@@ -69,6 +69,7 @@ const Services = () => {
   const [activeLocation, setActiveLocation] = useState("All Locations");
   const [activeRating, setActiveRating] = useState("Any Rating");
   const [searchQuery, setSearchQuery] = useState("");
+  const [categorySearch, setCategorySearch] = useState("");
 
   const filtered = vendors.filter((v) => {
     const q = searchQuery.toLowerCase();
@@ -187,8 +188,20 @@ const Services = () => {
                     Services
                   </h3>
                 </div>
+                <div className="px-3 pt-3">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-subtle" />
+                    <input
+                      type="text"
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                      placeholder="Search services..."
+                      className="w-full h-9 pl-9 pr-3 rounded-full bg-white/60 border border-border-light text-primary-dark text-xs placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                    />
+                  </div>
+                </div>
                 <div className="p-2 max-h-[420px] overflow-y-auto">
-                  {categories.map((cat) => (
+                  {categories.filter((cat) => cat.label === "All Services" || cat.label.toLowerCase().includes(categorySearch.toLowerCase())).map((cat) => (
                     <button
                       key={cat.label}
                       onClick={() => setActiveCategory(cat.label)}
@@ -370,8 +383,8 @@ const Services = () => {
                       </p>
                     </div>
 
-                    <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
-                      <ArrowUpRight className="absolute top-4 left-5 w-5 h-5 text-white" />
+                    <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
+                      <ArrowUpRight className="w-5 h-5 text-white" />
                     </div>
                   </Link>
                 ))}

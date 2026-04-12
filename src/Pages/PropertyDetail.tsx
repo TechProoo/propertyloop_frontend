@@ -812,15 +812,6 @@ const PropertyDetail = () => {
                       Call Agent
                     </a>
                     <a
-                      href={`https://wa.me/${agent.phone}?text=Hi ${agent.name}, I'm interested in ${listing.title} at ${listing.address}.`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="h-11 rounded-full bg-[#25D366] text-white text-sm font-bold hover:bg-[#20bd5a] transition-colors inline-flex items-center justify-center gap-2"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      WhatsApp
-                    </a>
-                    <a
                       href={`mailto:${agent.email}?subject=Enquiry: ${listing.title}`}
                       className="h-11 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-2"
                     >

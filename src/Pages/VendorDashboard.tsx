@@ -1080,14 +1080,6 @@ const VendorDashboard = () => {
                             >
                               <Phone className="w-3.5 h-3.5" />
                             </a>
-                            <a
-                              href={`https://wa.me/${activeConvo.phone}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-8 h-8 rounded-lg bg-[#25D366]/10 flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all"
-                            >
-                              <MessageCircle className="w-3.5 h-3.5" />
-                            </a>
                           </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">

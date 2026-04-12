@@ -860,8 +860,8 @@ const Rent = () => {
                     </div>
 
                     {/* Arrow — clipped circle */}
-                    <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
-                      <ArrowUpRight className="absolute top-4 left-5 w-5 h-5 text-white" />
+                    <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
+                      <ArrowUpRight className="w-5 h-5 text-white" />
                     </div>
 
                     {/* Contact overlay */}
@@ -924,26 +924,6 @@ const Rent = () => {
                               </div>
                               <span className="text-white/70 text-xs">
                                 Call
-                              </span>
-                            </motion.a>
-                            <motion.a
-                              initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                              animate={{ opacity: 1, scale: 1, y: 0 }}
-                              transition={{
-                                delay: 0.3,
-                                duration: 0.4,
-                                ease: [0.23, 1, 0.32, 1],
-                              }}
-                              href={`https://wa.me/2341234567890?text=Hi, I'm interested in renting ${listing.title} at ${listing.address}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex flex-col items-center gap-2"
-                            >
-                              <div className="w-14 h-14 rounded-full bg-[#25D366]/20 backdrop-blur-sm border border-[#25D366]/30 flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all duration-300">
-                                <MessageCircle className="w-6 h-6" />
-                              </div>
-                              <span className="text-white/70 text-xs">
-                                WhatsApp
                               </span>
                             </motion.a>
                           </div>

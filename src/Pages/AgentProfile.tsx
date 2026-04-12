@@ -557,15 +557,6 @@ const AgentProfile = () => {
                     Call Agent
                   </a>
                   <a
-                    href={`https://wa.me/${agent.phone}?text=Hi ${agent.name}, I found your profile on PropertyLoop and would like to discuss my property needs.`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-11 px-6 rounded-full bg-[#25D366] text-white text-sm font-bold hover:bg-[#20bd5a] transition-colors inline-flex items-center gap-2"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    WhatsApp
-                  </a>
-                  <a
                     href={`mailto:${agent.email}`}
                     className="h-11 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all inline-flex items-center gap-2"
                   >
@@ -585,15 +576,6 @@ const AgentProfile = () => {
             >
               <Phone className="w-4 h-4" />
               Call
-            </a>
-            <a
-              href={`https://wa.me/${agent.phone}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 h-11 rounded-full bg-[#25D366] text-white text-sm font-bold hover:bg-[#20bd5a] transition-colors inline-flex items-center justify-center gap-2"
-            >
-              <MessageCircle className="w-4 h-4" />
-              WhatsApp
             </a>
             <a
               href={`mailto:${agent.email}`}

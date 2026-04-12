@@ -14,12 +14,12 @@ import {
 } from "lucide-react";
 
 const categories = [
-  { icon: <Wrench className="w-5 h-5" />, label: "Plumbing" },
-  { icon: <Zap className="w-5 h-5" />, label: "Electrical" },
   { icon: <HardHat className="w-5 h-5" />, label: "Building" },
   { icon: <Sparkles className="w-5 h-5" />, label: "Cleaning" },
+  { icon: <Zap className="w-5 h-5" />, label: "Electrical" },
   { icon: <Paintbrush className="w-5 h-5" />, label: "Painting" },
   { icon: <PipetteIcon className="w-5 h-5" />, label: "Plaster" },
+  { icon: <Wrench className="w-5 h-5" />, label: "Plumbing" },
 ];
 
 const vendors = [
@@ -211,8 +211,8 @@ const ServiceLoop = () => {
               </div>
 
               {/* Arrow — clipped circle at bottom-right corner */}
-              <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
-                <ArrowUpRight className="absolute top-4 left-5 w-5 h-5 text-white" />
+              <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
+                <ArrowUpRight className="w-5 h-5 text-white" />
               </div>
             </AuthGate>
           ))}

@@ -26,6 +26,9 @@ import {
   Bed,
   Bath,
   ArrowLeft,
+  ClipboardList,
+  Calendar,
+  ShieldCheck,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import { listings } from "../data/listings";
@@ -35,6 +38,7 @@ import { vendors } from "../data/vendors";
 import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
 import BookmarkButton from "../components/ui/BookmarkButton";
+import { getBookings } from "../data/bookings";
 import {
   getConversations,
   addMessage,
@@ -73,6 +77,11 @@ const navItems = [
     icon: <MessageCircle className="w-5 h-5" />,
     label: "Messages",
     id: "messages",
+  },
+  {
+    icon: <ClipboardList className="w-5 h-5" />,
+    label: "Logbook",
+    id: "logbook",
   },
   { icon: <Settings className="w-5 h-5" />, label: "Settings", id: "settings" },
 ];
@@ -196,6 +205,7 @@ const Dashboard = () => {
   }, [activeNav]); // refresh when switching to messages tab
 
   const { getByType, count: bookmarkCount } = useBookmarks();
+  const serviceBookings = getBookings();
   const displayName = authUser?.name || "Olumide Adeyemi";
   const initials = displayName
     .split(" ")
@@ -251,6 +261,13 @@ const Dashboard = () => {
       label: "Saved Items",
       color: "text-red-400",
       bg: "bg-red-50",
+    },
+    {
+      icon: <Wrench className="w-5 h-5" />,
+      value: String(serviceBookings.length),
+      label: "Booked Services",
+      color: "text-primary",
+      bg: "bg-primary/10",
     },
     {
       icon: <ShoppingCart className="w-5 h-5" />,
@@ -646,6 +663,90 @@ const Dashboard = () => {
                       )}
                     </div>
                   </div>
+
+                  {/* Booked Services */}
+                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                    <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
+                      <h2 className="font-heading font-bold text-primary-dark text-base">
+                        Booked Services ({serviceBookings.length})
+                      </h2>
+                      <Link
+                        to="/services"
+                        className="text-primary text-xs font-medium hover:underline"
+                      >
+                        Browse vendors
+                      </Link>
+                    </div>
+                    <div className="p-4 flex flex-col gap-3">
+                      {serviceBookings.length > 0 ? (
+                        serviceBookings.slice(0, 5).map((booking) => (
+                          <div
+                            key={booking.id}
+                            className="flex gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3"
+                          >
+                            <img
+                              src={booking.vendorAvatar}
+                              alt={booking.vendorName}
+                              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className="font-heading font-bold text-primary-dark text-sm truncate">
+                                  {booking.vendorName}
+                                </p>
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
+                                    booking.status === "completed"
+                                      ? "bg-primary/10 text-primary"
+                                      : booking.status === "confirmed"
+                                        ? "bg-blue-50 text-blue-600"
+                                        : "bg-[#FFF8ED] text-[#F5A623]"
+                                  }`}
+                                >
+                                  {booking.status === "pending"
+                                    ? "Awaiting confirmation"
+                                    : booking.status === "confirmed"
+                                      ? "Confirmed"
+                                      : "Completed"}
+                                </span>
+                              </div>
+                              <p className="text-text-secondary text-xs mt-0.5">
+                                {booking.category} · ₦{booking.total.toLocaleString()}
+                              </p>
+                              {booking.preferredDate && (
+                                <p className="text-text-subtle text-[11px] mt-0.5">
+                                  {new Date(booking.preferredDate).toLocaleDateString("en-NG", {
+                                    weekday: "short",
+                                    month: "short",
+                                    day: "numeric",
+                                  })}{" "}
+                                  at {booking.preferredTime}
+                                </p>
+                              )}
+                              {booking.jobDescription && (
+                                <p className="text-text-subtle text-[11px] mt-1 line-clamp-1">
+                                  {booking.jobDescription}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-6">
+                          <Wrench className="w-8 h-8 text-text-subtle mx-auto mb-2" />
+                          <p className="text-text-secondary text-xs">
+                            No booked services yet
+                          </p>
+                          <Link
+                            to="/services"
+                            className="text-primary text-xs font-medium mt-1 inline-flex items-center gap-1"
+                          >
+                            Find a vendor <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Right */}
@@ -705,22 +806,6 @@ const Dashboard = () => {
                             <span>{myAgent.listings} listings</span>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <a
-                          href={`tel:+${myAgent.phone}`}
-                          className="flex-1 h-10 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-1.5"
-                        >
-                          <Phone className="w-3.5 h-3.5" /> Call
-                        </a>
-                        <a
-                          href={`https://wa.me/${myAgent.phone}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 h-10 rounded-full bg-[#25D366] text-white text-sm font-bold hover:bg-[#20bd5a] transition-colors inline-flex items-center justify-center gap-1.5"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
-                        </a>
                       </div>
                       <Link
                         to={`/agent/${myAgent.id}`}
@@ -1289,14 +1374,6 @@ const Dashboard = () => {
                         >
                           Book Service <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
-                        <a
-                          href={`https://wa.me/${vendor.phone}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="h-10 px-4 rounded-full border border-border-light bg-white/80 text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all"
-                        >
-                          WhatsApp
-                        </a>
                       </div>
                     </div>
                   ))}
@@ -1666,14 +1743,6 @@ const Dashboard = () => {
                             >
                               <Phone className="w-3.5 h-3.5" />
                             </a>
-                            <a
-                              href={`https://wa.me/${activeConvo.phone}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-8 h-8 rounded-lg bg-[#25D366]/10 flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all"
-                            >
-                              <MessageCircle className="w-3.5 h-3.5" />
-                            </a>
                           </div>
                         </div>
 
@@ -1761,6 +1830,135 @@ const Dashboard = () => {
                 </div>
               </motion.div>
             )}
+
+          {/* ─── Logbook Panel ─── */}
+          {activeNav === "logbook" && (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease }}
+              className="flex flex-col gap-6"
+            >
+              {/* Intro */}
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                    <ClipboardList className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="font-heading font-bold text-primary-dark text-lg">
+                      Property Logbook
+                    </h2>
+                    <p className="text-text-secondary text-xs">
+                      Every repair and service — permanently recorded
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timeline */}
+              {serviceBookings.length > 0 ? (
+                <div className="relative">
+                  {/* Vertical line */}
+                  <div className="absolute left-[22px] top-6 bottom-6 w-px bg-border-light" />
+
+                  <div className="flex flex-col gap-4">
+                    {serviceBookings.map((booking, i) => {
+                      const categoryIcons: Record<string, React.ReactNode> = {
+                        Plumber: <Wrench className="w-4 h-4" />,
+                        Electrician: <Home className="w-4 h-4" />,
+                        Builder: <Home className="w-4 h-4" />,
+                        Cleaner: <Home className="w-4 h-4" />,
+                        Painter: <Home className="w-4 h-4" />,
+                        Carpenter: <Wrench className="w-4 h-4" />,
+                      };
+                      const icon = categoryIcons[booking.category] || <Wrench className="w-4 h-4" />;
+
+                      return (
+                        <div key={booking.id} className="flex gap-4 relative">
+                          {/* Timeline dot */}
+                          <div className="shrink-0 relative z-10">
+                            <div className="w-11 h-11 rounded-full bg-white/80 backdrop-blur-sm border border-border-light shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center text-primary">
+                              {icon}
+                            </div>
+                          </div>
+
+                          {/* Card */}
+                          <div className="flex-1 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-5">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
+                                {new Date(booking.createdAt).toLocaleDateString("en-NG", {
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                              </span>
+                              <span className={`flex items-center gap-1 text-xs ${
+                                booking.status === "completed"
+                                  ? "text-primary"
+                                  : booking.status === "confirmed"
+                                    ? "text-blue-600"
+                                    : "text-[#F5A623]"
+                              }`}>
+                                <ShieldCheck className="w-3.5 h-3.5" />
+                                {booking.status === "pending" ? "Pending" : booking.status === "confirmed" ? "Confirmed" : "Verified"}
+                              </span>
+                            </div>
+                            <h3 className="font-heading font-bold text-primary-dark text-[15px] mt-1">
+                              {booking.category}
+                            </h3>
+                            <p className="text-text-secondary text-xs mt-0.5">
+                              by {booking.vendorName}
+                            </p>
+                            {booking.jobDescription && (
+                              <p className="text-text-secondary text-[13px] leading-relaxed mt-2">
+                                {booking.jobDescription}
+                              </p>
+                            )}
+                            {booking.preferredDate && (
+                              <p className="text-text-subtle text-xs mt-2 flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(booking.preferredDate).toLocaleDateString("en-NG", {
+                                  weekday: "short",
+                                  month: "short",
+                                  day: "numeric",
+                                })}{" "}
+                                at {booking.preferredTime}
+                              </p>
+                            )}
+                            <div className="h-px bg-border-light mt-3 mb-3" />
+                            <div className="flex items-center justify-between">
+                              <span className="font-heading font-bold text-primary-dark text-sm">
+                                ₦{booking.total.toLocaleString()}
+                              </span>
+                              <span className="text-text-secondary text-xs">
+                                Escrow protected
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] py-14 px-6 text-center">
+                  <ClipboardList className="w-10 h-10 text-text-subtle mx-auto mb-3" />
+                  <h3 className="font-heading font-bold text-primary-dark text-lg">
+                    No logbook entries yet
+                  </h3>
+                  <p className="text-text-secondary text-sm mt-1 max-w-sm mx-auto">
+                    When you book and complete vendor services, they'll automatically appear here as a permanent record.
+                  </p>
+                  <Link
+                    to="/services"
+                    className="mt-4 inline-flex items-center gap-2 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors"
+                  >
+                    Browse vendors <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              )}
+            </motion.div>
+          )}
 
           {/* ─── Settings Panel ─── */}
           {activeNav === "settings" && (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import type { OnboardingData } from "../../Pages/Onboarding";
 import {
@@ -35,6 +35,18 @@ const vendorCategories = [
 
 const ProfileSetup = ({ data, updateData, onBack, onContinue }: Props) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateData({ profilePhoto: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -99,10 +111,31 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue }: Props) => {
         {/* Profile Photo Upload */}
         <div className="flex justify-center mb-6">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-bg-accent border-2 border-dashed border-border flex items-center justify-center">
-              <Camera className="w-6 h-6 text-text-subtle" />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="w-20 h-20 rounded-full bg-bg-accent border-2 border-dashed border-border flex items-center justify-center cursor-pointer overflow-hidden"
+            >
+              {data.profilePhoto ? (
+                <img
+                  src={data.profilePhoto}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Camera className="w-6 h-6 text-text-subtle" />
+              )}
             </div>
-            <button className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors">
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors"
+            >
               <Upload className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -117,16 +150,24 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue }: Props) => {
                 What are you looking for?
               </label>
               <div className="flex flex-wrap gap-2">
-                {["Buy a home", "Rent a home", "Shortlet stay", "Just browsing"].map(
-                  (option) => (
-                    <button
-                      key={option}
-                      className="px-4 py-2 text-xs font-medium rounded-full border border-border-light bg-white/50 backdrop-blur-sm text-text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
-                    >
-                      {option}
-                    </button>
-                  )
-                )}
+                {[
+                  "Buy a home",
+                  "Rent a home",
+                  "Shortlet stay",
+                  "Just browsing",
+                ].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => updateData({ lookingFor: option })}
+                    className={`px-4 py-2 text-xs font-medium rounded-full border transition-all ${
+                      data.lookingFor === option
+                        ? "bg-primary text-white border-primary"
+                        : "border-border-light bg-white/50 backdrop-blur-sm text-text-secondary hover:bg-primary hover:text-white hover:border-primary"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -140,6 +181,10 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue }: Props) => {
                 <input
                   type="text"
                   placeholder="e.g. Lekki, Ikoyi, Victoria Island"
+                  value={data.preferredLocation || ""}
+                  onChange={(e) =>
+                    updateData({ preferredLocation: e.target.value })
+                  }
                   className={inputClass}
                 />
               </div>
@@ -151,19 +196,21 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue }: Props) => {
                 Budget Range
               </label>
               <div className="flex flex-wrap gap-2">
-                {[
-                  "Under ₦50M",
-                  "₦50M – ₦100M",
-                  "₦100M – ₦300M",
-                  "₦300M+",
-                ].map((range) => (
-                  <button
-                    key={range}
-                    className="px-4 py-2 text-xs font-medium rounded-full border border-border-light bg-white/50 backdrop-blur-sm text-text-secondary hover:bg-primary hover:text-white hover:border-primary transition-all"
-                  >
-                    {range}
-                  </button>
-                ))}
+                {["Under ₦50M", "₦50M – ₦100M", "₦100M – ₦300M", "₦300M+"].map(
+                  (range) => (
+                    <button
+                      key={range}
+                      onClick={() => updateData({ budgetRange: range })}
+                      className={`px-4 py-2 text-xs font-medium rounded-full border transition-all ${
+                        data.budgetRange === range
+                          ? "bg-primary text-white border-primary"
+                          : "border-border-light bg-white/50 backdrop-blur-sm text-text-secondary hover:bg-primary hover:text-white hover:border-primary"
+                      }`}
+                    >
+                      {range}
+                    </button>
+                  ),
+                )}
               </div>
             </div>
           </div>
@@ -185,13 +232,16 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue }: Props) => {
                   value={data.agencyName || ""}
                   onChange={(e) => {
                     updateData({ agencyName: e.target.value });
-                    if (errors.agencyName) setErrors((p) => ({ ...p, agencyName: "" }));
+                    if (errors.agencyName)
+                      setErrors((p) => ({ ...p, agencyName: "" }));
                   }}
                   className={inputClass}
                 />
               </div>
               {errors.agencyName && (
-                <p className="text-red-500 text-xs mt-1 ml-1">{errors.agencyName}</p>
+                <p className="text-red-500 text-xs mt-1 ml-1">
+                  {errors.agencyName}
+                </p>
               )}
             </div>
 
@@ -250,11 +300,13 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue }: Props) => {
             {/* KYC Notice */}
             <div className="bg-bg-accent rounded-2xl border border-border-light p-4 mt-1">
               <p className="text-xs text-text-secondary leading-relaxed">
-                <span className="font-semibold text-primary-dark">KYC Verification Required</span>
+                <span className="font-semibold text-primary-dark">
+                  KYC Verification Required
+                </span>
                 <br />
                 You'll need to complete identity verification via Smile Identity
-                after sign-up. This ensures all agents on PropertyLoop are verified and
-                trusted.
+                after sign-up. This ensures all agents on PropertyLoop are
+                verified and trusted.
               </p>
             </div>
           </div>
@@ -355,8 +407,8 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue }: Props) => {
                   Escrow-Protected Payments
                 </span>
                 <br />
-                All payments on PropertyLoop go through Paystack escrow. Funds are
-                only released when the client confirms job completion.
+                All payments on PropertyLoop go through Paystack escrow. Funds
+                are only released when the client confirms job completion.
               </p>
             </div>
           </div>

@@ -91,8 +91,8 @@ const Blog = () => {
                 </div>
 
                 {/* Arrow */}
-                <div className="w-20 h-20 bg-[#1a1a1a] rounded-full absolute -right-5 -bottom-5 z-20 group-hover:bg-primary transition-colors duration-300">
-                  <ArrowUpRight className="absolute top-4 left-5 w-5 h-5 text-white" />
+                <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
+                  <ArrowUpRight className="w-5 h-5 text-white" />
                 </div>
               </motion.div>
             ))}

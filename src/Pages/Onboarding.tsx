@@ -14,6 +14,11 @@ export interface OnboardingData {
   email: string;
   phone: string;
   password: string;
+  profilePhoto?: string;
+  // Buyer-specific
+  lookingFor?: string;
+  preferredLocation?: string;
+  budgetRange?: string;
   // Agent-specific
   agencyName?: string;
   licenseNumber?: string;
@@ -80,8 +85,18 @@ const Onboarding = () => {
                   }`}
                 >
                   {i < stepIndex ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2.5}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   ) : (
                     i + 1
