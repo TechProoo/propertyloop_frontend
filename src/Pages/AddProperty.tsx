@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import listingsService from "../api/services/listings";
+import type { ListingType } from "../api/types";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -140,11 +142,53 @@ const AddProperty = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const goNext = () => {
+  const [, setSubmitError] = useState("");
+  const [, setSubmitting] = useState(false);
+
+  const goNext = async () => {
     if (currentStep === "details" && !validateStep1()) return;
     if (currentStep === "review") {
       if (!validateStep3()) return;
-      setSubmitted(true);
+      setSubmitting(true);
+      setSubmitError("");
+      try {
+        const typeMap: Record<string, ListingType> = {
+          sale: "SALE",
+          rent: "RENT",
+          shortlet: "SHORTLET",
+        };
+        await listingsService.create({
+          title: form.title,
+          type: typeMap[form.listingType] || "SALE",
+          propertyType: form.propertyType,
+          priceNaira: parseInt(form.price.replace(/,/g, "")) || 0,
+          period:
+            form.listingType === "rent"
+              ? "/year"
+              : form.listingType === "shortlet"
+                ? "/night"
+                : undefined,
+          address: form.address,
+          location: form.location,
+          beds: parseInt(form.beds) || 0,
+          baths: parseInt(form.baths) || 0,
+          sqft: form.size,
+          yearBuilt: form.yearBuilt,
+          description: form.description,
+          features: [],
+          coverImage: photos[0] || "https://placehold.co/600x400",
+          images: photos.length > 0 ? photos : ["https://placehold.co/600x400"],
+          virtualTourUrl: form.virtualTourUrl || undefined,
+        });
+        setSubmitted(true);
+      } catch (err: any) {
+        setSubmitError(
+          err?.response?.data?.message ||
+            "Failed to submit listing. Please try again.",
+        );
+      } finally {
+        setSubmitting(false);
+      }
       return;
     }
     const nextIndex = stepIndex + 1;
@@ -898,11 +942,17 @@ const AddProperty = () => {
                         <span className="text-text-secondary text-sm leading-relaxed">
                           I confirm that the information provided is accurate
                           and I agree to PropertyLoop's{" "}
-                          <a href="/legal/terms" className="text-primary underline">
+                          <a
+                            href="/legal/terms"
+                            className="text-primary underline"
+                          >
                             Terms of Service
                           </a>{" "}
                           and{" "}
-                          <a href="/legal/agent-agreement" className="text-primary underline">
+                          <a
+                            href="/legal/agent-agreement"
+                            className="text-primary underline"
+                          >
                             Agent Agreement
                           </a>
                           .

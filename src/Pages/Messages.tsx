@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useChat } from "../api/hooks";
 import {
   Search,
   Send,
@@ -17,113 +18,26 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import { useAuth } from "../context/AuthContext";
-import {
-  getConversations,
-  addMessage,
-  saveConversation,
-  seedDefaultConversations,
-  type Conversation,
-  type ChatMessage,
-} from "../data/chat";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
-const seedConversations: Conversation[] = [
-  {
-    id: "agent-tunde-akinola",
-    name: "Tunde Akinola",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
-    role: "Agent",
-    phone: "+234 803 412 5688",
-    messages: [
-      {
-        sender: "them",
-        text: "Hi! I saw you bookmarked the Lekki Phase 1 duplex. It's still available — would you like to schedule a viewing this weekend?",
-        time: "10:24 AM",
-      },
-      {
-        sender: "you",
-        text: "Yes please. Saturday afternoon works best for me.",
-        time: "10:31 AM",
-      },
-      {
-        sender: "them",
-        text: "Perfect — I'll book you in for 3pm on Saturday. I'll send the exact location an hour before.",
-        time: "10:33 AM",
-      },
-    ],
-  },
-  {
-    id: "vendor-bola-plumbing",
-    name: "Bola — BCP Plumbing",
-    avatar:
-      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop&crop=face",
-    role: "Vendor",
-    phone: "+234 814 005 9921",
-    messages: [
-      {
-        sender: "them",
-        text: "Good morning. I'm available Tuesday for the kitchen sink repair. Job should take about 2 hours.",
-        time: "Yesterday",
-      },
-      {
-        sender: "you",
-        text: "Tuesday works. Will payment be through escrow?",
-        time: "Yesterday",
-      },
-      {
-        sender: "them",
-        text: "Yes, all jobs through PropertyLoop go through escrow — I'll send you the booking link now.",
-        time: "Yesterday",
-      },
-    ],
-  },
-  {
-    id: "agent-amaka-eze",
-    name: "Amaka Eze",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
-    role: "Agent",
-    phone: "+234 805 776 1234",
-    messages: [
-      {
-        sender: "them",
-        text: "I have two new listings in Ikoyi that match your search. Want me to send them through?",
-        time: "Mar 30",
-      },
-    ],
-  },
-  {
-    id: "vendor-emeka-electric",
-    name: "Emeka — PowerLine Electric",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=face",
-    role: "Vendor",
-    phone: "+234 902 113 8870",
-    messages: [
-      {
-        sender: "them",
-        text: "Inverter installation completed and tested. Logbook updated on your dashboard.",
-        time: "Mar 25",
-      },
-      {
-        sender: "you",
-        text: "Great work. Releasing escrow now.",
-        time: "Mar 25",
-      },
-    ],
-  },
-];
+/* Seed conversations removed — data now loaded from API */
+
+// Conversation shape the template expects (bridged from API)
+interface LocalConvo {
+  id: string;
+  name: string;
+  avatar: string;
+  role: string;
+  phone: string;
+  messages: { sender: "you" | "them"; text: string; time: string }[];
+}
 
 const Messages = () => {
   const { isLoggedIn, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [conversations, setConversations] = useState<
-    Record<string, Conversation>
-  >({});
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const chat = useChat();
   const [draft, setDraft] = useState("");
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "Agent" | "Vendor">("all");
@@ -131,48 +45,73 @@ const Messages = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!loading && !isLoggedIn) {
-      navigate("/onboarding");
-      return;
-    }
-    seedDefaultConversations(seedConversations);
-    const all = getConversations();
-    setConversations(all);
-    const fromQuery = searchParams.get("with");
-    const firstId = fromQuery || Object.keys(all)[0] || null;
-    setActiveId(firstId);
-    if (fromQuery) setMobileShowChat(true);
-  }, [loading, isLoggedIn, navigate, searchParams]);
+    if (!loading && !isLoggedIn) navigate("/onboarding");
+  }, [loading, isLoggedIn, navigate]);
 
+  // Auto-open conversation from query param ?with=convoId
+  useEffect(() => {
+    if (chat.loading) return;
+    const fromQuery = searchParams.get("with");
+    if (fromQuery && chat.conversations.length > 0) {
+      chat.openConversation(fromQuery);
+      setMobileShowChat(true);
+    } else if (!chat.activeConversationId && chat.conversations.length > 0) {
+      chat.openConversation(chat.conversations[0].id);
+    }
+  }, [chat.loading, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-scroll on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeId, conversations]);
+  }, [chat.messages]);
+
+  // Map API conversations to the shape the template expects
+  const conversations: Record<string, LocalConvo> = useMemo(() => {
+    const map: Record<string, LocalConvo> = {};
+    for (const c of chat.conversations) {
+      const roleDisplay = c.role === "AGENT" ? "Agent" : c.role === "VENDOR" ? "Vendor" : "Buyer";
+      map[c.id] = {
+        id: c.id,
+        name: c.name,
+        avatar: c.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200",
+        role: roleDisplay,
+        phone: c.phone || "",
+        messages: [],
+      };
+    }
+    return map;
+  }, [chat.conversations]);
 
   const list = useMemo(() => {
-    const arr = Object.values(conversations);
-    return arr
+    return Object.values(conversations)
       .filter((c) => (filter === "all" ? true : c.role === filter))
-      .filter((c) =>
-        c.name.toLowerCase().includes(search.toLowerCase()),
-      );
+      .filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
   }, [conversations, filter, search]);
 
-  const active = activeId ? conversations[activeId] : null;
+  const activeId = chat.activeConversationId;
+  const active = activeId ? conversations[activeId] || null : null;
+
+  // Build the message list from the socket hook's messages
+  const activeMessages = useMemo(
+    () =>
+      chat.messages.map((m) => ({
+        sender: m.isYou ? ("you" as const) : ("them" as const),
+        text: m.text,
+        time: new Date(m.createdAt).toLocaleTimeString("en-NG", {
+          hour: "numeric",
+          minute: "2-digit",
+        }),
+      })),
+    [chat.messages],
+  );
+  // Patch active with real messages for rendering
+  if (active) {
+    active.messages = activeMessages;
+  }
 
   const handleSend = () => {
-    if (!draft.trim() || !active) return;
-    const msg: ChatMessage = {
-      sender: "you",
-      text: draft.trim(),
-      time: new Date().toLocaleTimeString("en-NG", {
-        hour: "numeric",
-        minute: "2-digit",
-      }),
-    };
-    addMessage(active.id, msg);
-    const updated = { ...active, messages: [...active.messages, msg] };
-    setConversations((prev) => ({ ...prev, [active.id]: updated }));
-    saveConversation(updated);
+    if (!draft.trim()) return;
+    chat.sendMessage(draft.trim());
     setDraft("");
   };
 
@@ -256,7 +195,7 @@ const Messages = () => {
                       <button
                         key={c.id}
                         onClick={() => {
-                          setActiveId(c.id);
+                          chat.openConversation(c.id);
                           setMobileShowChat(true);
                         }}
                         className={`w-full text-left px-4 py-3.5 border-b border-border-light/60 transition-colors flex items-start gap-3 ${
@@ -392,6 +331,8 @@ const Messages = () => {
                         value={draft}
                         onChange={(e) => setDraft(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                        onInput={() => chat.setTyping(true)}
+                        onBlur={() => chat.setTyping(false)}
                         placeholder="Type a message..."
                         className="w-full h-10 pl-4 pr-10 rounded-full bg-bg-accent border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
                       />

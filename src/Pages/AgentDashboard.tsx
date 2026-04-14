@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -38,14 +38,16 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/logo.png";
-import { getAgentById } from "../data/agents";
-import { listings } from "../data/listings";
+import agentsService from "../api/services/agents";
+import listingsService from "../api/services/listings";
+import leadsService from "../api/services/leads";
+import viewingsService from "../api/services/viewings";
+import type { AgentStats, Listing } from "../api/types";
+import { useConversations } from "../api/hooks";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
-/* ─── Mock Agent (logged-in agent) ─── */
-const agent = getAgentById("adebayo-johnson")!;
-const agentListings = listings.filter((l) => l.agentId === agent.id);
+/* ─── Agent data loaded from API ─── */
 
 /* ─── Sidebar Nav Items ─── */
 const navItems = [
@@ -75,303 +77,28 @@ const navItems = [
   { icon: <Settings className="w-5 h-5" />, label: "Settings", id: "settings" },
 ];
 
-/* ─── Mock Stats ─── */
-const stats = [
-  {
-    icon: <Home className="w-5 h-5" />,
-    value: String(agent.listings),
-    label: "Active Listings",
-    change: "+3 this month",
-    color: "text-primary",
-    bg: "bg-primary/10",
-  },
-  {
-    icon: <Users className="w-5 h-5" />,
-    value: "28",
-    label: "Active Leads",
-    change: "+12 this week",
-    color: "text-blue-500",
-    bg: "bg-blue-50",
-  },
-  {
-    icon: <Eye className="w-5 h-5" />,
-    value: "1,847",
-    label: "Profile Views",
-    change: "+18% vs last month",
-    color: "text-[#F5A623]",
-    bg: "bg-[#FFF8ED]",
-  },
-  {
-    icon: <DollarSign className="w-5 h-5" />,
-    value: "₦2.4B",
-    label: "Total Sales Volume",
-    change: `${agent.soldRented} deals closed`,
-    color: "text-primary",
-    bg: "bg-primary/10",
-  },
-];
+/* ─── Stats built from API data ─── */
 
-/* ─── Mock Leads ─── */
-const recentLeads = [
-  {
-    name: "Tayo Ogunleye",
-    property: "Luxury 3-Bed Flat in Lekki",
-    status: "New",
-    time: "2 hours ago",
-    phone: "+234 801 234 5678",
-  },
-  {
-    name: "Sandra Eze",
-    property: "Contemporary Villa with Garden",
-    status: "Contacted",
-    time: "Yesterday",
-    phone: "+234 802 345 6789",
-  },
-  {
-    name: "Ibrahim Sanni",
-    property: "Penthouse with Ocean View",
-    status: "Viewing",
-    time: "2 days ago",
-    phone: "+234 803 456 7890",
-  },
-  {
-    name: "Amaka Obi",
-    property: "Serviced 3-Bed Flat",
-    status: "Negotiating",
-    time: "3 days ago",
-    phone: "+234 804 567 8901",
-  },
-];
+/* ─── Leads loaded from API ─── */
 
 const statusColors: Record<string, string> = {
   New: "bg-blue-500/10 text-blue-600",
+  NEW: "bg-blue-500/10 text-blue-600",
   Contacted: "bg-[#FFF8ED] text-[#F5A623]",
+  CONTACTED: "bg-[#FFF8ED] text-[#F5A623]",
   Viewing: "bg-primary/10 text-primary",
+  VIEWING_SCHEDULED: "bg-primary/10 text-primary",
   Negotiating: "bg-purple-50 text-purple-600",
+  NEGOTIATING: "bg-purple-50 text-purple-600",
+  CONVERTED: "bg-green-50 text-green-600",
+  LOST: "bg-red-50 text-red-500",
 };
 
-/* ─── Mock Activity ─── */
-const recentActivity = [
-  {
-    icon: <Eye className="w-4 h-4" />,
-    text: "Tayo Ogunleye viewed Luxury 3-Bed Flat",
-    time: "2h ago",
-    bg: "bg-primary/10",
-    color: "text-primary",
-  },
-  {
-    icon: <Phone className="w-4 h-4" />,
-    text: "Missed call from Sandra Eze",
-    time: "5h ago",
-    bg: "bg-red-50",
-    color: "text-red-400",
-  },
-  {
-    icon: <MessageCircle className="w-4 h-4" />,
-    text: "New message from Ibrahim Sanni",
-    time: "Yesterday",
-    bg: "bg-blue-50",
-    color: "text-blue-500",
-  },
-  {
-    icon: <Star className="w-4 h-4" />,
-    text: "New 5-star review from Kemi Adeyemi",
-    time: "2 days ago",
-    bg: "bg-[#FFF8ED]",
-    color: "text-[#F5A623]",
-  },
-];
+/* ─── Activity built from recent leads/viewings ─── */
 
-/* ─── Mock Viewings ─── */
-const upcomingViewings = [
-  {
-    date: "Apr 3",
-    time: "10:00 AM",
-    client: "Tayo Ogunleye",
-    property: "Luxury 3-Bed Flat in Lekki",
-    phone: "+234 801 234 5678",
-    status: "Confirmed",
-  },
-  {
-    date: "Apr 5",
-    time: "2:30 PM",
-    client: "Sandra Eze",
-    property: "Contemporary Villa with Garden",
-    phone: "+234 802 345 6789",
-    status: "Pending",
-  },
-  {
-    date: "Apr 7",
-    time: "11:00 AM",
-    client: "Ibrahim Sanni",
-    property: "Penthouse with Ocean View",
-    phone: "+234 803 456 7890",
-    status: "Confirmed",
-  },
-  {
-    date: "Apr 10",
-    time: "9:00 AM",
-    client: "Amaka Obi",
-    property: "Serviced 3-Bed Flat",
-    phone: "+234 804 567 8901",
-    status: "Pending",
-  },
-];
+/* ─── Viewings loaded from API ─── */
 
-/* ─── Mock Documents ─── */
-const documents = [
-  {
-    name: "C of O - Luxury 3-Bed Lekki",
-    type: "Certificate of Occupancy",
-    date: "Mar 15, 2026",
-    size: "2.4 MB",
-  },
-  {
-    name: "Survey Plan - Villa Garden",
-    type: "Survey Plan",
-    date: "Mar 10, 2026",
-    size: "1.8 MB",
-  },
-  {
-    name: "Deed of Assignment - Penthouse VI",
-    type: "Deed of Assignment",
-    date: "Feb 28, 2026",
-    size: "3.1 MB",
-  },
-  {
-    name: "Building Approval - Serviced Flat",
-    type: "Building Approval",
-    date: "Feb 20, 2026",
-    size: "1.2 MB",
-  },
-  {
-    name: "Power of Attorney - Lekki Plot",
-    type: "Power of Attorney",
-    date: "Jan 15, 2026",
-    size: "890 KB",
-  },
-];
-
-/* ─── Mock Conversations ─── */
-const agentConversations = [
-  {
-    id: "ac-1",
-    name: "Tayo Ogunleye",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
-    role: "Buyer" as const,
-    phone: "2348012345678",
-    lastMessage: "Is the Lekki flat still available?",
-    time: "10 min ago",
-    unread: 2,
-    messages: [
-      {
-        sender: "them" as const,
-        text: "Good morning, I saw the Luxury 3-Bed Flat listing in Lekki.",
-        time: "Yesterday, 9:15 AM",
-      },
-      {
-        sender: "you" as const,
-        text: "Hello Tayo! Yes, it's still available. Would you like to schedule a viewing?",
-        time: "Yesterday, 10:02 AM",
-      },
-      {
-        sender: "them" as const,
-        text: "Yes please! I'm free Thursday morning.",
-        time: "Yesterday, 10:30 AM",
-      },
-      {
-        sender: "them" as const,
-        text: "Is the Lekki flat still available?",
-        time: "10 min ago",
-      },
-    ],
-  },
-  {
-    id: "ac-2",
-    name: "Sandra Eze",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face",
-    role: "Buyer" as const,
-    phone: "2348023456789",
-    lastMessage: "Can we negotiate the price for the villa?",
-    time: "2 hours ago",
-    unread: 1,
-    messages: [
-      {
-        sender: "them" as const,
-        text: "Hi, I'm interested in the Contemporary Villa with Garden.",
-        time: "Today, 8:00 AM",
-      },
-      {
-        sender: "you" as const,
-        text: "Great choice! The asking price is ₦185M. Would you like to view it?",
-        time: "Today, 8:45 AM",
-      },
-      {
-        sender: "them" as const,
-        text: "Can we negotiate the price for the villa?",
-        time: "2 hours ago",
-      },
-    ],
-  },
-  {
-    id: "ac-3",
-    name: "Ibrahim Sanni",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face",
-    role: "Renter" as const,
-    phone: "2348034567890",
-    lastMessage: "I'll take the penthouse. Let's proceed with the paperwork.",
-    time: "Yesterday",
-    unread: 0,
-    messages: [
-      {
-        sender: "them" as const,
-        text: "Hello, I viewed the Penthouse yesterday and I'm very impressed.",
-        time: "Mon, 2:00 PM",
-      },
-      {
-        sender: "you" as const,
-        text: "Glad to hear that! Would you like to make an offer?",
-        time: "Mon, 2:30 PM",
-      },
-      {
-        sender: "them" as const,
-        text: "I'll take the penthouse. Let's proceed with the paperwork.",
-        time: "Yesterday",
-      },
-    ],
-  },
-  {
-    id: "ac-4",
-    name: "Amaka Obi",
-    avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face",
-    role: "Buyer" as const,
-    phone: "2348045678901",
-    lastMessage: "What documents do I need for the purchase?",
-    time: "2 days ago",
-    unread: 0,
-    messages: [
-      {
-        sender: "them" as const,
-        text: "I want to go ahead with buying the Serviced 3-Bed Flat.",
-        time: "Sat, 10:00 AM",
-      },
-      {
-        sender: "you" as const,
-        text: "Wonderful! I'll prepare the documentation. You'll need a valid ID and proof of funds.",
-        time: "Sat, 10:30 AM",
-      },
-      {
-        sender: "them" as const,
-        text: "What documents do I need for the purchase?",
-        time: "2 days ago",
-      },
-    ],
-  },
-];
+/* ─── Documents extracted from listing documents via API ─── */
 
 /* ─── Component ─── */
 
@@ -380,12 +107,158 @@ const AgentDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
-  const [selectedConvo, setSelectedConvo] = useState(agentConversations[0].id);
   const [chatInput, setChatInput] = useState("");
-  const [localMessages, setLocalMessages] = useState(() =>
-    Object.fromEntries(agentConversations.map((c) => [c.id, [...c.messages]])),
-  );
   const [mobileChat, setMobileChat] = useState(false);
+  const {
+    conversations: agentConversations,
+    activeMessages: localMessages,
+    loadMessages: loadConvoMessages,
+    sendMessage: sendConvoMessage,
+  } = useConversations();
+  const [selectedConvo, setSelectedConvo] = useState("");
+
+  // ─── API state ──────────────────────────────────────────────────────────
+  const [apiStats, setApiStats] = useState<AgentStats | null>(null);
+  const [agentListings, setAgentListings] = useState<Listing[]>([]);
+  const [recentLeads, setRecentLeads] = useState<any[]>([]);
+  const [upcomingViewings, setUpcomingViewings] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<
+    { name: string; type: string; date: string; size: string }[]
+  >([]);
+  const [, setDashLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [statsRes, listingsRes, leadsRes, viewingsRes] =
+          await Promise.all([
+            agentsService.getStats().catch(() => null),
+            listingsService
+              .listMine({ limit: 50 })
+              .catch(() => ({ items: [] })),
+            leadsService.list({ limit: 20 }).catch(() => ({ items: [] })),
+            viewingsService
+              .list({ upcoming: true, limit: 20 })
+              .catch(() => ({ items: [] })),
+          ]);
+        if (statsRes) setApiStats(statsRes);
+        setAgentListings(listingsRes.items);
+        setRecentLeads(
+          leadsRes.items.map((l: any) => ({
+            ...l,
+            property: l.listing?.title || "Property enquiry",
+            time: new Date(l.createdAt).toLocaleDateString(),
+          })),
+        );
+        setUpcomingViewings(
+          viewingsRes.items.map((v: any) => {
+            const d = new Date(v.scheduledFor);
+            return {
+              ...v,
+              date: d.toLocaleDateString("en-NG", {
+                month: "short",
+                day: "numeric",
+              }),
+              time: d.toLocaleTimeString("en-NG", {
+                hour: "numeric",
+                minute: "2-digit",
+              }),
+              client: v.clientName,
+              property: v.listing?.title || "Property viewing",
+              phone: v.clientPhone,
+              status:
+                v.status === "CONFIRMED"
+                  ? "Confirmed"
+                  : v.status === "COMPLETED"
+                    ? "Completed"
+                    : "Pending",
+            };
+          }),
+        );
+        // Extract documents from all listings
+        const docs = listingsRes.items.flatMap((l: any) =>
+          (l.documents || []).map((d: any) => ({
+            name: d.name,
+            type: d.type?.replace(/_/g, " ") || d.type,
+            date: d.date || new Date(d.createdAt).toLocaleDateString(),
+            size: "—",
+          })),
+        );
+        setDocuments(docs);
+      } catch {
+        /* ignore */
+      }
+      setDashLoading(false);
+    };
+    load();
+  }, []);
+
+  // Build stats from API data
+  const agent = {
+    id: user?.agentProfile?.id || user?.id || "",
+    listings: apiStats?.listings.active ?? 0,
+    soldRented: apiStats?.profile.soldRentedCount ?? 0,
+    rating: apiStats?.profile.rating ?? 0,
+    yearsExperience: apiStats?.profile.yearsExperience ?? 0,
+    verified: apiStats?.profile.verified ?? false,
+    name: user?.name || "Agent",
+    photo:
+      user?.avatarUrl ||
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
+    agency: (user?.agentProfile as any)?.agencyName || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    location: user?.location || "",
+    bio: user?.bio || "",
+  };
+
+  const stats = [
+    {
+      icon: <Home className="w-5 h-5" />,
+      value: String(apiStats?.listings.active ?? 0),
+      label: "Active Listings",
+      change: `${apiStats?.listings.pendingReview ?? 0} pending review`,
+      color: "text-primary",
+      bg: "bg-primary/10",
+    },
+    {
+      icon: <Users className="w-5 h-5" />,
+      value: String(apiStats?.leads.total ?? 0),
+      label: "Total Leads",
+      change: `${apiStats?.leads.new ?? 0} new`,
+      color: "text-blue-500",
+      bg: "bg-blue-50",
+    },
+    {
+      icon: <Eye className="w-5 h-5" />,
+      value: (apiStats?.listings.totalViews ?? 0).toLocaleString(),
+      label: "Total Views",
+      change: `${apiStats?.viewings.upcoming ?? 0} viewings upcoming`,
+      color: "text-[#F5A623]",
+      bg: "bg-[#FFF8ED]",
+    },
+    {
+      icon: <DollarSign className="w-5 h-5" />,
+      value: `${apiStats?.leads.conversionRate ?? 0}%`,
+      label: "Conversion Rate",
+      change: `${apiStats?.profile.soldRentedCount ?? 0} deals closed`,
+      color: "text-primary",
+      bg: "bg-primary/10",
+    },
+  ];
+
+  const recentActivity = recentLeads.slice(0, 4).map((lead) => ({
+    icon:
+      lead.status === "NEW" ? (
+        <Bell className="w-4 h-4" />
+      ) : (
+        <Users className="w-4 h-4" />
+      ),
+    text: `${lead.name} — ${lead.listing?.title || "property enquiry"}`,
+    time: new Date(lead.createdAt).toLocaleDateString(),
+    bg: lead.status === "NEW" ? "bg-blue-50" : "bg-primary/10",
+    color: lead.status === "NEW" ? "text-blue-500" : "text-primary",
+  }));
 
   return (
     <div className="min-h-screen bg-[#f5f0eb] flex">
@@ -786,17 +659,17 @@ const AgentDashboard = () => {
                         >
                           <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 relative">
                             <img
-                              src={listing.image}
+                              src={listing.coverImage}
                               alt={listing.title}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                             <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
-                              {listing.type === "sale" ? "Sale" : "Rent"}
+                              {listing.type === "SALE" ? "Sale" : "Rent"}
                             </span>
                           </div>
                           <div className="flex-1 min-w-0 py-0.5">
                             <p className="font-heading font-bold text-primary-dark text-sm">
-                              {listing.price}
+                              {listing.priceLabel}
                             </p>
                             <p className="font-heading font-semibold text-primary-dark text-xs leading-snug mt-0.5 truncate">
                               {listing.title}
@@ -1004,12 +877,12 @@ const AgentDashboard = () => {
                       >
                         <div className="h-36 overflow-hidden relative">
                           <img
-                            src={listing.image}
+                            src={listing.coverImage}
                             alt={listing.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                           <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
-                            {listing.type === "sale" ? "For Sale" : "For Rent"}
+                            {listing.type === "SALE" ? "For Sale" : "For Rent"}
                           </span>
                           <span
                             className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-medium ${reviewBadge}`}
@@ -1023,7 +896,7 @@ const AgentDashboard = () => {
                         </div>
                         <div className="p-3">
                           <p className="font-heading font-bold text-primary-dark text-sm">
-                            {listing.price}
+                            {listing.priceLabel}
                           </p>
                           <p className="text-primary-dark text-xs leading-snug mt-0.5 truncate">
                             {listing.title}
@@ -1275,21 +1148,17 @@ const AgentDashboard = () => {
               const activeConvo =
                 agentConversations.find((c) => c.id === selectedConvo) ||
                 agentConversations[0];
-              const activeMessages = localMessages[activeConvo.id] || [];
+              const convoId = activeConvo?.id || "";
+              const activeMessages = localMessages[convoId] || [];
+
+              // Load messages when conversation is selected
+              if (convoId && !localMessages[convoId]) {
+                loadConvoMessages(convoId);
+              }
 
               const handleSend = () => {
-                if (!chatInput.trim()) return;
-                setLocalMessages((prev) => ({
-                  ...prev,
-                  [activeConvo.id]: [
-                    ...(prev[activeConvo.id] || []),
-                    {
-                      sender: "you" as const,
-                      text: chatInput.trim(),
-                      time: "Just now",
-                    },
-                  ],
-                }));
+                if (!chatInput.trim() || !convoId) return;
+                sendConvoMessage(convoId, chatInput.trim());
                 setChatInput("");
               };
 

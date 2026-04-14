@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import Logo from "../../assets/logo.png";
+import gsap from "gsap";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -98,6 +99,59 @@ const Navbar = () => {
   const location = useLocation();
   const path = location.pathname;
   const { user, isLoggedIn, logout } = useAuth();
+  const navRef = useRef<HTMLElement>(null);
+
+  // ─── GSAP cinematic entrance ───────────────────────────────────────────
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    const logo = nav.querySelector("[data-nav-logo]");
+    const links = nav.querySelectorAll("[data-nav-link]");
+    const actions = nav.querySelectorAll("[data-nav-action]");
+
+    const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+
+    // Logo — drops in with scale overshoot
+    tl.fromTo(
+      logo,
+      { y: -40, opacity: 0, scale: 0.7 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.9 },
+    );
+
+    // Nav links — stagger cascade from left with slight rotation
+    tl.fromTo(
+      links,
+      { y: -30, opacity: 0, rotateX: -40 },
+      {
+        y: 0,
+        opacity: 1,
+        rotateX: 0,
+        duration: 0.7,
+        stagger: 0.08,
+      },
+      "-=0.5",
+    );
+
+    // Right-side actions — scale up with spring feel
+    tl.fromTo(
+      actions,
+      { y: -20, opacity: 0, scale: 0.85 },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.6,
+        stagger: 0.06,
+        ease: "back.out(1.4)",
+      },
+      "-=0.4",
+    );
+
+    return () => {
+      tl.kill();
+    };
+  }, []);
 
   // Close mobile menu on scroll
   useEffect(() => {
@@ -107,34 +161,41 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [mobileMenuOpen]);
   const dashboardHref =
-    user?.role === "agent" ? "/agent-dashboard" : "/dashboard";
+    user?.role === "AGENT"
+      ? "/agent-dashboard"
+      : user?.role === "VENDOR"
+        ? "/vendor-dashboard"
+        : "/dashboard";
 
   return (
     <>
-      <nav className="w-full px-6 md:px-12 lg:px-20 py-4 flex items-center justify-between relative z-50">
+      <nav
+        ref={navRef}
+        className="w-full px-6 md:px-12 lg:px-20 py-4 flex items-center justify-between relative z-50"
+      >
         {/* Left group: Logo + Nav Links */}
         <div className="flex items-center gap-10">
-          <a href="/">
+          <a href="/" data-nav-logo>
             <img className="w-30" src={Logo} alt="Logo" />
           </a>
           <ul className="hidden lg:flex items-center gap-7">
-            <li>
+            <li data-nav-link>
               <FlipLink label="Buy" href="/buy" isActive={path === "/buy"} />
             </li>
-            <li>
+            <li data-nav-link>
               <FlipLink label="Rent" href="/rent" isActive={path === "/rent"} />
             </li>
-            <li>
+            <li data-nav-link>
               <FlipLink label="Sell" href="/sell" isActive={path === "/sell"} />
             </li>
-            <li>
+            <li data-nav-link>
               <FlipLink
                 label="Service Loop"
                 href="/services"
                 isActive={path === "/services"}
               />
             </li>
-            <li>
+            <li data-nav-link>
               <FlipLink
                 label="Building Materials"
                 href="/marketplace"
@@ -146,14 +207,14 @@ const Navbar = () => {
 
         {/* Right Nav Links */}
         <ul className="hidden lg:flex items-center gap-7">
-          <li>
+          <li data-nav-action>
             <FlipLink
               label="Add Property"
               href="/add-property"
               isActive={path === "/add-property"}
             />
           </li>
-          <li>
+          <li data-nav-action>
             <FlipLink
               label="About Us"
               href="/about"
@@ -162,7 +223,7 @@ const Navbar = () => {
           </li>
           {isLoggedIn ? (
             <>
-              <li>
+              <li data-nav-action>
                 <a
                   href={dashboardHref}
                   className={`text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
@@ -174,7 +235,7 @@ const Navbar = () => {
                   Dashboard
                 </a>
               </li>
-              <li>
+              <li data-nav-action>
                 <button
                   onClick={() => {
                     logout();
@@ -188,7 +249,7 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <li>
+              <li data-nav-action>
                 <a
                   href="/login"
                   className="text-sm font-medium text-primary-dark hover:text-primary transition-colors"
@@ -196,7 +257,7 @@ const Navbar = () => {
                   Login
                 </a>
               </li>
-              <li>
+              <li data-nav-action>
                 <a
                   href="/onboarding"
                   className="text-sm font-medium text-white bg-primary px-6 py-2 rounded-4xl hover:bg-primary-dark transition-colors"

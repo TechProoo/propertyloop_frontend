@@ -18,7 +18,6 @@ const Home = () => {
       <Navbar />
       <Hero />
       <TrustedSection />
-      <Partners />
       <FeaturedHomes />
       <VideoListings />
       <ServiceLoop />
@@ -26,6 +25,7 @@ const Home = () => {
       <AgentSpotlight />
       <ShortletSpotlight />
       <VideoTestimonials />
+      <Partners />
       <CtaBanner />
       <Footer />
     </div>

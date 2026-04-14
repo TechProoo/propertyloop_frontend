@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
+import { useListings } from "../api/hooks";
 import {
   ArrowUpRight,
   Bed,
@@ -18,7 +19,6 @@ import {
   ChevronDown,
   Star,
   Phone,
-  MessageCircle,
   X,
   Zap,
   Droplets,
@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { listings as sharedListings } from "../data/listings";
+// listings now fetched from API via useListings hook
 import PropertyMap from "../components/ui/PropertyMap";
 import type { MapListing } from "../components/ui/PropertyMap";
 import BookmarkButton from "../components/ui/BookmarkButton";
@@ -56,198 +56,11 @@ const categories = [
   },
 ];
 
-const listings = {
-  "Flats & Apartments": [
-    {
-      image:
-        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
-      price: "₦3,500,000",
-      period: "year",
-      title: "Serviced 3-Bed Flat with Pool",
-      address: "Lekki Phase 1, Lagos",
-      beds: 3,
-      baths: 3,
-      sqft: "2,400",
-      rating: 4.8,
-      agent: "Prime Realty",
-      lat: 6.4478,
-      lng: 3.4723,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
-      price: "₦8,000,000",
-      period: "year",
-      title: "Luxury Penthouse with Ocean View",
-      address: "Victoria Island, Lagos",
-      beds: 4,
-      baths: 3,
-      sqft: "3,800",
-      rating: 4.9,
-      agent: "Island Properties",
-      lat: 6.4281,
-      lng: 3.4219,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
-      price: "₦2,800,000",
-      period: "year",
-      title: "Modern 2-Bed Apartment",
-      address: "Ikoyi, Lagos",
-      beds: 2,
-      baths: 2,
-      sqft: "1,600",
-      rating: 4.7,
-      agent: "Prestige Homes",
-      lat: 6.4494,
-      lng: 3.4345,
-    },
-  ],
-  Houses: [
-    {
-      image:
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-      price: "₦12,000,000",
-      period: "year",
-      title: "4-Bed Detached Villa with Garden",
-      address: "Lekki Phase 1, Lagos",
-      beds: 4,
-      baths: 3,
-      sqft: "6,800",
-      rating: 4.9,
-      agent: "Prime Realty",
-      lat: 6.4412,
-      lng: 3.4815,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
-      price: "₦25,000,000",
-      period: "year",
-      title: "Waterfront Mansion with Pool",
-      address: "Banana Island, Lagos",
-      beds: 6,
-      baths: 5,
-      sqft: "12,000",
-      rating: 4.9,
-      agent: "Royal Estate Advisors",
-      lat: 6.4571,
-      lng: 3.4282,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
-      price: "₦5,500,000",
-      period: "year",
-      title: "Semi-Detached Duplex with BQ",
-      address: "Gbagada, Lagos",
-      beds: 4,
-      baths: 3,
-      sqft: "5,200",
-      rating: 4.7,
-      agent: "Cityscape Properties",
-      lat: 6.553,
-      lng: 3.387,
-    },
-  ],
-  "Office Space": [
-    {
-      image:
-        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
-      price: "₦18,000,000",
-      period: "year",
-      title: "Open-Plan Office on Allen Avenue",
-      address: "Ikeja, Lagos",
-      beds: 0,
-      baths: 4,
-      sqft: "8,500",
-      rating: 4.7,
-      agent: "Cityscape Properties",
-      lat: 6.6018,
-      lng: 3.3515,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
-      price: "₦10,000,000",
-      period: "year",
-      title: "Co-Working Hub on Admiralty Way",
-      address: "Lekki Phase 1, Lagos",
-      beds: 0,
-      baths: 2,
-      sqft: "4,200",
-      rating: 4.8,
-      agent: "Prime Realty",
-      lat: 6.45,
-      lng: 3.475,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=600&h=400&fit=crop",
-      price: "₦6,000,000",
-      period: "year",
-      title: "Private Office Suite with Reception",
-      address: "Victoria Island, Lagos",
-      beds: 0,
-      baths: 2,
-      sqft: "2,800",
-      rating: 4.6,
-      agent: "Island Properties",
-      lat: 6.4315,
-      lng: 3.416,
-    },
-  ],
-  "Land Lease": [
-    {
-      image:
-        "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop",
-      price: "₦2,000,000",
-      period: "year",
-      title: "500sqm Plot in Gated Estate",
-      address: "Ajah, Lagos",
-      beds: 0,
-      baths: 0,
-      sqft: "500",
-      rating: 4.6,
-      agent: "Metro Living Realty",
-      lat: 6.4698,
-      lng: 3.5852,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1628624747186-a941c476b7ef?w=600&h=400&fit=crop",
-      price: "₦5,500,000",
-      period: "year",
-      title: "1000sqm Waterfront Land Lease",
-      address: "Lekki Phase 2, Lagos",
-      beds: 0,
-      baths: 0,
-      sqft: "1,000",
-      rating: 4.8,
-      agent: "Island Properties",
-      lat: 6.438,
-      lng: 3.532,
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1416339306562-f3d12fefd36f?w=600&h=400&fit=crop",
-      price: "₦8,000,000",
-      period: "year",
-      title: "Prime Corner Plot on Long Lease",
-      address: "Victoria Island, Lagos",
-      beds: 0,
-      baths: 0,
-      sqft: "800",
-      rating: 4.9,
-      agent: "Prestige Homes",
-      lat: 6.4315,
-      lng: 3.416,
-    },
-  ],
+const rentPropertyTypeMap: Record<string, string> = {
+  "Flats & Apartments": "Flat / Apartment",
+  Houses: "House",
+  "All Property": "",
 };
-
-type CategoryKey = keyof typeof listings;
 
 const Rent = () => {
   const navigate = useNavigate();
@@ -262,36 +75,57 @@ const Rent = () => {
   const [bathsFilter, setBathsFilter] = useState("any");
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
-  const getPropertyLink = (title: string) => {
-    const match = sharedListings.find((l) => l.title === title);
-    return match ? `/property/${match.id}` : "#";
-  };
+  const { items: apiListings, updateParams } = useListings({
+    type: "RENT",
+    limit: 50,
+  });
 
-  const getListings = () => {
-    let result =
-      activeCategory === "All Property"
-        ? Object.values(listings).flat()
-        : listings[activeCategory as CategoryKey] || [];
-
-    if (bedsFilter !== "any") {
-      const minBeds = parseInt(bedsFilter);
-      result = result.filter((l) => l.beds >= minBeds);
+  useEffect(() => {
+    const p: Record<string, unknown> = { type: "RENT" as const, limit: 50 };
+    if (
+      activeCategory !== "All Property" &&
+      rentPropertyTypeMap[activeCategory]
+    ) {
+      p.propertyType = rentPropertyTypeMap[activeCategory];
     }
-    if (bathsFilter !== "any") {
-      const minBaths = parseInt(bathsFilter);
-      result = result.filter((l) => l.baths >= minBaths);
-    }
+    if (searchQuery.trim()) p.search = searchQuery;
+    if (bedsFilter !== "any") p.minBeds = parseInt(bedsFilter);
+    if (bathsFilter !== "any") p.minBaths = parseInt(bathsFilter);
     if (priceRange !== "any") {
       const [min, max] = priceRange.split("-").map(Number);
-      result = result.filter((l) => {
-        const p = parseInt(l.price.replace(/[₦,]/g, ""));
-        return p >= min && (max ? p <= max : true);
-      });
+      if (min) p.minPrice = min;
+      if (max) p.maxPrice = max;
     }
-    return result;
-  };
+    updateParams(p as any);
+  }, [
+    activeCategory,
+    searchQuery,
+    priceRange,
+    bedsFilter,
+    bathsFilter,
+    updateParams,
+  ]);
 
-  const currentListings = getListings();
+  const currentListings = apiListings.map((l) => ({
+    id: l.id,
+    image: l.coverImage,
+    price: l.priceLabel,
+    title: l.title,
+    address: l.address,
+    beds: l.beds,
+    baths: l.baths,
+    sqft: l.sqft,
+    rating: l.rating,
+    agent: l.agent?.name || l.agent?.agency || "Agent",
+    period: l.period || "/year",
+    lat: 6.45 + Math.random() * 0.03,
+    lng: 3.4 + Math.random() * 0.08,
+  }));
+
+  const getPropertyLink = (title: string) => {
+    const match = apiListings.find((l) => l.title === title);
+    return match ? `/property/${match.id}` : "#";
+  };
 
   const mapListings: MapListing[] = currentListings.map((l, i) => ({
     lat: l.lat,

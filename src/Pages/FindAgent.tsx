@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -8,7 +8,6 @@ import {
   ChevronDown,
   Star,
   Phone,
-  MessageCircle,
   X,
   CheckCircle,
   Home,
@@ -21,7 +20,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { agents } from "../data/agents";
+import { useAgents } from "../api/hooks";
 
 /* ─── Data ─── */
 
@@ -61,29 +60,56 @@ const FindAgent = () => {
   const [activeRating, setActiveRating] = useState("Any Rating");
   const [contactCard, setContactCard] = useState<number | null>(null);
 
-  const getFilteredAgents = () => {
-    return agents.filter((agent) => {
-      const q = searchQuery.toLowerCase();
-      const matchesSearch =
-        !q ||
-        agent.name.toLowerCase().includes(q) ||
-        agent.agency.toLowerCase().includes(q) ||
-        agent.location.toLowerCase().includes(q);
-      const matchesLocation =
-        activeLocation === "All Locations" ||
-        agent.location.includes(activeLocation);
-      const matchesSpecialty =
-        activeSpecialty === "All" || agent.specialty.includes(activeSpecialty);
-      const matchesRating =
-        activeRating === "Any Rating" ||
-        agent.rating >= parseFloat(activeRating.replace("+", ""));
-      return (
-        matchesSearch && matchesLocation && matchesSpecialty && matchesRating
-      );
-    });
-  };
+  const minRating =
+    activeRating === "Any Rating"
+      ? undefined
+      : parseFloat(activeRating.replace("+", ""));
+  const { items: apiAgents, updateParams } = useAgents({
+    search: searchQuery || undefined,
+    specialty: activeSpecialty === "All" ? undefined : activeSpecialty,
+    location: activeLocation === "All Locations" ? undefined : activeLocation,
+    minRating,
+    limit: 50,
+  });
 
-  const filteredAgents = getFilteredAgents();
+  useEffect(() => {
+    updateParams({
+      search: searchQuery || undefined,
+      specialty: activeSpecialty === "All" ? undefined : activeSpecialty,
+      location: activeLocation === "All Locations" ? undefined : activeLocation,
+      minRating,
+      limit: 50,
+    });
+  }, [
+    searchQuery,
+    activeSpecialty,
+    activeLocation,
+    activeRating,
+    updateParams,
+    minRating,
+  ]);
+
+  // Map API shape to what the template uses
+  const agents = apiAgents.map((a) => ({
+    id: a.id,
+    photo:
+      a.avatarUrl ||
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
+    name: a.name,
+    agency: a.agency || "",
+    location: a.location || "",
+    rating: a.rating,
+    listings: a.listingsCount,
+    soldRented: a.soldRentedCount,
+    verified: a.verified,
+    phone: a.phone || "",
+    specialty: a.specialty,
+    bio: a.bio || "",
+    yearsExperience: a.yearsExperience,
+    email: a.email,
+  }));
+
+  const filteredAgents = agents;
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">

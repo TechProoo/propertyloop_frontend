@@ -31,10 +31,14 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
-import { listings } from "../data/listings";
-import { getAgentById } from "../data/agents";
-import { products, getProductById } from "../data/products";
-import { vendors } from "../data/vendors";
+import listingsService from "../api/services/listings";
+import vendorsService from "../api/services/vendors";
+import productsService from "../api/services/products";
+import type {
+  Listing as ApiListing,
+  VendorPublic,
+  Product as ApiProduct,
+} from "../api/types";
 import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
 import BookmarkButton from "../components/ui/BookmarkButton";
@@ -50,7 +54,6 @@ import {
 const ease = [0.23, 1, 0.32, 1] as const;
 
 /* ─── Static Data ─── */
-const myAgent = getAgentById("adebayo-johnson");
 
 const navItems = [
   {
@@ -197,6 +200,29 @@ const Dashboard = () => {
   const [allConversations, setAllConversations] = useState<Conversation[]>([]);
   const [mobileChat, setMobileChat] = useState(false);
 
+  // ─── API state ────────────────────────────────────────────────────────
+  const [listings, setListings] = useState<ApiListing[]>([]);
+  const [vendors, setVendors] = useState<VendorPublic[]>([]);
+  const [products, setProducts] = useState<ApiProduct[]>([]);
+
+  useEffect(() => {
+    listingsService
+      .list({ limit: 50 })
+      .then((r) => setListings(r.items))
+      .catch(() => {});
+    vendorsService
+      .list({ limit: 50 })
+      .then((r) => setVendors(r.items))
+      .catch(() => {});
+    productsService
+      .list({ limit: 50 })
+      .then((r) => setProducts(r.items))
+      .catch(() => {});
+  }, []);
+
+  const getProductById = (id: string) =>
+    products.find((p) => p.id === id) || null;
+
   // Seed defaults + load all conversations (including vendor chats from BookService)
   useEffect(() => {
     seedDefaultConversations(defaultConversations);
@@ -226,9 +252,9 @@ const Dashboard = () => {
     .filter(Boolean);
 
   // Bookmarked items
-  const savedPropertyIds = getByType("property");
-  const savedVendorIds = getByType("service");
-  const savedProductIds = getByType("product");
+  const savedPropertyIds = getByType("PROPERTY");
+  const savedVendorIds = getByType("SERVICE");
+  const savedProductIds = getByType("PRODUCT");
   const savedProperties = listings.filter((l) =>
     savedPropertyIds.includes(l.id),
   );
@@ -247,8 +273,8 @@ const Dashboard = () => {
     const matchesQuery =
       !q ||
       vendor.name.toLowerCase().includes(q) ||
-      vendor.category.toLowerCase().includes(q) ||
-      vendor.location.toLowerCase().includes(q);
+      (vendor.category ?? "").toLowerCase().includes(q) ||
+      (vendor.location ?? "").toLowerCase().includes(q);
     const matchesCategory =
       vendorCategory === "All Categories" || vendor.category === vendorCategory;
     return matchesQuery && matchesCategory;
@@ -567,17 +593,17 @@ const Dashboard = () => {
                           >
                             <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 relative">
                               <img
-                                src={listing.image}
+                                src={listing.coverImage}
                                 alt={listing.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               />
                               <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
-                                {listing.type === "sale" ? "Sale" : "Rent"}
+                                {listing.type === "SALE" ? "Sale" : "Rent"}
                               </span>
                             </div>
                             <div className="flex-1 min-w-0 py-0.5">
                               <p className="font-heading font-bold text-primary-dark text-sm">
-                                {listing.price}
+                                {listing.priceLabel}
                               </p>
                               <p className="text-primary-dark text-xs leading-snug mt-0.5 truncate">
                                 {listing.title}
@@ -629,7 +655,7 @@ const Dashboard = () => {
                           >
                             <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0">
                               <img
-                                src={product!.image}
+                                src={product!.coverImage}
                                 alt={product!.name}
                                 className="w-full h-full object-cover"
                               />
@@ -711,11 +737,14 @@ const Dashboard = () => {
                                 </span>
                               </div>
                               <p className="text-text-secondary text-xs mt-0.5">
-                                {booking.category} · ₦{booking.total.toLocaleString()}
+                                {booking.category} · ₦
+                                {booking.total.toLocaleString()}
                               </p>
                               {booking.preferredDate && (
                                 <p className="text-text-subtle text-[11px] mt-0.5">
-                                  {new Date(booking.preferredDate).toLocaleDateString("en-NG", {
+                                  {new Date(
+                                    booking.preferredDate,
+                                  ).toLocaleDateString("en-NG", {
                                     weekday: "short",
                                     month: "short",
                                     day: "numeric",
@@ -773,48 +802,6 @@ const Dashboard = () => {
                       Edit Profile
                     </button>
                   </div>
-
-                  {/* My Agent */}
-                  {myAgent && (
-                    <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
-                      <h3 className="font-heading font-bold text-primary-dark text-sm mb-4">
-                        My Agent
-                      </h3>
-                      <div className="flex items-center gap-4 mb-4">
-                        <img
-                          src={myAgent.photo}
-                          alt={myAgent.name}
-                          className="w-12 h-12 rounded-full object-cover object-top border-2 border-white shadow-sm"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <p className="font-heading font-bold text-primary-dark text-sm truncate">
-                              {myAgent.name}
-                            </p>
-                            {myAgent.verified && (
-                              <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
-                            )}
-                          </div>
-                          <p className="text-text-secondary text-xs">
-                            {myAgent.agency}
-                          </p>
-                          <div className="flex items-center gap-3 text-text-secondary text-xs mt-1">
-                            <span className="flex items-center gap-1">
-                              <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />{" "}
-                              {myAgent.rating}
-                            </span>
-                            <span>{myAgent.listings} listings</span>
-                          </div>
-                        </div>
-                      </div>
-                      <Link
-                        to={`/agent/${myAgent.id}`}
-                        className="block text-center text-primary text-xs font-medium mt-3 hover:underline"
-                      >
-                        View full profile
-                      </Link>
-                    </div>
-                  )}
 
                   {/* Quick Actions */}
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
@@ -884,7 +871,7 @@ const Dashboard = () => {
                           >
                             <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
                               <img
-                                src={p!.image}
+                                src={p!.coverImage}
                                 alt={p!.name}
                                 className="w-full h-full object-cover"
                               />
@@ -938,7 +925,7 @@ const Dashboard = () => {
               {/* Bookmarked Properties — For Sale */}
               {(() => {
                 const saleSaved = savedProperties.filter(
-                  (l) => l.type === "sale",
+                  (l) => l.type === "SALE",
                 );
                 return (
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
@@ -964,7 +951,7 @@ const Dashboard = () => {
                           >
                             <div className="h-32 overflow-hidden relative">
                               <img
-                                src={listing.image}
+                                src={listing.coverImage}
                                 alt={listing.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               />
@@ -976,7 +963,7 @@ const Dashboard = () => {
                             </div>
                             <div className="p-3">
                               <p className="font-heading font-bold text-primary-dark text-sm">
-                                {listing.price}
+                                {listing.priceLabel}
                               </p>
                               <p className="text-primary-dark text-xs leading-snug mt-0.5 truncate">
                                 {listing.title}
@@ -1020,7 +1007,7 @@ const Dashboard = () => {
               {/* Bookmarked Properties — For Rent */}
               {(() => {
                 const rentSaved = savedProperties.filter(
-                  (l) => l.type === "rent" || l.type === "shortlet",
+                  (l) => l.type === "RENT" || l.type === "SHORTLET",
                 );
                 return (
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
@@ -1046,7 +1033,7 @@ const Dashboard = () => {
                           >
                             <div className="h-32 overflow-hidden relative">
                               <img
-                                src={listing.image}
+                                src={listing.coverImage}
                                 alt={listing.title}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               />
@@ -1058,7 +1045,7 @@ const Dashboard = () => {
                             </div>
                             <div className="p-3">
                               <p className="font-heading font-bold text-primary-dark text-sm">
-                                {listing.price}
+                                {listing.priceLabel}
                                 {listing.period && (
                                   <span className="text-text-secondary font-normal">
                                     /{listing.period}
@@ -1128,7 +1115,7 @@ const Dashboard = () => {
                       >
                         <div className="flex items-start gap-3">
                           <img
-                            src={vendor.avatar}
+                            src={vendor.avatarUrl || ""}
                             alt={vendor.name}
                             className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
                           />
@@ -1152,7 +1139,7 @@ const Dashboard = () => {
                                 <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />
                                 {vendor.rating}
                               </span>
-                              <span>{vendor.jobs} jobs</span>
+                              <span>{vendor.jobsCount} jobs</span>
                             </div>
                           </div>
                           <BookmarkButton
@@ -1163,7 +1150,7 @@ const Dashboard = () => {
                           />
                         </div>
                         <p className="font-heading font-bold text-primary-dark text-sm mt-3">
-                          {vendor.price}
+                          {vendor.priceLabel}
                         </p>
                       </Link>
                     ))}
@@ -1208,7 +1195,7 @@ const Dashboard = () => {
                       >
                         <div className="h-28 overflow-hidden">
                           <img
-                            src={product!.image}
+                            src={product!.coverImage}
                             alt={product!.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
@@ -1225,7 +1212,7 @@ const Dashboard = () => {
                           </p>
                           <div className="flex items-center gap-1 text-text-secondary text-[11px] mt-1">
                             <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />{" "}
-                            {product!.rating} ({product!.reviews} reviews)
+                            {product!.rating} ({product!.reviewsCount} reviews)
                           </div>
                         </div>
                       </Link>
@@ -1294,7 +1281,7 @@ const Dashboard = () => {
                     className="h-11 px-4 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none"
                   >
                     {vendorCategories.map((category) => (
-                      <option key={category} value={category}>
+                      <option key={category} value={category ?? ""}>
                         {category}
                       </option>
                     ))}
@@ -1324,7 +1311,7 @@ const Dashboard = () => {
                     >
                       <div className="flex gap-4">
                         <img
-                          src={vendor.avatar}
+                          src={vendor.avatarUrl || ""}
                           alt={vendor.name}
                           className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
                         />
@@ -1345,7 +1332,7 @@ const Dashboard = () => {
                               <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />
                               {vendor.rating}
                             </span>
-                            <span>{vendor.jobs} jobs</span>
+                            <span>{vendor.jobsCount} jobs</span>
                             <span className="flex items-center gap-1 truncate">
                               <MapPin className="w-3 h-3" />
                               {vendor.location}
@@ -1361,7 +1348,7 @@ const Dashboard = () => {
                       </div>
 
                       <p className="font-heading font-bold text-primary-dark text-base mt-4">
-                        {vendor.price}
+                        {vendor.priceLabel}
                       </p>
                       <p className="text-text-secondary text-xs mt-1 line-clamp-2">
                         {vendor.bio}
@@ -1433,7 +1420,7 @@ const Dashboard = () => {
                       >
                         <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
                           <img
-                            src={p!.image}
+                            src={p!.coverImage}
                             alt={p!.name}
                             className="w-full h-full object-cover"
                           />
@@ -1475,7 +1462,7 @@ const Dashboard = () => {
                     >
                       <div className="h-28 overflow-hidden relative">
                         <img
-                          src={product.image}
+                          src={product.coverImage}
                           alt={product.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
@@ -1500,7 +1487,7 @@ const Dashboard = () => {
                         </p>
                         <div className="flex items-center gap-1 text-text-secondary text-[11px] mt-1">
                           <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />{" "}
-                          {product.rating} ({product.reviews})
+                          {product.rating} ({product.reviewsCount})
                         </div>
                       </div>
                     </Link>
@@ -1532,7 +1519,7 @@ const Dashboard = () => {
                       >
                         <div className="h-28 overflow-hidden relative">
                           <img
-                            src={product!.image}
+                            src={product!.coverImage}
                             alt={product!.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
@@ -1863,7 +1850,7 @@ const Dashboard = () => {
                   <div className="absolute left-[22px] top-6 bottom-6 w-px bg-border-light" />
 
                   <div className="flex flex-col gap-4">
-                    {serviceBookings.map((booking, i) => {
+                    {serviceBookings.map((booking) => {
                       const categoryIcons: Record<string, React.ReactNode> = {
                         Plumber: <Wrench className="w-4 h-4" />,
                         Electrician: <Home className="w-4 h-4" />,
@@ -1872,7 +1859,9 @@ const Dashboard = () => {
                         Painter: <Home className="w-4 h-4" />,
                         Carpenter: <Wrench className="w-4 h-4" />,
                       };
-                      const icon = categoryIcons[booking.category] || <Wrench className="w-4 h-4" />;
+                      const icon = categoryIcons[booking.category] || (
+                        <Wrench className="w-4 h-4" />
+                      );
 
                       return (
                         <div key={booking.id} className="flex gap-4 relative">
@@ -1887,20 +1876,29 @@ const Dashboard = () => {
                           <div className="flex-1 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-5">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
-                                {new Date(booking.createdAt).toLocaleDateString("en-NG", {
-                                  month: "short",
-                                  year: "numeric",
-                                })}
+                                {new Date(booking.createdAt).toLocaleDateString(
+                                  "en-NG",
+                                  {
+                                    month: "short",
+                                    year: "numeric",
+                                  },
+                                )}
                               </span>
-                              <span className={`flex items-center gap-1 text-xs ${
-                                booking.status === "completed"
-                                  ? "text-primary"
-                                  : booking.status === "confirmed"
-                                    ? "text-blue-600"
-                                    : "text-[#F5A623]"
-                              }`}>
+                              <span
+                                className={`flex items-center gap-1 text-xs ${
+                                  booking.status === "completed"
+                                    ? "text-primary"
+                                    : booking.status === "confirmed"
+                                      ? "text-blue-600"
+                                      : "text-[#F5A623]"
+                                }`}
+                              >
                                 <ShieldCheck className="w-3.5 h-3.5" />
-                                {booking.status === "pending" ? "Pending" : booking.status === "confirmed" ? "Confirmed" : "Verified"}
+                                {booking.status === "pending"
+                                  ? "Pending"
+                                  : booking.status === "confirmed"
+                                    ? "Confirmed"
+                                    : "Verified"}
                               </span>
                             </div>
                             <h3 className="font-heading font-bold text-primary-dark text-[15px] mt-1">
@@ -1917,7 +1915,9 @@ const Dashboard = () => {
                             {booking.preferredDate && (
                               <p className="text-text-subtle text-xs mt-2 flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
-                                {new Date(booking.preferredDate).toLocaleDateString("en-NG", {
+                                {new Date(
+                                  booking.preferredDate,
+                                ).toLocaleDateString("en-NG", {
                                   weekday: "short",
                                   month: "short",
                                   day: "numeric",
@@ -1947,7 +1947,8 @@ const Dashboard = () => {
                     No logbook entries yet
                   </h3>
                   <p className="text-text-secondary text-sm mt-1 max-w-sm mx-auto">
-                    When you book and complete vendor services, they'll automatically appear here as a permanent record.
+                    When you book and complete vendor services, they'll
+                    automatically appear here as a permanent record.
                   </p>
                   <Link
                     to="/services"

@@ -68,34 +68,43 @@ const Checkout = () => {
   const serviceFee = Math.round(subtotal * 0.03);
   const total = subtotal + deliveryFee + serviceFee;
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     setProcessing(true);
-    setTimeout(() => {
+    try {
+      const payMethodMap: Record<string, string> = { card: "CARD", transfer: "TRANSFER", wallet: "WALLET" };
+      const { default: ordersService } = await import("../api/services/orders");
+      const order = await ordersService.create({
+        recipientName: name,
+        phone,
+        address,
+        city,
+        notes: notes || undefined,
+        payMethod: (payMethodMap[payMethod] || "CARD") as any,
+        items: items.map((item) => ({ productId: item.id, quantity: item.quantity })),
+      });
+      localStorage.setItem("pl_cart", "[]");
+      // Also store locally for OrderConfirmation to read
+      localStorage.setItem(`pl_order_${order.orderNumber}`, JSON.stringify(order));
+      navigate(`/order-confirmation/${order.orderNumber}`);
+    } catch {
+      // Fallback: save locally if API fails
       const orderId = `MAT-${Date.now().toString().slice(-8)}`;
-      const order = {
+      const fallbackOrder = {
         id: orderId,
         items: cartProducts.map((p) => ({
-          id: p!.id,
-          name: p!.name,
-          image: p!.image,
-          supplier: p!.supplier,
-          price: p!.price,
-          priceLabel: p!.priceLabel,
-          unit: p!.unit,
-          quantity: p!.cartQty,
+          id: p!.id, name: p!.name, image: p!.image, supplier: p!.supplier,
+          price: p!.price, priceLabel: p!.priceLabel, unit: p!.unit, quantity: p!.cartQty,
         })),
         delivery: { name, phone, address, city, notes },
-        payMethod,
-        subtotal,
-        deliveryFee,
-        serviceFee,
-        total,
+        payMethod, subtotal, deliveryFee, serviceFee, total,
         placedAt: new Date().toISOString(),
       };
-      localStorage.setItem(`pl_order_${orderId}`, JSON.stringify(order));
+      localStorage.setItem(`pl_order_${orderId}`, JSON.stringify(fallbackOrder));
       localStorage.setItem("pl_cart", "[]");
       navigate(`/order-confirmation/${orderId}`);
-    }, 2000);
+    } finally {
+      setProcessing(false);
+    }
   };
 
   if (cartProducts.length === 0) {

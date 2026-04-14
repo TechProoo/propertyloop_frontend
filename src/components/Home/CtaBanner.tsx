@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight,
   Home,
@@ -9,6 +9,10 @@ import {
   X,
   Bell,
 } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
   { icon: <Home className="w-4 h-4" />, value: "20,000+", label: "Listings" },
@@ -31,9 +35,69 @@ const stats = [
 
 const CtaBanner = () => {
   const [showModal, setShowModal] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const label = el.querySelector("[data-cb-label]");
+    const heading = el.querySelector("[data-cb-heading]");
+    const desc = el.querySelector("[data-cb-desc]");
+    const btns = el.querySelectorAll("[data-cb-btn]");
+    const phone = el.querySelector("[data-cb-phone]");
+    const statCards = el.querySelectorAll("[data-cb-stat]");
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power3.out" },
+      scrollTrigger: { trigger: el, start: "top 75%", once: true },
+    });
+
+    if (label) tl.fromTo(label, { y: -15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 });
+
+    if (heading) {
+      tl.fromTo(
+        heading,
+        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
+        { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.9, ease: "power4.out" },
+        "-=0.2",
+      );
+    }
+
+    if (desc) tl.fromTo(desc, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.4");
+
+    if (btns.length) {
+      tl.fromTo(
+        btns,
+        { scale: 0.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, stagger: 0.12, ease: "back.out(1.6)" },
+        "-=0.2",
+      );
+    }
+
+    if (phone) {
+      tl.fromTo(
+        phone,
+        { x: 80, opacity: 0, rotateY: -12 },
+        { x: 0, opacity: 1, rotateY: 0, duration: 1, ease: "power4.out" },
+        "-=0.6",
+      );
+    }
+
+    if (statCards.length) {
+      tl.fromTo(
+        statCards,
+        { y: 40, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.7, stagger: 0.1, ease: "power4.out" },
+        "-=0.3",
+      );
+    }
+
+    return () => { tl.kill(); };
+  }, []);
 
   return (
-    <section className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg">
+    <section ref={sectionRef} className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg">
       <div className="max-w-7xl mx-auto">
         {/* Outer glass card */}
         <div className="relative overflow-hidden bg-white/60 backdrop-blur-sm border border-border-light rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-3">
@@ -48,15 +112,15 @@ const CtaBanner = () => {
               <div className="flex flex-col lg:flex-row lg:items-center gap-12 lg:gap-20">
                 {/* Left text */}
                 <div className="flex-1">
-                  <p className="text-primary text-sm font-medium tracking-wide uppercase mb-3">
+                  <p data-cb-label className="text-primary text-sm font-medium tracking-wide uppercase mb-3">
                     Get Started Today
                   </p>
-                  <h2 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
+                  <h2 data-cb-heading className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
                     Find your next home.
                     <br />
                     <span className="text-primary">Close the loop.</span>
                   </h2>
-                  <p className="text-text-secondary text-sm leading-relaxed mt-5 max-w-md">
+                  <p data-cb-desc className="text-text-secondary text-sm leading-relaxed mt-5 max-w-md">
                     From first search to signed contract — and everything after
                     the keys are handed over. Download the app or sign up to get
                     started.
@@ -64,11 +128,12 @@ const CtaBanner = () => {
 
                   {/* CTA buttons */}
                   <div className="flex flex-wrap gap-4 mt-8">
-                    <a href="/onboarding" className="h-12 px-8 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]">
+                    <a data-cb-btn href="/onboarding" className="h-12 px-8 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]">
                       Sign up free
                       <ArrowRight className="w-4 h-4" />
                     </a>
                     <button
+                      data-cb-btn
                       onClick={() => setShowModal(true)}
                       className="h-12 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark font-medium text-sm hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center gap-2"
                     >
@@ -79,7 +144,7 @@ const CtaBanner = () => {
                 </div>
 
                 {/* Right — phone mockup */}
-                <div className="shrink-0 hidden lg:flex items-center justify-center">
+                <div data-cb-phone className="shrink-0 hidden lg:flex items-center justify-center">
                   <div className="relative w-55 h-95 bg-white/70 backdrop-blur-md border border-border-light rounded-[36px] p-3 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
                     <div className="w-full h-full rounded-[28px] bg-bg-accent border border-border-light flex flex-col items-center justify-center gap-4">
                       {/* Notch */}
@@ -108,6 +173,7 @@ const CtaBanner = () => {
                   {stats.map((stat, i) => (
                     <div
                       key={i}
+                      data-cb-stat
                       className="bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl px-5 py-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
                     >
                       <div className="flex items-center gap-2 text-text-secondary mb-2">

@@ -5,6 +5,7 @@ import Signup from "../components/Onboarding/Signup";
 import ProfileSetup from "../components/Onboarding/ProfileSetup";
 import Welcome from "../components/Onboarding/Welcome";
 import Logo from "../assets/logo.png";
+import { useAuth } from "../context/AuthContext";
 
 export type UserRole = "buyer" | "agent" | "vendor";
 
@@ -32,8 +33,12 @@ export interface OnboardingData {
 const steps = ["role", "signup", "setup", "welcome"] as const;
 type Step = (typeof steps)[number];
 
+const roleMap = { buyer: "BUYER", agent: "AGENT", vendor: "VENDOR" } as const;
+
 const Onboarding = () => {
+  const { signup } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>("role");
+  const [signupError, setSignupError] = useState("");
   const [data, setData] = useState<OnboardingData>({
     role: null,
     fullName: "",
@@ -47,6 +52,43 @@ const Onboarding = () => {
   };
 
   const goTo = (step: Step) => setCurrentStep(step);
+
+  const handleSignup = async () => {
+    if (!data.role) return;
+    setSignupError("");
+    const apiRole = roleMap[data.role];
+    try {
+      await signup({
+        name: data.fullName,
+        email: data.email,
+        password: data.password,
+        phone: data.phone || undefined,
+        role: apiRole,
+        ...(data.role === "buyer" && {
+          buyer: { preferredLocations: data.preferredLocation },
+        }),
+        ...(data.role === "agent" && {
+          agent: {
+            agencyName: data.agencyName!,
+            licenseNumber: data.licenseNumber!,
+            businessAddress: data.businessAddress!,
+          },
+        }),
+        ...(data.role === "vendor" && {
+          vendor: {
+            serviceCategory: data.serviceCategory!,
+            yearsExperience: data.yearsExperience!,
+            serviceArea: data.serviceArea!,
+          },
+        }),
+      });
+      setCurrentStep("welcome");
+    } catch (err: any) {
+      setSignupError(
+        err?.response?.data?.message || "Signup failed. Please try again.",
+      );
+    }
+  };
 
   const stepIndex = steps.indexOf(currentStep);
 
@@ -151,7 +193,8 @@ const Onboarding = () => {
                 data={data}
                 updateData={updateData}
                 onBack={() => goTo("signup")}
-                onContinue={() => goTo("welcome")}
+                onContinue={handleSignup}
+                error={signupError}
               />
             )}
             {currentStep === "welcome" && <Welcome data={data} />}

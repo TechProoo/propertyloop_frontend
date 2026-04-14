@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { products } from "../data/products";
+import { useProducts } from "../api/hooks";
 import BookmarkButton from "../components/ui/BookmarkButton";
 
 /* ─── Data ─── */
@@ -100,19 +100,40 @@ const Marketplace = () => {
   const [activeLocation, setActiveLocation] = useState("All Locations");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filtered = products.filter((p) => {
-    const q = searchQuery.toLowerCase();
-    const matchesSearch =
-      !q ||
-      p.name.toLowerCase().includes(q) ||
-      p.supplier.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q);
-    const matchesCategory =
-      activeCategory === "All Materials" || p.category === activeCategory;
-    const matchesLocation =
-      activeLocation === "All Locations" || p.location.includes(activeLocation);
-    return matchesSearch && matchesCategory && matchesLocation;
+  const { items: apiProducts, updateParams } = useProducts({
+    category: activeCategory === "All Materials" ? undefined : activeCategory,
+    location: activeLocation === "All Locations" ? undefined : activeLocation,
+    search: searchQuery || undefined,
+    limit: 50,
   });
+
+  useEffect(() => {
+    updateParams({
+      category: activeCategory === "All Materials" ? undefined : activeCategory,
+      location: activeLocation === "All Locations" ? undefined : activeLocation,
+      search: searchQuery || undefined,
+      limit: 50,
+    });
+  }, [activeCategory, activeLocation, searchQuery, updateParams]);
+
+  const filtered = apiProducts.map((p) => ({
+    id: p.id,
+    image: p.coverImage,
+    name: p.name,
+    supplier: p.supplier,
+    category: p.category,
+    price: p.priceNaira,
+    priceLabel: p.priceLabel,
+    unit: p.unit,
+    minOrder: p.minOrder,
+    location: p.location,
+    rating: p.rating,
+    reviews: p.reviewsCount,
+    verified: p.verified,
+    phone: p.phone,
+    description: p.description,
+    inStock: p.inStock,
+  }));
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">

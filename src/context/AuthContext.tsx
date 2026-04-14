@@ -3,24 +3,26 @@ import {
   useContext,
   useState,
   useEffect,
+  useCallback,
   type ReactNode,
 } from "react";
+import authService, {
+  type SignupPayload,
+  type LoginPayload,
+} from "../api/services/auth";
+import { tokens } from "../api/client";
+import type { User } from "../api/types";
 
-interface User {
-  name: string;
-  email: string;
-  role: "buyer" | "agent" | "vendor";
-  loggedIn: boolean;
-}
+export type { User, SignupPayload, LoginPayload };
 
 interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
   loading: boolean;
-  login: (user: Omit<User, "loggedIn">) => void;
-  logout: () => void;
-  requireAuth: (redirectTo?: string) => boolean;
-  isRegistered: (email: string) => boolean;
+  signup: (payload: SignupPayload) => Promise<void>;
+  login: (payload: LoginPayload) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -36,62 +38,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem("pl_user");
-    if (saved) {
-      try {
-        setUser(JSON.parse(saved));
-      } catch {
-        localStorage.removeItem("pl_user");
+    const init = async () => {
+      const token = tokens.getAccess();
+      const cached = tokens.getUser<User>();
+      if (token && cached) {
+        setUser(cached);
+        try {
+          const fresh = await authService.me();
+          setUser(fresh);
+        } catch {
+          tokens.clear();
+          setUser(null);
+        }
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+    init();
   }, []);
 
-  const login = (data: Omit<User, "loggedIn">) => {
-    const u = { ...data, loggedIn: true };
-    setUser(u);
-    localStorage.setItem("pl_user", JSON.stringify(u));
-    // Register this email so login can verify later
-    const registered: string[] = JSON.parse(
-      localStorage.getItem("pl_registered_users") || "[]",
-    );
-    if (!registered.includes(data.email)) {
-      registered.push(data.email);
-      localStorage.setItem("pl_registered_users", JSON.stringify(registered));
-    }
-  };
+  const signup = useCallback(async (payload: SignupPayload) => {
+    const res = await authService.signup(payload);
+    setUser(res.user);
+  }, []);
 
-  const isRegistered = (email: string): boolean => {
-    const registered: string[] = JSON.parse(
-      localStorage.getItem("pl_registered_users") || "[]",
-    );
-    return registered.includes(email);
-  };
+  const login = useCallback(async (payload: LoginPayload) => {
+    const res = await authService.login(payload);
+    setUser(res.user);
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(async () => {
+    await authService.logout();
     setUser(null);
-    localStorage.removeItem("pl_user");
-  };
+  }, []);
 
-  const requireAuth = () => {
-    if (!user?.loggedIn) {
-      window.location.href = "/onboarding";
-      return false;
-    }
-    return true;
-  };
+  const refreshUser = useCallback(async () => {
+    try {
+      const fresh = await authService.me();
+      setUser(fresh);
+    } catch { /* keep cached */ }
+  }, []);
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        isLoggedIn: !!user?.loggedIn,
-        loading,
-        login,
-        logout,
-        requireAuth,
-        isRegistered,
-      }}
+      value={{ user, isLoggedIn: !!user, loading, signup, login, logout, refreshUser }}
     >
       {children}
     </AuthContext.Provider>

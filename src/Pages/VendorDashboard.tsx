@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -29,14 +29,11 @@ import {
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
-import {
-  vendorStats,
-  vendorJobs,
-  vendorEarnings,
-  vendorReviews,
-  vendorConversations,
-  vendorActivity,
-} from "../data/vendor-dashboard";
+import vendorsService from "../api/services/vendors";
+import vendorJobsService from "../api/services/vendorJobs";
+import vendorEarningsService from "../api/services/vendorEarnings";
+import type { VendorStats } from "../api/types";
+import { useConversations } from "../api/hooks";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -107,6 +104,8 @@ const formatCurrency = (v: number) => "₦" + v.toLocaleString("en-NG");
 
 /* ─── Component ─── */
 
+const vendorActivity: { text: string; time: string; type: string }[] = [];
+
 const VendorDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -116,28 +115,127 @@ const VendorDashboard = () => {
   const [jobTab, setJobTab] = useState<"pending" | "active" | "completed">(
     "pending",
   );
-  const [selectedConvo, setSelectedConvo] = useState(vendorConversations[0].id);
   const [chatInput, setChatInput] = useState("");
-  const [localMessages, setLocalMessages] = useState(() =>
-    Object.fromEntries(vendorConversations.map((c) => [c.id, [...c.messages]])),
-  );
   const [mobileChat, setMobileChat] = useState(false);
+  const {
+    conversations: vendorConversations,
+    activeMessages: localMessages,
+    loadMessages: loadConvoMessages,
+    sendMessage: sendConvoMessage,
+  } = useConversations();
+  const [selectedConvo, setSelectedConvo] = useState("");
+
+  // ─── API state ──────────────────────────────────────────────────────────
+  const [apiStats, setApiStats] = useState<VendorStats | null>(null);
+  const [vendorJobs, setVendorJobs] = useState<any[]>([]);
+  const [vendorEarnings, setVendorEarnings] = useState<any[]>([]);
+  const [vendorReviews, setVendorReviews] = useState<any[]>([]);
+  const [vendorStats, setVendorStats] = useState<
+    {
+      value: string;
+      label: string;
+      change: string;
+      color: string;
+      bg: string;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [statsRes, jobsRes, earningsRes, reviewsRes] = await Promise.all([
+          vendorsService.getStats().catch(() => null),
+          vendorJobsService.list({ limit: 50 }).catch(() => ({ items: [] })),
+          vendorEarningsService
+            .list({ limit: 50 })
+            .catch(() => ({ items: [] })),
+          user?.id
+            ? vendorsService.listReviews(user.id).catch(() => [])
+            : Promise.resolve([]),
+        ]);
+        if (statsRes) {
+          setApiStats(statsRes);
+          setVendorStats([
+            {
+              value: String(statsRes.jobs.active),
+              label: "Active Jobs",
+              change: `${statsRes.jobs.pending} pending`,
+              color: "text-primary",
+              bg: "bg-primary/10",
+            },
+            {
+              value: `₦${(statsRes.earnings.paid / 1000).toFixed(0)}K`,
+              label: "Total Earnings",
+              change: `₦${(statsRes.earnings.thisMonth / 1000).toFixed(0)}K this month`,
+              color: "text-green-600",
+              bg: "bg-green-50",
+            },
+            {
+              value: String(statsRes.reviews.averageRating || 0),
+              label: "Rating",
+              change: `${statsRes.reviews.total} reviews`,
+              color: "text-[#F5A623]",
+              bg: "bg-[#FFF8ED]",
+            },
+            {
+              value: String(statsRes.jobs.completed),
+              label: "Completed",
+              change: `${statsRes.reviews.fiveStarPct}% 5-star`,
+              color: "text-blue-600",
+              bg: "bg-blue-50",
+            },
+          ]);
+        }
+        // Map API jobs to match the template shape
+        setVendorJobs(
+          jobsRes.items.map((j: any) => ({
+            ...j,
+            client: j.clientName,
+            clientAvatar: "",
+            clientPhone: j.clientPhone,
+            date: new Date(j.createdAt).toLocaleDateString(),
+            status: j.status.toLowerCase().replace("_", "-"),
+          })),
+        );
+        setVendorEarnings(
+          earningsRes.items.map((e: any) => ({
+            ...e,
+            client: e.clientName,
+            date: new Date(e.createdAt).toLocaleDateString(),
+            status: e.status.toLowerCase(),
+          })),
+        );
+        setVendorReviews(
+          (reviewsRes as any[]).map((r: any) => ({
+            ...r,
+            client: r.clientName,
+            avatar: r.clientAvatar || "",
+            date: new Date(r.createdAt).toLocaleDateString(),
+          })),
+        );
+      } catch {
+        /* ignore */
+      }
+    };
+    load();
+  }, [user?.id]);
 
   const vendorName = user?.name || "Vendor";
-  const vendorCategory = "Plumbing";
+  const vendorCategory =
+    (user?.vendorProfile as any)?.serviceCategory || "Service";
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/");
   };
 
   /* Job filtering */
-  const pendingJobs = vendorJobs.filter((j) => j.status === "pending");
+  const pendingJobs = vendorJobs.filter((j: any) => j.status === "pending");
   const activeJobs = vendorJobs.filter(
-    (j) => j.status === "accepted" || j.status === "in-progress",
+    (j: any) => j.status === "accepted" || j.status === "in-progress",
   );
   const completedJobs = vendorJobs.filter(
-    (j) => j.status === "completed" || j.status === "paid",
+    (j: any) => j.status === "completed" || j.status === "paid",
   );
 
   const filteredJobs =
@@ -148,20 +246,12 @@ const VendorDashboard = () => {
         : completedJobs;
 
   /* Earnings summary */
-  const totalEarnings = vendorEarnings.reduce((s, e) => s + e.amount, 0);
-  const paidEarnings = vendorEarnings
-    .filter((e) => e.status === "paid")
-    .reduce((s, e) => s + e.amount, 0);
-  const pendingEarnings = vendorEarnings
-    .filter((e) => e.status !== "paid")
-    .reduce((s, e) => s + e.amount, 0);
+  const totalEarnings = apiStats?.earnings.total ?? 0;
+  const paidEarnings = apiStats?.earnings.paid ?? 0;
+  const pendingEarnings = apiStats?.earnings.pending ?? 0;
 
   /* Review summary */
-  const avgRating = vendorReviews.length
-    ? (
-        vendorReviews.reduce((s, r) => s + r.rating, 0) / vendorReviews.length
-      ).toFixed(1)
-    : "0";
+  const avgRating = apiStats?.reviews.averageRating?.toFixed(1) || "0";
   const ratingDist = [5, 4, 3, 2, 1].map((r) => ({
     star: r,
     count: vendorReviews.filter((rv) => rv.rating === r).length,
@@ -957,21 +1047,16 @@ const VendorDashboard = () => {
               const activeConvo =
                 vendorConversations.find((c) => c.id === selectedConvo) ||
                 vendorConversations[0];
-              const activeMessages = localMessages[activeConvo.id] || [];
+              const convoId = activeConvo?.id || "";
+              const activeMessages = localMessages[convoId] || [];
+
+              if (convoId && !localMessages[convoId]) {
+                loadConvoMessages(convoId);
+              }
 
               const handleSend = () => {
-                if (!chatInput.trim()) return;
-                setLocalMessages((prev) => ({
-                  ...prev,
-                  [activeConvo.id]: [
-                    ...(prev[activeConvo.id] || []),
-                    {
-                      sender: "you" as const,
-                      text: chatInput.trim(),
-                      time: "Just now",
-                    },
-                  ],
-                }));
+                if (!chatInput.trim() || !convoId) return;
+                sendConvoMessage(convoId, chatInput.trim());
                 setChatInput("");
               };
 

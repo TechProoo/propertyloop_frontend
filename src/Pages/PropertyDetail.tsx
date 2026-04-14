@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -10,7 +10,6 @@ import {
   MapPin,
   Star,
   Phone,
-  MessageCircle,
   Mail,
   CheckCircle,
   ShieldCheck,
@@ -40,9 +39,10 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { getListingById, listings } from "../data/listings";
+import listingsService from "../api/services/listings";
+import type { Listing as ApiListing } from "../api/types";
 import BookmarkButton from "../components/ui/BookmarkButton";
-import { getAgentById } from "../data/agents";
+// Agent data now comes embedded in the listing response
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -137,11 +137,44 @@ type OfferStatus = "idle" | "form" | "submitted" | "countered" | "accepted";
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const listing = getListingById(id || "");
+  const [listing, setListing] = useState<ApiListing | null>(null);
+  const [similar, setSimilar] = useState<ApiListing[]>([]);
+  const [loadingPage, setLoadingPage] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [offerStatus, setOfferStatus] = useState<OfferStatus>("idle");
   const [offerAmount, setOfferAmount] = useState("");
   const [offerNote, setOfferNote] = useState("");
+
+  useEffect(() => {
+    if (!id) return;
+    setLoadingPage(true);
+    listingsService
+      .getById(id)
+      .then((data) => {
+        setListing(data);
+        // Fetch similar listings of the same type
+        listingsService
+          .list({ type: data.type, limit: 4 })
+          .then((res) =>
+            setSimilar(res.items.filter((l) => l.id !== data.id).slice(0, 3)),
+          )
+          .catch(() => {});
+      })
+      .catch(() => setListing(null))
+      .finally(() => setLoadingPage(false));
+  }, [id]);
+
+  if (loadingPage) {
+    return (
+      <div className="min-h-screen bg-[#f5f0eb]">
+        <Navbar />
+        <div className="flex items-center justify-center py-32">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!listing) {
     return (
@@ -170,10 +203,22 @@ const PropertyDetail = () => {
     );
   }
 
-  const agent = getAgentById(listing.agentId);
-  const similar = listings
-    .filter((l) => l.id !== listing.id && l.type === listing.type)
-    .slice(0, 3);
+  const agent = listing.agent
+    ? {
+        id: listing.agent.id,
+        photo:
+          listing.agent.avatarUrl ||
+          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
+        name: listing.agent.name || "Agent",
+        agency: listing.agent.agency || "",
+        rating: listing.agent.rating ?? 0,
+        listings: listing.agent.listingsCount ?? 0,
+        soldRented: listing.agent.soldRentedCount ?? 0,
+        verified: listing.agent.verified ?? false,
+        phone: listing.agent.phone || "",
+        email: listing.agent.email || "",
+      }
+    : null;
 
   const nextImage = () =>
     setActiveImage((p) => (p + 1) % listing.images.length);
@@ -196,17 +241,17 @@ const PropertyDetail = () => {
             <span>/</span>
             <Link
               to={
-                listing.type === "rent"
+                listing.type === "RENT"
                   ? "/rent"
-                  : listing.type === "shortlet"
+                  : listing.type === "SHORTLET"
                     ? "/shortlet"
                     : "/buy"
               }
               className="hover:text-primary transition-colors"
             >
-              {listing.type === "rent"
+              {listing.type === "RENT"
                 ? "Rent"
-                : listing.type === "shortlet"
+                : listing.type === "SHORTLET"
                   ? "Shortlet"
                   : "Buy"}
             </Link>
@@ -253,9 +298,9 @@ const PropertyDetail = () => {
               {/* Top badges */}
               <div className="absolute top-4 left-4 flex gap-2">
                 <span className="px-3 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
-                  {listing.type === "sale"
+                  {listing.type === "SALE"
                     ? "For Sale"
-                    : listing.type === "rent"
+                    : listing.type === "RENT"
                       ? "For Rent"
                       : "Shortlet"}
                 </span>
@@ -283,7 +328,7 @@ const PropertyDetail = () => {
               {/* Bottom info overlay */}
               <div className="absolute bottom-4 left-4">
                 <p className="font-heading font-bold text-white text-[1.5rem] sm:text-[2rem] leading-tight drop-shadow-lg">
-                  {listing.price}
+                  {listing.priceLabel}
                   {listing.period && (
                     <span className="text-white/60 text-lg font-normal">
                       {" "}
@@ -821,7 +866,7 @@ const PropertyDetail = () => {
                   </div>
 
                   {/* Make an Offer button */}
-                  {listing.type === "sale" && offerStatus === "idle" && (
+                  {listing.type === "SALE" && offerStatus === "idle" && (
                     <button
                       onClick={() => setOfferStatus("form")}
                       className="mt-2 h-11 w-full rounded-full bg-primary-dark text-white text-sm font-bold hover:bg-primary transition-colors inline-flex items-center justify-center gap-2"
@@ -873,7 +918,7 @@ const PropertyDetail = () => {
                               />
                             </div>
                             <p className="text-text-subtle text-[11px] mt-1">
-                              Asking price: {listing.price}
+                              Asking price: {listing.priceLabel}
                             </p>
                           </div>
                           <div>
@@ -1023,14 +1068,14 @@ const PropertyDetail = () => {
                 className="bg-primary rounded-[20px] p-6 text-white mb-6"
               >
                 <p className="text-white/60 text-xs">
-                  {listing.type === "sale"
+                  {listing.type === "SALE"
                     ? "Asking Price"
-                    : listing.type === "rent"
+                    : listing.type === "RENT"
                       ? "Annual Rent"
                       : "Per Night"}
                 </p>
                 <p className="font-heading font-bold text-[1.8rem] leading-tight mt-1">
-                  {listing.price}
+                  {listing.priceLabel}
                   {listing.period && (
                     <span className="text-white/60 text-lg font-normal">
                       /{listing.period}
@@ -1042,7 +1087,7 @@ const PropertyDetail = () => {
                   <ShieldCheck className="w-4 h-4" />
                   <span>Escrow-protected transaction via Paystack</span>
                 </div>
-                {listing.type === "rent" && (
+                {listing.type === "RENT" && (
                   <Link
                     to="/rental-escrow"
                     className="w-full h-10 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center justify-center gap-2"
@@ -1051,7 +1096,7 @@ const PropertyDetail = () => {
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 )}
-                {listing.type === "shortlet" && (
+                {listing.type === "SHORTLET" && (
                   <Link
                     to="/shortlet-booking"
                     className="w-full h-10 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center justify-center gap-2"
@@ -1084,21 +1129,21 @@ const PropertyDetail = () => {
                       >
                         <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 relative">
                           <img
-                            src={s.image}
+                            src={s.coverImage}
                             alt={s.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                           <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
-                            {s.type === "sale"
+                            {s.type === "SALE"
                               ? "Sale"
-                              : s.type === "rent"
+                              : s.type === "RENT"
                                 ? "Rent"
                                 : "Shortlet"}
                           </span>
                         </div>
                         <div className="flex-1 min-w-0 py-0.5">
                           <p className="font-heading font-bold text-primary-dark text-[15px]">
-                            {s.price}
+                            {s.priceLabel}
                           </p>
                           <p className="font-heading font-semibold text-primary-dark text-sm leading-snug mt-0.5 truncate">
                             {s.title}
@@ -1129,7 +1174,7 @@ const PropertyDetail = () => {
                   </div>
                   <div className="px-4 pb-4">
                     <Link
-                      to={listing.type === "rent" ? "/rent" : "/buy"}
+                      to={listing.type === "RENT" ? "/rent" : "/buy"}
                       className="w-full h-10 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center justify-center gap-2"
                     >
                       Browse all properties

@@ -7,7 +7,6 @@ import {
   MapPin,
   Star,
   Phone,
-  MessageCircle,
   CheckCircle,
   ShieldCheck,
   Package,

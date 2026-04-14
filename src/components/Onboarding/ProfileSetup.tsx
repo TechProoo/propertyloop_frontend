@@ -17,7 +17,8 @@ interface Props {
   data: OnboardingData;
   updateData: (updates: Partial<OnboardingData>) => void;
   onBack: () => void;
-  onContinue: () => void;
+  onContinue: () => void | Promise<void>;
+  error?: string;
 }
 
 const vendorCategories = [
@@ -33,7 +34,7 @@ const vendorCategories = [
   "Other",
 ];
 
-const ProfileSetup = ({ data, updateData, onBack, onContinue }: Props) => {
+const ProfileSetup = ({ data, updateData, onBack, onContinue, error }: Props) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -436,6 +437,9 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue }: Props) => {
             <ArrowRight className="w-4 h-4" />
           </motion.button>
         </div>
+        {error && (
+          <p className="text-red-500 text-sm text-center mt-3">{error}</p>
+        )}
       </div>
     </div>
   );

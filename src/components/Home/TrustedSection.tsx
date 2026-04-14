@@ -1,4 +1,9 @@
+import { useEffect, useRef } from "react";
 import { ArrowRight, Globe, Star, Building } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
   { value: "8,000+", label: "Happy users" },
@@ -35,18 +40,139 @@ const avatars = [
 ];
 
 const TrustedSection = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const heading = section.querySelector("[data-trusted-heading]");
+    const description = section.querySelector("[data-trusted-desc]");
+    const avatars = section.querySelectorAll("[data-trusted-avatar]");
+    const statItems = section.querySelectorAll("[data-trusted-stat]");
+    const divider = section.querySelector("[data-trusted-divider]");
+    const cards = section.querySelectorAll("[data-trusted-card]");
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power3.out" },
+      scrollTrigger: {
+        trigger: section,
+        start: "top 75%",
+        once: true,
+      },
+    });
+
+    // Heading — clip-path wipe reveal
+    if (heading) {
+      tl.fromTo(
+        heading,
+        { clipPath: "inset(0 100% 0 0)", opacity: 0, x: -40 },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          opacity: 1,
+          x: 0,
+          duration: 1,
+          ease: "power4.out",
+        },
+      );
+    }
+
+    // Description — fade up
+    if (description) {
+      tl.fromTo(
+        description,
+        { y: 25, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7 },
+        "-=0.5",
+      );
+    }
+
+    // Avatars — stagger pop-in with scale overshoot
+    if (avatars.length) {
+      tl.fromTo(
+        avatars,
+        { scale: 0, opacity: 0 },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.5,
+          stagger: 0.1,
+          ease: "back.out(2)",
+        },
+        "-=0.3",
+      );
+    }
+
+    // Stats — count-up feel with stagger
+    if (statItems.length) {
+      tl.fromTo(
+        statItems,
+        { y: 30, opacity: 0, scale: 0.9 },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          stagger: 0.12,
+          ease: "back.out(1.4)",
+        },
+        "-=0.2",
+      );
+    }
+
+    // Vertical divider — grow from top
+    if (divider) {
+      tl.fromTo(
+        divider,
+        { scaleY: 0, transformOrigin: "top center" },
+        { scaleY: 1, duration: 0.8, ease: "power4.out" },
+        "-=0.6",
+      );
+    }
+
+    // Feature cards — cinematic stagger slide-in from right
+    if (cards.length) {
+      tl.fromTo(
+        cards,
+        { x: 80, opacity: 0, rotateY: -8 },
+        {
+          x: 0,
+          opacity: 1,
+          rotateY: 0,
+          duration: 0.8,
+          stagger: 0.18,
+          ease: "power4.out",
+        },
+        "-=0.6",
+      );
+    }
+
+    return () => {
+      tl.kill();
+    };
+  }, []);
+
   return (
-    <section className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg">
+    <section
+      ref={sectionRef}
+      className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg"
+    >
       <div className="flex flex-col lg:flex-row gap-16 lg:gap-20 max-w-7xl mx-auto">
         {/* Left side */}
         <div className="flex-1 flex flex-col justify-between">
           <div>
-            <h2 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
+            <h2
+              data-trusted-heading
+              className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
+            >
               Trusted by
               <br />
               <span className="text-primary">Thousands</span> of Nigerians
             </h2>
-            <p className="text-text-secondary text-sm leading-relaxed mt-6 max-w-md">
+            <p
+              data-trusted-desc
+              className="text-text-secondary text-sm leading-relaxed mt-6 max-w-md"
+            >
               Only we connect you directly to the person that knows the most
               about a property for sale, the listing agent.
             </p>
@@ -61,6 +187,7 @@ const TrustedSection = () => {
                   key={i}
                   src={src}
                   alt="Happy client"
+                  data-trusted-avatar
                   className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-md"
                 />
               ))}
@@ -69,7 +196,7 @@ const TrustedSection = () => {
             {/* Stats row */}
             <div className="flex gap-10">
               {stats.map((stat) => (
-                <div key={stat.label}>
+                <div key={stat.label} data-trusted-stat>
                   <p className="font-heading font-bold text-primary-dark text-2xl">
                     {stat.value}
                   </p>
@@ -83,12 +210,15 @@ const TrustedSection = () => {
         </div>
 
         {/* Vertical divider — desktop */}
-        <div className="hidden lg:block w-px bg-border self-stretch" />
+        <div
+          data-trusted-divider
+          className="hidden lg:block w-px bg-border self-stretch"
+        />
 
         {/* Right side — feature cards */}
         <div className="flex-1 flex flex-col gap-8 pl-4 pt-4">
           {features.map((feature, i) => (
-            <div key={i} className="group relative">
+            <div key={i} data-trusted-card className="group relative">
               {/* Concave notch — page-bg circle behind the icon */}
               <div className="absolute -top-3.5 -left-3.5 w-17 h-17 rounded-full bg-bg z-1" />
 

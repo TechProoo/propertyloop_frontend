@@ -223,7 +223,10 @@ const Sell = () => {
   const [submitted, setSubmitted] = useState(false);
 
   const handleCardClick = () => {
-    if (!isLoggedIn) { navigate("/onboarding"); return; }
+    if (!isLoggedIn) {
+      navigate("/onboarding");
+      return;
+    }
     navigate("/find-agent");
   };
 

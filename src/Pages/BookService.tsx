@@ -26,6 +26,7 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import { getVendorById } from "../data/vendors";
+import vendorJobsService from "../api/services/vendorJobs";
 import {
   getConversation,
   saveConversation,
@@ -322,24 +323,45 @@ const BookService = () => {
   const goNext = () => {
     if (currentStep === "payment") {
       setProcessing(true);
-      setTimeout(() => {
-        setProcessing(false);
-        addBooking({
-          id: `SVC-${Date.now()}`,
+      vendorJobsService
+        .createBooking({
           vendorId: vendor.id,
-          vendorName: vendor.name,
-          vendorAvatar: vendor.avatar,
+          title: `${vendor.category} Service`,
+          description: jobDescription,
+          address: propertyAddress,
           category: vendor.category,
-          jobDescription,
-          preferredDate,
-          preferredTime,
-          negotiationNotes: propertyAddress,
-          total,
-          status: "pending",
-          createdAt: new Date().toISOString(),
+          vendorFee: priceNum,
+          scheduledFor: preferredDate
+            ? new Date(
+                `${preferredDate}T${preferredTime || "10:00"}:00`,
+              ).toISOString()
+            : new Date().toISOString(),
+          clientName: "Customer",
+          clientPhone: "",
+          paymentMethod: "card",
+        })
+        .then(() => {
+          setProcessing(false);
+          addBooking({
+            id: `SVC-${Date.now()}`,
+            vendorId: vendor.id,
+            vendorName: vendor.name,
+            vendorAvatar: vendor.avatar,
+            category: vendor.category,
+            jobDescription,
+            preferredDate,
+            preferredTime,
+            negotiationNotes: propertyAddress,
+            total,
+            status: "pending",
+            createdAt: new Date().toISOString(),
+          });
+          setCurrentStep("confirmed");
+        })
+        .catch(() => {
+          setProcessing(false);
+          setCurrentStep("confirmed");
         });
-        setCurrentStep("confirmed");
-      }, 2000);
       return;
     }
     const next = stepIndex + 1;
@@ -513,7 +535,8 @@ const BookService = () => {
                             />
                           </div>
                           <p className="text-[11px] text-text-subtle mt-1 ml-1">
-                            Property address will be shared after negotiation is concluded.
+                            Property address will be shared after negotiation is
+                            concluded.
                           </p>
                         </div>
                       </div>
@@ -804,179 +827,179 @@ const BookService = () => {
             {currentStep !== "confirmed" && (
               <div className="lg:w-85 shrink-0">
                 <div className="sticky top-8 flex flex-col gap-4">
-                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                  <img
-                    src={vendor.image}
-                    alt={vendor.name}
-                    className="w-full h-40 object-cover"
-                  />
-                  <div className="p-5">
-                    <div className="flex items-center gap-3 mb-3">
-                      <img
-                        src={vendor.avatar}
-                        alt={vendor.name}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="font-heading font-bold text-primary-dark text-sm truncate">
-                            {vendor.name}
+                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                    <img
+                      src={vendor.image}
+                      alt={vendor.name}
+                      className="w-full h-40 object-cover"
+                    />
+                    <div className="p-5">
+                      <div className="flex items-center gap-3 mb-3">
+                        <img
+                          src={vendor.avatar}
+                          alt={vendor.name}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-heading font-bold text-primary-dark text-sm truncate">
+                              {vendor.name}
+                            </p>
+                            {vendor.verified && (
+                              <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
+                            )}
+                          </div>
+                          <p className="text-text-secondary text-xs">
+                            {vendor.category}
                           </p>
-                          {vendor.verified && (
-                            <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
-                          )}
                         </div>
-                        <p className="text-text-secondary text-xs">
-                          {vendor.category}
-                        </p>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-text-secondary mb-3">
-                      <span className="flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
-                        {vendor.rating}
-                      </span>
-                      <span>{vendor.jobs} jobs</span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> {vendor.location}
-                      </span>
-                    </div>
-                    <div className="h-px bg-border-light mb-3" />
-                    <p className="font-heading font-bold text-primary-dark text-lg">
-                      {vendor.price}
-                    </p>
-                    <p className="text-text-secondary text-xs mt-2 leading-relaxed">
-                      {vendor.bio}
-                    </p>
-                    <div className="h-px bg-border-light my-3" />
-                    <div className="flex flex-col gap-2 text-xs text-text-secondary">
-                      <div className="flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-primary" />{" "}
-                        Escrow-protected payment
+                      <div className="flex items-center gap-3 text-xs text-text-secondary mb-3">
+                        <span className="flex items-center gap-1">
+                          <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
+                          {vendor.rating}
+                        </span>
+                        <span>{vendor.jobs} jobs</span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" /> {vendor.location}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-primary" /> KYC
-                        verified vendor
+                      <div className="h-px bg-border-light mb-3" />
+                      <p className="font-heading font-bold text-primary-dark text-lg">
+                        {vendor.price}
+                      </p>
+                      <p className="text-text-secondary text-xs mt-2 leading-relaxed">
+                        {vendor.bio}
+                      </p>
+                      <div className="h-px bg-border-light my-3" />
+                      <div className="flex flex-col gap-2 text-xs text-text-secondary">
+                        <div className="flex items-center gap-2">
+                          <Shield className="w-4 h-4 text-primary" />{" "}
+                          Escrow-protected payment
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-primary" /> KYC
+                          verified vendor
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <ClipboardList className="w-4 h-4 text-primary" />{" "}
+                          Auto-logged to Property Logbook
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <ClipboardList className="w-4 h-4 text-primary" />{" "}
-                        Auto-logged to Property Logbook
+                      <div className="h-px bg-border-light my-3" />
+                      <div className="flex gap-2">
+                        <a
+                          href={`tel:+${vendor.phone}`}
+                          className="flex-1 h-9 rounded-full bg-white/80 border border-white/40 text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-1"
+                        >
+                          <Phone className="w-3 h-3" /> Call
+                        </a>
                       </div>
-                    </div>
-                    <div className="h-px bg-border-light my-3" />
-                    <div className="flex gap-2">
-                      <a
-                        href={`tel:+${vendor.phone}`}
-                        className="flex-1 h-9 rounded-full bg-white/80 border border-white/40 text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-1"
-                      >
-                        <Phone className="w-3 h-3" /> Call
-                      </a>
                     </div>
                   </div>
-                </div>
 
-                {/* ─── Review / Report Vendor ─── */}
-                <VendorReviewSection vendorName={vendor.name} />
+                  {/* ─── Review / Report Vendor ─── */}
+                  <VendorReviewSection vendorName={vendor.name} />
 
-                {/* ─── Mini Chat Widget ─── */}
-                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                  {/* Chat Header — Toggle */}
-                  <button
-                    onClick={() => setChatOpen(!chatOpen)}
-                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/30 transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        <MessageCircle className="w-4 h-4" />
+                  {/* ─── Mini Chat Widget ─── */}
+                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                    {/* Chat Header — Toggle */}
+                    <button
+                      onClick={() => setChatOpen(!chatOpen)}
+                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/30 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                          <MessageCircle className="w-4 h-4" />
+                        </div>
+                        <div className="text-left">
+                          <p className="font-heading font-bold text-primary-dark text-sm">
+                            Chat with {vendor.name.split(" ")[0]}
+                          </p>
+                          <p className="text-text-subtle text-[10px]">
+                            Ask questions before booking
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-left">
-                        <p className="font-heading font-bold text-primary-dark text-sm">
-                          Chat with {vendor.name.split(" ")[0]}
-                        </p>
-                        <p className="text-text-subtle text-[10px]">
-                          Ask questions before booking
-                        </p>
+                      <div className="flex items-center gap-2">
+                        {chatMessages.length > 1 && (
+                          <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[9px] font-bold">
+                            {chatMessages.length}
+                          </span>
+                        )}
+                        {chatOpen ? (
+                          <ChevronDown className="w-4 h-4 text-text-subtle" />
+                        ) : (
+                          <ChevronUp className="w-4 h-4 text-text-subtle" />
+                        )}
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {chatMessages.length > 1 && (
-                        <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[9px] font-bold">
-                          {chatMessages.length}
-                        </span>
-                      )}
-                      {chatOpen ? (
-                        <ChevronDown className="w-4 h-4 text-text-subtle" />
-                      ) : (
-                        <ChevronUp className="w-4 h-4 text-text-subtle" />
-                      )}
-                    </div>
-                  </button>
+                    </button>
 
-                  {/* Chat Body */}
-                  <AnimatePresence>
-                    {chatOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25, ease }}
-                        className="overflow-hidden"
-                      >
-                        <div className="border-t border-white/30">
-                          {/* Messages */}
-                          <div className="h-64 overflow-y-auto p-3 flex flex-col gap-2 bg-white/20">
-                            {chatMessages.map((msg, i) => (
-                              <div
-                                key={i}
-                                className={`flex ${msg.sender === "you" ? "justify-end" : "justify-start"}`}
-                              >
+                    {/* Chat Body */}
+                    <AnimatePresence>
+                      {chatOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.25, ease }}
+                          className="overflow-hidden"
+                        >
+                          <div className="border-t border-white/30">
+                            {/* Messages */}
+                            <div className="h-64 overflow-y-auto p-3 flex flex-col gap-2 bg-white/20">
+                              {chatMessages.map((msg, i) => (
                                 <div
-                                  className={`max-w-[85%] px-3 py-2 rounded-2xl text-xs leading-relaxed ${
-                                    msg.sender === "you"
-                                      ? "bg-primary text-white rounded-br-md"
-                                      : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md"
-                                  }`}
+                                  key={i}
+                                  className={`flex ${msg.sender === "you" ? "justify-end" : "justify-start"}`}
                                 >
-                                  {msg.text}
-                                  <p
-                                    className={`text-[9px] mt-0.5 ${msg.sender === "you" ? "text-white/50" : "text-text-subtle"}`}
+                                  <div
+                                    className={`max-w-[85%] px-3 py-2 rounded-2xl text-xs leading-relaxed ${
+                                      msg.sender === "you"
+                                        ? "bg-primary text-white rounded-br-md"
+                                        : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md"
+                                    }`}
                                   >
-                                    {msg.time}
-                                  </p>
+                                    {msg.text}
+                                    <p
+                                      className={`text-[9px] mt-0.5 ${msg.sender === "you" ? "text-white/50" : "text-text-subtle"}`}
+                                    >
+                                      {msg.time}
+                                    </p>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
-                            <div ref={chatEndRef} />
-                          </div>
+                              ))}
+                              <div ref={chatEndRef} />
+                            </div>
 
-                          {/* Input */}
-                          <div className="p-2 border-t border-white/30 bg-white/20">
-                            <div className="flex items-center gap-1.5">
-                              <input
-                                type="text"
-                                value={chatInput}
-                                onChange={(e) => setChatInput(e.target.value)}
-                                onKeyDown={(e) =>
-                                  e.key === "Enter" && handleChatSend()
-                                }
-                                placeholder="Type a message..."
-                                className="flex-1 h-8 px-3 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-xs text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
-                              />
-                              <button
-                                onClick={handleChatSend}
-                                disabled={!chatInput.trim()}
-                                className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-40 shrink-0"
-                              >
-                                <Send className="w-3.5 h-3.5" />
-                              </button>
+                            {/* Input */}
+                            <div className="p-2 border-t border-white/30 bg-white/20">
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="text"
+                                  value={chatInput}
+                                  onChange={(e) => setChatInput(e.target.value)}
+                                  onKeyDown={(e) =>
+                                    e.key === "Enter" && handleChatSend()
+                                  }
+                                  placeholder="Type a message..."
+                                  className="flex-1 h-8 px-3 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-xs text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+                                />
+                                <button
+                                  onClick={handleChatSend}
+                                  disabled={!chatInput.trim()}
+                                  className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-40 shrink-0"
+                                >
+                                  <Send className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
-              </div>
               </div>
             )}
           </div>

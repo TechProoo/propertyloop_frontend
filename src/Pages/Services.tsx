@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { vendors } from "../data/vendors";
+import { useVendors } from "../api/hooks";
 import BookmarkButton from "../components/ui/BookmarkButton";
 
 /* ─── Data ─── */
@@ -71,22 +71,55 @@ const Services = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categorySearch, setCategorySearch] = useState("");
 
-  const filtered = vendors.filter((v) => {
-    const q = searchQuery.toLowerCase();
-    const matchesSearch =
-      !q ||
-      v.name.toLowerCase().includes(q) ||
-      v.category.toLowerCase().includes(q) ||
-      v.location.toLowerCase().includes(q);
-    const matchesCategory =
-      activeCategory === "All Services" || v.category === activeCategory;
-    const matchesLocation =
-      activeLocation === "All Locations" || v.location.includes(activeLocation);
-    const matchesRating =
-      activeRating === "Any Rating" ||
-      v.rating >= parseFloat(activeRating.replace("+", ""));
-    return matchesSearch && matchesCategory && matchesLocation && matchesRating;
+  const minRating =
+    activeRating === "Any Rating"
+      ? undefined
+      : parseFloat(activeRating.replace("+", ""));
+
+  const { items: apiVendors, updateParams } = useVendors({
+    category: activeCategory === "All Services" ? undefined : activeCategory,
+    location: activeLocation === "All Locations" ? undefined : activeLocation,
+    search: searchQuery || undefined,
+    minRating,
+    limit: 50,
   });
+
+  useEffect(() => {
+    updateParams({
+      category: activeCategory === "All Services" ? undefined : activeCategory,
+      location: activeLocation === "All Locations" ? undefined : activeLocation,
+      search: searchQuery || undefined,
+      minRating,
+      limit: 50,
+    });
+  }, [
+    activeCategory,
+    activeLocation,
+    searchQuery,
+    activeRating,
+    updateParams,
+    minRating,
+  ]);
+
+  const filtered = apiVendors.map((v) => ({
+    id: v.id,
+    image:
+      v.bannerImage ||
+      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
+    avatar:
+      v.avatarUrl ||
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop&crop=face",
+    name: v.name,
+    category: v.category || "",
+    rating: v.rating,
+    jobs: v.jobsCount,
+    location: v.location || "",
+    price: v.priceLabel || "",
+    priceNum: v.priceNum || 0,
+    verified: v.verified,
+    phone: v.phone || "",
+    bio: v.bio || "",
+  }));
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
@@ -201,30 +234,38 @@ const Services = () => {
                   </div>
                 </div>
                 <div className="p-2 max-h-[420px] overflow-y-auto">
-                  {categories.filter((cat) => cat.label === "All Services" || cat.label.toLowerCase().includes(categorySearch.toLowerCase())).map((cat) => (
-                    <button
-                      key={cat.label}
-                      onClick={() => setActiveCategory(cat.label)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all duration-200 ${activeCategory === cat.label ? "bg-primary/10 text-primary" : "text-primary-dark hover:bg-bg-accent"}`}
-                    >
-                      <div
-                        className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${activeCategory === cat.label ? "bg-primary text-white" : "bg-white/80 border border-border-light text-text-secondary"}`}
+                  {categories
+                    .filter(
+                      (cat) =>
+                        cat.label === "All Services" ||
+                        cat.label
+                          .toLowerCase()
+                          .includes(categorySearch.toLowerCase()),
+                    )
+                    .map((cat) => (
+                      <button
+                        key={cat.label}
+                        onClick={() => setActiveCategory(cat.label)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all duration-200 ${activeCategory === cat.label ? "bg-primary/10 text-primary" : "text-primary-dark hover:bg-bg-accent"}`}
                       >
-                        {cat.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-heading font-bold text-[14px] leading-tight">
-                          {cat.label}
-                        </p>
-                        <p className="text-text-secondary text-xs mt-0.5">
-                          {cat.count} vendors
-                        </p>
-                      </div>
-                      <ChevronDown
-                        className={`w-4 h-4 shrink-0 -rotate-90 ${activeCategory === cat.label ? "text-primary" : "text-text-subtle"}`}
-                      />
-                    </button>
-                  ))}
+                        <div
+                          className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${activeCategory === cat.label ? "bg-primary text-white" : "bg-white/80 border border-border-light text-text-secondary"}`}
+                        >
+                          {cat.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-heading font-bold text-[14px] leading-tight">
+                            {cat.label}
+                          </p>
+                          <p className="text-text-secondary text-xs mt-0.5">
+                            {cat.count} vendors
+                          </p>
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 shrink-0 -rotate-90 ${activeCategory === cat.label ? "text-primary" : "text-text-subtle"}`}
+                        />
+                      </button>
+                    ))}
                 </div>
               </div>
 

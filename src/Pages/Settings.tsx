@@ -26,6 +26,7 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import { useAuth } from "../context/AuthContext";
+import api from "../api/client";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -89,28 +90,35 @@ const Settings = () => {
     }
   }, [user, isLoggedIn, loading, navigate]);
 
-  const handleSave = () => {
-    localStorage.setItem(
-      "pl_settings",
-      JSON.stringify({ phone, location, bio, avatar }),
-    );
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  const handleSave = async () => {
+    try {
+      await api.patch("/users/me", { name, phone, location, bio, avatarUrl: avatar });
+      await api.patch("/users/me/settings", {
+        notifEmail, notifSms, notifMessages, notifPriceAlerts, notifMarketing,
+        profileVisible, shareActivity, language, currency, twoFactorEnabled: twoFactor,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch {
+      /* ignore — show error toast in the future */
+    }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/");
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (
       window.confirm(
         "Are you sure you want to delete your account? This cannot be undone.",
       )
     ) {
-      localStorage.removeItem("pl_settings");
-      logout();
+      try {
+        await api.delete("/users/me");
+      } catch { /* ignore */ }
+      await logout();
       navigate("/");
     }
   };
@@ -121,24 +129,24 @@ const Settings = () => {
     string,
     { label: string; icon: React.ReactNode; color: string }
   > = {
-    buyer: {
+    BUYER: {
       label: "Buyer / Renter",
       icon: <Home className="w-4 h-4" />,
       color: "bg-primary/10 text-primary",
     },
-    agent: {
+    AGENT: {
       label: "Agent",
       icon: <Briefcase className="w-4 h-4" />,
       color: "bg-amber-100 text-amber-700",
     },
-    vendor: {
+    VENDOR: {
       label: "Vendor",
       icon: <Wrench className="w-4 h-4" />,
       color: "bg-blue-100 text-blue-700",
     },
   };
 
-  const currentRole = user ? roleInfo[user.role] : roleInfo.buyer;
+  const currentRole = user ? roleInfo[user.role] : roleInfo.BUYER;
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "profile", label: "Profile", icon: <User className="w-4 h-4" /> },

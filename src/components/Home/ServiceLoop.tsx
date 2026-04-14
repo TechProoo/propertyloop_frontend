@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import AuthGate from "../ui/AuthGate";
 import {
@@ -12,6 +13,10 @@ import {
   Shield,
   CheckCircle,
 } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const categories = [
   { icon: <HardHat className="w-5 h-5" />, label: "Building" },
@@ -104,19 +109,144 @@ const vendors = [
 ];
 
 const ServiceLoop = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const label = el.querySelector("[data-sl-label]");
+    const heading = el.querySelector("[data-sl-heading]");
+    const subtitle = el.querySelector("[data-sl-subtitle]");
+    const viewAll = el.querySelector("[data-sl-viewall]");
+    const pills = el.querySelectorAll("[data-sl-pill]");
+    const cards = el.querySelectorAll("[data-sl-card]");
+    const banner = el.querySelector("[data-sl-banner]");
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power3.out" },
+      scrollTrigger: { trigger: el, start: "top 75%", once: true },
+    });
+
+    // Label — fade in
+    if (label) {
+      tl.fromTo(
+        label,
+        { y: -15, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5 },
+      );
+    }
+
+    // Heading — clip-path wipe
+    if (heading) {
+      tl.fromTo(
+        heading,
+        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          opacity: 1,
+          duration: 0.9,
+          ease: "power4.out",
+        },
+        "-=0.2",
+      );
+    }
+
+    // Subtitle
+    if (subtitle) {
+      tl.fromTo(
+        subtitle,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6 },
+        "-=0.4",
+      );
+    }
+
+    // View-all button
+    if (viewAll) {
+      tl.fromTo(
+        viewAll,
+        { scale: 0.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.6)" },
+        "-=0.3",
+      );
+    }
+
+    // Category pills — stagger pop from left
+    if (pills.length) {
+      tl.fromTo(
+        pills,
+        { x: -30, opacity: 0, scale: 0.85 },
+        {
+          x: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.5,
+          stagger: 0.07,
+          ease: "back.out(1.8)",
+        },
+        "-=0.3",
+      );
+    }
+
+    // Vendor cards — cinematic stagger rise
+    if (cards.length) {
+      tl.fromTo(
+        cards,
+        { y: 80, opacity: 0, rotateX: 6, scale: 0.94 },
+        {
+          y: 0,
+          opacity: 1,
+          rotateX: 0,
+          scale: 1,
+          duration: 0.9,
+          stagger: 0.15,
+          ease: "power4.out",
+        },
+        "-=0.2",
+      );
+    }
+
+    // Escrow banner — slide up with scale
+    if (banner) {
+      tl.fromTo(
+        banner,
+        { y: 50, opacity: 0, scale: 0.96 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.2)" },
+        "-=0.3",
+      );
+    }
+
+    return () => {
+      tl.kill();
+    };
+  }, []);
+
   return (
-    <section className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg">
+    <section
+      ref={sectionRef}
+      className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
-            <p className="text-primary text-sm font-medium tracking-wide uppercase mb-2">
+            <p
+              data-sl-label
+              className="text-primary text-sm font-medium tracking-wide uppercase mb-2"
+            >
               Service Loop
             </p>
-            <h2 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
+            <h2
+              data-sl-heading
+              className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
+            >
               Verified Home <span className="text-primary">Services</span>
             </h2>
-            <p className="text-text-secondary text-sm leading-relaxed mt-3 max-w-lg">
+            <p
+              data-sl-subtitle
+              className="text-text-secondary text-sm leading-relaxed mt-3 max-w-lg"
+            >
               Book trusted, KYC-verified vendors for any home service. Every
               payment is protected by escrow — funds release only when the job
               is done.
@@ -124,6 +254,7 @@ const ServiceLoop = () => {
           </div>
           <a
             href="/services"
+            data-sl-viewall
             className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
           >
             Browse all vendors
@@ -135,6 +266,7 @@ const ServiceLoop = () => {
           {categories.map((cat, i) => (
             <button
               key={i}
+              data-sl-pill
               className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-text-secondary text-sm hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
             >
               {cat.icon}
@@ -149,6 +281,7 @@ const ServiceLoop = () => {
             <AuthGate
               key={i}
               href="/services"
+              data-sl-card
               className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
               {/* Cover image */}
@@ -219,7 +352,10 @@ const ServiceLoop = () => {
         </div>
 
         {/* Escrow trust banner */}
-        <div className="mt-12 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] px-8 py-6 flex flex-col sm:flex-row items-center gap-6">
+        <div
+          data-sl-banner
+          className="mt-12 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] px-8 py-6 flex flex-col sm:flex-row items-center gap-6"
+        >
           <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
             <Shield className="w-7 h-7 text-primary" />
           </div>

@@ -10,7 +10,6 @@ import {
   MapPin,
   Star,
   Phone,
-  MessageCircle,
   Mail,
   CheckCircle,
   ShieldCheck,

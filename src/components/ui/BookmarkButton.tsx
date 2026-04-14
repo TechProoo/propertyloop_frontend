@@ -3,6 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useBookmarks } from "../../context/BookmarkContext";
 import { useAuth } from "../../context/AuthContext";
 
+const typeMap = {
+  property: "PROPERTY",
+  service: "SERVICE",
+  product: "PRODUCT",
+} as const;
+
 interface Props {
   id: string;
   type: "property" | "service" | "product";
@@ -15,7 +21,8 @@ const BookmarkButton = ({ id, type, className = "", size = "md" }: Props) => {
   const { isBookmarked, toggle } = useBookmarks();
   const navigate = useNavigate();
 
-  const active = isLoggedIn && isBookmarked(id, type);
+  const apiType = typeMap[type];
+  const active = isLoggedIn && isBookmarked(id, apiType);
   const sizeClass = size === "sm" ? "w-8 h-8" : "w-9 h-9";
   const iconSize = size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4";
 
@@ -28,7 +35,7 @@ const BookmarkButton = ({ id, type, className = "", size = "md" }: Props) => {
           navigate("/login");
           return;
         }
-        toggle(id, type);
+        toggle(id, apiType);
       }}
       className={`${sizeClass} rounded-full flex items-center justify-center transition-all duration-200 ${
         active

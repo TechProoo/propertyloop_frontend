@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { ImageGallery } from "@/components/ui/carousel-circular-image-gallery";
 import type { ImageGalleryHandle } from "@/components/ui/carousel-circular-image-gallery";
+import gsap from "gsap";
 
 const tabs = ["Buy", "Rent", "Shortlet"] as const;
 
@@ -50,17 +51,153 @@ const Hero = () => {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Buy");
   const [activeSlide, setActiveSlide] = useState(0);
   const galleryRef = useRef<ImageGalleryHandle>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const handleSlideChange = useCallback((index: number) => {
     setActiveSlide(index);
   }, []);
 
+  // ─── GSAP cinematic entrance ───────────────────────────────────────────
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const decorBg = section.querySelector("[data-hero-decor]");
+    const galleryBox = section.querySelector("[data-hero-gallery]");
+    const headingLines = section.querySelectorAll("[data-hero-heading]");
+    const searchBox = section.querySelector("[data-hero-search]");
+    const quote = section.querySelector("[data-hero-quote]");
+    const propCard = section.querySelector("[data-hero-card]");
+    const mobileHeading = section.querySelector("[data-hero-mobile-heading]");
+    const mobileSearch = section.querySelector("[data-hero-mobile-search]");
+    const mobileGallery = section.querySelector("[data-hero-mobile-gallery]");
+    const mobileCard = section.querySelector("[data-hero-mobile-card]");
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power3.out" },
+      delay: 0.3,
+    });
+
+    // Decorative shape — cinematic scale-in from center
+    if (decorBg) {
+      tl.fromTo(
+        decorBg,
+        { scaleX: 0, opacity: 0, transformOrigin: "center top" },
+        { scaleX: 1, opacity: 1, duration: 1.0, ease: "power4.out" },
+      );
+    }
+
+    // Heading lines — clip-path wipe reveal + stagger
+    if (headingLines.length) {
+      tl.fromTo(
+        headingLines,
+        { clipPath: "inset(0 100% 0 0)", opacity: 0, x: -30 },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          opacity: 1,
+          x: 0,
+          duration: 0.9,
+          stagger: 0.15,
+          ease: "power4.out",
+        },
+        "-=0.5",
+      );
+    }
+
+    // Search box — slides up with bounce
+    if (searchBox) {
+      tl.fromTo(
+        searchBox,
+        { y: 50, opacity: 0, scale: 0.95 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.2)" },
+        "-=0.4",
+      );
+    }
+
+    // Gallery — cinematic scale from far with rotation
+    if (galleryBox) {
+      tl.fromTo(
+        galleryBox,
+        { scale: 1.15, opacity: 0, x: 80 },
+        { scale: 1, opacity: 1, x: 0, duration: 1.2, ease: "power3.out" },
+        "-=0.9",
+      );
+    }
+
+    // Quote — fade up
+    if (quote) {
+      tl.fromTo(
+        quote,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, ease: "power2.out" },
+        "-=0.4",
+      );
+    }
+
+    // Property card — slides up from below viewport
+    if (propCard) {
+      tl.fromTo(
+        propCard,
+        { y: 60, opacity: 0, scale: 0.9 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.3)" },
+        "-=0.5",
+      );
+    }
+
+    // ─── Mobile animations ───────────────────────────────────────────
+    if (mobileHeading) {
+      tl.fromTo(
+        mobileHeading,
+        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          opacity: 1,
+          duration: 0.8,
+          ease: "power4.out",
+        },
+        0.3,
+      );
+    }
+    if (mobileSearch) {
+      tl.fromTo(
+        mobileSearch,
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, ease: "back.out(1.2)" },
+        "-=0.3",
+      );
+    }
+    if (mobileGallery) {
+      tl.fromTo(
+        mobileGallery,
+        { scale: 1.1, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.9, ease: "power3.out" },
+        "-=0.4",
+      );
+    }
+    if (mobileCard) {
+      tl.fromTo(
+        mobileCard,
+        { y: 40, opacity: 0, scale: 0.92 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.3)" },
+        "-=0.3",
+      );
+    }
+
+    return () => {
+      tl.kill();
+    };
+  }, []);
+
   const current = properties[activeSlide];
 
   return (
-    <section className="relative w-full lg:h-[calc(100vh-64px)] overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="relative w-full lg:h-[calc(100vh-64px)] overflow-hidden"
+    >
       {/* Decorative shape — upper area, green-tinted glass */}
       <div
+        data-hero-decor
         className="absolute hidden lg:block"
         style={{
           top: 0,
@@ -75,6 +212,7 @@ const Hero = () => {
 
       {/* Gallery — right side (desktop) */}
       <div
+        data-hero-gallery
         className="absolute hidden lg:block"
         style={{
           top: "6%",
@@ -97,7 +235,10 @@ const Hero = () => {
       {/* ─── MOBILE LAYOUT (stacked, not absolute) ─── */}
       <div className="lg:hidden flex flex-col px-5 sm:px-8 pt-4 pb-6">
         {/* Heading */}
-        <h1 className="font-heading text-[1.7rem] sm:text-[2.4rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
+        <h1
+          data-hero-mobile-heading
+          className="font-heading text-[1.7rem] sm:text-[2.4rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
+        >
           Find your home, <br />
           <span className="text-primary">close the deal,</span>
           <br />
@@ -107,7 +248,10 @@ const Hero = () => {
         </h1>
 
         {/* Search Box */}
-        <div className="flex flex-col gap-2.5 mt-5 sm:max-w-[320px]">
+        <div
+          data-hero-mobile-search
+          className="flex flex-col gap-2.5 mt-5 sm:max-w-[320px]"
+        >
           <div className="flex gap-2">
             {tabs.map((tab) => (
               <button
@@ -130,15 +274,28 @@ const Hero = () => {
               className="flex-1 text-sm text-primary-dark placeholder-text-subtle outline-none bg-transparent py-2"
             />
             <button className="w-9 h-9 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shrink-0 shadow-lg shadow-glow/40">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="w-4 h-4 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </button>
           </div>
         </div>
 
         {/* Mobile gallery */}
-        <div className="mt-5 rounded-2xl overflow-hidden h-[45vh] sm:h-[50vh]">
+        <div
+          data-hero-mobile-gallery
+          className="mt-5 rounded-2xl overflow-hidden h-[45vh] sm:h-[50vh]"
+        >
           <ImageGallery
             images={galleryImages}
             autoplayInterval={4500}
@@ -148,7 +305,10 @@ const Hero = () => {
         </div>
 
         {/* Mobile property card */}
-        <div className="mt-4 backdrop-blur-xl bg-white/65 rounded-xl shadow-lg shadow-glow/10 border border-white/40 px-4 py-3 flex items-center justify-between">
+        <div
+          data-hero-mobile-card
+          className="mt-4 backdrop-blur-xl bg-white/65 rounded-xl shadow-lg shadow-glow/10 border border-white/40 px-4 py-3 flex items-center justify-between"
+        >
           <div className="flex-1 min-w-0">
             <h3 className="font-heading font-bold text-primary-dark text-[13px] truncate">
               {current.title}
@@ -169,16 +329,25 @@ const Hero = () => {
         <div className="pointer-events-auto mt-16">
           {/* Heading */}
           <h1 className="font-heading text-[3.2rem] xl:text-[3.8rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
-            Find your home, <br />
-            <span className="text-primary">close the deal,</span>
-            <br />
-            <span className="italic font-normal text-primary-dark">
+            <span data-hero-heading className="block">
+              Find your home,
+            </span>
+            <span data-hero-heading className="block text-primary">
+              close the deal,
+            </span>
+            <span
+              data-hero-heading
+              className="block italic font-normal text-primary-dark"
+            >
               manage it all
             </span>
           </h1>
 
           {/* Search Box — glassmorphism */}
-          <div className="flex flex-col gap-3 max-w-[320px] mt-10">
+          <div
+            data-hero-search
+            className="flex flex-col gap-3 max-w-[320px] mt-10"
+          >
             {/* Pill Tabs — glass */}
             <div className="flex gap-2">
               {tabs.map((tab) => (
@@ -225,7 +394,7 @@ const Hero = () => {
         {/* Bottom row — quote left, property card right */}
         <div className="flex items-end justify-between gap-6 pointer-events-auto">
           {/* Quote */}
-          <div className="max-w-60 relative">
+          <div data-hero-quote className="max-w-60 relative">
             <span className="text-primary/15 text-6xl font-heading leading-none absolute -top-7 -left-3 select-none">
               &ldquo;
             </span>
@@ -236,7 +405,10 @@ const Hero = () => {
           </div>
 
           {/* Property Card — synced with gallery */}
-          <div className="flex backdrop-blur-xl bg-white/65 rounded-2xl shadow-lg shadow-glow/10 border border-white/40 px-5 py-4 items-center gap-4 ml-auto max-w-95">
+          <div
+            data-hero-card
+            className="flex backdrop-blur-xl bg-white/65 rounded-2xl shadow-lg shadow-glow/10 border border-white/40 px-5 py-4 items-center gap-4 ml-auto max-w-95"
+          >
             <div className="flex-1 min-w-0">
               <h3 className="font-heading font-bold text-primary-dark text-[15px] transition-all duration-300">
                 {current.title}

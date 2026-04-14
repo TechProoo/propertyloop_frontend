@@ -44,9 +44,9 @@ import Messages from "./Pages/Messages";
 import NotFound from "./Pages/NotFound";
 
 const roleDashboard: Record<string, string> = {
-  buyer: "/dashboard",
-  agent: "/agent-dashboard",
-  vendor: "/vendor-dashboard",
+  BUYER: "/dashboard",
+  AGENT: "/agent-dashboard",
+  VENDOR: "/vendor-dashboard",
 };
 
 function ProtectedRoute({
@@ -84,7 +84,7 @@ function App() {
             <Route
               path="/add-property"
               element={
-                <ProtectedRoute allowedRoles={["agent"]}>
+                <ProtectedRoute allowedRoles={["AGENT"]}>
                   <AddProperty />
                 </ProtectedRoute>
               }
@@ -96,7 +96,7 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute allowedRoles={["buyer"]}>
+                <ProtectedRoute allowedRoles={["BUYER"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -104,7 +104,7 @@ function App() {
             <Route
               path="/agent-dashboard"
               element={
-                <ProtectedRoute allowedRoles={["agent"]}>
+                <ProtectedRoute allowedRoles={["AGENT"]}>
                   <AgentDashboard />
                 </ProtectedRoute>
               }
@@ -112,7 +112,7 @@ function App() {
             <Route
               path="/vendor-dashboard"
               element={
-                <ProtectedRoute allowedRoles={["vendor"]}>
+                <ProtectedRoute allowedRoles={["VENDOR"]}>
                   <VendorDashboard />
                 </ProtectedRoute>
               }

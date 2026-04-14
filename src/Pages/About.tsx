@@ -305,7 +305,7 @@ const About = () => {
                 </div>
 
                 {/* Quick stat card */}
-                <div className="bg-primary rounded-[24px] p-8 text-white">
+                <div className="bg-primary rounded-3xl p-8 text-white">
                   <h3 className="font-heading font-bold text-lg mb-2">
                     Agent-First Model
                   </h3>

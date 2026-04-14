@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import authService from "../api/services/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -28,7 +29,7 @@ const ForgotPassword = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     const next: Record<string, string> = {};
     if (!email.trim()) next.email = "Email is required";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
@@ -37,22 +38,31 @@ const ForgotPassword = () => {
     if (Object.keys(next).length > 0) return;
 
     setSending(true);
-    setTimeout(() => {
-      setSending(false);
+    try {
+      await authService.forgotPassword(email);
       setStep("code");
-    }, 1000);
+    } catch (err: any) {
+      setErrors({ email: err?.response?.data?.message || "Something went wrong" });
+    } finally {
+      setSending(false);
+    }
   };
 
-  const handleVerifyCode = () => {
+  const handleVerifyCode = async () => {
     if (code.some((c) => !c)) {
       setErrors({ code: "Enter the complete 6-digit code" });
       return;
     }
     setErrors({});
-    setStep("reset");
+    try {
+      await authService.verifyResetCode(email, code.join(""));
+      setStep("reset");
+    } catch (err: any) {
+      setErrors({ code: err?.response?.data?.message || "Invalid or expired code" });
+    }
   };
 
-  const handleResetPassword = () => {
+  const handleResetPassword = async () => {
     const next: Record<string, string> = {};
     if (!password) next.password = "Password is required";
     else if (password.length < 8)
@@ -60,7 +70,12 @@ const ForgotPassword = () => {
     if (password !== confirm) next.confirm = "Passwords don't match";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    setStep("success");
+    try {
+      await authService.resetPassword(email, code.join(""), password);
+      setStep("success");
+    } catch (err: any) {
+      setErrors({ password: err?.response?.data?.message || "Reset failed" });
+    }
   };
 
   const handleCodeChange = (i: number, val: string) => {

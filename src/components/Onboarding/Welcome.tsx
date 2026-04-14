@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import { motion } from "framer-motion";
 import type { OnboardingData } from "../../Pages/Onboarding";
-import { useAuth } from "../../context/AuthContext";
 import {
   CheckCircle2,
   Search,
@@ -89,14 +87,7 @@ const roleConfig = {
 };
 
 const Welcome = ({ data }: Props) => {
-  const { login } = useAuth();
   const config = roleConfig[data.role!];
-
-  useEffect(() => {
-    if (data.fullName && data.email && data.role) {
-      login({ name: data.fullName, email: data.email, role: data.role });
-    }
-  }, [data.fullName, data.email, data.role, login]);
 
   return (
     <div className="max-w-lg mx-auto pt-8 lg:pt-16">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   Star,
   Phone,
-  MessageCircle,
   Mail,
   Globe,
   MapPin,
@@ -26,7 +25,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { getAgentById, agents } from "../data/agents";
+import agentsService from "../api/services/agents";
 
 /* ─── Sample listings per agent (keyed by agent id) ─── */
 
@@ -381,7 +380,52 @@ const ReviewDisputeSection = ({
 const AgentProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const agent = getAgentById(id || "");
+  const [agent, setAgent] = useState<any>(null);
+  const [loadingAgent, setLoadingAgent] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoadingAgent(true);
+    agentsService
+      .getById(id)
+      .then((data) => {
+        setAgent({
+          id: data.id,
+          photo:
+            data.avatarUrl ||
+            "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
+          name: data.name,
+          agency: data.agency || "",
+          location: data.location || "",
+          rating: data.rating,
+          listings: data.listingsCount,
+          soldRented: data.soldRentedCount,
+          verified: data.verified,
+          phone: data.phone || "",
+          specialty: data.specialty,
+          bio: data.bio || "",
+          yearsExperience: data.yearsExperience,
+          website: data.website,
+          email: data.email,
+          activeListings: data.activeListings || [],
+          reviews: data.reviews || [],
+        });
+      })
+      .catch(() => setAgent(null))
+      .finally(() => setLoadingAgent(false));
+  }, [id]);
+
+  if (loadingAgent) {
+    return (
+      <div className="min-h-screen bg-[#f5f0eb]">
+        <Navbar />
+        <div className="flex items-center justify-center py-32">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!agent) {
     return (
@@ -413,13 +457,7 @@ const AgentProfile = () => {
   const listings = agentListings[agent.id] || defaultListings;
 
   /* Pick 3 similar agents (same specialty, exclude self) */
-  const similarAgents = agents
-    .filter(
-      (a) =>
-        a.id !== agent.id &&
-        a.specialty.some((s) => agent.specialty.includes(s)),
-    )
-    .slice(0, 3);
+  const similarAgents: any[] = [];
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
@@ -466,7 +504,7 @@ const AgentProfile = () => {
               <div className="flex flex-col lg:flex-row gap-8 items-start">
                 {/* Photo + badge */}
                 <div className="relative shrink-0">
-                  <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-[24px] overflow-hidden border-4 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+                  <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-3xl overflow-hidden border-4 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
                     <img
                       src={agent.photo}
                       alt={agent.name}
@@ -497,7 +535,7 @@ const AgentProfile = () => {
 
                   {/* Specialty pills */}
                   <div className="flex flex-wrap gap-2 mt-4">
-                    {agent.specialty.map((s) => (
+                    {agent.specialty.map((s: string) => (
                       <span
                         key={s}
                         className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-xs font-medium"
@@ -805,7 +843,7 @@ const AgentProfile = () => {
                   </h2>
                 </div>
                 <div className="p-4 flex flex-col gap-3">
-                  {similarAgents.map((sa) => (
+                  {similarAgents.map((sa: any) => (
                     <button
                       key={sa.id}
                       onClick={() => navigate(`/agent/${sa.id}`)}

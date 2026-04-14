@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Play, X, Star, Quote } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const testimonials = [
   {
@@ -43,19 +47,75 @@ const testimonials = [
 
 const VideoTestimonials = () => {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const label = el.querySelector("[data-vt-label]");
+    const heading = el.querySelector("[data-vt-heading]");
+    const subtitle = el.querySelector("[data-vt-subtitle]");
+    const cards = el.querySelectorAll("[data-vt-card]");
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power3.out" },
+      scrollTrigger: { trigger: el, start: "top 75%", once: true },
+    });
+
+    // Label
+    if (label) {
+      tl.fromTo(label, { y: -15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 });
+    }
+
+    // Heading — clip-path wipe
+    if (heading) {
+      tl.fromTo(
+        heading,
+        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
+        { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.9, ease: "power4.out" },
+        "-=0.2",
+      );
+    }
+
+    // Subtitle
+    if (subtitle) {
+      tl.fromTo(subtitle, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.4");
+    }
+
+    // Testimonial cards — stagger rise with rotation
+    if (cards.length) {
+      tl.fromTo(
+        cards,
+        { y: 70, opacity: 0, rotateY: -6, scale: 0.93 },
+        {
+          y: 0,
+          opacity: 1,
+          rotateY: 0,
+          scale: 1,
+          duration: 0.9,
+          stagger: 0.18,
+          ease: "power4.out",
+        },
+        "-=0.2",
+      );
+    }
+
+    return () => { tl.kill(); };
+  }, []);
 
   return (
-    <section className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg">
+    <section ref={sectionRef} className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg">
       <div className="max-w-7xl mx-auto">
         {/* Heading */}
         <div className="text-center mb-14">
-          <p className="text-primary text-sm font-medium tracking-wide uppercase mb-3">
+          <p data-vt-label className="text-primary text-sm font-medium tracking-wide uppercase mb-3">
             Testimonials
           </p>
-          <h2 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
+          <h2 data-vt-heading className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
             Hear from <span className="text-primary">real people</span>
           </h2>
-          <p className="text-text-secondary text-sm leading-relaxed mt-4 max-w-lg mx-auto">
+          <p data-vt-subtitle className="text-text-secondary text-sm leading-relaxed mt-4 max-w-lg mx-auto">
             Thousands of buyers, agents, and vendors trust PropertyLoop every
             day. Here's what they have to say.
           </p>
@@ -63,13 +123,10 @@ const VideoTestimonials = () => {
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((t, i) => (
-            <motion.div
+          {testimonials.map((t) => (
+            <div
               key={t.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              data-vt-card
               className="group bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
             >
               {/* Video thumbnail */}
@@ -127,7 +184,7 @@ const VideoTestimonials = () => {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

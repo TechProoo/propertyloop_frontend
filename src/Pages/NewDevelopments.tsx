@@ -9,7 +9,6 @@ import {
   MapPin,
   ChevronDown,
   Phone,
-  MessageCircle,
   X,
   ShieldCheck,
   Building2,

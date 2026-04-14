@@ -12,7 +12,6 @@ import {
   ChevronDown,
   Star,
   Phone,
-  MessageCircle,
   X,
   Zap,
   Droplets,
