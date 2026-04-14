@@ -58,6 +58,34 @@ const Settings = () => {
   const [notifSms, setNotifSms] = useState(true);
   const [notifMarketing, setNotifMarketing] = useState(false);
   const [notifMessages, setNotifMessages] = useState(true);
+
+  // Payment methods (localStorage persisted)
+  const [paymentMethods, setPaymentMethods] = useState<
+    {
+      id: string;
+      type: "card" | "bank";
+      label: string;
+      last4: string;
+      brand?: string;
+      bankName?: string;
+      isDefault: boolean;
+    }[]
+  >(() => {
+    try {
+      return JSON.parse(localStorage.getItem("pl_payment_methods") || "[]");
+    } catch {
+      return [];
+    }
+  });
+  const [showAddPayment, setShowAddPayment] = useState(false);
+  const [paymentType, setPaymentType] = useState<"card" | "bank">("card");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
+  const [cardName, setCardName] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [accountName, setAccountName] = useState("");
   const [notifPriceAlerts, setNotifPriceAlerts] = useState(true);
 
   const [twoFactor, setTwoFactor] = useState(false);
@@ -92,10 +120,24 @@ const Settings = () => {
 
   const handleSave = async () => {
     try {
-      await api.patch("/users/me", { name, phone, location, bio, avatarUrl: avatar });
+      await api.patch("/users/me", {
+        name,
+        phone,
+        location,
+        bio,
+        avatarUrl: avatar,
+      });
       await api.patch("/users/me/settings", {
-        notifEmail, notifSms, notifMessages, notifPriceAlerts, notifMarketing,
-        profileVisible, shareActivity, language, currency, twoFactorEnabled: twoFactor,
+        notifEmail,
+        notifSms,
+        notifMessages,
+        notifPriceAlerts,
+        notifMarketing,
+        profileVisible,
+        shareActivity,
+        language,
+        currency,
+        twoFactorEnabled: twoFactor,
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -117,7 +159,9 @@ const Settings = () => {
     ) {
       try {
         await api.delete("/users/me");
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       await logout();
       navigate("/");
     }
@@ -169,13 +213,7 @@ const Settings = () => {
     },
   ];
 
-  const Toggle = ({
-    on,
-    onClick,
-  }: {
-    on: boolean;
-    onClick: () => void;
-  }) => (
+  const Toggle = ({ on, onClick }: { on: boolean; onClick: () => void }) => (
     <button
       onClick={onClick}
       className={`relative w-11 h-6 rounded-full transition-colors ${on ? "bg-primary" : "bg-border-light"}`}
@@ -572,21 +610,296 @@ const Settings = () => {
                         Cards, bank accounts, and payout details.
                       </p>
 
-                      <div className="bg-bg-accent rounded-2xl border border-border-light p-10 text-center">
-                        <div className="w-14 h-14 rounded-full bg-white border border-border-light flex items-center justify-center mx-auto mb-4">
-                          <CreditCard className="w-6 h-6 text-text-subtle" />
+                      {paymentMethods.length === 0 && !showAddPayment ? (
+                        <div className="bg-bg-accent rounded-2xl border border-border-light p-10 text-center">
+                          <div className="w-14 h-14 rounded-full bg-white border border-border-light flex items-center justify-center mx-auto mb-4">
+                            <CreditCard className="w-6 h-6 text-text-subtle" />
+                          </div>
+                          <p className="font-heading font-bold text-primary-dark text-sm">
+                            No payment methods yet
+                          </p>
+                          <p className="text-text-secondary text-xs mt-1.5 max-w-sm mx-auto">
+                            Add a card or bank account to speed up checkout and
+                            escrow payments.
+                          </p>
+                          <button
+                            onClick={() => setShowAddPayment(true)}
+                            className="mt-5 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors"
+                          >
+                            Add payment method
+                          </button>
                         </div>
-                        <p className="font-heading font-bold text-primary-dark text-sm">
-                          No payment methods yet
-                        </p>
-                        <p className="text-text-secondary text-xs mt-1.5 max-w-sm mx-auto">
-                          Add a card or bank account to speed up checkout and
-                          escrow payments.
-                        </p>
-                        <button className="mt-5 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors">
-                          Add payment method
-                        </button>
-                      </div>
+                      ) : (
+                        <>
+                          {/* Saved methods */}
+                          {paymentMethods.length > 0 && (
+                            <div className="flex flex-col gap-3 mb-6">
+                              {paymentMethods.map((pm) => (
+                                <div
+                                  key={pm.id}
+                                  className="flex items-center gap-4 bg-bg-accent rounded-2xl border border-border-light px-5 py-4"
+                                >
+                                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                    <CreditCard className="w-5 h-5" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-heading font-bold text-primary-dark text-sm flex items-center gap-2">
+                                      {pm.type === "card"
+                                        ? `${pm.brand ?? "Card"} •••• ${pm.last4}`
+                                        : `${pm.bankName ?? "Bank"} •••• ${pm.last4}`}
+                                      {pm.isDefault && (
+                                        <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
+                                          Default
+                                        </span>
+                                      )}
+                                    </p>
+                                    <p className="text-text-secondary text-xs mt-0.5">
+                                      {pm.label}
+                                    </p>
+                                  </div>
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    {!pm.isDefault && (
+                                      <button
+                                        onClick={() => {
+                                          const updated = paymentMethods.map(
+                                            (p) => ({
+                                              ...p,
+                                              isDefault: p.id === pm.id,
+                                            }),
+                                          );
+                                          setPaymentMethods(updated);
+                                          localStorage.setItem(
+                                            "pl_payment_methods",
+                                            JSON.stringify(updated),
+                                          );
+                                        }}
+                                        className="text-xs text-primary font-medium hover:underline"
+                                      >
+                                        Set default
+                                      </button>
+                                    )}
+                                    <button
+                                      onClick={() => {
+                                        const updated = paymentMethods.filter(
+                                          (p) => p.id !== pm.id,
+                                        );
+                                        if (pm.isDefault && updated.length > 0)
+                                          updated[0].isDefault = true;
+                                        setPaymentMethods(updated);
+                                        localStorage.setItem(
+                                          "pl_payment_methods",
+                                          JSON.stringify(updated),
+                                        );
+                                      }}
+                                      className="w-8 h-8 rounded-lg flex items-center justify-center text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Add form */}
+                          <AnimatePresence>
+                            {showAddPayment && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3, ease }}
+                                className="overflow-hidden"
+                              >
+                                <div className="bg-bg-accent rounded-2xl border border-border-light p-6 mb-6">
+                                  <div className="flex items-center justify-between mb-5">
+                                    <h3 className="font-heading font-bold text-primary-dark text-sm">
+                                      Add Payment Method
+                                    </h3>
+                                    <button
+                                      onClick={() => setShowAddPayment(false)}
+                                      className="text-text-subtle hover:text-primary-dark"
+                                    >
+                                      <span className="text-xs">Cancel</span>
+                                    </button>
+                                  </div>
+
+                                  {/* Type selector */}
+                                  <div className="flex gap-2 mb-5">
+                                    {(["card", "bank"] as const).map((t) => (
+                                      <button
+                                        key={t}
+                                        onClick={() => setPaymentType(t)}
+                                        className={`h-9 px-5 rounded-full text-xs font-medium transition-all ${
+                                          paymentType === t
+                                            ? "bg-primary text-white shadow-lg shadow-glow/30"
+                                            : "bg-white/70 border border-border-light text-text-secondary hover:border-primary/40"
+                                        }`}
+                                      >
+                                        {t === "card" ? "Card" : "Bank Account"}
+                                      </button>
+                                    ))}
+                                  </div>
+
+                                  {paymentType === "card" ? (
+                                    <div className="flex flex-col gap-3">
+                                      <input
+                                        value={cardName}
+                                        onChange={(e) =>
+                                          setCardName(e.target.value)
+                                        }
+                                        placeholder="Name on card"
+                                        className="h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                                      />
+                                      <input
+                                        value={cardNumber}
+                                        onChange={(e) =>
+                                          setCardNumber(
+                                            e.target.value
+                                              .replace(/\D/g, "")
+                                              .slice(0, 16),
+                                          )
+                                        }
+                                        placeholder="Card number"
+                                        className="h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                                      />
+                                      <div className="grid grid-cols-2 gap-3">
+                                        <input
+                                          value={cardExpiry}
+                                          onChange={(e) => {
+                                            let v = e.target.value
+                                              .replace(/\D/g, "")
+                                              .slice(0, 4);
+                                            if (v.length > 2)
+                                              v =
+                                                v.slice(0, 2) +
+                                                "/" +
+                                                v.slice(2);
+                                            setCardExpiry(v);
+                                          }}
+                                          placeholder="MM/YY"
+                                          className="h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                                        />
+                                        <input
+                                          value={cardCvv}
+                                          onChange={(e) =>
+                                            setCardCvv(
+                                              e.target.value
+                                                .replace(/\D/g, "")
+                                                .slice(0, 4),
+                                            )
+                                          }
+                                          placeholder="CVV"
+                                          type="password"
+                                          className="h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                                        />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="flex flex-col gap-3">
+                                      <input
+                                        value={bankName}
+                                        onChange={(e) =>
+                                          setBankName(e.target.value)
+                                        }
+                                        placeholder="Bank name"
+                                        className="h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                                      />
+                                      <input
+                                        value={accountNumber}
+                                        onChange={(e) =>
+                                          setAccountNumber(
+                                            e.target.value
+                                              .replace(/\D/g, "")
+                                              .slice(0, 10),
+                                          )
+                                        }
+                                        placeholder="Account number"
+                                        className="h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                                      />
+                                      <input
+                                        value={accountName}
+                                        onChange={(e) =>
+                                          setAccountName(e.target.value)
+                                        }
+                                        placeholder="Account holder name"
+                                        className="h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                                      />
+                                    </div>
+                                  )}
+
+                                  <button
+                                    onClick={() => {
+                                      const isFirst =
+                                        paymentMethods.length === 0;
+                                      const newMethod =
+                                        paymentType === "card"
+                                          ? {
+                                              id: crypto.randomUUID(),
+                                              type: "card" as const,
+                                              label: cardName || "Card",
+                                              last4: cardNumber.slice(-4),
+                                              brand: cardNumber.startsWith("4")
+                                                ? "Visa"
+                                                : cardNumber.startsWith("5")
+                                                  ? "Mastercard"
+                                                  : "Card",
+                                              isDefault: isFirst,
+                                            }
+                                          : {
+                                              id: crypto.randomUUID(),
+                                              type: "bank" as const,
+                                              label: accountName || "Account",
+                                              last4: accountNumber.slice(-4),
+                                              bankName: bankName,
+                                              isDefault: isFirst,
+                                            };
+                                      const updated = [
+                                        ...paymentMethods,
+                                        newMethod,
+                                      ];
+                                      setPaymentMethods(updated);
+                                      localStorage.setItem(
+                                        "pl_payment_methods",
+                                        JSON.stringify(updated),
+                                      );
+                                      setShowAddPayment(false);
+                                      setCardNumber("");
+                                      setCardExpiry("");
+                                      setCardCvv("");
+                                      setCardName("");
+                                      setBankName("");
+                                      setAccountNumber("");
+                                      setAccountName("");
+                                    }}
+                                    disabled={
+                                      paymentType === "card"
+                                        ? cardNumber.length < 15
+                                        : accountNumber.length < 10
+                                    }
+                                    className="mt-5 h-10 w-full rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-glow/30"
+                                  >
+                                    Save{" "}
+                                    {paymentType === "card"
+                                      ? "card"
+                                      : "bank account"}
+                                  </button>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          {!showAddPayment && (
+                            <button
+                              onClick={() => setShowAddPayment(true)}
+                              className="h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center gap-2"
+                            >
+                              <CreditCard className="w-4 h-4" /> Add another
+                              method
+                            </button>
+                          )}
+                        </>
+                      )}
                     </>
                   )}
 

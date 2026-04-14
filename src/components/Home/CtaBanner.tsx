@@ -53,24 +53,46 @@ const CtaBanner = () => {
       scrollTrigger: { trigger: el, start: "top 75%", once: true },
     });
 
-    if (label) tl.fromTo(label, { y: -15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 });
+    if (label)
+      tl.fromTo(
+        label,
+        { y: -15, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5 },
+      );
 
     if (heading) {
       tl.fromTo(
         heading,
         { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.9, ease: "power4.out" },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          opacity: 1,
+          duration: 0.9,
+          ease: "power4.out",
+        },
         "-=0.2",
       );
     }
 
-    if (desc) tl.fromTo(desc, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.4");
+    if (desc)
+      tl.fromTo(
+        desc,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6 },
+        "-=0.4",
+      );
 
     if (btns.length) {
       tl.fromTo(
         btns,
         { scale: 0.8, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, stagger: 0.12, ease: "back.out(1.6)" },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.5,
+          stagger: 0.12,
+          ease: "back.out(1.6)",
+        },
         "-=0.2",
       );
     }
@@ -88,16 +110,28 @@ const CtaBanner = () => {
       tl.fromTo(
         statCards,
         { y: 40, opacity: 0, scale: 0.92 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.7, stagger: 0.1, ease: "power4.out" },
+        {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: "power4.out",
+        },
         "-=0.3",
       );
     }
 
-    return () => { tl.kill(); };
+    return () => {
+      tl.kill();
+    };
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg">
+    <section
+      ref={sectionRef}
+      className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Outer glass card */}
         <div className="relative overflow-hidden bg-white/60 backdrop-blur-sm border border-border-light rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-3">
@@ -107,20 +141,29 @@ const CtaBanner = () => {
             <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-primary/5" />
             <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-primary/5" />
 
-            <div className="relative z-10 px-8 sm:px-12 lg:px-16 py-14 lg:py-20">
+            <div className="relative z-10 px-5 sm:px-10 lg:px-16 py-10 sm:py-14 lg:py-20">
               {/* Top — content */}
-              <div className="flex flex-col lg:flex-row lg:items-center gap-12 lg:gap-20">
+              <div className="flex flex-col lg:flex-row lg:items-center gap-10 sm:gap-12 lg:gap-20">
                 {/* Left text */}
                 <div className="flex-1">
-                  <p data-cb-label className="text-primary text-sm font-medium tracking-wide uppercase mb-3">
+                  <p
+                    data-cb-label
+                    className="text-primary text-sm font-medium tracking-wide uppercase mb-3"
+                  >
                     Get Started Today
                   </p>
-                  <h2 data-cb-heading className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
+                  <h2
+                    data-cb-heading
+                    className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
+                  >
                     Find your next home.
                     <br />
                     <span className="text-primary">Close the loop.</span>
                   </h2>
-                  <p data-cb-desc className="text-text-secondary text-sm leading-relaxed mt-5 max-w-md">
+                  <p
+                    data-cb-desc
+                    className="text-text-secondary text-sm leading-relaxed mt-5 max-w-md"
+                  >
                     From first search to signed contract — and everything after
                     the keys are handed over. Download the app or sign up to get
                     started.
@@ -128,7 +171,11 @@ const CtaBanner = () => {
 
                   {/* CTA buttons */}
                   <div className="flex flex-wrap gap-4 mt-8">
-                    <a data-cb-btn href="/onboarding" className="h-12 px-8 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]">
+                    <a
+                      data-cb-btn
+                      href="/onboarding"
+                      className="h-12 px-8 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]"
+                    >
                       Sign up free
                       <ArrowRight className="w-4 h-4" />
                     </a>
@@ -144,7 +191,10 @@ const CtaBanner = () => {
                 </div>
 
                 {/* Right — phone mockup */}
-                <div data-cb-phone className="shrink-0 hidden lg:flex items-center justify-center">
+                <div
+                  data-cb-phone
+                  className="shrink-0 hidden lg:flex items-center justify-center"
+                >
                   <div className="relative w-55 h-95 bg-white/70 backdrop-blur-md border border-border-light rounded-[36px] p-3 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
                     <div className="w-full h-full rounded-[28px] bg-bg-accent border border-border-light flex flex-col items-center justify-center gap-4">
                       {/* Notch */}
@@ -168,21 +218,23 @@ const CtaBanner = () => {
               </div>
 
               {/* Bottom — stats row */}
-              <div className="mt-14 pt-8 border-t border-border-light">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+              <div className="mt-10 sm:mt-14 pt-6 sm:pt-8 border-t border-border-light">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
                   {stats.map((stat, i) => (
                     <div
                       key={i}
                       data-cb-stat
-                      className="bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl px-5 py-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                      className="bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] min-w-0"
                     >
-                      <div className="flex items-center gap-2 text-text-secondary mb-2">
-                        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <div className="flex items-start gap-1.5 sm:gap-2 text-text-secondary mb-1.5 sm:mb-2">
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full  bg-primary/10 flex items-center justify-center text-primary shrink-0">
                           {stat.icon}
                         </div>
-                        <span className="text-xs">{stat.label}</span>
+                        <span className="text-[11px] sm:text-xs leading-tight text-nowrap">
+                          {stat.label}
+                        </span>
                       </div>
-                      <p className="font-heading font-bold text-primary-dark text-2xl">
+                      <p className="font-heading font-bold text-primary-dark text-[1.5rem] sm:text-xl leading-none">
                         {stat.value}
                       </p>
                     </div>

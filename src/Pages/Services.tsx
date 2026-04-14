@@ -233,7 +233,7 @@ const Services = () => {
                     />
                   </div>
                 </div>
-                <div className="p-2 max-h-[420px] overflow-y-auto">
+                <div className="p-2 max-h-105 overflow-y-auto">
                   {categories
                     .filter(
                       (cat) =>

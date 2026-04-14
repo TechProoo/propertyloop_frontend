@@ -25,8 +25,10 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { getVendorById } from "../data/vendors";
+import vendorsService from "../api/services/vendors";
 import vendorJobsService from "../api/services/vendorJobs";
+import { useAuth } from "../context/AuthContext";
+import type { VendorPublic } from "../api/types";
 import {
   getConversation,
   saveConversation,
@@ -212,9 +214,23 @@ const VendorReviewSection = ({ vendorName }: { vendorName: string }) => {
 
 const BookService = () => {
   const { id } = useParams<{ id: string }>();
-  const vendor = getVendorById(id || "");
+  const { user } = useAuth();
+  const [vendor, setVendor] = useState<VendorPublic | null>(null);
+  const [loadingVendor, setLoadingVendor] = useState(true);
   const [currentStep, setCurrentStep] = useState<Step>("details");
   const [processing, setProcessing] = useState(false);
+
+  useEffect(() => {
+    if (!id) {
+      setLoadingVendor(false);
+      return;
+    }
+    vendorsService
+      .getById(id)
+      .then(setVendor)
+      .catch(() => {})
+      .finally(() => setLoadingVendor(false));
+  }, [id]);
 
   // Form state
   const [jobDescription, setJobDescription] = useState("");
@@ -247,9 +263,9 @@ const BookService = () => {
       saveConversation({
         id: convoId,
         name: vendor.name,
-        avatar: vendor.avatar,
+        avatar: vendor.avatarUrl ?? "",
         role: "Vendor",
-        phone: vendor.phone,
+        phone: vendor.phone ?? "",
         messages: initial,
       });
       setChatMessages(initial);
@@ -291,6 +307,14 @@ const BookService = () => {
 
   const stepIndex = steps.indexOf(currentStep);
 
+  if (loadingVendor) {
+    return (
+      <div className="min-h-screen bg-[#f5f0eb] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   if (!vendor) {
     return (
       <div className="min-h-screen bg-[#f5f0eb]">
@@ -315,8 +339,8 @@ const BookService = () => {
   }
 
   const priceNum = agreedPrice
-    ? parseInt(agreedPrice.replace(/,/g, "")) || vendor.priceNum
-    : vendor.priceNum;
+    ? parseInt(agreedPrice.replace(/,/g, "")) || (vendor.priceNum ?? 0)
+    : (vendor.priceNum ?? 0);
   const serviceFee = Math.round(priceNum * 0.1);
   const total = priceNum + serviceFee;
 
@@ -326,18 +350,18 @@ const BookService = () => {
       vendorJobsService
         .createBooking({
           vendorId: vendor.id,
-          title: `${vendor.category} Service`,
+          title: `${vendor.category ?? "Service"} Service`,
           description: jobDescription,
           address: propertyAddress,
-          category: vendor.category,
+          category: vendor.category ?? "",
           vendorFee: priceNum,
           scheduledFor: preferredDate
             ? new Date(
                 `${preferredDate}T${preferredTime || "10:00"}:00`,
               ).toISOString()
             : new Date().toISOString(),
-          clientName: "Customer",
-          clientPhone: "",
+          clientName: user?.name ?? "Customer",
+          clientPhone: user?.phone ?? "",
           paymentMethod: "card",
         })
         .then(() => {
@@ -346,8 +370,8 @@ const BookService = () => {
             id: `SVC-${Date.now()}`,
             vendorId: vendor.id,
             vendorName: vendor.name,
-            vendorAvatar: vendor.avatar,
-            category: vendor.category,
+            vendorAvatar: vendor.avatarUrl ?? "",
+            category: vendor.category ?? "",
             jobDescription,
             preferredDate,
             preferredTime,
@@ -445,7 +469,7 @@ const BookService = () => {
                       {/* Vendor mini card */}
                       <div className="flex items-center gap-4 bg-white/60 border border-border-light rounded-2xl p-4 mb-6">
                         <img
-                          src={vendor.avatar}
+                          src={vendor.avatarUrl ?? ""}
                           alt={vendor.name}
                           className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
                         />
@@ -616,12 +640,14 @@ const BookService = () => {
                           type="text"
                           value={agreedPrice}
                           onChange={(e) => setAgreedPrice(e.target.value)}
-                          placeholder={String(vendor.priceNum)}
+                          placeholder={String(vendor.priceNum ?? 0)}
                           className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
                         />
                         <p className="text-text-subtle text-xs mt-1">
-                          Vendor's starting price: {vendor.price}. Enter the
-                          agreed amount.
+                          Vendor's starting price:{" "}
+                          {vendor.priceLabel ??
+                            `₦${(vendor.priceNum ?? 0).toLocaleString()}`}
+                          . Enter the agreed amount.
                         </p>
                       </div>
 
@@ -829,14 +855,14 @@ const BookService = () => {
                 <div className="sticky top-8 flex flex-col gap-4">
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                     <img
-                      src={vendor.image}
+                      src={vendor.bannerImage ?? vendor.avatarUrl ?? ""}
                       alt={vendor.name}
                       className="w-full h-40 object-cover"
                     />
                     <div className="p-5">
                       <div className="flex items-center gap-3 mb-3">
                         <img
-                          src={vendor.avatar}
+                          src={vendor.avatarUrl ?? ""}
                           alt={vendor.name}
                           className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
                         />
@@ -859,14 +885,15 @@ const BookService = () => {
                           <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
                           {vendor.rating}
                         </span>
-                        <span>{vendor.jobs} jobs</span>
+                        <span>{vendor.jobsCount} jobs</span>
                         <span className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" /> {vendor.location}
                         </span>
                       </div>
                       <div className="h-px bg-border-light mb-3" />
                       <p className="font-heading font-bold text-primary-dark text-lg">
-                        {vendor.price}
+                        {vendor.priceLabel ??
+                          `From ₦${(vendor.priceNum ?? 0).toLocaleString()}`}
                       </p>
                       <p className="text-text-secondary text-xs mt-2 leading-relaxed">
                         {vendor.bio}
@@ -889,7 +916,7 @@ const BookService = () => {
                       <div className="h-px bg-border-light my-3" />
                       <div className="flex gap-2">
                         <a
-                          href={`tel:+${vendor.phone}`}
+                          href={`tel:+${vendor.phone ?? ""}`}
                           className="flex-1 h-9 rounded-full bg-white/80 border border-white/40 text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-1"
                         >
                           <Phone className="w-3 h-3" /> Call

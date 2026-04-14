@@ -1089,7 +1089,7 @@ const PropertyDetail = () => {
                 </div>
                 {listing.type === "RENT" && (
                   <Link
-                    to="/rental-escrow"
+                    to={`/rental-escrow?listingId=${listing.id}`}
                     className="w-full h-10 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center justify-center gap-2"
                   >
                     Start Rental Process
@@ -1098,7 +1098,7 @@ const PropertyDetail = () => {
                 )}
                 {listing.type === "SHORTLET" && (
                   <Link
-                    to="/shortlet-booking"
+                    to={`/shortlet-booking?listingId=${listing.id}`}
                     className="w-full h-10 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center justify-center gap-2"
                   >
                     Book Now

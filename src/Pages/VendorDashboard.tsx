@@ -66,6 +66,7 @@ const statusColors: Record<string, string> = {
   "in-progress": "bg-primary/10 text-primary",
   completed: "bg-purple-50 text-purple-600",
   paid: "bg-green-50 text-green-600",
+  disputed: "bg-amber-50 text-amber-600",
 };
 
 const earningStatusColors: Record<string, string> = {
@@ -227,6 +228,38 @@ const VendorDashboard = () => {
   const handleLogout = async () => {
     await logout();
     navigate("/");
+  };
+
+  /* ─── Job Actions ─── */
+  const handleAcceptJob = async (jobId: string) => {
+    try {
+      await vendorJobsService.accept(jobId);
+      setVendorJobs((prev) =>
+        prev.map((j) => (j.id === jobId ? { ...j, status: "accepted" } : j)),
+      );
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleDeclineJob = async (jobId: string) => {
+    try {
+      await vendorJobsService.decline(jobId);
+      setVendorJobs((prev) => prev.filter((j) => j.id !== jobId));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleCompleteJob = async (jobId: string) => {
+    try {
+      await vendorJobsService.complete(jobId);
+      setVendorJobs((prev) =>
+        prev.map((j) => (j.id === jobId ? { ...j, status: "completed" } : j)),
+      );
+    } catch {
+      /* ignore */
+    }
   };
 
   /* Job filtering */
@@ -892,35 +925,53 @@ const VendorDashboard = () => {
 
                       {/* Action Buttons */}
                       <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 sm:pt-1">
-                        {job.status === "pending" && (
-                          <>
-                            <button className="h-8 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-1.5">
-                              <CheckCircle className="w-3.5 h-3.5" /> Accept
-                            </button>
-                            <button className="h-8 px-4 rounded-full border border-red-200 bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors flex items-center gap-1.5">
-                              <XCircle className="w-3.5 h-3.5" /> Decline
-                            </button>
-                          </>
-                        )}
-                        {(job.status === "accepted" ||
-                          job.status === "in-progress") && (
-                          <button className="h-8 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-1.5">
-                            <CheckCircle className="w-3.5 h-3.5" /> Mark
-                            Complete
-                          </button>
-                        )}
-                        {job.status === "completed" && (
-                          <span className="flex items-center gap-1 text-purple-600 text-xs font-medium">
-                            <AlertCircle className="w-3.5 h-3.5" /> Awaiting
-                            payment
+                        {job.escrowStatus === "DISPUTED" && (
+                          <span className="flex items-center gap-1 text-amber-600 text-xs font-medium bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
+                            <AlertCircle className="w-3.5 h-3.5" /> Disputed
                           </span>
                         )}
-                        {job.status === "paid" && (
-                          <span className="flex items-center gap-1 text-green-600 text-xs font-medium">
-                            <CheckCircle className="w-3.5 h-3.5" /> Payment
-                            received
-                          </span>
-                        )}
+                        {job.escrowStatus !== "DISPUTED" &&
+                          job.status === "pending" && (
+                            <>
+                              <button
+                                onClick={() => handleAcceptJob(job.id)}
+                                className="h-8 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-1.5"
+                              >
+                                <CheckCircle className="w-3.5 h-3.5" /> Accept
+                              </button>
+                              <button
+                                onClick={() => handleDeclineJob(job.id)}
+                                className="h-8 px-4 rounded-full border border-red-200 bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors flex items-center gap-1.5"
+                              >
+                                <XCircle className="w-3.5 h-3.5" /> Decline
+                              </button>
+                            </>
+                          )}
+                        {job.escrowStatus !== "DISPUTED" &&
+                          (job.status === "accepted" ||
+                            job.status === "in-progress") && (
+                            <button
+                              onClick={() => handleCompleteJob(job.id)}
+                              className="h-8 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-1.5"
+                            >
+                              <CheckCircle className="w-3.5 h-3.5" /> Mark
+                              Complete
+                            </button>
+                          )}
+                        {job.escrowStatus !== "DISPUTED" &&
+                          job.status === "completed" && (
+                            <span className="flex items-center gap-1 text-purple-600 text-xs font-medium">
+                              <AlertCircle className="w-3.5 h-3.5" /> Awaiting
+                              payment
+                            </span>
+                          )}
+                        {job.escrowStatus !== "DISPUTED" &&
+                          job.status === "paid" && (
+                            <span className="flex items-center gap-1 text-green-600 text-xs font-medium">
+                              <CheckCircle className="w-3.5 h-3.5" /> Payment
+                              received
+                            </span>
+                          )}
                         <a
                           href={`tel:+${job.clientPhone}`}
                           className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"

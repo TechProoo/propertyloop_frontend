@@ -99,26 +99,54 @@ const Partners = () => {
       scrollTrigger: { trigger: el, start: "top 75%", once: true },
     });
 
-    if (label) tl.fromTo(label, { y: -15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 });
+    if (label)
+      tl.fromTo(
+        label,
+        { y: -15, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5 },
+      );
 
     if (heading) {
       tl.fromTo(
         heading,
         { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.9, ease: "power4.out" },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          opacity: 1,
+          duration: 0.9,
+          ease: "power4.out",
+        },
         "-=0.2",
       );
     }
 
-    if (subtitle) tl.fromTo(subtitle, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.4");
+    if (subtitle)
+      tl.fromTo(
+        subtitle,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6 },
+        "-=0.4",
+      );
 
-    if (logoBox) tl.fromTo(logoBox, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 }, "-=0.3");
+    if (logoBox)
+      tl.fromTo(
+        logoBox,
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7 },
+        "-=0.3",
+      );
 
     if (logos.length) {
       tl.fromTo(
         logos,
         { scale: 0.6, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, stagger: 0.07, ease: "back.out(1.6)" },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.5,
+          stagger: 0.07,
+          ease: "back.out(1.6)",
+        },
         "-=0.3",
       );
     }
@@ -127,18 +155,37 @@ const Partners = () => {
       tl.fromTo(
         whyHeading,
         { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.8, ease: "power4.out" },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          opacity: 1,
+          duration: 0.8,
+          ease: "power4.out",
+        },
         "-=0.1",
       );
     }
 
-    if (whySubtitle) tl.fromTo(whySubtitle, { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 }, "-=0.3");
+    if (whySubtitle)
+      tl.fromTo(
+        whySubtitle,
+        { y: 18, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5 },
+        "-=0.3",
+      );
 
     if (benefitCards.length) {
       tl.fromTo(
         benefitCards,
         { y: 50, opacity: 0, rotateY: -6, scale: 0.93 },
-        { y: 0, opacity: 1, rotateY: 0, scale: 1, duration: 0.8, stagger: 0.1, ease: "power4.out" },
+        {
+          y: 0,
+          opacity: 1,
+          rotateY: 0,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: "power4.out",
+        },
         "-=0.2",
       );
     }
@@ -156,33 +203,56 @@ const Partners = () => {
       tl.fromTo(
         pills,
         { x: -20, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.4, stagger: 0.06, ease: "back.out(1.4)" },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.4,
+          stagger: 0.06,
+          ease: "back.out(1.4)",
+        },
         "-=0.5",
       );
     }
 
-    return () => { tl.kill(); };
+    return () => {
+      tl.kill();
+    };
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full px-6 md:px-12 lg:px-20 py-16 lg:py-24 bg-bg">
+    <section
+      ref={sectionRef}
+      className="w-full px-6 md:px-12 lg:px-20 py-16 lg:py-24 bg-bg"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Heading */}
         <div className="text-center mb-12">
-          <p data-pt-label className="text-primary text-sm font-medium tracking-wide uppercase mb-3">
+          <p
+            data-pt-label
+            className="text-primary text-sm font-medium tracking-wide uppercase mb-3"
+          >
             Our Partners
           </p>
-          <h2 data-pt-heading className="font-heading text-[1.75rem] sm:text-[2rem] lg:text-[2.5rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
+          <h2
+            data-pt-heading
+            className="font-heading text-[1.75rem] sm:text-[2rem] lg:text-[2.5rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
+          >
             Trusted by <span className="text-primary">industry leaders</span>
           </h2>
-          <p data-pt-subtitle className="text-text-secondary text-sm leading-relaxed mt-4 max-w-lg mx-auto">
+          <p
+            data-pt-subtitle
+            className="text-text-secondary text-sm leading-relaxed mt-4 max-w-lg mx-auto"
+          >
             We partner with top financial institutions, payment providers, and
             organisations to deliver a seamless property experience.
           </p>
         </div>
 
         {/* Logo grid */}
-        <div data-pt-logobox className="bg-white/60 backdrop-blur-sm border border-border-light rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-3">
+        <div
+          data-pt-logobox
+          className="bg-white/60 backdrop-blur-sm border border-border-light rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-3"
+        >
           <div className="bg-white/80 backdrop-blur-md border border-white/40 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.04)] px-8 py-10 sm:px-12 sm:py-14">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-10 items-center">
               {partners.map((partner) => (
@@ -205,11 +275,17 @@ const Partners = () => {
         {/* ─── Why Partner With Us ─── */}
         <div className="mt-16 lg:mt-20">
           <div className="text-center mb-10">
-            <h3 data-pt-why-heading className="font-heading text-[1.5rem] sm:text-[1.75rem] font-bold text-primary-dark tracking-tight">
+            <h3
+              data-pt-why-heading
+              className="font-heading text-[1.5rem] sm:text-[1.75rem] font-bold text-primary-dark tracking-tight"
+            >
               Why partner with{" "}
               <span className="text-primary">PropertyLoop?</span>
             </h3>
-            <p data-pt-why-subtitle className="text-text-secondary text-sm leading-relaxed mt-3 max-w-md mx-auto">
+            <p
+              data-pt-why-subtitle
+              className="text-text-secondary text-sm leading-relaxed mt-3 max-w-md mx-auto"
+            >
               Whether you're a bank, fintech, or service provider — there's a
               seat at the table for you.
             </p>
@@ -238,7 +314,10 @@ const Partners = () => {
 
         {/* ─── Partner Types + CTA ─── */}
         <div className="mt-14 lg:mt-16">
-          <div data-pt-cta className="bg-gradient-to-br from-primary-dark via-primary-dark to-primary rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.15)] overflow-hidden relative">
+          <div
+            data-pt-cta
+            className="bg-gradient-to-br from-primary-dark via-primary-dark to-primary rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.15)] overflow-hidden relative"
+          >
             {/* Decorative circles */}
             <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/20 blur-3xl" />
             <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-white/5 blur-2xl" />

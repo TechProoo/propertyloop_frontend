@@ -41,6 +41,9 @@ import ForgotPassword from "./Pages/ForgotPassword";
 import Checkout from "./Pages/Checkout";
 import OrderConfirmation from "./Pages/OrderConfirmation";
 import Messages from "./Pages/Messages";
+import DisputeCenter from "./Pages/DisputeCenter";
+import AdminPanel from "./Pages/AdminPanel";
+import PartnersAdmin from "./Pages/PartnersAdmin";
 import NotFound from "./Pages/NotFound";
 
 const roleDashboard: Record<string, string> = {
@@ -155,6 +158,30 @@ function App() {
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/book-service/:id" element={<BookService />} />
+            <Route
+              path="/disputes"
+              element={
+                <ProtectedRoute>
+                  <DisputeCenter />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/partners"
+              element={
+                <ProtectedRoute>
+                  <PartnersAdmin />
+                </ProtectedRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BookmarkProvider>

@@ -17,7 +17,9 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { getProductById } from "../data/products";
+import productsService from "../api/services/products";
+import ordersService from "../api/services/orders";
+import type { Product } from "../api/types";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -32,6 +34,8 @@ type PayMethod = "card" | "transfer" | "wallet";
 const Checkout = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState<CartItem[]>([]);
+  const [products, setProducts] = useState<Map<string, Product>>(new Map());
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [stage, setStage] = useState<Stage>("delivery");
   const [processing, setProcessing] = useState(false);
 
@@ -47,18 +51,35 @@ const Checkout = () => {
   const [cardCvv, setCardCvv] = useState("");
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("pl_cart") || "[]");
+    const saved: CartItem[] = JSON.parse(
+      localStorage.getItem("pl_cart") || "[]",
+    );
     setItems(saved);
+    if (saved.length === 0) {
+      setLoadingProducts(false);
+      return;
+    }
+    Promise.all(
+      saved.map((item) => productsService.getById(item.id).catch(() => null)),
+    )
+      .then((results) => {
+        const map = new Map<string, Product>();
+        results.forEach((p) => {
+          if (p) map.set(p.id, p);
+        });
+        setProducts(map);
+      })
+      .finally(() => setLoadingProducts(false));
   }, []);
 
   const cartProducts = items
     .map((item) => {
-      const product = getProductById(item.id);
-      return product ? { ...product, cartQty: item.quantity } : null;
+      const product = products.get(item.id);
+      return product
+        ? { ...product, price: product.priceNaira, cartQty: item.quantity }
+        : null;
     })
-    .filter(Boolean) as (ReturnType<typeof getProductById> & {
-    cartQty: number;
-  })[];
+    .filter(Boolean) as (Product & { price: number; cartQty: number })[];
 
   const subtotal = cartProducts.reduce(
     (sum, p) => sum + p!.price * p!.cartQty,
@@ -71,8 +92,11 @@ const Checkout = () => {
   const handlePlaceOrder = async () => {
     setProcessing(true);
     try {
-      const payMethodMap: Record<string, string> = { card: "CARD", transfer: "TRANSFER", wallet: "WALLET" };
-      const { default: ordersService } = await import("../api/services/orders");
+      const payMethodMap: Record<string, string> = {
+        card: "CARD",
+        transfer: "TRANSFER",
+        wallet: "WALLET",
+      };
       const order = await ordersService.create({
         recipientName: name,
         phone,
@@ -80,11 +104,16 @@ const Checkout = () => {
         city,
         notes: notes || undefined,
         payMethod: (payMethodMap[payMethod] || "CARD") as any,
-        items: items.map((item) => ({ productId: item.id, quantity: item.quantity })),
+        items: items.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
       });
       localStorage.setItem("pl_cart", "[]");
-      // Also store locally for OrderConfirmation to read
-      localStorage.setItem(`pl_order_${order.orderNumber}`, JSON.stringify(order));
+      localStorage.setItem(
+        `pl_order_${order.orderNumber}`,
+        JSON.stringify(order),
+      );
       navigate(`/order-confirmation/${order.orderNumber}`);
     } catch {
       // Fallback: save locally if API fails
@@ -92,20 +121,41 @@ const Checkout = () => {
       const fallbackOrder = {
         id: orderId,
         items: cartProducts.map((p) => ({
-          id: p!.id, name: p!.name, image: p!.image, supplier: p!.supplier,
-          price: p!.price, priceLabel: p!.priceLabel, unit: p!.unit, quantity: p!.cartQty,
+          id: p!.id,
+          name: p!.name,
+          image: p!.coverImage,
+          supplier: p!.supplier,
+          price: p!.price,
+          priceLabel: p!.priceLabel,
+          unit: p!.unit,
+          quantity: p!.cartQty,
         })),
         delivery: { name, phone, address, city, notes },
-        payMethod, subtotal, deliveryFee, serviceFee, total,
+        payMethod,
+        subtotal,
+        deliveryFee,
+        serviceFee,
+        total,
         placedAt: new Date().toISOString(),
       };
-      localStorage.setItem(`pl_order_${orderId}`, JSON.stringify(fallbackOrder));
+      localStorage.setItem(
+        `pl_order_${orderId}`,
+        JSON.stringify(fallbackOrder),
+      );
       localStorage.setItem("pl_cart", "[]");
       navigate(`/order-confirmation/${orderId}`);
     } finally {
       setProcessing(false);
     }
   };
+
+  if (loadingProducts) {
+    return (
+      <div className="min-h-screen bg-[#f5f0eb] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (cartProducts.length === 0) {
     return (
@@ -444,7 +494,8 @@ const Checkout = () => {
                     >
                       {processing ? (
                         <>
-                          <Clock className="w-4 h-4 animate-spin" /> Processing...
+                          <Clock className="w-4 h-4 animate-spin" />{" "}
+                          Processing...
                         </>
                       ) : (
                         <>
@@ -470,7 +521,7 @@ const Checkout = () => {
                     <div key={p!.id} className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 relative">
                         <img
-                          src={p!.image}
+                          src={p!.coverImage}
                           alt={p!.name}
                           className="w-full h-full object-cover"
                         />

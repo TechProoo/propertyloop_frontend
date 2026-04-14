@@ -65,7 +65,11 @@ const VideoTestimonials = () => {
 
     // Label
     if (label) {
-      tl.fromTo(label, { y: -15, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5 });
+      tl.fromTo(
+        label,
+        { y: -15, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5 },
+      );
     }
 
     // Heading — clip-path wipe
@@ -73,14 +77,24 @@ const VideoTestimonials = () => {
       tl.fromTo(
         heading,
         { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        { clipPath: "inset(0 0% 0 0)", opacity: 1, duration: 0.9, ease: "power4.out" },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          opacity: 1,
+          duration: 0.9,
+          ease: "power4.out",
+        },
         "-=0.2",
       );
     }
 
     // Subtitle
     if (subtitle) {
-      tl.fromTo(subtitle, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6 }, "-=0.4");
+      tl.fromTo(
+        subtitle,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6 },
+        "-=0.4",
+      );
     }
 
     // Testimonial cards — stagger rise with rotation
@@ -101,21 +115,35 @@ const VideoTestimonials = () => {
       );
     }
 
-    return () => { tl.kill(); };
+    return () => {
+      tl.kill();
+    };
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg">
+    <section
+      ref={sectionRef}
+      className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Heading */}
         <div className="text-center mb-14">
-          <p data-vt-label className="text-primary text-sm font-medium tracking-wide uppercase mb-3">
+          <p
+            data-vt-label
+            className="text-primary text-sm font-medium tracking-wide uppercase mb-3"
+          >
             Testimonials
           </p>
-          <h2 data-vt-heading className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
+          <h2
+            data-vt-heading
+            className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
+          >
             Hear from <span className="text-primary">real people</span>
           </h2>
-          <p data-vt-subtitle className="text-text-secondary text-sm leading-relaxed mt-4 max-w-lg mx-auto">
+          <p
+            data-vt-subtitle
+            className="text-text-secondary text-sm leading-relaxed mt-4 max-w-lg mx-auto"
+          >
             Thousands of buyers, agents, and vendors trust PropertyLoop every
             day. Here's what they have to say.
           </p>

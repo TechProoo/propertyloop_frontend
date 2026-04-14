@@ -56,13 +56,24 @@ const Footer = () => {
       scrollTrigger: { trigger: el, start: "top 80%", once: true },
     });
 
-    if (brand) tl.fromTo(brand, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7 });
+    if (brand)
+      tl.fromTo(
+        brand,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7 },
+      );
 
     if (socials.length) {
       tl.fromTo(
         socials,
         { scale: 0, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.4, stagger: 0.06, ease: "back.out(2)" },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.4,
+          stagger: 0.06,
+          ease: "back.out(2)",
+        },
         "-=0.3",
       );
     }
@@ -85,13 +96,24 @@ const Footer = () => {
       );
     }
 
-    if (bottomBar) tl.fromTo(bottomBar, { opacity: 0 }, { opacity: 1, duration: 0.5 }, "-=0.3");
+    if (bottomBar)
+      tl.fromTo(
+        bottomBar,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.5 },
+        "-=0.3",
+      );
 
-    return () => { tl.kill(); };
+    return () => {
+      tl.kill();
+    };
   }, []);
 
   return (
-    <footer ref={footerRef} className="w-full px-6 md:px-12 lg:px-20 pt-16 pb-8 bg-bg">
+    <footer
+      ref={footerRef}
+      className="w-full px-6 md:px-12 lg:px-20 pt-16 pb-8 bg-bg"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Main footer card */}
         <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-8 sm:p-10 lg:p-14">
@@ -166,7 +188,10 @@ const Footer = () => {
           <div data-ft-divider className="h-px bg-border-light mt-10 mb-6" />
 
           {/* Bottom bar */}
-          <div data-ft-bottom className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div
+            data-ft-bottom
+            className="flex flex-col sm:flex-row items-center justify-between gap-4"
+          >
             <p className="text-text-subtle text-xs">
               &copy; {new Date().getFullYear()} PropertyLoop. All rights
               reserved.

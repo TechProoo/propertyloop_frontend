@@ -325,19 +325,19 @@ const ServiceLoop = () => {
                 <div className="h-px bg-border-light mt-3 mb-3" />
 
                 {/* Stats row */}
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-4 text-text-secondary">
-                    <span className="flex items-center gap-1">
+                <div className="flex items-center flex-wrap gap-y-2 justify-between text-xs">
+                  <div className="flex items-center gap-2 sm:gap-3 text-text-secondary min-w-0">
+                    <span className="flex items-center gap-1 shrink-0">
                       <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
                       {vendor.rating}
                     </span>
-                    <span>{vendor.jobs} jobs</span>
-                    <span className="flex items-center gap-1">
+                    <span className="shrink-0">{vendor.jobs} jobs</span>
+                    <span className="flex items-center gap-1 shrink-0">
                       <Shield className="w-3.5 h-3.5" />
                       Escrow
                     </span>
                   </div>
-                  <span className="font-heading font-bold text-primary-dark text-sm">
+                  <span className="font-heading font-bold text-primary-dark text-sm shrink-0 ml-auto">
                     {vendor.price}
                   </span>
                 </div>

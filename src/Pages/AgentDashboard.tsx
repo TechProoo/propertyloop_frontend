@@ -123,9 +123,25 @@ const AgentDashboard = () => {
   const [recentLeads, setRecentLeads] = useState<any[]>([]);
   const [upcomingViewings, setUpcomingViewings] = useState<any[]>([]);
   const [documents, setDocuments] = useState<
-    { name: string; type: string; date: string; size: string }[]
+    {
+      id: string;
+      listingId: string;
+      listingTitle: string;
+      name: string;
+      type: string;
+      date: string;
+      size: string;
+      verified: boolean;
+    }[]
   >([]);
   const [, setDashLoading] = useState(true);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadListingId, setUploadListingId] = useState("");
+  const [uploadDocName, setUploadDocName] = useState("");
+  const [uploadDocType, setUploadDocType] = useState<
+    "C_OF_O" | "SURVEY_PLAN" | "BUILDING_PERMIT" | "RECEIPT"
+  >("C_OF_O");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -178,10 +194,14 @@ const AgentDashboard = () => {
         // Extract documents from all listings
         const docs = listingsRes.items.flatMap((l: any) =>
           (l.documents || []).map((d: any) => ({
+            id: d.id,
+            listingId: l.id,
+            listingTitle: l.title || "Untitled",
             name: d.name,
             type: d.type?.replace(/_/g, " ") || d.type,
             date: d.date || new Date(d.createdAt).toLocaleDateString(),
             size: "—",
+            verified: d.verified ?? false,
           })),
         );
         setDocuments(docs);
@@ -246,6 +266,47 @@ const AgentDashboard = () => {
       bg: "bg-primary/10",
     },
   ];
+
+  const handleUploadDocument = async () => {
+    if (!uploadListingId || !uploadDocName.trim()) return;
+    setUploading(true);
+    try {
+      const doc = await listingsService.addDocument(uploadListingId, {
+        name: uploadDocName.trim(),
+        type: uploadDocType as any,
+        date: new Date().toISOString().split("T")[0],
+      });
+      const listing = agentListings.find((l) => l.id === uploadListingId);
+      setDocuments((prev) => [
+        {
+          id: doc.id,
+          listingId: uploadListingId,
+          listingTitle: listing?.title || "Untitled",
+          name: doc.name,
+          type: doc.type?.replace(/_/g, " ") || doc.type,
+          date: doc.date || new Date().toLocaleDateString(),
+          size: "—",
+          verified: false,
+        },
+        ...prev,
+      ]);
+      setShowUploadModal(false);
+      setUploadDocName("");
+      setUploadListingId("");
+    } catch {
+      /* ignore */
+    }
+    setUploading(false);
+  };
+
+  const handleRemoveDocument = async (docListingId: string, docId: string) => {
+    try {
+      await listingsService.removeDocument(docListingId, docId);
+      setDocuments((prev) => prev.filter((d) => d.id !== docId));
+    } catch {
+      /* ignore */
+    }
+  };
 
   const recentActivity = recentLeads.slice(0, 4).map((lead) => ({
     icon:
@@ -1052,20 +1113,42 @@ const AgentDashboard = () => {
                 {/* Performance Breakdown */}
                 <div className="flex-1 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
                   <h3 className="font-heading font-bold text-primary-dark text-base mb-5">
-                    Monthly Performance
+                    Performance Overview
                   </h3>
                   <div className="flex flex-col gap-4">
                     {[
-                      { label: "Properties Listed", value: "12", change: "+3" },
-                      { label: "Total Views", value: "4,285", change: "+18%" },
-                      { label: "Leads Generated", value: "68", change: "+24%" },
                       {
-                        label: "Viewings Scheduled",
-                        value: "32",
-                        change: "+15%",
+                        label: "Total Listings",
+                        value: String(apiStats?.listings.total ?? 0),
+                        sub: `${apiStats?.listings.active ?? 0} active`,
                       },
-                      { label: "Deals Closed", value: "5", change: "+2" },
-                      { label: "Revenue", value: "₦48M", change: "+32%" },
+                      {
+                        label: "Total Views",
+                        value: (
+                          apiStats?.listings.totalViews ?? 0
+                        ).toLocaleString(),
+                        sub: "across all listings",
+                      },
+                      {
+                        label: "Total Leads",
+                        value: String(apiStats?.leads.total ?? 0),
+                        sub: `${apiStats?.leads.new ?? 0} new`,
+                      },
+                      {
+                        label: "Conversion Rate",
+                        value: `${apiStats?.leads.conversionRate ?? 0}%`,
+                        sub: `${apiStats?.leads.converted ?? 0} converted`,
+                      },
+                      {
+                        label: "Viewings",
+                        value: String(apiStats?.viewings.total ?? 0),
+                        sub: `${apiStats?.viewings.upcoming ?? 0} upcoming`,
+                      },
+                      {
+                        label: "Deals Closed",
+                        value: String(apiStats?.profile.soldRentedCount ?? 0),
+                        sub: `${apiStats?.profile.yearsExperience ?? 0} yrs experience`,
+                      },
                     ].map((item, i) => (
                       <div
                         key={i}
@@ -1078,8 +1161,8 @@ const AgentDashboard = () => {
                           <span className="font-heading font-bold text-primary-dark text-sm">
                             {item.value}
                           </span>
-                          <span className="text-primary text-xs font-medium flex items-center gap-0.5">
-                            <TrendingUp className="w-3 h-3" /> {item.change}
+                          <span className="text-text-secondary text-xs">
+                            {item.sub}
                           </span>
                         </div>
                       </div>
@@ -1087,38 +1170,40 @@ const AgentDashboard = () => {
                   </div>
                 </div>
 
-                {/* Lead Sources */}
+                {/* Lead Funnel */}
                 <div className="xl:w-90 shrink-0 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
                   <h3 className="font-heading font-bold text-primary-dark text-base mb-5">
-                    Lead Sources
+                    Lead Funnel
                   </h3>
                   <div className="flex flex-col gap-3">
-                    {[
-                      {
-                        source: "PropertyLoop Search",
-                        count: 34,
-                        pct: 50,
-                        color: "bg-primary",
-                      },
-                      {
-                        source: "Direct Contact",
-                        count: 18,
-                        pct: 26,
-                        color: "bg-blue-500",
-                      },
-                      {
-                        source: "Referrals",
-                        count: 10,
-                        pct: 15,
-                        color: "bg-[#F5A623]",
-                      },
-                      {
-                        source: "Social Media",
-                        count: 6,
-                        pct: 9,
-                        color: "bg-purple-500",
-                      },
-                    ].map((item, i) => (
+                    {(() => {
+                      const totalLeads = apiStats?.leads.total || 1;
+                      const newLeads = apiStats?.leads.new ?? 0;
+                      const converted = apiStats?.leads.converted ?? 0;
+                      const pending = totalLeads - newLeads - converted;
+                      return [
+                        {
+                          source: "New Leads",
+                          count: newLeads,
+                          pct: Math.round((newLeads / totalLeads) * 100),
+                          color: "bg-primary",
+                        },
+                        {
+                          source: "In Progress",
+                          count: Math.max(0, pending),
+                          pct: Math.round(
+                            (Math.max(0, pending) / totalLeads) * 100,
+                          ),
+                          color: "bg-[#F5A623]",
+                        },
+                        {
+                          source: "Converted",
+                          count: converted,
+                          pct: Math.round((converted / totalLeads) * 100),
+                          color: "bg-green-500",
+                        },
+                      ];
+                    })().map((item, i) => (
                       <div key={i}>
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-sm text-primary-dark font-medium">
@@ -1385,37 +1470,214 @@ const AgentDashboard = () => {
                   <h2 className="font-heading font-bold text-primary-dark text-base">
                     Documents ({documents.length})
                   </h2>
-                  <button className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm">
+                  <button
+                    onClick={() => setShowUploadModal(true)}
+                    className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm"
+                  >
                     <Upload className="w-3.5 h-3.5" /> Upload
                   </button>
                 </div>
-                <div className="divide-y divide-white/30">
-                  {documents.map((doc, i) => (
-                    <div
-                      key={i}
-                      className="px-6 py-4 flex items-center gap-4 hover:bg-white/30 transition-colors"
-                    >
-                      <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-heading font-semibold text-primary-dark text-sm truncate">
-                          {doc.name}
-                        </p>
-                        <p className="text-text-secondary text-xs mt-0.5">
-                          {doc.type} · {doc.size}
-                        </p>
-                      </div>
-                      <span className="text-text-subtle text-xs shrink-0 hidden sm:block">
-                        {doc.date}
-                      </span>
-                      <button className="w-8 h-8 rounded-lg bg-white/50 backdrop-blur-sm border border-white/40 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shrink-0">
-                        <Download className="w-3.5 h-3.5" />
-                      </button>
+
+                {documents.length === 0 ? (
+                  <div className="px-6 py-16 text-center">
+                    <div className="w-14 h-14 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-4">
+                      <FileText className="w-6 h-6 text-text-subtle" />
                     </div>
-                  ))}
-                </div>
+                    <p className="font-heading font-bold text-primary-dark text-sm">
+                      No documents yet
+                    </p>
+                    <p className="text-text-secondary text-xs mt-1.5 max-w-xs mx-auto">
+                      Upload C of O, survey plans, building permits, and
+                      receipts for your properties.
+                    </p>
+                    <button
+                      onClick={() => setShowUploadModal(true)}
+                      className="mt-5 h-9 px-5 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors"
+                    >
+                      Upload your first document
+                    </button>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-white/30">
+                    {documents.map((doc) => (
+                      <div
+                        key={doc.id}
+                        className="px-6 py-4 flex items-center gap-4 hover:bg-white/30 transition-colors"
+                      >
+                        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-heading font-semibold text-primary-dark text-sm truncate">
+                              {doc.name}
+                            </p>
+                            {doc.verified && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
+                                <CheckCircle className="w-3 h-3" /> Verified
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-text-secondary text-xs mt-0.5">
+                            {doc.type} · {doc.listingTitle}
+                          </p>
+                        </div>
+                        <span className="text-text-subtle text-xs shrink-0 hidden sm:block">
+                          {doc.date}
+                        </span>
+                        <button
+                          onClick={() =>
+                            handleRemoveDocument(doc.listingId, doc.id)
+                          }
+                          className="w-8 h-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shrink-0"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              {/* Upload Modal */}
+              <AnimatePresence>
+                {showUploadModal && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4"
+                    onClick={() => setShowUploadModal(false)}
+                  >
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                      transition={{ duration: 0.3, ease }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full max-w-md bg-white/90 backdrop-blur-xl border border-white/50 rounded-3xl shadow-[0_16px_64px_rgba(0,0,0,0.15)] p-6 sm:p-8"
+                    >
+                      <div className="flex items-center justify-between mb-6">
+                        <h3 className="font-heading font-bold text-primary-dark text-lg">
+                          Upload Document
+                        </h3>
+                        <button
+                          onClick={() => setShowUploadModal(false)}
+                          className="w-8 h-8 rounded-full bg-bg-accent flex items-center justify-center text-text-subtle hover:text-primary-dark transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col gap-4">
+                        <div>
+                          <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                            Property
+                          </label>
+                          <select
+                            value={uploadListingId}
+                            onChange={(e) => setUploadListingId(e.target.value)}
+                            className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none"
+                          >
+                            <option value="">Select a listing…</option>
+                            {agentListings.map((l) => (
+                              <option key={l.id} value={l.id}>
+                                {l.title}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                            Document Name
+                          </label>
+                          <input
+                            type="text"
+                            value={uploadDocName}
+                            onChange={(e) => setUploadDocName(e.target.value)}
+                            placeholder="e.g. Certificate of Occupancy – Plot 14"
+                            className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                            Document Type
+                          </label>
+                          <div className="grid grid-cols-2 gap-2">
+                            {(
+                              [
+                                {
+                                  value: "C_OF_O",
+                                  label: "C of O",
+                                  icon: "📜",
+                                },
+                                {
+                                  value: "SURVEY_PLAN",
+                                  label: "Survey Plan",
+                                  icon: "📐",
+                                },
+                                {
+                                  value: "BUILDING_PERMIT",
+                                  label: "Building Permit",
+                                  icon: "🏗️",
+                                },
+                                {
+                                  value: "RECEIPT",
+                                  label: "Receipt",
+                                  icon: "🧾",
+                                },
+                              ] as const
+                            ).map((opt) => (
+                              <button
+                                key={opt.value}
+                                onClick={() => setUploadDocType(opt.value)}
+                                className={`h-11 rounded-2xl border text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                                  uploadDocType === opt.value
+                                    ? "bg-primary text-white border-primary shadow-lg shadow-glow/30"
+                                    : "bg-white/60 border-border-light text-primary-dark hover:border-primary/40"
+                                }`}
+                              >
+                                <span>{opt.icon}</span> {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 mt-6">
+                        <button
+                          onClick={handleUploadDocument}
+                          disabled={
+                            uploading ||
+                            !uploadListingId ||
+                            !uploadDocName.trim()
+                          }
+                          className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 shadow-lg shadow-glow/30"
+                        >
+                          {uploading ? (
+                            <>
+                              <Clock className="w-4 h-4 animate-spin" />{" "}
+                              Uploading…
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-4 h-4" /> Upload Document
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => setShowUploadModal(false)}
+                          className="h-11 px-5 rounded-full border border-border-light bg-white/60 text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
 

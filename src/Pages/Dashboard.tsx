@@ -1847,7 +1847,7 @@ const Dashboard = () => {
               {serviceBookings.length > 0 ? (
                 <div className="relative">
                   {/* Vertical line */}
-                  <div className="absolute left-[22px] top-6 bottom-6 w-px bg-border-light" />
+                  <div className="absolute left-5.5 top-6 bottom-6 w-px bg-border-light" />
 
                   <div className="flex flex-col gap-4">
                     {serviceBookings.map((booking) => {

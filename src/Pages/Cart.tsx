@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -19,7 +19,9 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { getProductById } from "../data/products";
+import productsService from "../api/services/products";
+import ordersService from "../api/services/orders";
+import type { Product, OrderPaymentMethod } from "../api/types";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -29,7 +31,10 @@ interface CartItem {
 }
 
 const Cart = () => {
+  const navigate = useNavigate();
   const [items, setItems] = useState<CartItem[]>([]);
+  const [products, setProducts] = useState<Map<string, Product>>(new Map());
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [step, setStep] = useState<
     "cart" | "delivery" | "payment" | "confirmed"
   >("cart");
@@ -37,10 +42,30 @@ const Cart = () => {
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [deliveryPhone, setDeliveryPhone] = useState("");
   const [deliveryName, setDeliveryName] = useState("");
+  const [deliveryCity, setDeliveryCity] = useState("Lagos");
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("pl_cart") || "[]");
+    const saved: CartItem[] = JSON.parse(
+      localStorage.getItem("pl_cart") || "[]",
+    );
     setItems(saved);
+
+    // Fetch product details from API for each cart item
+    if (saved.length === 0) {
+      setLoadingProducts(false);
+      return;
+    }
+    Promise.all(
+      saved.map((item) => productsService.getById(item.id).catch(() => null)),
+    )
+      .then((results) => {
+        const map = new Map<string, Product>();
+        results.forEach((p) => {
+          if (p) map.set(p.id, p);
+        });
+        setProducts(map);
+      })
+      .finally(() => setLoadingProducts(false));
   }, []);
 
   const updateQuantity = (id: string, qty: number) => {
@@ -59,12 +84,12 @@ const Cart = () => {
 
   const cartProducts = items
     .map((item) => {
-      const product = getProductById(item.id);
-      return product ? { ...product, cartQty: item.quantity } : null;
+      const product = products.get(item.id);
+      return product
+        ? { ...product, price: product.priceNaira, cartQty: item.quantity }
+        : null;
     })
-    .filter(Boolean) as (ReturnType<typeof getProductById> & {
-    cartQty: number;
-  })[];
+    .filter(Boolean) as (Product & { price: number; cartQty: number })[];
 
   const subtotal = cartProducts.reduce(
     (sum, p) => sum + p!.price * p!.cartQty,
@@ -74,14 +99,30 @@ const Cart = () => {
   const serviceFee = Math.round(subtotal * 0.03);
   const total = subtotal + deliveryFee + serviceFee;
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     setProcessing(true);
-    setTimeout(() => {
+    try {
+      const order = await ordersService.create({
+        recipientName: deliveryName,
+        phone: deliveryPhone,
+        address: deliveryAddress,
+        city: deliveryCity,
+        payMethod: "CARD" as OrderPaymentMethod,
+        items: items.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+      });
+      localStorage.setItem("pl_cart", "[]");
+      setItems([]);
+      navigate(`/order-confirmation/${order.orderNumber}`);
+    } catch {
+      // Fallback to local confirmation
       setProcessing(false);
       localStorage.setItem("pl_cart", "[]");
       setItems([]);
       setStep("confirmed");
-    }, 2500);
+    }
   };
 
   return (
@@ -170,7 +211,14 @@ const Cart = () => {
                         </span>
                       </div>
 
-                      {cartProducts.length === 0 ? (
+                      {loadingProducts ? (
+                        <div className="text-center py-16 px-6">
+                          <div className="w-10 h-10 rounded-full border-2 border-primary border-t-transparent animate-spin mx-auto mb-4" />
+                          <p className="text-text-secondary text-sm">
+                            Loading cart items...
+                          </p>
+                        </div>
+                      ) : cartProducts.length === 0 ? (
                         <div className="text-center py-16 px-6">
                           <div className="w-16 h-16 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-4">
                             <ShoppingCart className="w-7 h-7 text-text-subtle" />
@@ -198,7 +246,7 @@ const Cart = () => {
                               <div className="flex gap-4 flex-1 min-w-0">
                                 <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0">
                                   <img
-                                    src={product!.image}
+                                    src={product!.coverImage}
                                     alt={product!.name}
                                     className="w-full h-full object-cover"
                                   />
@@ -334,6 +382,20 @@ const Cart = () => {
                               className="w-full h-11 pl-11 pr-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
                             />
                           </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                            City
+                          </label>
+                          <select
+                            value={deliveryCity}
+                            onChange={(e) => setDeliveryCity(e.target.value)}
+                            className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none"
+                          >
+                            <option>Lagos</option>
+                            <option>Abuja</option>
+                            <option>Port Harcourt</option>
+                          </select>
                         </div>
                       </div>
                       <div className="mt-5 bg-bg-accent rounded-2xl border border-border-light p-4">

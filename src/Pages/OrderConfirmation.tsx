@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
+import ordersService from "../api/services/orders";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -33,6 +34,7 @@ interface OrderItem {
 
 interface Order {
   id: string;
+  orderNumber?: string;
   items: OrderItem[];
   delivery: {
     name: string;
@@ -49,21 +51,74 @@ interface Order {
   placedAt: string;
 }
 
+/* Normalise API order (flat) into the shape our UI expects (nested delivery) */
+function normaliseOrder(raw: any): Order {
+  if (raw.delivery) return raw as Order; // already local-fallback shape
+  return {
+    id: raw.orderNumber ?? raw.id,
+    orderNumber: raw.orderNumber,
+    items: (raw.items ?? []).map((i: any) => ({
+      id: i.productId ?? i.id,
+      name: i.name,
+      image: i.image,
+      supplier: i.supplier ?? "",
+      price: i.unitPrice ?? i.price ?? 0,
+      priceLabel:
+        i.priceLabel ?? `₦${(i.unitPrice ?? i.price ?? 0).toLocaleString()}`,
+      unit: i.unit ?? "",
+      quantity: i.quantity,
+    })),
+    delivery: {
+      name: raw.recipientName ?? "",
+      phone: raw.phone ?? "",
+      address: raw.address ?? "",
+      city: raw.city ?? "",
+      notes: raw.notes,
+    },
+    payMethod: raw.payMethod ?? "",
+    subtotal: raw.subtotal ?? 0,
+    deliveryFee: raw.deliveryFee ?? 0,
+    serviceFee: raw.serviceFee ?? 0,
+    total: raw.total ?? 0,
+    placedAt: raw.createdAt ?? raw.placedAt ?? new Date().toISOString(),
+  };
+}
+
 const OrderConfirmation = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
-    const stored = localStorage.getItem(`pl_order_${id}`);
-    if (stored) {
-      try {
-        setOrder(JSON.parse(stored));
-      } catch {
-        /* ignore */
-      }
+    if (!id) {
+      setLoading(false);
+      return;
     }
+
+    // Try API first, fall back to localStorage
+    ordersService
+      .getByOrderNumber(id)
+      .then((apiOrder) => setOrder(normaliseOrder(apiOrder)))
+      .catch(() => {
+        const stored = localStorage.getItem(`pl_order_${id}`);
+        if (stored) {
+          try {
+            setOrder(normaliseOrder(JSON.parse(stored)));
+          } catch {
+            /* ignore */
+          }
+        }
+      })
+      .finally(() => setLoading(false));
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f5f0eb] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -78,8 +133,8 @@ const OrderConfirmation = () => {
               Order not found
             </h1>
             <p className="text-text-secondary text-sm mt-2">
-              We couldn't find the order you're looking for. It may have
-              expired or never existed.
+              We couldn't find the order you're looking for. It may have expired
+              or never existed.
             </p>
             <Link
               to="/marketplace"

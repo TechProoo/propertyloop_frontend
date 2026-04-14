@@ -227,18 +227,18 @@ const ShortletSpotlight = () => {
         {/* Date picker bar */}
         <div
           data-ss-datepicker
-          className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] px-6 py-4 mb-10 flex flex-col sm:flex-row items-center gap-4"
+          className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] px-5 sm:px-6 py-5 mb-10 flex flex-col sm:flex-row sm:items-end gap-4"
         >
-          <div className="flex items-center gap-2 text-primary">
+          <div className="flex items-center gap-2 text-primary shrink-0 sm:pb-1">
             <CalendarDays className="w-5 h-5" />
             <span className="font-heading font-bold text-primary-dark text-sm">
               Pick your dates
             </span>
           </div>
 
-          <div className="flex-1 flex flex-col sm:flex-row items-center gap-3">
-            <div className="flex-1 w-full">
-              <label className="text-text-subtle text-xs block mb-1">
+          <div className="w-full flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="min-w-0">
+              <label className="text-text-secondary text-xs font-medium block mb-1.5">
                 Check in
               </label>
               <input
@@ -248,8 +248,8 @@ const ShortletSpotlight = () => {
                 className="w-full h-10 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
               />
             </div>
-            <div className="flex-1 w-full">
-              <label className="text-text-subtle text-xs block mb-1">
+            <div className="min-w-0">
+              <label className="text-text-secondary text-xs font-medium block mb-1.5">
                 Check out
               </label>
               <input
@@ -259,13 +259,13 @@ const ShortletSpotlight = () => {
                 className="w-full h-10 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
               />
             </div>
-            <div className="flex-1 w-full">
-              <label className="text-text-subtle text-xs block mb-1">
+            <div className="min-w-0">
+              <label className="text-text-secondary text-xs font-medium block mb-1.5">
                 Location
               </label>
               <div className="relative">
                 <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-subtle" />
-                <select className="w-full h-10 pl-9 pr-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none">
+                <select className="w-full h-10 pl-9 pr-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none truncate">
                   <option>All Lagos</option>
                   <option>Victoria Island</option>
                   <option>Lekki</option>
@@ -277,7 +277,7 @@ const ShortletSpotlight = () => {
             </div>
           </div>
 
-          <button className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300">
+          <button className="shrink-0 self-center sm:self-auto h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300">
             Search
           </button>
         </div>
