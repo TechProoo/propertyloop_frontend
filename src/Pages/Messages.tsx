@@ -18,6 +18,7 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import { useAuth } from "../context/AuthContext";
+import ServiceRequestMessage from "../components/Messages/ServiceRequestMessage";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -305,7 +306,11 @@ const Messages = () => {
                                 : "bg-white border border-border-light text-primary-dark rounded-bl-md"
                             }`}
                           >
-                            <p>{m.text}</p>
+                            {m.sender === "you" && (m.text.includes("SERVICE REQUEST") || m.text.includes("**Service Request**")) ? (
+                              <ServiceRequestMessage text={m.text} />
+                            ) : (
+                              <p className="whitespace-pre-wrap break-words">{m.text}</p>
+                            )}
                             <div
                               className={`flex items-center gap-1 mt-1 text-[10px] ${m.sender === "you" ? "text-white/70 justify-end" : "text-text-subtle"}`}
                             >
