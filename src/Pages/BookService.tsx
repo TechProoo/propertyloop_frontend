@@ -327,15 +327,15 @@ const BookService = () => {
       console.log("Vendor job booking created successfully");
 
       // Format the booking details as a nicely formatted message
-      const messageText = `📋 **Service Request**
+      const messageText = `📋 SERVICE REQUEST
 
-**What I need:**
+📝 What I need:
 ${jobDescription}
 
-${preferredDate ? `📅 **Preferred Date:** ${new Date(preferredDate).toLocaleDateString("en-NG", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}` : ""}
-${preferredDate ? `⏰ **Preferred Time:** ${preferredTime}` : ""}
+${preferredDate ? `📅 Preferred Date: ${new Date(preferredDate).toLocaleDateString("en-NG", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}` : ""}
+${preferredDate ? `⏰ Preferred Time: ${preferredTime}` : ""}
 
-${propertyAddress ? `📝 **Notes:** ${propertyAddress}` : ""}
+${propertyAddress ? `📌 Notes: ${propertyAddress}` : ""}
 
 Let's negotiate the scope and pricing. Looking forward to your response!`;
 
