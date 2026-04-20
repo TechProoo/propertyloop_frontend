@@ -23,6 +23,8 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import vendorsService from "../api/services/vendors";
 import messagesService from "../api/services/messages";
+import vendorJobsService from "../api/services/vendorJobs";
+import { useAuth } from "../context/AuthContext";
 import type { VendorPublic } from "../api/types";
 // Chat and booking data now handled via API services
 type ChatMessage = {
@@ -225,6 +227,7 @@ const VendorReviewSection = ({ vendorName }: { vendorName: string }) => {
 
 const BookService = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [vendor, setVendor] = useState<VendorPublic | null>(null);
   const [loadingVendor, setLoadingVendor] = useState(true);
 
@@ -300,14 +303,29 @@ const BookService = () => {
   }, [chatMessages]);
 
   const handleSendNegotiationRequest = async () => {
-    if (!jobDescription.trim() || !vendor || !convoId) {
-      console.log("Negotiation blocked:", { hasDescription: !!jobDescription.trim(), hasVendor: !!vendor, hasConvoId: !!convoId });
+    if (!jobDescription.trim() || !vendor || !convoId || !user) {
+      console.log("Negotiation blocked:", { hasDescription: !!jobDescription.trim(), hasVendor: !!vendor, hasConvoId: !!convoId, hasUser: !!user });
       return;
     }
 
     setSending(true);
 
     try {
+      // Create the VendorJob booking record
+      await vendorJobsService.createBooking({
+        vendorId: vendor.id,
+        title: vendor.category || "Service",
+        description: jobDescription,
+        address: propertyAddress || "Not specified",
+        category: vendor.category || "Service",
+        vendorFee: vendor.priceNum ?? 0,
+        scheduledFor: preferredDate ? new Date(`${preferredDate}T${preferredTime}`).toISOString() : new Date().toISOString(),
+        clientName: (user as any).name || "Client",
+        clientPhone: (user as any).phone,
+        clientEmail: (user as any).email,
+      });
+      console.log("Vendor job booking created successfully");
+
       // Format the booking details as a nicely formatted message
       const messageText = `📋 **Service Request**
 
