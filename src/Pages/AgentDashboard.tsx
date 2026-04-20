@@ -67,27 +67,6 @@ const navItems = [
 
 /* ─── Stats built from API data ─── */
 
-/* ─── Leads loaded from API ─── */
-
-const statusColors: Record<string, string> = {
-  New: "bg-blue-500/10 text-blue-600",
-  NEW: "bg-blue-500/10 text-blue-600",
-  Contacted: "bg-[#FFF8ED] text-[#F5A623]",
-  CONTACTED: "bg-[#FFF8ED] text-[#F5A623]",
-  Viewing: "bg-primary/10 text-primary",
-  VIEWING_SCHEDULED: "bg-primary/10 text-primary",
-  Negotiating: "bg-purple-50 text-purple-600",
-  NEGOTIATING: "bg-purple-50 text-purple-600",
-  CONVERTED: "bg-green-50 text-green-600",
-  LOST: "bg-red-50 text-red-500",
-};
-
-/* ─── Activity built from recent leads/viewings ─── */
-
-/* ─── Viewings loaded from API ─── */
-
-/* ─── Documents extracted from listing documents via API ─── */
-
 /* ─── Component ─── */
 
 const AgentDashboard = () => {
