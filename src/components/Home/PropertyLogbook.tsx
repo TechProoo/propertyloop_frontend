@@ -1,17 +1,51 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ShieldCheck,
   Home,
+  Clock,
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import listingsService from "../../api/services/listings";
+import type { Listing } from "../../api/types";
 
 gsap.registerPlugin(ScrollTrigger);
 
-
 const PropertyLogbook = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [logbookListings, setLogbookListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch sold/rented properties for logbook display
+  useEffect(() => {
+    const fetchLogbookData = async () => {
+      try {
+        const result = await listingsService.list({
+          status: "SOLD",
+          limit: 6,
+          sort: "newest",
+        });
+        setLogbookListings(result.items || []);
+      } catch {
+        // If no SOLD properties, try RENTED
+        try {
+          const result = await listingsService.list({
+            status: "RENTED",
+            limit: 6,
+            sort: "newest",
+          });
+          setLogbookListings(result.items || []);
+        } catch {
+          setLogbookListings([]);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLogbookData();
+  }, []);
+
+  // Animation timeline
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -187,20 +221,84 @@ const PropertyLogbook = () => {
 
           {/* Right — timeline */}
           <div className="flex-1 relative">
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <ShieldCheck className="w-8 h-8 text-primary/50" />
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 animate-pulse">
+                  <ShieldCheck className="w-8 h-8 text-primary/50" />
+                </div>
+                <p className="text-text-secondary text-sm">Loading logbooks...</p>
               </div>
-              <h3 className="font-heading font-bold text-primary-dark text-lg">
-                Property Logbooks Coming Soon
-              </h3>
-              <p className="text-text-secondary text-sm mt-2 max-w-sm">
-                Permanent digital records of all maintenance and repairs will be displayed here. Each property gets a verified logbook history.
-              </p>
-              <button className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors">
-                Learn about logbooks
-              </button>
-            </div>
+            ) : logbookListings.length > 0 ? (
+              <>
+                <div
+                  data-pl-line
+                  className="absolute left-8 top-0 bottom-0 w-1 bg-linear-to-b from-primary to-primary/20 rounded-full"
+                />
+                <div className="space-y-6 pl-20">
+                  {logbookListings.map((property) => (
+                    <div
+                      key={property.id}
+                      data-pl-entry
+                      className="relative"
+                    >
+                      {/* Timeline dot */}
+                      <div className="absolute -left-14 top-1.5 w-6 h-6 rounded-full bg-primary border-4 border-white shadow-lg flex items-center justify-center">
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                      </div>
+
+                      {/* Card */}
+                      <div className="bg-white/80 backdrop-blur-sm border border-border-light rounded-2xl p-4 hover:shadow-[0_8px_24px_rgba(31,111,67,0.15)] transition-shadow">
+                        <div className="flex items-start gap-3 mb-3">
+                          <img
+                            src={property.coverImage || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=100&h=100&fit=crop"}
+                            alt={property.title}
+                            className="w-12 h-12 rounded-lg object-cover"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-heading font-bold text-primary-dark text-sm truncate">
+                              {property.title}
+                            </h4>
+                            <p className="text-text-secondary text-xs">
+                              {property.location}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-text-secondary mb-2">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>
+                            {property.status === "SOLD" ? "Sold" : "Rented"} • {new Date(property.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-primary-dark">
+                            {property.beds} bed{property.beds !== 1 ? "s" : ""} • {property.baths} bath{property.baths !== 1 ? "s" : ""}
+                          </span>
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                            property.status === "SOLD"
+                              ? "bg-green-50 text-green-600"
+                              : "bg-blue-50 text-blue-600"
+                          }`}>
+                            {property.status === "SOLD" ? "Sold" : "Rented"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <ShieldCheck className="w-8 h-8 text-primary/50" />
+                </div>
+                <h3 className="font-heading font-bold text-primary-dark text-lg">
+                  Property Logbooks Coming Soon
+                </h3>
+                <p className="text-text-secondary text-sm mt-2 max-w-sm">
+                  Permanent digital records of all sold and rented properties will appear here.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
