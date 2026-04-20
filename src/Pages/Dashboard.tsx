@@ -34,17 +34,17 @@ import Logo from "../assets/logo.png";
 import listingsService from "../api/services/listings";
 import vendorsService from "../api/services/vendors";
 import productsService from "../api/services/products";
+import vendorJobsService from "../api/services/vendorJobs";
 import type {
   Listing as ApiListing,
   VendorPublic,
   Product as ApiProduct,
+  VendorJob,
 } from "../api/types";
 import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
 import BookmarkButton from "../components/ui/BookmarkButton";
-import { getBookings } from "../data/bookings";
 import { useChat } from "../api/hooks";
-import messagesService from "../api/services/messages";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -92,7 +92,6 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
-  const [selectedConvo, setSelectedConvo] = useState("conv-1");
   const [vendorSearch, setVendorSearch] = useState("");
   const [vendorCategory, setVendorCategory] = useState("All Categories");
   const [msgFilter, setMsgFilter] = useState<"all" | "agents" | "vendors">(
@@ -108,6 +107,8 @@ const Dashboard = () => {
   const [listings, setListings] = useState<ApiListing[]>([]);
   const [vendors, setVendors] = useState<VendorPublic[]>([]);
   const [products, setProducts] = useState<ApiProduct[]>([]);
+  const [jobs, setJobs] = useState<VendorJob[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(true);
 
   useEffect(() => {
     listingsService
@@ -122,6 +123,11 @@ const Dashboard = () => {
       .list({ limit: 50 })
       .then((r) => setProducts(r.items))
       .catch(() => {});
+    vendorJobsService
+      .listMine()
+      .then((r) => setJobs(r.items))
+      .catch(() => setJobs([]))
+      .finally(() => setJobsLoading(false));
   }, []);
 
   const getProductById = (id: string) =>
@@ -135,7 +141,6 @@ const Dashboard = () => {
   }, [chat.conversations]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { getByType, count: bookmarkCount } = useBookmarks();
-  const serviceBookings = getBookings();
   const displayName = authUser?.name || "Olumide Adeyemi";
   const initials = displayName
     .split(" ")
@@ -194,7 +199,7 @@ const Dashboard = () => {
     },
     {
       icon: <Wrench className="w-5 h-5" />,
-      value: String(serviceBookings.length),
+      value: String(jobs.length),
       label: "Booked Services",
       color: "text-primary",
       bg: "bg-primary/10",
@@ -598,7 +603,7 @@ const Dashboard = () => {
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                     <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
                       <h2 className="font-heading font-bold text-primary-dark text-base">
-                        Booked Services ({serviceBookings.length})
+                        Booked Services ({jobs.length})
                       </h2>
                       <Link
                         to="/services"
@@ -608,62 +613,71 @@ const Dashboard = () => {
                       </Link>
                     </div>
                     <div className="p-4 flex flex-col gap-3">
-                      {serviceBookings.length > 0 ? (
-                        serviceBookings.slice(0, 5).map((booking) => (
-                          <div
-                            key={booking.id}
-                            className="flex gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3"
-                          >
-                            <img
-                              src={booking.vendorAvatar}
-                              alt={booking.vendorName}
-                              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <p className="font-heading font-bold text-primary-dark text-sm truncate">
-                                  {booking.vendorName}
+                      {jobs.length > 0 ? (
+                        jobs.slice(0, 5).map((job) => {
+                          const vendorName = job.vendor?.name || "Unknown Vendor";
+                          const vendorAvatar = job.vendor?.avatarUrl || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200";
+                          const scheduledDate = job.scheduledFor
+                            ? new Date(job.scheduledFor)
+                            : null;
+
+                          return (
+                            <div
+                              key={job.id}
+                              className="flex gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3"
+                            >
+                              <img
+                                src={vendorAvatar}
+                                alt={vendorName}
+                                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="font-heading font-bold text-primary-dark text-sm truncate">
+                                    {vendorName}
+                                  </p>
+                                  <span
+                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
+                                      job.status === "COMPLETED" || job.status === "PAID"
+                                        ? "bg-primary/10 text-primary"
+                                        : job.status === "ACCEPTED" || job.status === "IN_PROGRESS"
+                                          ? "bg-blue-50 text-blue-600"
+                                          : "bg-[#FFF8ED] text-[#F5A623]"
+                                    }`}
+                                  >
+                                    {job.status === "COMPLETED"
+                                      ? "Completed"
+                                      : job.status === "PAID"
+                                        ? "Paid"
+                                        : job.status === "IN_PROGRESS"
+                                          ? "In Progress"
+                                          : job.status === "ACCEPTED"
+                                            ? "Accepted"
+                                            : "Awaiting confirmation"}
+                                  </span>
+                                </div>
+                                <p className="text-text-secondary text-xs mt-0.5">
+                                  {job.category} · ₦
+                                  {job.amount.toLocaleString()}
                                 </p>
-                                <span
-                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
-                                    booking.status === "completed"
-                                      ? "bg-primary/10 text-primary"
-                                      : booking.status === "confirmed"
-                                        ? "bg-blue-50 text-blue-600"
-                                        : "bg-[#FFF8ED] text-[#F5A623]"
-                                  }`}
-                                >
-                                  {booking.status === "pending"
-                                    ? "Awaiting confirmation"
-                                    : booking.status === "confirmed"
-                                      ? "Confirmed"
-                                      : "Completed"}
-                                </span>
+                                {scheduledDate && (
+                                  <p className="text-text-subtle text-[11px] mt-0.5">
+                                    {scheduledDate.toLocaleDateString("en-NG", {
+                                      weekday: "short",
+                                      month: "short",
+                                      day: "numeric",
+                                    })}
+                                  </p>
+                                )}
+                                {job.description && (
+                                  <p className="text-text-subtle text-[11px] mt-1 line-clamp-1">
+                                    {job.description}
+                                  </p>
+                                )}
                               </div>
-                              <p className="text-text-secondary text-xs mt-0.5">
-                                {booking.category} · ₦
-                                {booking.total.toLocaleString()}
-                              </p>
-                              {booking.preferredDate && (
-                                <p className="text-text-subtle text-[11px] mt-0.5">
-                                  {new Date(
-                                    booking.preferredDate,
-                                  ).toLocaleDateString("en-NG", {
-                                    weekday: "short",
-                                    month: "short",
-                                    day: "numeric",
-                                  })}{" "}
-                                  at {booking.preferredTime}
-                                </p>
-                              )}
-                              {booking.jobDescription && (
-                                <p className="text-text-subtle text-[11px] mt-1 line-clamp-1">
-                                  {booking.jobDescription}
-                                </p>
-                              )}
                             </div>
-                          </div>
-                        ))
+                          );
+                        })
                       ) : (
                         <div className="text-center py-6">
                           <Wrench className="w-8 h-8 text-text-subtle mx-auto mb-2" />
@@ -1545,7 +1559,7 @@ const Dashboard = () => {
                               >
                                 <div className="relative shrink-0">
                                   <img
-                                    src={convo.avatar}
+                                    src={convo.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
                                     alt={convo.name}
                                     className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm"
                                   />
@@ -1638,25 +1652,31 @@ const Dashboard = () => {
 
                         {/* Messages */}
                         <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
-                          {activeMessages.map((msg, i) => (
-                            <div
-                              key={i}
-                              className={`flex ${msg.sender === "you" ? "justify-end" : "justify-start"}`}
-                            >
+                          {activeMessages.map((msg, i) => {
+                            const msgTime = new Date(msg.createdAt).toLocaleTimeString("en-NG", {
+                              hour: "numeric",
+                              minute: "2-digit",
+                            });
+                            return (
                               <div
-                                className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.sender === "you" ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
+                                key={i}
+                                className={`flex ${msg.isYou ? "justify-end" : "justify-start"}`}
                               >
-                                <p className="text-sm leading-relaxed">
-                                  {msg.text}
-                                </p>
-                                <p
-                                  className={`text-[10px] mt-1 ${msg.sender === "you" ? "text-white/60" : "text-text-subtle"}`}
+                                <div
+                                  className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.isYou ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
                                 >
-                                  {msg.time}
-                                </p>
+                                  <p className="text-sm leading-relaxed">
+                                    {msg.text}
+                                  </p>
+                                  <p
+                                    className={`text-[10px] mt-1 ${msg.isYou ? "text-white/60" : "text-text-subtle"}`}
+                                  >
+                                    {msgTime}
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
 
                         {/* Input */}
@@ -1747,13 +1767,17 @@ const Dashboard = () => {
               </div>
 
               {/* Timeline */}
-              {serviceBookings.length > 0 ? (
+              {jobsLoading ? (
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] py-14 px-6 text-center">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                </div>
+              ) : jobs.length > 0 ? (
                 <div className="relative">
                   {/* Vertical line */}
                   <div className="absolute left-5.5 top-6 bottom-6 w-px bg-border-light" />
 
                   <div className="flex flex-col gap-4">
-                    {serviceBookings.map((booking) => {
+                    {jobs.map((job) => {
                       const categoryIcons: Record<string, React.ReactNode> = {
                         Plumber: <Wrench className="w-4 h-4" />,
                         Electrician: <Home className="w-4 h-4" />,
@@ -1762,12 +1786,16 @@ const Dashboard = () => {
                         Painter: <Home className="w-4 h-4" />,
                         Carpenter: <Wrench className="w-4 h-4" />,
                       };
-                      const icon = categoryIcons[booking.category] || (
+                      const icon = categoryIcons[job.category] || (
                         <Wrench className="w-4 h-4" />
                       );
+                      const vendorName = job.vendor?.name || "Unknown Vendor";
+                      const scheduledDate = job.scheduledFor
+                        ? new Date(job.scheduledFor)
+                        : null;
 
                       return (
-                        <div key={booking.id} className="flex gap-4 relative">
+                        <div key={job.id} className="flex gap-4 relative">
                           {/* Timeline dot */}
                           <div className="shrink-0 relative z-10">
                             <div className="w-11 h-11 rounded-full bg-white/80 backdrop-blur-sm border border-border-light shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center text-primary">
@@ -1779,7 +1807,7 @@ const Dashboard = () => {
                           <div className="flex-1 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-5">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
-                                {new Date(booking.createdAt).toLocaleDateString(
+                                {new Date(job.createdAt).toLocaleDateString(
                                   "en-NG",
                                   {
                                     month: "short",
@@ -1789,49 +1817,50 @@ const Dashboard = () => {
                               </span>
                               <span
                                 className={`flex items-center gap-1 text-xs ${
-                                  booking.status === "completed"
+                                  job.status === "COMPLETED" || job.status === "PAID"
                                     ? "text-primary"
-                                    : booking.status === "confirmed"
+                                    : job.status === "ACCEPTED" || job.status === "IN_PROGRESS"
                                       ? "text-blue-600"
                                       : "text-[#F5A623]"
                                 }`}
                               >
                                 <ShieldCheck className="w-3.5 h-3.5" />
-                                {booking.status === "pending"
-                                  ? "Pending"
-                                  : booking.status === "confirmed"
-                                    ? "Confirmed"
-                                    : "Verified"}
+                                {job.status === "COMPLETED"
+                                  ? "Completed"
+                                  : job.status === "PAID"
+                                    ? "Paid"
+                                    : job.status === "IN_PROGRESS"
+                                      ? "In Progress"
+                                      : job.status === "ACCEPTED"
+                                        ? "Accepted"
+                                        : "Pending"}
                               </span>
                             </div>
                             <h3 className="font-heading font-bold text-primary-dark text-[15px] mt-1">
-                              {booking.category}
+                              {job.category}
                             </h3>
                             <p className="text-text-secondary text-xs mt-0.5">
-                              by {booking.vendorName}
+                              by {vendorName}
                             </p>
-                            {booking.jobDescription && (
+                            {job.description && (
                               <p className="text-text-secondary text-[13px] leading-relaxed mt-2">
-                                {booking.jobDescription}
+                                {job.description}
                               </p>
                             )}
-                            {booking.preferredDate && (
+                            {scheduledDate && (
                               <p className="text-text-subtle text-xs mt-2 flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
-                                {new Date(
-                                  booking.preferredDate,
-                                ).toLocaleDateString("en-NG", {
+                                {scheduledDate.toLocaleDateString("en-NG", {
                                   weekday: "short",
                                   month: "short",
                                   day: "numeric",
-                                })}{" "}
-                                at {booking.preferredTime}
+                                })}
                               </p>
                             )}
                             <div className="h-px bg-border-light mt-3 mb-3" />
                             <div className="flex items-center justify-between">
                               <span className="font-heading font-bold text-primary-dark text-sm">
-                                ₦{booking.total.toLocaleString()}
+                                ₦{job.amount.toLocaleString()}
                               </span>
                               <span className="text-text-secondary text-xs">
                                 Escrow protected
