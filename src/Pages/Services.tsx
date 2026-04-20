@@ -154,9 +154,9 @@ const Services = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-[#f5f0eb]">
+    <div className="min-h-screen bg-[#f5f0eb] flex flex-col">
       <Navbar />
-      <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">
+      <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-16 flex-1">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center gap-2 text-text-secondary text-sm mb-8">
             <Link to="/" className="hover:text-primary transition-colors">

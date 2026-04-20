@@ -202,13 +202,6 @@ const Navbar = () => {
         <ul className="hidden lg:flex items-center gap-7">
           <li data-nav-action>
             <FlipLink
-              label="Add Property"
-              href="/add-property"
-              isActive={path === "/add-property"}
-            />
-          </li>
-          <li data-nav-action>
-            <FlipLink
               label="About Us"
               href="/about"
               isActive={path === "/about"}
@@ -216,6 +209,15 @@ const Navbar = () => {
           </li>
           {isLoggedIn ? (
             <>
+              {user?.role === "AGENT" && (
+                <li data-nav-action>
+                  <FlipLink
+                    label="Add Property"
+                    href="/add-property"
+                    isActive={path === "/add-property"}
+                  />
+                </li>
+              )}
               <li data-nav-action>
                 <a
                   href={dashboardHref}
@@ -312,19 +314,15 @@ const Navbar = () => {
             >
               Service Loop
             </a>
-            <a
-              href="/marketplace"
-              className={`py-2 hover:text-primary ${path === "/marketplace" ? "text-primary font-semibold" : ""}`}
-            >
-              Building Materials
-            </a>
             <hr className="border-border-light" />
-            <a
-              href="/add-property"
-              className={`py-2 hover:text-primary ${path === "/add-property" ? "text-primary font-semibold" : ""}`}
-            >
-              Add Property
-            </a>
+            {isLoggedIn && user?.role === "AGENT" && (
+              <a
+                href="/add-property"
+                className={`py-2 hover:text-primary ${path === "/add-property" ? "text-primary font-semibold" : ""}`}
+              >
+                Add Property
+              </a>
+            )}
             <a
               href="/about"
               className={`py-2 hover:text-primary ${path === "/about" ? "text-primary font-semibold" : ""}`}
