@@ -180,13 +180,6 @@ const VendorDashboard = () => {
               bg: "bg-primary/10",
             },
             {
-              value: `₦${(statsRes.earnings.paid / 1000).toFixed(0)}K`,
-              label: "Total Earnings",
-              change: `₦${(statsRes.earnings.thisMonth / 1000).toFixed(0)}K this month`,
-              color: "text-green-600",
-              bg: "bg-green-50",
-            },
-            {
               value: String(statsRes.reviews.averageRating || 0),
               label: "Rating",
               change: `${statsRes.reviews.total} reviews`,
