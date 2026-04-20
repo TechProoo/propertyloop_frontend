@@ -43,12 +43,8 @@ import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import { getBookings } from "../data/bookings";
-import {
-  getConversations,
-  addMessage,
-  type Conversation,
-  type ChatMessage,
-} from "../data/chat";
+import { useChat } from "../api/hooks";
+import messagesService from "../api/services/messages";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -103,8 +99,10 @@ const Dashboard = () => {
     "all",
   );
   const [chatInput, setChatInput] = useState("");
-  const [allConversations, setAllConversations] = useState<Conversation[]>([]);
   const [mobileChat, setMobileChat] = useState(false);
+
+  // ─── Real-time chat from API ────────────────────────────────────────
+  const chat = useChat();
 
   // ─── API state ────────────────────────────────────────────────────────
   const [listings, setListings] = useState<ApiListing[]>([]);
@@ -129,11 +127,12 @@ const Dashboard = () => {
   const getProductById = (id: string) =>
     products.find((p) => p.id === id) || null;
 
-  // Load conversations from localStorage (populated by real user interactions)
+  // Auto-select first conversation when available
   useEffect(() => {
-    const convos = getConversations();
-    setAllConversations(Object.values(convos));
-  }, [activeNav]); // refresh when switching to messages tab
+    if (!chat.activeConversationId && chat.conversations.length > 0) {
+      chat.openConversation(chat.conversations[0].id);
+    }
+  }, [chat.conversations]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { getByType, count: bookmarkCount } = useBookmarks();
   const serviceBookings = getBookings();
@@ -1471,33 +1470,26 @@ const Dashboard = () => {
             (() => {
               const filtered =
                 msgFilter === "all"
-                  ? allConversations
-                  : allConversations.filter((c) =>
+                  ? chat.conversations
+                  : chat.conversations.filter((c) =>
                       msgFilter === "agents"
-                        ? c.role === "Agent"
-                        : c.role === "Vendor",
+                        ? c.role === "AGENT"
+                        : c.role === "VENDOR",
                     );
               const activeConvo =
-                allConversations.find((c) => c.id === selectedConvo) ||
-                allConversations[0];
-              if (!activeConvo) return null;
-              const activeMessages = activeConvo.messages || [];
+                chat.conversations.find((c) => c.id === chat.activeConversationId) ||
+                chat.conversations[0];
+              if (!activeConvo || chat.loading)
+                return (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                );
+              const activeMessages = chat.messages;
 
               const handleSend = () => {
-                if (!chatInput.trim()) return;
-                const msg: ChatMessage = {
-                  sender: "you",
-                  text: chatInput.trim(),
-                  time: "Just now",
-                };
-                addMessage(activeConvo.id, msg);
-                setAllConversations((prev) =>
-                  prev.map((c) =>
-                    c.id === activeConvo.id
-                      ? { ...c, messages: [...c.messages, msg] }
-                      : c,
-                  ),
-                );
+                if (!chatInput.trim() || !activeConvo) return;
+                chat.sendMessage(chatInput.trim());
                 setChatInput("");
               };
 
@@ -1540,16 +1532,16 @@ const Dashboard = () => {
                         {/* Conversation Rows */}
                         <div className="flex-1 overflow-y-auto">
                           {filtered.map((convo) => {
-                            const lastMsg =
-                              convo.messages[convo.messages.length - 1];
+                            const lastMsg = convo.lastMessage;
+                            const roleDisplay = convo.role === "AGENT" ? "Agent" : convo.role === "VENDOR" ? "Vendor" : "Buyer";
                             return (
                               <button
                                 key={convo.id}
                                 onClick={() => {
-                                  setSelectedConvo(convo.id);
+                                  chat.openConversation(convo.id);
                                   setMobileChat(true);
                                 }}
-                                className={`w-full flex items-start gap-3 px-4 py-3.5 text-left transition-all hover:bg-white/40 ${selectedConvo === convo.id ? "bg-white/50 backdrop-blur-sm border-l-2 border-primary" : "border-l-2 border-transparent"}`}
+                                className={`w-full flex items-start gap-3 px-4 py-3.5 text-left transition-all hover:bg-white/40 ${chat.activeConversationId === convo.id ? "bg-white/50 backdrop-blur-sm border-l-2 border-primary" : "border-l-2 border-transparent"}`}
                               >
                                 <div className="relative shrink-0">
                                   <img
@@ -1565,34 +1557,38 @@ const Dashboard = () => {
                                         {convo.name}
                                       </p>
                                       <span
-                                        className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 ${convo.role === "Agent" ? "bg-primary/10 text-primary" : "bg-[#FFF8ED] text-[#F5A623]"}`}
+                                        className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 ${roleDisplay === "Agent" ? "bg-primary/10 text-primary" : "bg-[#FFF8ED] text-[#F5A623]"}`}
                                       >
-                                        {convo.role}
+                                        {roleDisplay}
                                       </span>
                                     </div>
-                                    {lastMsg && (
+                                    {convo.lastMessageAt && (
                                       <span className="text-text-subtle text-[10px] shrink-0">
-                                        {lastMsg.time}
+                                        {new Date(convo.lastMessageAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                                       </span>
                                     )}
                                   </div>
                                   {lastMsg && (
                                     <p className="text-xs mt-0.5 truncate text-text-secondary">
-                                      {lastMsg.text}
+                                      {lastMsg}
                                     </p>
                                   )}
                                 </div>
                               </button>
                             );
                           })}
-                          {filtered.length === 0 && (
+                          {chat.loading ? (
+                            <div className="text-center py-12">
+                              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                            </div>
+                          ) : filtered.length === 0 ? (
                             <div className="text-center py-12">
                               <MessageCircle className="w-8 h-8 text-text-subtle mx-auto mb-2" />
                               <p className="text-text-secondary text-sm">
-                                No conversations
+                                No conversations yet. Book a service to start messaging!
                               </p>
                             </div>
-                          )}
+                          ) : null}
                         </div>
                       </div>
 
@@ -1609,7 +1605,7 @@ const Dashboard = () => {
                             <ArrowLeft className="w-4 h-4" />
                           </button>
                           <img
-                            src={activeConvo.avatar}
+                            src={activeConvo.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
                             alt={activeConvo.name}
                             className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
                           />
@@ -1619,9 +1615,9 @@ const Dashboard = () => {
                                 {activeConvo.name}
                               </p>
                               <span
-                                className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 ${activeConvo.role === "Agent" ? "bg-primary/10 text-primary" : "bg-[#FFF8ED] text-[#F5A623]"}`}
+                                className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 ${activeConvo.role === "AGENT" ? "bg-primary/10 text-primary" : "bg-[#FFF8ED] text-[#F5A623]"}`}
                               >
-                                {activeConvo.role}
+                                {activeConvo.role === "AGENT" ? "Agent" : activeConvo.role === "VENDOR" ? "Vendor" : "Buyer"}
                               </span>
                             </div>
                             <p className="text-text-subtle text-[11px]">
@@ -1629,12 +1625,14 @@ const Dashboard = () => {
                             </p>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
-                            <a
-                              href={`tel:+${activeConvo.phone}`}
-                              className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
-                            >
-                              <Phone className="w-3.5 h-3.5" />
-                            </a>
+                            {activeConvo.phone && (
+                              <a
+                                href={`tel:+${activeConvo.phone}`}
+                                className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                              </a>
+                            )}
                           </div>
                         </div>
 
