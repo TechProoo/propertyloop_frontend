@@ -344,18 +344,20 @@ const AgentDashboard = () => {
                 </p>
               </div>
             )}
-            {sidebarOpen && (
-              <button
-                onClick={() => {
-                  logout();
-                  window.location.href = "/";
-                }}
-                className="flex items-center gap-2 text-primary-dark bg-primary/10 px-2 py-1 rounded-md hover:bg-primary/20 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="text-xs">Logout</span>
-              </button>
-            )}
+            <button
+              onClick={() => {
+                logout();
+                window.location.href = "/";
+              }}
+              className={`flex items-center gap-2 transition-colors ${
+                sidebarOpen
+                  ? "text-primary-dark bg-primary/10 px-2 py-1 rounded-md hover:bg-primary/20"
+                  : "text-white/40 hover:text-white"
+              }`}
+            >
+              <LogOut className="w-4 h-4" />
+              {sidebarOpen && <span className="text-xs">Logout</span>}
+            </button>
           </div>
         </div>
       </motion.aside>
@@ -445,16 +447,16 @@ const AgentDashboard = () => {
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => {
-                    logout();
-                    window.location.href = "/";
-                  }}
-                  className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm"
-                >
-                  <LogOut className="w-4 h-4" /> Logout
-                </button>
               </div>
+              <button
+                onClick={() => {
+                  logout();
+                  window.location.href = "/";
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm"
+              >
+                <LogOut className="w-4 h-4" /> Logout
+              </button>
             </motion.aside>
           </>
         )}
