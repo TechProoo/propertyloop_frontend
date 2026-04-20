@@ -76,7 +76,7 @@ const Services = () => {
       ? undefined
       : parseFloat(activeRating.replace("+", ""));
 
-  const { items: apiVendors, updateParams } = useVendors({
+  const { items: apiVendors, loading, updateParams } = useVendors({
     category: activeCategory === "All Services" ? undefined : activeCategory,
     location: activeLocation === "All Locations" ? undefined : activeLocation,
     search: searchQuery || undefined,
@@ -362,73 +362,121 @@ const Services = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
-                {filtered.map((vendor) => (
-                  <Link
-                    key={vendor.id}
-                    to={`/vendor/${vendor.id}`}
-                    className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 block"
-                  >
-                    <div className="h-44 overflow-hidden rounded-t-[20px] relative">
-                      <img
-                        src={vendor.image}
-                        alt={vendor.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
-                        {vendor.category}
-                      </span>
-                      <BookmarkButton
-                        id={vendor.id}
-                        type="service"
-                        className="absolute bottom-3 right-3"
-                        size="sm"
-                      />
-                    </div>
+                {loading
+                  ? // Skeleton loaders
+                    Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] animate-pulse"
+                      >
+                        {/* Banner skeleton */}
+                        <div className="h-44 bg-gray-300/50 rounded-t-[20px]" />
 
-                    <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                      <div className="flex items-center gap-3 mb-3">
-                        <img
-                          src={vendor.avatar}
-                          alt={vendor.name}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug truncate">
-                              {vendor.name}
-                            </h3>
-                            {vendor.verified && (
-                              <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
-                            )}
+                        {/* Card content skeleton */}
+                        <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+                          <div className="flex items-center gap-3 mb-3">
+                            {/* Avatar skeleton */}
+                            <div className="w-10 h-10 rounded-full bg-gray-300/50 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              {/* Name skeleton */}
+                              <div className="h-4 bg-gray-300/50 rounded-md mb-2 w-3/4" />
+                              {/* Location skeleton */}
+                              <div className="h-3 bg-gray-300/50 rounded-md w-1/2" />
+                            </div>
                           </div>
-                          <p className="text-text-secondary text-xs flex items-center gap-1">
-                            <MapPin className="w-3 h-3" /> {vendor.location}
-                          </p>
+                          <div className="h-px bg-gray-300/50 mb-3" />
+                          {/* Stats skeleton */}
+                          <div className="flex gap-4 mb-3">
+                            <div className="h-3 bg-gray-300/50 rounded-md w-12" />
+                            <div className="h-3 bg-gray-300/50 rounded-md w-12" />
+                          </div>
+                          {/* Price skeleton */}
+                          <div className="h-4 bg-gray-300/50 rounded-md w-24" />
                         </div>
                       </div>
-                      <div className="h-px bg-border-light mb-3" />
-                      <div className="flex items-center justify-between text-xs pr-10">
-                        <div className="flex items-center gap-4 text-text-secondary">
-                          <span className="flex items-center gap-1">
-                            <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
-                            {vendor.rating}
-                          </span>
-                          <span>{vendor.jobs} jobs</span>
-                          <span className="flex items-center gap-1 text-primary font-medium">
-                            <Shield className="w-3.5 h-3.5" /> Escrow
-                          </span>
-                        </div>
-                      </div>
-                      <p className="font-heading font-bold text-primary-dark text-sm mt-2.5">
-                        {vendor.price}
-                      </p>
-                    </div>
+                    ))
+                  : // Real vendor cards
+                    filtered.map((vendor) => (
+                      <div
+                        key={vendor.id}
+                        className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                      >
+                        <Link
+                          to={`/vendor/${vendor.id}`}
+                          className="flex-1 flex flex-col"
+                        >
+                          <div className="h-44 overflow-hidden rounded-t-[20px] relative">
+                            <img
+                              src={vendor.image}
+                              alt={vendor.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
+                              {vendor.category}
+                            </span>
+                            <div className="absolute top-3 right-3">
+                              <BookmarkButton
+                                id={vendor.id}
+                                type="service"
+                                size="sm"
+                              />
+                            </div>
+                          </div>
 
-                    <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                      <ArrowUpRight className="w-5 h-5 text-white" />
-                    </div>
-                  </Link>
-                ))}
+                          <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+                            <div className="flex items-center gap-3 mb-3">
+                              <img
+                                src={vendor.avatar}
+                                alt={vendor.name}
+                                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug truncate">
+                                    {vendor.name}
+                                  </h3>
+                                  {vendor.verified && (
+                                    <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
+                                  )}
+                                </div>
+                                <p className="text-text-secondary text-xs flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" /> {vendor.location}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="h-px bg-border-light mb-3" />
+                            <div className="flex items-center justify-between text-xs pr-10">
+                              <div className="flex items-center gap-4 text-text-secondary">
+                                <span className="flex items-center gap-1">
+                                  <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
+                                  {vendor.rating}
+                                </span>
+                                <span>{vendor.jobs} jobs</span>
+                                <span className="flex items-center gap-1 text-primary font-medium">
+                                  <Shield className="w-3.5 h-3.5" /> Escrow
+                                </span>
+                              </div>
+                            </div>
+                            <p className="font-heading font-bold text-primary-dark text-sm mt-2.5">
+                              {vendor.price}
+                            </p>
+                          </div>
+
+                          <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
+                            <ArrowUpRight className="w-5 h-5 text-white" />
+                          </div>
+                        </Link>
+
+                        {/* Book Now button */}
+                        <Link
+                          to={`/book-service/${vendor.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="mx-3 mb-3 px-4 py-2.5 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors text-center"
+                        >
+                          Book Now
+                        </Link>
+                      </div>
+                    ))}
               </div>
 
               {filtered.length === 0 && (

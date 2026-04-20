@@ -67,11 +67,6 @@ const navItems = [
     id: "vendors",
   },
   {
-    icon: <ShoppingCart className="w-5 h-5" />,
-    label: "Marketplace",
-    id: "marketplace",
-  },
-  {
     icon: <MessageCircle className="w-5 h-5" />,
     label: "Messages",
     id: "messages",
@@ -109,25 +104,30 @@ const Dashboard = () => {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [jobs, setJobs] = useState<VendorJob[]>([]);
   const [jobsLoading, setJobsLoading] = useState(true);
+  const [dashboardLoading, setDashboardLoading] = useState(true);
 
   useEffect(() => {
-    listingsService
-      .list({ limit: 50 })
-      .then((r) => setListings(r.items))
-      .catch(() => {});
-    vendorsService
-      .list({ limit: 50 })
-      .then((r) => setVendors(r.items))
-      .catch(() => {});
-    productsService
-      .list({ limit: 50 })
-      .then((r) => setProducts(r.items))
-      .catch(() => {});
-    vendorJobsService
-      .listMine()
-      .then((r) => setJobs(r.items))
-      .catch(() => setJobs([]))
-      .finally(() => setJobsLoading(false));
+    Promise.all([
+      listingsService
+        .list({ limit: 50 })
+        .then((r) => setListings(r.items))
+        .catch(() => {}),
+      vendorsService
+        .list({ limit: 50 })
+        .then((r) => setVendors(r.items))
+        .catch(() => {}),
+      productsService
+        .list({ limit: 50 })
+        .then((r) => setProducts(r.items))
+        .catch(() => {}),
+      vendorJobsService
+        .listMine()
+        .then((r) => setJobs(r.items))
+        .catch(() => setJobs([])),
+    ]).finally(() => {
+      setJobsLoading(false);
+      setDashboardLoading(false);
+    });
   }, []);
 
   const getProductById = (id: string) =>
@@ -281,13 +281,6 @@ const Dashboard = () => {
                   {chat.unreadCount}
                 </span>
               )}
-              {sidebarOpen &&
-                item.id === "marketplace" &&
-                cartItems.length > 0 && (
-                  <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500 text-white">
-                    {cartItems.length}
-                  </span>
-                )}
             </button>
           ))}
         </nav>
@@ -429,23 +422,27 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center gap-3">
             <Link
-              to="/cart"
-              className="relative w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-text-secondary hover:bg-white transition-all shadow-sm"
+              to="/buy"
+              className="h-9 px-4 rounded-xl bg-primary text-white flex items-center justify-center text-sm font-medium hover:bg-primary-dark transition-all shadow-sm"
             >
-              <ShoppingCart className="w-4 h-4" />
-              {cartItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
-                  {cartItems.length}
-                </span>
-              )}
+              Explore
             </Link>
           </div>
         </div>
 
         {/* Page content */}
         <div className="p-6 lg:p-8">
-          {/* ─── Overview ─── */}
-          {activeNav === "overview" && (
+          {dashboardLoading ? (
+            <div className="flex items-center justify-center py-32">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-text-secondary text-sm">Loading dashboard...</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* ─── Overview ─── */}
+              {activeNav === "overview" && (
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1307,178 +1304,6 @@ const Dashboard = () => {
           )}
 
           {/* ─── Marketplace Panel ─── */}
-          {activeNav === "marketplace" && (
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease }}
-              className="flex flex-col gap-6"
-            >
-              {/* Cart Summary */}
-              {cartProducts.length > 0 && (
-                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                  <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
-                    <h2 className="font-heading font-bold text-primary-dark text-base flex items-center gap-2">
-                      <ShoppingCart className="w-4 h-4 text-primary" /> Your
-                      Cart ({cartItems.length})
-                    </h2>
-                    <Link
-                      to="/cart"
-                      className="text-primary text-xs font-medium hover:underline flex items-center gap-1"
-                    >
-                      Go to Cart <ArrowRight className="w-3 h-3" />
-                    </Link>
-                  </div>
-                  <div className="p-4 flex flex-col gap-3">
-                    {cartProducts.map((p) => (
-                      <Link
-                        key={p!.id}
-                        to={`/product/${p!.id}`}
-                        className="flex items-center gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all"
-                      >
-                        <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0">
-                          <img
-                            src={p!.coverImage}
-                            alt={p!.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-primary-dark text-sm font-medium truncate">
-                            {p!.name}
-                          </p>
-                          <p className="text-text-secondary text-xs">
-                            {p!.priceLabel}/{p!.unit} x {p!.cartQty}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Featured Products */}
-              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
-                  <h2 className="font-heading font-bold text-primary-dark text-base flex items-center gap-2">
-                    <Package className="w-4 h-4 text-primary" /> Featured
-                    Materials
-                  </h2>
-                  <Link
-                    to="/marketplace"
-                    className="text-primary text-xs font-medium hover:underline flex items-center gap-1"
-                  >
-                    View All <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
-                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {products.slice(0, 6).map((product) => (
-                    <Link
-                      key={product.id}
-                      to={`/product/${product.id}`}
-                      className="group bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
-                    >
-                      <div className="h-28 overflow-hidden relative">
-                        <img
-                          src={product.coverImage}
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
-                          {product.category}
-                        </span>
-                        <BookmarkButton
-                          id={product.id}
-                          type="product"
-                          className="absolute top-2 right-2"
-                        />
-                      </div>
-                      <div className="p-3">
-                        <p className="font-heading font-bold text-primary-dark text-sm">
-                          {product.priceLabel}/{product.unit}
-                        </p>
-                        <p className="text-primary-dark text-xs leading-snug mt-0.5 truncate">
-                          {product.name}
-                        </p>
-                        <p className="text-text-secondary text-xs mt-0.5">
-                          {product.supplier}
-                        </p>
-                        <div className="flex items-center gap-1 text-text-secondary text-[11px] mt-1">
-                          <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />{" "}
-                          {product.rating} ({product.reviewsCount})
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Saved Materials */}
-              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
-                  <h2 className="font-heading font-bold text-primary-dark text-base flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-red-400" /> Saved Materials (
-                    {savedProducts.length})
-                  </h2>
-                  <Link
-                    to="/marketplace"
-                    className="text-primary text-xs font-medium hover:underline flex items-center gap-1"
-                  >
-                    Browse More <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
-                {savedProducts.length > 0 ? (
-                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {savedProducts.map((product) => (
-                      <Link
-                        key={product!.id}
-                        to={`/product/${product!.id}`}
-                        className="group bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
-                      >
-                        <div className="h-28 overflow-hidden relative">
-                          <img
-                            src={product!.coverImage}
-                            alt={product!.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <BookmarkButton
-                            id={product!.id}
-                            type="product"
-                            className="absolute top-2 right-2"
-                          />
-                        </div>
-                        <div className="p-3">
-                          <p className="font-heading font-bold text-primary-dark text-sm">
-                            {product!.priceLabel}/{product!.unit}
-                          </p>
-                          <p className="text-primary-dark text-xs leading-snug mt-0.5 truncate">
-                            {product!.name}
-                          </p>
-                          <p className="text-text-secondary text-xs mt-0.5">
-                            {product!.supplier}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-10">
-                    <Package className="w-8 h-8 text-text-subtle mx-auto mb-2" />
-                    <p className="text-text-secondary text-sm">
-                      No saved materials yet
-                    </p>
-                    <Link
-                      to="/marketplace"
-                      className="text-primary text-xs font-medium mt-1 inline-flex items-center gap-1"
-                    >
-                      Browse materials <ArrowRight className="w-3 h-3" />
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-
           {/* ─── Messages Panel ─── */}
           {activeNav === "messages" &&
             (() => {
@@ -1733,7 +1558,6 @@ const Dashboard = () => {
             activeNav !== "properties" &&
             activeNav !== "saved" &&
             activeNav !== "vendors" &&
-            activeNav !== "marketplace" &&
             activeNav !== "messages" &&
             activeNav !== "logbook" &&
             activeNav !== "settings" && (
@@ -2033,6 +1857,8 @@ const Dashboard = () => {
                 </button>
               </div>
             </motion.div>
+          )}
+            </>
           )}
         </div>
       </div>

@@ -721,15 +721,16 @@ const Buy = () => {
                           <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
                           {listing.rating}
                         </span>
-                        <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
-                          For Sale
-                        </span>
-                        <BookmarkButton
-                          id={`buy-${listing.title.replace(/\s/g, "-").toLowerCase()}`}
-                          type="property"
-                          className="absolute bottom-3 right-3"
-                          size="sm"
-                        />
+                        <div className="absolute top-3 right-3 flex items-center gap-2">
+                          <BookmarkButton
+                            id={`buy-${listing.title.replace(/\s/g, "-").toLowerCase()}`}
+                            type="property"
+                            size="sm"
+                          />
+                          <span className="px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
+                            For Sale
+                          </span>
+                        </div>
                       </div>
 
                       {/* Glass content */}

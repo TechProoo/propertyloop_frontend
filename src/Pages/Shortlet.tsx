@@ -542,18 +542,19 @@ const Shortlet = () => {
                           <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
                           {listing.rating}
                         </span>
-                        <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
-                          {listing.price}
-                          <span className="text-white/60">
-                            /{listing.period}
+                        <div className="absolute top-3 right-3 flex items-center gap-2">
+                          <BookmarkButton
+                            id={`shortlet-${listing.title.replace(/\s/g, "-").toLowerCase()}`}
+                            type="property"
+                            size="sm"
+                          />
+                          <span className="px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
+                            {listing.price}
+                            <span className="text-white/60">
+                              /{listing.period}
+                            </span>
                           </span>
-                        </span>
-                        <BookmarkButton
-                          id={`shortlet-${listing.title.replace(/\s/g, "-").toLowerCase()}`}
-                          type="property"
-                          className="absolute bottom-3 right-3"
-                          size="sm"
-                        />
+                        </div>
                       </div>
 
                       {/* Glass content */}

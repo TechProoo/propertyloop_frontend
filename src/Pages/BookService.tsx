@@ -450,7 +450,10 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                       </h2>
 
                       {/* Vendor mini card */}
-                      <div className="flex items-center gap-4 bg-white/60 border border-border-light rounded-2xl p-4 mb-6">
+                      <Link
+                        to={`/vendor/${vendor.id}`}
+                        className="flex items-center gap-4 bg-white/60 border border-border-light rounded-2xl p-4 mb-6 hover:shadow-md hover:border-primary/30 transition-all"
+                      >
                         <img
                           src={vendor.avatarUrl ?? ""}
                           alt={vendor.name}
@@ -458,7 +461,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <p className="font-heading font-bold text-primary-dark text-sm">
+                            <p className="font-heading font-bold text-primary-dark text-sm hover:text-primary transition-colors">
                               {vendor.name}
                             </p>
                             {vendor.verified && (
@@ -473,7 +476,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                           <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
                           {vendor.rating}
                         </div>
-                      </div>
+                      </Link>
 
                       <div className="flex flex-col gap-4">
                         <div>

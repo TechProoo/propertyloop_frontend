@@ -352,15 +352,16 @@ const Marketplace = () => {
                       <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
                         {product.category}
                       </span>
-                      <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-bold">
-                        {product.priceLabel} /{product.unit}
-                      </span>
-                      <BookmarkButton
-                        id={product.id}
-                        type="product"
-                        className="absolute bottom-3 right-3"
-                        size="sm"
-                      />
+                      <div className="absolute top-3 right-3 flex items-center gap-2">
+                        <BookmarkButton
+                          id={product.id}
+                          type="product"
+                          size="sm"
+                        />
+                        <span className="px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-bold">
+                          {product.priceLabel} /{product.unit}
+                        </span>
+                      </div>
                     </div>
 
                     <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">

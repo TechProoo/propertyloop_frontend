@@ -2,6 +2,8 @@ import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { BookmarkProvider } from "./context/BookmarkContext";
+import { AnimatePresence } from "framer-motion";
+import SplashLoader from "./components/ui/SplashLoader";
 import Home from "./Pages/Home";
 import HowItWorks from "./Pages/HowItWorks";
 import Buy from "./Pages/Buy";
@@ -29,7 +31,6 @@ import Blog from "./Pages/Blog";
 import VideoTours from "./Pages/VideoTours";
 import VideoTourDetail from "./Pages/VideoTourDetail";
 import Reductions from "./Pages/Reductions";
-import Marketplace from "./Pages/Marketplace";
 import ProductDetail from "./Pages/ProductDetail";
 import Cart from "./Pages/Cart";
 import BookService from "./Pages/BookService";
@@ -70,6 +71,132 @@ function ProtectedRoute({
   return <>{children}</>;
 }
 
+function AppContent() {
+  const { loading } = useAuth();
+
+  return (
+    <>
+      <AnimatePresence mode="wait">
+        {loading && <SplashLoader key="splash-loader" />}
+      </AnimatePresence>
+      {!loading && (
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/buy" element={<Buy />} />
+          <Route path="/rent" element={<Rent />} />
+          <Route path="/sell" element={<Sell />} />
+          <Route path="/shortlet" element={<Shortlet />} />
+          <Route path="/new-developments" element={<NewDevelopments />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/find-agent" element={<FindAgent />} />
+          <Route path="/agent/:id" element={<AgentProfile />} />
+          <Route path="/vendor/:id" element={<VendorProfile />} />
+          <Route
+            path="/add-property"
+            element={
+              <ProtectedRoute allowedRoles={["AGENT"]}>
+                <AddProperty />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/about" element={<About />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/property/:id" element={<PropertyDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["BUYER"]}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agent-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["AGENT"]}>
+                <AgentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vendor-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["VENDOR"]}>
+                <VendorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/escrow" element={<ServiceEscrow />} />
+          <Route path="/shortlet-booking" element={<ShortletBooking />} />
+          <Route path="/rental-escrow" element={<RentalEscrow />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/careers/:id" element={<JobDetail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route
+            path="/order-confirmation/:id"
+            element={<OrderConfirmation />}
+          />
+          <Route path="/legal/:slug" element={<Legal />} />
+          <Route path="/video-tours" element={<VideoTours />} />
+          <Route path="/video-tour/:id" element={<VideoTourDetail />} />
+          <Route path="/reductions" element={<Reductions />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/book-service/:id" element={<BookService />} />
+          <Route
+            path="/disputes"
+            element={
+              <ProtectedRoute>
+                <DisputeCenter />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminPanel />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/partners"
+            element={
+              <ProtectedRoute allowedRoles={["AGENT"]}>
+                <PartnersAdmin />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <Messages />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      )}
+    </>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -81,119 +208,7 @@ function App() {
       </a>
       <AuthProvider>
         <BookmarkProvider>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/how-it-works" element={<HowItWorks />} />
-            <Route path="/buy" element={<Buy />} />
-            <Route path="/rent" element={<Rent />} />
-            <Route path="/sell" element={<Sell />} />
-            <Route path="/shortlet" element={<Shortlet />} />
-            <Route path="/new-developments" element={<NewDevelopments />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/find-agent" element={<FindAgent />} />
-            <Route path="/agent/:id" element={<AgentProfile />} />
-            <Route path="/vendor/:id" element={<VendorProfile />} />
-            <Route
-              path="/add-property"
-              element={
-                <ProtectedRoute allowedRoles={["AGENT"]}>
-                  <AddProperty />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/property/:id" element={<PropertyDetail />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={["BUYER"]}>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/agent-dashboard"
-              element={
-                <ProtectedRoute allowedRoles={["AGENT"]}>
-                  <AgentDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/vendor-dashboard"
-              element={
-                <ProtectedRoute allowedRoles={["VENDOR"]}>
-                  <VendorDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/escrow" element={<ServiceEscrow />} />
-            <Route path="/shortlet-booking" element={<ShortletBooking />} />
-            <Route path="/rental-escrow" element={<RentalEscrow />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/careers/:id" element={<JobDetail />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/messages"
-              element={
-                <ProtectedRoute>
-                  <Messages />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route
-              path="/order-confirmation/:id"
-              element={<OrderConfirmation />}
-            />
-            <Route path="/legal/:slug" element={<Legal />} />
-            <Route path="/video-tours" element={<VideoTours />} />
-            <Route path="/video-tour/:id" element={<VideoTourDetail />} />
-            <Route path="/reductions" element={<Reductions />} />
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/product/:id" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/book-service/:id" element={<BookService />} />
-            <Route
-              path="/disputes"
-              element={
-                <ProtectedRoute>
-                  <DisputeCenter />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminPanel />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/partners"
-              element={
-                <ProtectedRoute allowedRoles={["AGENT"]}>
-                  <PartnersAdmin />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppContent />
         </BookmarkProvider>
       </AuthProvider>
     </BrowserRouter>
