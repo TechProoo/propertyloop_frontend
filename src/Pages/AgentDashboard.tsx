@@ -31,6 +31,7 @@ import {
   ClipboardList,
   ArrowLeft,
   Send,
+  ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/logo.png";
@@ -88,6 +89,8 @@ const AgentDashboard = () => {
   const [apiStats, setApiStats] = useState<AgentStats | null>(null);
   const [agentListings, setAgentListings] = useState<Listing[]>([]);
   const [dashLoading, setDashLoading] = useState(true);
+  const [statusUpdating, setStatusUpdating] = useState<Record<string, boolean>>({});
+  const [openStatusMenu, setOpenStatusMenu] = useState<string | null>(null);
 
   // ─── Profile form state ──────────────────────────────────────────────────
   const [profileName, setProfileName] = useState("");
@@ -192,6 +195,20 @@ const AgentDashboard = () => {
     phone: user?.phone || "",
     location: user?.location || "",
     bio: user?.bio || "",
+  };
+
+  const handleStatusChange = async (listingId: string, newStatus: string) => {
+    setStatusUpdating((prev) => ({ ...prev, [listingId]: true }));
+    setOpenStatusMenu(null);
+    try {
+      await listingsService.update(listingId, { status: newStatus as any });
+      setAgentListings((prev) =>
+        prev.map((l) => l.id === listingId ? { ...l, status: newStatus } : l)
+      );
+    } catch {
+      /* ignore */
+    }
+    setStatusUpdating((prev) => ({ ...prev, [listingId]: false }));
   };
 
   const stats = [
@@ -569,49 +586,82 @@ const AgentDashboard = () => {
                           </Link>
                         </div>
                         <div className="p-4 flex flex-col gap-3">
-                          {agentListings.map((listing) => (
-                            <Link
+                          {agentListings.filter(l => !["SOLD", "RENTED", "ARCHIVED"].includes(l.status)).map((listing) => (
+                            <div
                               key={listing.id}
-                              to={`/property/${listing.id}`}
                               className="group flex gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
                             >
-                              <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 relative">
-                                <img
-                                  src={listing.coverImage}
-                                  alt={listing.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                                <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
-                                  {listing.type === "SALE" ? "Sale" : "Rent"}
-                                </span>
-                              </div>
-                              <div className="flex-1 min-w-0 py-0.5">
-                                <p className="font-heading font-bold text-primary-dark text-sm">
-                                  {listing.priceLabel}
-                                </p>
-                                <p className="font-heading font-semibold text-primary-dark text-xs leading-snug mt-0.5 truncate">
-                                  {listing.title}
-                                </p>
-                                <p className="text-text-secondary text-[11px] mt-0.5 flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" />
-                                  {listing.location}
-                                </p>
-                                <div className="flex items-center gap-3 text-text-secondary text-[11px] mt-1.5">
-                                  <span className="flex items-center gap-1">
-                                    <Bed className="w-3 h-3" />
-                                    {listing.beds}
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <Bath className="w-3 h-3" />
-                                    {listing.baths}
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <Maximize className="w-3 h-3" />
-                                    {listing.sqft}m²
+                              <Link
+                                to={`/property/${listing.id}`}
+                                className="flex gap-4 flex-1 min-w-0"
+                              >
+                                <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 relative">
+                                  <img
+                                    src={listing.coverImage}
+                                    alt={listing.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                  />
+                                  <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
+                                    {listing.type === "SALE" ? "Sale" : "Rent"}
                                   </span>
                                 </div>
+                                <div className="flex-1 min-w-0 py-0.5">
+                                  <p className="font-heading font-bold text-primary-dark text-sm">
+                                    {listing.priceLabel}
+                                  </p>
+                                  <p className="font-heading font-semibold text-primary-dark text-xs leading-snug mt-0.5 truncate">
+                                    {listing.title}
+                                  </p>
+                                  <p className="text-text-secondary text-[11px] mt-0.5 flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" />
+                                    {listing.location}
+                                  </p>
+                                  <div className="flex items-center gap-3 text-text-secondary text-[11px] mt-1.5">
+                                    <span className="flex items-center gap-1">
+                                      <Bed className="w-3 h-3" />
+                                      {listing.beds}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <Bath className="w-3 h-3" />
+                                      {listing.baths}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <Maximize className="w-3 h-3" />
+                                      {listing.sqft}m²
+                                    </span>
+                                  </div>
+                                </div>
+                              </Link>
+                              <div className="relative shrink-0 flex items-end">
+                                <button
+                                  onClick={() => setOpenStatusMenu(openStatusMenu === listing.id ? null : listing.id)}
+                                  disabled={statusUpdating[listing.id]}
+                                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                  style={{
+                                    background: listing.status === "ACTIVE" ? "hsl(142,71%,45%)" : listing.status === "PENDING_REVIEW" ? "#FFF8ED" : listing.status === "PAUSED" ? "#F3F4F6" : "#F3F4F6",
+                                    color: listing.status === "ACTIVE" ? "white" : listing.status === "PENDING_REVIEW" ? "#F5A623" : "#6B7280",
+                                    borderColor: listing.status === "ACTIVE" ? "hsl(142,71%,45%)" : listing.status === "PENDING_REVIEW" ? "#F5A623" : "#E5E7EB",
+                                  }}
+                                >
+                                  {listing.status || "ACTIVE"}
+                                  <ChevronDown className="w-3 h-3" />
+                                </button>
+                                {openStatusMenu === listing.id && (
+                                  <div className="absolute bottom-full right-0 mb-1 bg-white border border-white/40 rounded-lg shadow-lg z-20 overflow-hidden">
+                                    {["ACTIVE", "PAUSED", "SOLD", "RENTED", "ARCHIVED"].map((status) => (
+                                      <button
+                                        key={status}
+                                        onClick={() => handleStatusChange(listing.id, status)}
+                                        disabled={statusUpdating[listing.id]}
+                                        className="block w-full text-left px-3 py-2 text-xs font-medium hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                                      >
+                                        {status}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
-                            </Link>
+                            </div>
                           ))}
                           {agentListings.length === 0 && (
                             <div className="text-center py-8">
@@ -629,6 +679,46 @@ const AgentDashboard = () => {
                           )}
                         </div>
                       </div>
+
+                      {/* Property Logbook */}
+                      {agentListings.filter(l => l.status === "SOLD" || l.status === "RENTED").length > 0 && (
+                        <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                          <div className="px-6 py-5 border-b border-white/30">
+                            <h3 className="font-heading font-bold text-primary-dark text-base">
+                              Property Logbook
+                            </h3>
+                          </div>
+                          <div className="p-4 flex flex-col gap-3">
+                            {agentListings.filter(l => l.status === "SOLD" || l.status === "RENTED").map((listing) => (
+                              <div
+                                key={listing.id}
+                                className="flex items-center gap-3 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all"
+                              >
+                                <img
+                                  src={listing.coverImage}
+                                  alt={listing.title}
+                                  className="w-16 h-16 rounded-lg object-cover shrink-0"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-heading font-bold text-primary-dark text-sm truncate">
+                                    {listing.title}
+                                  </p>
+                                  <p className="text-text-secondary text-xs mt-0.5">
+                                    {listing.location}
+                                  </p>
+                                  <span className={`inline-block text-[10px] font-medium mt-1 px-2 py-0.5 rounded-full ${
+                                    listing.status === "SOLD"
+                                      ? "bg-green-50 text-green-600"
+                                      : "bg-blue-50 text-blue-600"
+                                  }`}>
+                                    {listing.status === "SOLD" ? "Sold" : "Rented"}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Right */}
@@ -731,7 +821,7 @@ const AgentDashboard = () => {
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
                   <h2 className="font-heading font-bold text-primary-dark text-base">
-                    My Listings ({agentListings.length})
+                    My Listings ({agentListings.filter(l => !["SOLD", "RENTED", "ARCHIVED"].includes(l.status)).length})
                   </h2>
                   <Link
                     to="/add-property"
@@ -741,7 +831,7 @@ const AgentDashboard = () => {
                   </Link>
                 </div>
                 <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                  {agentListings.map((listing, idx) => {
+                  {agentListings.filter(l => !["SOLD", "RENTED", "ARCHIVED"].includes(l.status)).map((listing, idx) => {
                     const reviewStatus =
                       idx === 0 ? "Under Review" : "Approved";
                     const reviewBadge =
@@ -749,71 +839,104 @@ const AgentDashboard = () => {
                         ? "bg-[#FFF8ED] text-[#F5A623]"
                         : "bg-primary/10 text-primary";
                     return (
-                      <Link
+                      <div
                         key={listing.id}
-                        to={`/property/${listing.id}`}
-                        className="group bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
+                        className="group bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl overflow-hidden hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col relative"
                       >
-                        <div className="h-36 overflow-hidden relative">
-                          <img
-                            src={listing.coverImage}
-                            alt={listing.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
-                            {listing.type === "SALE" ? "For Sale" : "For Rent"}
-                          </span>
-                          <span
-                            className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-medium ${reviewBadge}`}
-                          >
-                            {reviewStatus === "Under Review" ? (
-                              <>{reviewStatus}</>
-                            ) : (
-                              <>{reviewStatus}</>
-                            )}
-                          </span>
-                        </div>
-                        <div className="p-3">
-                          <p className="font-heading font-bold text-primary-dark text-sm">
-                            {listing.priceLabel}
-                          </p>
-                          <p className="text-primary-dark text-xs leading-snug mt-0.5 truncate">
-                            {listing.title}
-                          </p>
-                          <p className="text-text-secondary text-xs mt-1 flex items-center gap-1">
-                            <MapPin className="w-3 h-3" /> {listing.location}
-                          </p>
-                          <div className="flex items-center gap-3 text-text-secondary text-[11px] mt-1.5">
-                            <span className="flex items-center gap-1">
-                              <Bed className="w-3 h-3" /> {listing.beds}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Bath className="w-3 h-3" /> {listing.baths}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Maximize className="w-3 h-3" /> {listing.sqft}m²
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 mt-2 text-[11px]">
-                            <span className="flex items-center gap-1 text-text-secondary">
-                              <Eye className="w-3 h-3" /> 142 views
-                            </span>
-                            <span className="flex items-center gap-1 text-text-secondary">
-                              <Users className="w-3 h-3" /> 8 leads
+                        <Link
+                          to={`/property/${listing.id}`}
+                          className="flex-1"
+                        >
+                          <div className="h-36 overflow-hidden relative">
+                            <img
+                              src={listing.coverImage}
+                              alt={listing.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
+                              {listing.type === "SALE" ? "For Sale" : "For Rent"}
                             </span>
                             <span
-                              className={`ml-auto flex items-center gap-1 px-2 py-0.5 rounded-full ${reviewBadge}`}
+                              className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-medium ${reviewBadge}`}
                             >
                               {reviewStatus === "Under Review" ? (
-                                <Clock className="w-3 h-3" />
+                                <>{reviewStatus}</>
                               ) : (
-                                <CheckCircle className="w-3 h-3" />
+                                <>{reviewStatus}</>
                               )}
-                              {reviewStatus}
                             </span>
                           </div>
+                          <div className="p-3">
+                            <p className="font-heading font-bold text-primary-dark text-sm">
+                              {listing.priceLabel}
+                            </p>
+                            <p className="text-primary-dark text-xs leading-snug mt-0.5 truncate">
+                              {listing.title}
+                            </p>
+                            <p className="text-text-secondary text-xs mt-1 flex items-center gap-1">
+                              <MapPin className="w-3 h-3" /> {listing.location}
+                            </p>
+                            <div className="flex items-center gap-3 text-text-secondary text-[11px] mt-1.5">
+                              <span className="flex items-center gap-1">
+                                <Bed className="w-3 h-3" /> {listing.beds}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Bath className="w-3 h-3" /> {listing.baths}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Maximize className="w-3 h-3" /> {listing.sqft}m²
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-2 text-[11px]">
+                              <span className="flex items-center gap-1 text-text-secondary">
+                                <Eye className="w-3 h-3" /> 142 views
+                              </span>
+                              <span className="flex items-center gap-1 text-text-secondary">
+                                <Users className="w-3 h-3" /> 8 leads
+                              </span>
+                              <span
+                                className={`ml-auto flex items-center gap-1 px-2 py-0.5 rounded-full ${reviewBadge}`}
+                              >
+                                {reviewStatus === "Under Review" ? (
+                                  <Clock className="w-3 h-3" />
+                                ) : (
+                                  <CheckCircle className="w-3 h-3" />
+                                )}
+                                {reviewStatus}
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
+                        <div className="px-3 pb-3 border-t border-white/20 pt-2 relative">
+                          <button
+                            onClick={() => setOpenStatusMenu(openStatusMenu === listing.id ? null : listing.id)}
+                            disabled={statusUpdating[listing.id]}
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full justify-center"
+                            style={{
+                              background: listing.status === "ACTIVE" ? "hsl(142,71%,45%)" : listing.status === "PENDING_REVIEW" ? "#FFF8ED" : listing.status === "PAUSED" ? "#F3F4F6" : "#F3F4F6",
+                              color: listing.status === "ACTIVE" ? "white" : listing.status === "PENDING_REVIEW" ? "#F5A623" : "#6B7280",
+                              borderColor: listing.status === "ACTIVE" ? "hsl(142,71%,45%)" : listing.status === "PENDING_REVIEW" ? "#F5A623" : "#E5E7EB",
+                            }}
+                          >
+                            {listing.status || "ACTIVE"}
+                            <ChevronDown className="w-3 h-3" />
+                          </button>
+                          {openStatusMenu === listing.id && (
+                            <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border border-white/40 rounded-lg shadow-lg z-20 overflow-hidden">
+                              {["ACTIVE", "PAUSED", "SOLD", "RENTED", "ARCHIVED"].map((status) => (
+                                <button
+                                  key={status}
+                                  onClick={() => handleStatusChange(listing.id, status)}
+                                  disabled={statusUpdating[listing.id]}
+                                  className="block w-full text-left px-3 py-2 text-xs font-medium hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                                >
+                                  {status}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      </Link>
+                      </div>
                     );
                   })}
                 </div>
