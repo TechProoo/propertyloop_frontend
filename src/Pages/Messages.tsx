@@ -189,7 +189,8 @@ const Messages = () => {
                   </div>
                 ) : (
                   list.map((c) => {
-                    const last = c.messages[c.messages.length - 1];
+                    if (!c) return null;
+                    const last = c.messages?.[c.messages.length - 1];
                     const isActive = c.id === activeId;
                     return (
                       <button
@@ -206,7 +207,7 @@ const Messages = () => {
                       >
                         <div className="relative shrink-0">
                           <img
-                            src={c.avatar}
+                            src={c.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
                             alt={c.name}
                             className="w-11 h-11 rounded-full object-cover"
                           />
@@ -256,27 +257,27 @@ const Messages = () => {
                       <ArrowLeft className="w-4 h-4" />
                     </button>
                     <img
-                      src={active.avatar}
-                      alt={active.name}
+                      src={active?.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
+                      alt={active?.name || "User"}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="font-heading font-bold text-primary-dark text-sm truncate">
-                        {active.name}
+                        {active?.name || "User"}
                       </p>
                       <span
-                        className={`inline-flex items-center gap-1 text-xs ${active.role === "Agent" ? "text-primary" : "text-blue-500"}`}
+                        className={`inline-flex items-center gap-1 text-xs ${active?.role === "Agent" ? "text-primary" : "text-blue-500"}`}
                       >
-                        {active.role === "Agent" ? (
+                        {active?.role === "Agent" ? (
                           <Briefcase className="w-3 h-3" />
                         ) : (
                           <Wrench className="w-3 h-3" />
                         )}
-                        {active.role}
+                        {active?.role || "User"}
                       </span>
                     </div>
                     <a
-                      href={`tel:${active.phone}`}
+                      href={`tel:${active?.phone || ""}`}
                       className="w-9 h-9 rounded-full bg-bg-accent border border-border-light flex items-center justify-center text-text-secondary hover:text-primary hover:border-primary transition-all"
                     >
                       <Phone className="w-4 h-4" />
