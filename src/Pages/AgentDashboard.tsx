@@ -35,9 +35,11 @@ import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/logo.png";
 import agentsService from "../api/services/agents";
 import listingsService from "../api/services/listings";
+import uploadService from "../api/services/upload";
 import type { AgentStats, Listing, ListingStatus } from "../api/types";
 import { useConversations } from "../api/hooks";
 import { StatSkeleton } from "../components/ui/Skeleton";
+import ProfilePictureUpload from "../components/Settings/ProfilePictureUpload";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -135,6 +137,17 @@ const AgentDashboard = () => {
       }
     }
   }, [user]);
+
+  // ─── Handle profile picture upload ──────────────────────────────────────────
+  const handleProfilePictureUpload = async (file: File): Promise<string> => {
+    try {
+      const { url } = await uploadService.uploadProfilePicture(file);
+      await agentsService.updateMe({ avatarUrl: url });
+      return url;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "Failed to upload profile picture");
+    }
+  };
 
   // ─── Save profile handler ────────────────────────────────────────────────
   const handleSaveProfile = async () => {
@@ -1286,6 +1299,13 @@ const AgentDashboard = () => {
               transition={{ duration: 0.4, ease }}
               className="flex flex-col gap-6"
             >
+              {/* Profile Picture Upload */}
+              <ProfilePictureUpload
+                currentImage={user?.avatarUrl || null}
+                onUpload={handleProfilePictureUpload}
+                label="Profile Picture"
+              />
+
               {/* Agent Profile */}
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
                 <h3 className="font-heading font-bold text-primary-dark text-base mb-6">

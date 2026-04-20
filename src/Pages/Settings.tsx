@@ -9,7 +9,6 @@ import {
   Shield,
   Globe,
   LogOut,
-  Camera,
   Mail,
   Phone,
   MapPin,
@@ -28,7 +27,9 @@ import Footer from "../components/Home/Footer";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/client";
 import authService from "../api/services/auth";
+import uploadService from "../api/services/upload";
 import type { Session } from "../api/types";
+import ProfilePictureUpload from "../components/Settings/ProfilePictureUpload";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -131,6 +132,18 @@ const Settings = () => {
       }
     }
   }, [user, isLoggedIn, loading, navigate]);
+
+  // ─── Handle profile picture upload ──────────────────────────────────────────
+  const handleProfilePictureUpload = async (file: File): Promise<string> => {
+    try {
+      const { url } = await uploadService.uploadProfilePicture(file);
+      setAvatar(url);
+      await api.patch("/users/me", { avatarUrl: url });
+      return url;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "Failed to upload profile picture");
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -351,28 +364,12 @@ const Settings = () => {
                         platform.
                       </p>
 
-                      <div className="flex items-center gap-5 mb-6 pb-6 border-b border-border-light">
-                        <div className="relative">
-                          <img
-                            src={avatar}
-                            alt={name}
-                            className="w-20 h-20 rounded-full object-cover border-2 border-white shadow-md"
-                          />
-                          <button className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:bg-primary-dark transition-colors">
-                            <Camera className="w-4 h-4" />
-                          </button>
-                        </div>
-                        <div>
-                          <p className="font-heading font-bold text-primary-dark text-sm">
-                            Profile photo
-                          </p>
-                          <p className="text-text-secondary text-xs mt-1">
-                            JPG or PNG. Max 2MB.
-                          </p>
-                          <button className="text-primary text-xs font-medium hover:underline mt-2">
-                            Upload new photo
-                          </button>
-                        </div>
+                      <div className="mb-6 pb-6 border-b border-border-light">
+                        <ProfilePictureUpload
+                          currentImage={avatar}
+                          onUpload={handleProfilePictureUpload}
+                          label="Profile Picture"
+                        />
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
