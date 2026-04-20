@@ -69,6 +69,9 @@ const Buy = () => {
     items: apiListings,
     loading: listingsLoading,
     updateParams,
+    page,
+    pages,
+    nextPage,
   } = useListings({ type: "SALE", limit: 50 });
 
   // Fetch category stats
@@ -920,11 +923,17 @@ const Buy = () => {
               )}
 
               {/* Load more */}
-              <div className="mt-10 text-center">
-                <button className="h-11 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
-                  Load more properties
-                </button>
-              </div>
+              {page && pages && page < pages && (
+                <div className="mt-10 text-center">
+                  <button
+                    onClick={nextPage}
+                    disabled={listingsLoading}
+                    className="h-11 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {listingsLoading ? "Loading..." : "Load more properties"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           {/* ─── Price History / Recently Reduced ─── */}
