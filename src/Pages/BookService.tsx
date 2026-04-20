@@ -23,6 +23,7 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import vendorsService from "../api/services/vendors";
+import messagesService from "../api/services/messages";
 import type { VendorPublic } from "../api/types";
 // Chat and booking data now handled via API services
 type ChatMessage = {
@@ -260,66 +261,69 @@ const BookService = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [convoId, setConvoId] = useState<string>("");
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const convoId = `vendor-${id}`;
 
-  // Initialize chat from localStorage or create new
+  // Initialize chat - create/find conversation and load messages
   useEffect(() => {
-    if (!vendor) return;
-    const existing = getConversation(convoId);
-    if (existing) {
-      setChatMessages(existing.messages);
-    } else {
-      const initial: ChatMessage[] = [
-        {
-          sender: "them",
-          text: `Hi! I'm ${vendor.name}. How can I help you today?`,
-          time: "Just now",
-        },
-      ];
-      saveConversation({
-        id: convoId,
-        name: vendor.name,
-        avatar: vendor.avatarUrl ?? "",
-        role: "Vendor",
-        phone: vendor.phone ?? "",
-        messages: initial,
-      });
-      setChatMessages(initial);
-    }
-  }, [vendor, convoId]);
+    if (!vendor || !id) return;
+
+    const initializeChat = async () => {
+      try {
+        // Create or find conversation with vendor
+        const { conversationId } = await messagesService.createOrFind({
+          recipientId: vendor.id,
+          recipientRole: "VENDOR",
+          senderRole: "BUYER",
+        });
+        setConvoId(conversationId);
+
+        // Load existing messages
+        const messages = await messagesService.getMessages(conversationId);
+        if (messages && messages.length > 0) {
+          const formattedMessages: ChatMessage[] = messages.map((msg) => ({
+            sender: msg.isYou ? "you" : "them",
+            text: msg.text,
+            time: new Date(msg.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          }));
+          setChatMessages(formattedMessages);
+        }
+      } catch (error) {
+        console.error("Failed to initialize chat:", error);
+      }
+    };
+
+    initializeChat();
+  }, [vendor, id]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
-  const handleChatSend = () => {
-    if (!chatInput.trim() || !vendor) return;
+  const handleChatSend = async () => {
+    if (!chatInput.trim() || !vendor || !convoId) return;
+
+    const messageText = chatInput.trim();
+    setChatInput("");
+
     const msg: ChatMessage = {
       sender: "you",
-      text: chatInput.trim(),
+      text: messageText,
       time: "Just now",
     };
+
     addMessage(convoId, msg);
     setChatMessages((prev) => [...prev, msg]);
-    setChatInput("");
-    // Simulate vendor reply after 1.5s
-    setTimeout(() => {
-      const replies = [
-        "Sure, I can help with that! Let me check my schedule.",
-        "No problem. I'll bring all the necessary tools and materials.",
-        "I usually charge based on the scope of work. Can you describe the job?",
-        "Yes, I'm available. Let's discuss the details.",
-        "Great! I'll give you a fair quote once I see the work needed.",
-      ];
-      const reply: ChatMessage = {
-        sender: "them",
-        text: replies[Math.floor(Math.random() * replies.length)],
-        time: "Just now",
-      };
-      addMessage(convoId, reply);
-      setChatMessages((prev) => [...prev, reply]);
-    }, 1500);
+
+    // Send message to backend API
+    try {
+      await messagesService.sendMessage(convoId, messageText);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
   };
 
   const stepIndex = steps.indexOf(currentStep);
