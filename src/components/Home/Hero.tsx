@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ImageGallery } from "@/components/ui/carousel-circular-image-gallery";
 import type { ImageGalleryHandle } from "@/components/ui/carousel-circular-image-gallery";
 import gsap from "gsap";
@@ -48,14 +49,23 @@ const properties = [
 const galleryImages = properties.map((p) => ({ title: p.title, url: p.url }));
 
 const Hero = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Buy");
   const [activeSlide, setActiveSlide] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const galleryRef = useRef<ImageGalleryHandle>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
   const handleSlideChange = useCallback((index: number) => {
     setActiveSlide(index);
   }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   // ─── GSAP cinematic entrance ───────────────────────────────────────────
   useEffect(() => {
@@ -248,7 +258,8 @@ const Hero = () => {
         </h1>
 
         {/* Search Box */}
-        <div
+        <form
+          onSubmit={handleSearch}
           data-hero-mobile-search
           className="flex flex-col gap-2.5 mt-5 sm:max-w-[320px]"
         >
@@ -256,6 +267,7 @@ const Hero = () => {
             {tabs.map((tab) => (
               <button
                 key={tab}
+                type="button"
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-1.5 text-xs font-medium rounded-full border transition-all ${
                   activeTab === tab
@@ -270,10 +282,15 @@ const Hero = () => {
           <div className="flex items-center backdrop-blur-xl bg-white/40 rounded-full border border-white/50 shadow-[0_8px_32px_rgba(31,111,67,0.12)] pl-4 pr-1.5 py-1 ring-1 ring-white/20">
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by location, LGA, or keyword"
               className="flex-1 text-sm text-primary-dark placeholder-text-subtle outline-none bg-transparent py-2"
             />
-            <button className="w-9 h-9 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shrink-0 shadow-lg shadow-glow/40">
+            <button
+              type="submit"
+              className="w-9 h-9 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shrink-0 shadow-lg shadow-glow/40"
+            >
               <svg
                 className="w-4 h-4 text-white"
                 fill="none"
@@ -289,7 +306,7 @@ const Hero = () => {
               </svg>
             </button>
           </div>
-        </div>
+        </form>
 
         {/* Mobile gallery */}
         <div
@@ -344,7 +361,8 @@ const Hero = () => {
           </h1>
 
           {/* Search Box — glassmorphism */}
-          <div
+          <form
+            onSubmit={handleSearch}
             data-hero-search
             className="flex flex-col gap-3 max-w-[320px] mt-10"
           >
@@ -353,6 +371,7 @@ const Hero = () => {
               {tabs.map((tab) => (
                 <button
                   key={tab}
+                  type="button"
                   onClick={() => setActiveTab(tab)}
                   className={`px-5 py-1.5 text-sm font-medium rounded-full border transition-all ${
                     activeTab === tab
@@ -369,10 +388,15 @@ const Hero = () => {
             <div className="flex items-center backdrop-blur-xl bg-white/40 rounded-full border border-white/50 shadow-[0_8px_32px_rgba(31,111,67,0.12)] pl-4 pr-1.5 py-1 ring-1 ring-white/20">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by location, LGA, or keyword"
                 className="flex-1 text-sm text-primary-dark placeholder-text-subtle outline-none bg-transparent py-2"
               />
-              <button className="w-9 h-9 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shrink-0 shadow-lg shadow-glow/40">
+              <button
+                type="submit"
+                className="w-9 h-9 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shrink-0 shadow-lg shadow-glow/40"
+              >
                 <svg
                   className="w-4 h-4 text-white"
                   fill="none"
@@ -388,7 +412,7 @@ const Hero = () => {
                 </svg>
               </button>
             </div>
-          </div>
+          </form>
         </div>
 
         {/* Bottom row — quote left, property card right */}

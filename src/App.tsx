@@ -47,6 +47,7 @@ import DisputeCenter from "./Pages/DisputeCenter";
 import AdminPanel from "./Pages/AdminPanel";
 import PartnersAdmin from "./Pages/PartnersAdmin";
 import VerifyEmail from "./Pages/VerifyEmail";
+import SearchResults from "./Pages/SearchResults";
 import NotFound from "./Pages/NotFound";
 
 const roleDashboard: Record<string, string> = {
@@ -154,6 +155,7 @@ function AppContent() {
           <Route path="/legal/:slug" element={<Legal />} />
           <Route path="/video-tours" element={<VideoTours />} />
           <Route path="/video-tour/:id" element={<VideoTourDetail />} />
+          <Route path="/search" element={<SearchResults />} />
           <Route path="/reductions" element={<Reductions />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
