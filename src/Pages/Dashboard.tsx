@@ -276,9 +276,9 @@ const Dashboard = () => {
                   {item.label}
                 </span>
               )}
-              {sidebarOpen && item.id === "messages" && (
+              {sidebarOpen && item.id === "messages" && chat.unreadCount > 0 && (
                 <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-[hsl(142,71%,45%)] text-white">
-                  5
+                  {chat.unreadCount}
                 </span>
               )}
               {sidebarOpen &&
@@ -1576,11 +1576,18 @@ const Dashboard = () => {
                                         {roleDisplay}
                                       </span>
                                     </div>
-                                    {convo.lastMessageAt && (
-                                      <span className="text-text-subtle text-[10px] shrink-0">
-                                        {new Date(convo.lastMessageAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                      </span>
-                                    )}
+                                    <div className="flex items-center gap-2">
+                                      {convo.unread > 0 && (
+                                        <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[9px] font-bold shrink-0">
+                                          {convo.unread}
+                                        </span>
+                                      )}
+                                      {convo.lastMessageAt && (
+                                        <span className="text-text-subtle text-[10px] shrink-0">
+                                          {new Date(convo.lastMessageAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                   {lastMsg && (
                                     <p className="text-xs mt-0.5 truncate text-text-secondary">
@@ -1652,31 +1659,44 @@ const Dashboard = () => {
 
                         {/* Messages */}
                         <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
-                          {activeMessages.map((msg, i) => {
-                            const msgTime = new Date(msg.createdAt).toLocaleTimeString("en-NG", {
-                              hour: "numeric",
-                              minute: "2-digit",
-                            });
-                            return (
-                              <div
-                                key={i}
-                                className={`flex ${msg.isYou ? "justify-end" : "justify-start"}`}
-                              >
-                                <div
-                                  className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.isYou ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
-                                >
-                                  <p className="text-sm leading-relaxed">
-                                    {msg.text}
-                                  </p>
-                                  <p
-                                    className={`text-[10px] mt-1 ${msg.isYou ? "text-white/60" : "text-text-subtle"}`}
-                                  >
-                                    {msgTime}
-                                  </p>
-                                </div>
+                          {chat.loading ? (
+                            <div className="flex items-center justify-center h-full">
+                              <div className="flex flex-col items-center gap-3">
+                                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                                <p className="text-text-secondary text-sm">Loading messages...</p>
                               </div>
-                            );
-                          })}
+                            </div>
+                          ) : activeMessages.length === 0 ? (
+                            <div className="flex items-center justify-center h-full">
+                              <p className="text-text-secondary text-sm">No messages yet. Start the conversation!</p>
+                            </div>
+                          ) : (
+                            activeMessages.map((msg, i) => {
+                              const msgTime = new Date(msg.createdAt).toLocaleTimeString("en-NG", {
+                                hour: "numeric",
+                                minute: "2-digit",
+                              });
+                              return (
+                                <div
+                                  key={i}
+                                  className={`flex ${msg.isYou ? "justify-end" : "justify-start"}`}
+                                >
+                                  <div
+                                    className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.isYou ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
+                                  >
+                                    <p className="text-sm leading-relaxed">
+                                      {msg.text}
+                                    </p>
+                                    <p
+                                      className={`text-[10px] mt-1 ${msg.isYou ? "text-white/60" : "text-text-subtle"}`}
+                                    >
+                                      {msgTime}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
                         </div>
 
                         {/* Input */}
