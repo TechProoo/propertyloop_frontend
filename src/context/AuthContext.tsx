@@ -56,6 +56,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     init();
   }, []);
 
+  // Auto-refresh token every 10 minutes to keep session alive
+  useEffect(() => {
+    if (!user) return;
+
+    const refreshInterval = setInterval(async () => {
+      try {
+        const rt = tokens.getRefresh();
+        if (rt) {
+          await authService.refresh();
+        }
+      } catch (error) {
+        console.error("Token refresh failed:", error);
+        tokens.clear();
+        setUser(null);
+      }
+    }, 10 * 60 * 1000); // Refresh every 10 minutes
+
+    return () => clearInterval(refreshInterval);
+  }, [user]);
+
   const signup = useCallback(async (payload: SignupPayload) => {
     const res = await authService.signup(payload);
     setUser(res.user);
