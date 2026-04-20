@@ -26,14 +26,11 @@ import {
   ArrowUpRight,
   ArrowRight,
   Bell,
-  Calendar,
   PlusCircle,
-  FileText,
   Briefcase,
   ClipboardList,
   ArrowLeft,
   Send,
-  Upload,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/logo.png";
@@ -578,61 +575,6 @@ const AgentDashboard = () => {
                   <div className="flex flex-col xl:flex-row gap-6">
                     {/* Left */}
                     <div className="flex-1 flex flex-col gap-6">
-                      {/* Recent Leads */}
-                      <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                        <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
-                          <h3 className="font-heading font-bold text-primary-dark text-base">
-                            Recent Leads
-                          </h3>
-                          <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
-                            12 new
-                          </span>
-                        </div>
-                        <div className="divide-y divide-white/30">
-                          {recentLeads.map((lead, i) => (
-                            <div
-                              key={i}
-                              className="px-6 py-4 flex items-center gap-4 hover:bg-white/50 transition-colors"
-                            >
-                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold shrink-0">
-                                {lead.name.charAt(0)}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-heading font-semibold text-primary-dark text-sm">
-                                  {lead.name}
-                                </p>
-                                <p className="text-text-secondary text-xs truncate">
-                                  {lead.property}
-                                </p>
-                              </div>
-                              <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
-                                <span
-                                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${statusColors[lead.status]}`}
-                                >
-                                  {lead.status}
-                                </span>
-                                <span className="text-text-subtle text-[11px] flex items-center gap-1">
-                                  <Clock className="w-3 h-3" />
-                                  {lead.time}
-                                </span>
-                              </div>
-                              <a
-                                href={`tel:${lead.phone}`}
-                                className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shrink-0"
-                              >
-                                <Phone className="w-3.5 h-3.5" />
-                              </a>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="px-6 py-3 border-t border-white/30">
-                          <button className="text-primary text-xs font-medium hover:underline flex items-center gap-1">
-                            View all leads
-                            <ArrowRight className="w-3 h-3" />
-                          </button>
-                        </div>
-                      </div>
-
                       {/* My Listings */}
                       <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                         <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
@@ -755,39 +697,6 @@ const AgentDashboard = () => {
                           <div className="flex items-center gap-2 text-white/60 text-xs">
                             <CheckCircle className="w-4 h-4 text-[hsl(142,71%,45%)]" />
                             KYC Verified · Smile Identity
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Recent Activity */}
-                      <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
-                        <h3 className="font-heading font-bold text-primary-dark text-sm mb-4">
-                          Recent Activity
-                        </h3>
-                        <div className="relative">
-                          <div className="absolute left-4.5 top-2 bottom-2 w-px bg-white/40" />
-                          <div className="flex flex-col gap-4">
-                            {recentActivity.map((item, i) => (
-                              <div
-                                key={i}
-                                className="flex items-start gap-3 relative"
-                              >
-                                <div
-                                  className={`w-9 h-9 rounded-full ${item.bg} flex items-center justify-center ${item.color} shrink-0 relative z-10 border-2 border-[#f5f0eb]`}
-                                >
-                                  {item.icon}
-                                </div>
-                                <div className="flex-1 min-w-0 pt-1">
-                                  <p className="text-primary-dark text-xs font-medium leading-snug">
-                                    {item.text}
-                                  </p>
-                                  <p className="text-text-subtle text-[11px] mt-0.5 flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    {item.time}
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
                           </div>
                         </div>
                       </div>
