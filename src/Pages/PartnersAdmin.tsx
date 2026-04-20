@@ -3,14 +3,9 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Handshake,
-  ExternalLink,
   Plus,
   Trash2,
-  GripVertical,
-  CheckCircle,
-  XCircle,
   Globe,
-  ImageIcon,
   X,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";

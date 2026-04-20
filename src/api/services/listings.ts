@@ -40,6 +40,7 @@ export interface CreateListingPayload {
   coverImage: string;
   images: string[];
   virtualTourUrl?: string;
+  videoUrl?: string;
 }
 
 export interface UpdateListingPayload extends Partial<CreateListingPayload> {

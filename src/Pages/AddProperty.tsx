@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import listingsService from "../api/services/listings";
 import type { ListingType } from "../api/types";
 import { motion, AnimatePresence } from "framer-motion";
+import api from "../api/client";
 import {
   ArrowRight,
   ArrowLeft,
@@ -41,6 +42,7 @@ interface PropertyForm {
   price: string;
   description: string;
   virtualTourUrl: string;
+  videoUrl: string;
 }
 
 const initialForm: PropertyForm = {
@@ -56,6 +58,7 @@ const initialForm: PropertyForm = {
   price: "",
   description: "",
   virtualTourUrl: "",
+  videoUrl: "",
 };
 
 /* ─── Data ─── */
@@ -117,6 +120,12 @@ const AddProperty = () => {
   const [submitted, setSubmitted] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [uploadingPhotoIndex, setUploadingPhotoIndex] = useState<number | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [videoUploadError, setVideoUploadError] = useState("");
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const [videoInputType, setVideoInputType] = useState<"url" | "file">("url");
 
   const stepIndex = steps.indexOf(currentStep);
 
@@ -157,6 +166,11 @@ const AddProperty = () => {
           rent: "RENT",
           shortlet: "SHORTLET",
         };
+        if (photos.length === 0) {
+          setSubmitError("Please upload at least one property photo");
+          return;
+        }
+
         await listingsService.create({
           title: form.title,
           type: typeMap[form.listingType] || "SALE",
@@ -176,9 +190,10 @@ const AddProperty = () => {
           yearBuilt: form.yearBuilt,
           description: form.description,
           features: [],
-          coverImage: photos[0] || "https://placehold.co/600x400",
-          images: photos.length > 0 ? photos : ["https://placehold.co/600x400"],
+          coverImage: photos[0],
+          images: photos,
           virtualTourUrl: form.virtualTourUrl || undefined,
+          videoUrl: form.videoUrl || undefined,
         });
         setSubmitted(true);
       } catch (err: any) {
@@ -215,25 +230,89 @@ const AddProperty = () => {
     setErrors({});
   };
 
-  const addPlaceholderPhoto = () => {
-    if (photos.length < 10) {
-      const placeholders = [
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=300&h=200&fit=crop",
-        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=300&h=200&fit=crop",
-        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=300&h=200&fit=crop",
-        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=300&h=200&fit=crop",
-        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=300&h=200&fit=crop",
-        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=300&h=200&fit=crop",
-      ];
-      setPhotos((prev) => [
-        ...prev,
-        placeholders[prev.length % placeholders.length],
-      ]);
+  const uploadPhoto = async (file: File) => {
+    if (photos.length >= 10) return;
+
+    setUploadingPhotoIndex(photos.length);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const { fileUrl } = await api.post<{ fileUrl: string }>(
+        "/listings/upload/photo",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      ).then((res) => res.data);
+
+      setPhotos((prev) => [...prev, fileUrl]);
+    } catch (err) {
+      console.error("Photo upload failed:", err);
+    } finally {
+      setUploadingPhotoIndex(null);
     }
+  };
+
+  const handlePhotoInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.currentTarget.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        if (photos.length < 10) uploadPhoto(file);
+      });
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const triggerPhotoUpload = () => {
+    fileInputRef.current?.click();
   };
 
   const removePhoto = (index: number) => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadVideo = async (file: File) => {
+    setUploadingVideo(true);
+    setVideoUploadError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const { fileUrl } = await api.post<{ fileUrl: string }>(
+        "/listings/upload/video",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      ).then((res) => res.data);
+
+      updateForm({ videoUrl: fileUrl });
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Failed to upload video";
+      setVideoUploadError(errorMsg);
+      console.error("Video upload failed:", err);
+    } finally {
+      setUploadingVideo(false);
+    }
+  };
+
+  const handleVideoInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.currentTarget.files;
+    if (files?.length) {
+      const file = files[0];
+      if (file.size > 100 * 1024 * 1024) {
+        setVideoUploadError("Video must be less than 100MB");
+        return;
+      }
+      uploadVideo(file);
+    }
+    if (videoInputRef.current) videoInputRef.current.value = "";
+  };
+
+  const triggerVideoUpload = () => {
+    videoInputRef.current?.click();
+  };
+
+  const removeVideo = () => {
+    updateForm({ videoUrl: "" });
+    setVideoUploadError("");
   };
 
   const priceLabel =
@@ -648,19 +727,37 @@ const AddProperty = () => {
                         {/* Photo upload */}
                         <div>
                           <label className={labelClass}>Property Photos</label>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={handlePhotoInput}
+                            className="hidden"
+                          />
                           <button
-                            onClick={addPlaceholderPhoto}
-                            className="w-full border-2 border-dashed border-white/40 rounded-2xl p-8 flex flex-col items-center gap-3 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all cursor-pointer"
+                            type="button"
+                            onClick={triggerPhotoUpload}
+                            disabled={uploadingPhotoIndex !== null || photos.length >= 10}
+                            className="w-full border-2 border-dashed border-white/40 rounded-2xl p-8 flex flex-col items-center gap-3 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <div className="w-14 h-14 rounded-full bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center shadow-[0_4px_16px_rgba(31,111,67,0.06)]">
-                              <Camera className="w-6 h-6 text-primary" />
+                              {uploadingPhotoIndex !== null ? (
+                                <div className="animate-spin">
+                                  <Camera className="w-6 h-6 text-primary" />
+                                </div>
+                              ) : (
+                                <Camera className="w-6 h-6 text-primary" />
+                              )}
                             </div>
                             <div className="text-center">
                               <p className="text-primary-dark text-sm font-medium">
-                                Click to add photos
+                                {uploadingPhotoIndex !== null
+                                  ? "Uploading..."
+                                  : "Click to add photos"}
                               </p>
                               <p className="text-text-subtle text-xs mt-1">
-                                Up to 10 photos, max 5MB each
+                                {photos.length}/10 photos uploaded
                               </p>
                             </div>
                           </button>
@@ -693,10 +790,18 @@ const AddProperty = () => {
                               ))}
                               {photos.length < 10 && (
                                 <button
-                                  onClick={addPlaceholderPhoto}
-                                  className="h-24 rounded-xl border-2 border-dashed border-white/40 bg-white/20 backdrop-blur-sm flex items-center justify-center text-text-subtle hover:border-primary hover:text-primary hover:bg-white/40 transition-all"
+                                  type="button"
+                                  onClick={triggerPhotoUpload}
+                                  disabled={uploadingPhotoIndex !== null}
+                                  className="h-24 rounded-xl border-2 border-dashed border-white/40 bg-white/20 backdrop-blur-sm flex items-center justify-center text-text-subtle hover:border-primary hover:text-primary hover:bg-white/40 transition-all disabled:opacity-50"
                                 >
-                                  <Plus className="w-5 h-5" />
+                                  {uploadingPhotoIndex !== null ? (
+                                    <div className="animate-spin">
+                                      <Plus className="w-5 h-5" />
+                                    </div>
+                                  ) : (
+                                    <Plus className="w-5 h-5" />
+                                  )}
                                 </button>
                               )}
                             </div>
@@ -742,6 +847,107 @@ const AddProperty = () => {
                               className={`${inputClass} pl-10`}
                             />
                           </div>
+                        </div>
+
+                        <div className="h-px bg-white/30" />
+
+                        {/* Video upload */}
+                        <div>
+                          <label className={labelClass}>
+                            Property Video (Optional)
+                          </label>
+                          <p className="text-text-subtle text-xs mb-3">
+                            Add a video walkthrough or showcase. You can upload a file or paste a video URL.
+                          </p>
+
+                          {videoUploadError && (
+                            <div className="mb-3 p-3 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-lg">
+                              <p className="text-xs text-red-700">{videoUploadError}</p>
+                            </div>
+                          )}
+
+                          {form.videoUrl ? (
+                            <div className="relative rounded-xl overflow-hidden bg-black/20 backdrop-blur-sm border border-white/20 p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <Video className="w-5 h-5 text-primary shrink-0" />
+                                  <p className="text-sm text-primary-dark font-medium truncate">
+                                    {form.videoUrl.includes("youtu") ? "YouTube Video" : "Video Uploaded"}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={removeVideo}
+                                  className="text-text-subtle hover:text-red-600 transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col gap-3">
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-px bg-white/30" />
+                                <span className="text-xs text-text-subtle">OR</span>
+                                <div className="flex-1 h-px bg-white/30" />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3">
+                                {/* File upload */}
+                                <button
+                                  type="button"
+                                  onClick={triggerVideoUpload}
+                                  disabled={uploadingVideo}
+                                  className="border-2 border-dashed border-white/40 rounded-xl p-4 flex flex-col items-center gap-2 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  <div className="w-8 h-8 rounded-full bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                                    {uploadingVideo ? (
+                                      <div className="animate-spin">
+                                        <Video className="w-4 h-4 text-primary" />
+                                      </div>
+                                    ) : (
+                                      <Video className="w-4 h-4 text-primary" />
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-primary-dark font-medium text-center">
+                                    {uploadingVideo ? "Uploading..." : "Upload Video"}
+                                  </p>
+                                  <p className="text-[10px] text-text-subtle text-center">
+                                    MP4, MOV (max 100MB)
+                                  </p>
+                                </button>
+
+                                {/* URL input */}
+                                <div className="relative">
+                                  <input
+                                    type="url"
+                                    placeholder="Paste video URL..."
+                                    value={videoInputType === "url" && !form.videoUrl ? "" : form.videoUrl}
+                                    onChange={(e) => {
+                                      if (e.target.value.includes("youtu") || e.target.value.includes("vimeo")) {
+                                        updateForm({ videoUrl: e.target.value });
+                                      } else if (e.target.value === "") {
+                                        updateForm({ videoUrl: "" });
+                                      }
+                                    }}
+                                    onFocus={() => setVideoInputType("url")}
+                                    className={`${inputClass}`}
+                                  />
+                                  <p className="text-[10px] text-text-subtle mt-1">
+                                    YouTube or Vimeo link
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          <input
+                            ref={videoInputRef}
+                            type="file"
+                            accept="video/*"
+                            onChange={handleVideoInput}
+                            className="hidden"
+                          />
                         </div>
                       </div>
 

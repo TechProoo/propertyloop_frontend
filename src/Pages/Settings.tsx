@@ -27,6 +27,8 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/client";
+import authService from "../api/services/auth";
+import type { Session } from "../api/types";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -91,6 +93,18 @@ const Settings = () => {
   const [twoFactor, setTwoFactor] = useState(false);
   const [profileVisible, setProfileVisible] = useState(true);
   const [shareActivity, setShareActivity] = useState(false);
+
+  // Security - password change
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  // Active sessions
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [sessionsLoaded, setSessionsLoaded] = useState(false);
 
   const [language, setLanguage] = useState("English");
   const [currency, setCurrency] = useState("NGN (₦)");
@@ -455,6 +469,18 @@ const Settings = () => {
                       </p>
 
                       <div className="flex flex-col gap-5">
+                        {passwordSuccess && (
+                          <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex items-center gap-2 text-green-700 text-sm">
+                            <CheckCircle className="w-4 h-4" /> Password updated
+                            successfully. All other sessions have been signed
+                            out.
+                          </div>
+                        )}
+                        {passwordError && (
+                          <div className="bg-red-50 border border-red-200 rounded-2xl px-4 py-3 text-red-600 text-sm">
+                            {passwordError}
+                          </div>
+                        )}
                         <div>
                           <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
                             Current Password
@@ -463,6 +489,10 @@ const Settings = () => {
                             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-subtle" />
                             <input
                               type={showPassword ? "text" : "password"}
+                              value={currentPassword}
+                              onChange={(e) =>
+                                setCurrentPassword(e.target.value)
+                              }
                               placeholder="Enter current password"
                               className="w-full h-11 pl-10 pr-11 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
                             />
@@ -486,6 +516,8 @@ const Settings = () => {
                             </label>
                             <input
                               type="password"
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
                               placeholder="At least 8 characters"
                               className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
                             />
@@ -496,6 +528,10 @@ const Settings = () => {
                             </label>
                             <input
                               type="password"
+                              value={confirmPassword}
+                              onChange={(e) =>
+                                setConfirmPassword(e.target.value)
+                              }
                               placeholder="Re-enter new password"
                               className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
                             />
@@ -519,11 +555,142 @@ const Settings = () => {
 
                         <div className="flex justify-end pt-6 border-t border-border-light">
                           <button
-                            onClick={handleSave}
-                            className="h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]"
+                            onClick={async () => {
+                              setPasswordError("");
+                              setPasswordSuccess(false);
+                              if (!currentPassword || !newPassword) {
+                                setPasswordError(
+                                  "Please fill in all password fields.",
+                                );
+                                return;
+                              }
+                              if (newPassword.length < 8) {
+                                setPasswordError(
+                                  "New password must be at least 8 characters.",
+                                );
+                                return;
+                              }
+                              if (newPassword !== confirmPassword) {
+                                setPasswordError("New passwords do not match.");
+                                return;
+                              }
+                              setChangingPassword(true);
+                              try {
+                                await authService.changePassword(
+                                  currentPassword,
+                                  newPassword,
+                                );
+                                setPasswordSuccess(true);
+                                setCurrentPassword("");
+                                setNewPassword("");
+                                setConfirmPassword("");
+                                setTimeout(
+                                  () => setPasswordSuccess(false),
+                                  5000,
+                                );
+                              } catch (err: any) {
+                                setPasswordError(
+                                  err?.response?.data?.message ||
+                                    "Failed to update password.",
+                                );
+                              }
+                              setChangingPassword(false);
+                            }}
+                            disabled={changingPassword}
+                            className="h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)] disabled:opacity-50"
                           >
-                            <Save className="w-4 h-4" /> Update password
+                            <Save className="w-4 h-4" />{" "}
+                            {changingPassword ? "Updating…" : "Update password"}
                           </button>
+                        </div>
+
+                        {/* Active Sessions */}
+                        <div className="mt-2 border-t border-border-light pt-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <h3 className="font-heading font-bold text-primary-dark text-sm">
+                                Active Sessions
+                              </h3>
+                              <p className="text-text-secondary text-xs mt-0.5">
+                                Devices currently signed into your account.
+                              </p>
+                            </div>
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const data = await authService.listSessions();
+                                  setSessions(data);
+                                  setSessionsLoaded(true);
+                                } catch {
+                                  /* ignore */
+                                }
+                              }}
+                              className="text-xs text-primary font-medium hover:underline"
+                            >
+                              {sessionsLoaded ? "Refresh" : "Load sessions"}
+                            </button>
+                          </div>
+                          {sessionsLoaded && (
+                            <div className="flex flex-col gap-2">
+                              {sessions.length === 0 ? (
+                                <p className="text-text-secondary text-xs text-center py-4">
+                                  No active sessions found.
+                                </p>
+                              ) : (
+                                sessions.map((s) => (
+                                  <div
+                                    key={s.id}
+                                    className="flex items-center gap-3 bg-bg-accent rounded-2xl border border-border-light px-4 py-3"
+                                  >
+                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                      <Shield className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-primary-dark text-xs font-medium truncate">
+                                        {s.deviceLabel ||
+                                          s.userAgent ||
+                                          "Unknown device"}
+                                      </p>
+                                      <p className="text-text-subtle text-[11px]">
+                                        {s.ipAddress ?? ""} · Last seen{" "}
+                                        {new Date(
+                                          s.lastSeenAt,
+                                        ).toLocaleDateString()}
+                                      </p>
+                                    </div>
+                                    <button
+                                      onClick={async () => {
+                                        try {
+                                          await authService.revokeSession(s.id);
+                                          setSessions((prev) =>
+                                            prev.filter((ss) => ss.id !== s.id),
+                                          );
+                                        } catch {
+                                          /* ignore */
+                                        }
+                                      }}
+                                      className="text-red-500 text-[11px] font-medium hover:underline shrink-0"
+                                    >
+                                      Revoke
+                                    </button>
+                                  </div>
+                                ))
+                              )}
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    await authService.logoutAll();
+                                    setSessions([]);
+                                  } catch {
+                                    /* ignore */
+                                  }
+                                }}
+                                className="mt-2 text-xs text-red-500 font-medium hover:underline self-end"
+                              >
+                                Sign out all devices
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </>

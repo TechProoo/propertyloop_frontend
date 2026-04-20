@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { getBlogPost, getRelatedPosts } from "../data/blogPosts";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -29,14 +28,29 @@ const catIcons: Record<string, React.ReactNode> = {
   "Agent Tips": <Users className="w-3 h-3" />,
 };
 
+interface BlogPostData {
+  title: string;
+  category: string;
+  date: string;
+  readTime: string;
+  excerpt: string;
+  author: string;
+  avatar: string;
+  image: string;
+  content: string[];
+  slug: string;
+}
+
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const post = slug ? getBlogPost(slug) : undefined;
-  const related = slug ? getRelatedPosts(slug) : [];
+  const [post] = useState<BlogPostData | null>(null);
+  const [related] = useState<BlogPostData[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    // TODO: Fetch post from API when available
+    // blogService.getBySlug(slug).then(setPost);
   }, [slug]);
 
   if (!post) {

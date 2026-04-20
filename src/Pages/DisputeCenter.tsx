@@ -6,13 +6,9 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  ArrowRight,
-  MessageCircle,
   FileText,
-  X,
   Send,
   RefreshCw,
-  Home,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";

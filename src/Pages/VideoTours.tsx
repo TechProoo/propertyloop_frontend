@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -14,13 +14,29 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { videoListings } from "../data/videos";
+import listingsService from "../api/services/listings";
+import type { Listing } from "../api/types";
 
 const VideoTours = () => {
   const [playingIdx, setPlayingIdx] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [listings, setListings] = useState<Listing[]>([]);
 
-  const filtered = videoListings.filter((v) => {
+  useEffect(() => {
+    const loadVideoListings = async () => {
+      try {
+        const result = await listingsService.list({ limit: 100 });
+        const videosOnly = result.items.filter((l) => l.videoUrl);
+        setListings(videosOnly);
+      } catch (error) {
+        console.error("Failed to load video listings:", error);
+        setListings([]);
+      }
+    };
+    loadVideoListings();
+  }, []);
+
+  const filtered = listings.filter((v) => {
     const q = searchQuery.toLowerCase();
     return (
       !q ||
@@ -69,7 +85,7 @@ const VideoTours = () => {
 
               <div className="flex flex-wrap gap-3 mt-6">
                 {[
-                  { value: String(videoListings.length), label: "Video Tours" },
+                  { value: String(filtered.length), label: "Video Tours" },
                   { value: "4K", label: "Quality" },
                   { value: "Verified", label: "Agents" },
                 ].map((s) => (
@@ -131,15 +147,24 @@ const VideoTours = () => {
               >
                 {/* Video / Thumbnail */}
                 <div className="relative h-56 sm:h-64 overflow-hidden rounded-t-[20px] bg-black">
-                  {playingIdx === i ? (
+                  {playingIdx === i && tour.videoUrl ? (
                     <>
-                      <iframe
-                        src={`${tour.video}?autoplay=1`}
-                        title={tour.title}
-                        allow="autoplay; encrypted-media"
-                        allowFullScreen
-                        className="w-full h-full"
-                      />
+                      {tour.videoUrl.includes("youtu") || tour.videoUrl.includes("vimeo") ? (
+                        <iframe
+                          src={`${tour.videoUrl}?autoplay=1`}
+                          title={tour.title}
+                          allow="autoplay; encrypted-media"
+                          allowFullScreen
+                          className="w-full h-full"
+                        />
+                      ) : (
+                        <video
+                          src={tour.videoUrl}
+                          autoPlay
+                          controls
+                          className="w-full h-full"
+                        />
+                      )}
                       <button
                         onClick={() => setPlayingIdx(null)}
                         className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors"
@@ -150,7 +175,7 @@ const VideoTours = () => {
                   ) : (
                     <>
                       <img
-                        src={tour.thumbnail}
+                        src={tour.coverImage}
                         alt={tour.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
@@ -166,15 +191,10 @@ const VideoTours = () => {
                         </div>
                       </button>
 
-                      {/* Duration */}
-                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
-                        {tour.duration}
-                      </span>
-
                       {/* Views */}
                       <span className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
                         <Eye className="w-3 h-3" />
-                        {(tour.views / 1000).toFixed(1)}k
+                        {(tour.viewsCount / 1000).toFixed(1)}k views
                       </span>
 
                       {/* Rating */}
@@ -192,7 +212,7 @@ const VideoTours = () => {
                   className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] block"
                 >
                   <p className="font-heading font-bold text-primary-dark text-[18px]">
-                    {tour.price}
+                    {tour.priceLabel}
                   </p>
                   <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1 truncate">
                     {tour.title}

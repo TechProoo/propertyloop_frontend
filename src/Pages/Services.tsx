@@ -365,7 +365,7 @@ const Services = () => {
                 {filtered.map((vendor) => (
                   <Link
                     key={vendor.id}
-                    to={`/book-service/${vendor.id}`}
+                    to={`/vendor/${vendor.id}`}
                     className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 block"
                   >
                     <div className="h-44 overflow-hidden rounded-t-[20px] relative">

@@ -26,8 +26,6 @@ import {
   GraduationCap,
   Car,
   TrendingDown,
-  ArrowDown,
-  Calendar,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -35,6 +33,7 @@ import Footer from "../components/Home/Footer";
 import PropertyMap from "../components/ui/PropertyMap";
 import type { MapListing } from "../components/ui/PropertyMap";
 import BookmarkButton from "../components/ui/BookmarkButton";
+import EmptyState from "../components/ui/EmptyState";
 
 const categories = [
   {
@@ -75,7 +74,11 @@ const Rent = () => {
   const [bathsFilter, setBathsFilter] = useState("any");
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
-  const { items: apiListings, updateParams } = useListings({
+  const {
+    items: apiListings,
+    loading: listingsLoading,
+    updateParams,
+  } = useListings({
     type: "RENT",
     limit: 50,
   });
@@ -617,182 +620,240 @@ const Rent = () => {
               </div>
 
               {/* Cards grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
-                {currentListings.map((listing, i) => (
-                  <div
-                    key={i}
-                    onClick={() => {
-                      if (!isLoggedIn) {
-                        navigate("/onboarding");
-                        return;
-                      }
-                      setContactCard(contactCard === i ? null : i);
-                    }}
-                    onMouseEnter={() => setHoveredCard(i)}
-                    onMouseLeave={() => setHoveredCard(null)}
-                    className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-                  >
-                    {/* Image */}
-                    <div className="h-44 overflow-hidden rounded-t-[20px] relative">
-                      <img
-                        src={listing.image}
-                        alt={listing.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <span className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-medium text-primary-dark">
-                        <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                        {listing.rating}
-                      </span>
-                      <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
-                        For Rent
-                      </span>
-                      <BookmarkButton
-                        id={`rent-${listing.title.replace(/\s/g, "-").toLowerCase()}`}
-                        type="property"
-                        className="absolute bottom-3 right-3"
-                        size="sm"
-                      />
-                    </div>
-
-                    {/* Glass content */}
-                    <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                      <p className="font-heading font-bold text-primary-dark text-[18px]">
-                        {listing.price}
-                        <span className="text-text-subtle text-sm font-normal">
-                          {" "}
-                          /{listing.period}
-                        </span>
-                      </p>
-                      <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1 truncate">
-                        {listing.title}
-                      </h3>
-                      <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {listing.address}
-                      </p>
-
-                      <div className="h-px bg-border-light mt-3 mb-3" />
-
-                      <div className="flex items-center gap-4 text-text-secondary text-xs pr-10">
-                        {listing.beds > 0 && (
-                          <span className="flex items-center gap-1.5">
-                            <Bed className="w-3.5 h-3.5" />
-                            {listing.beds} Beds
-                          </span>
-                        )}
-                        {listing.baths > 0 && (
-                          <span className="flex items-center gap-1.5">
-                            <Bath className="w-3.5 h-3.5" />
-                            {listing.baths} Baths
-                          </span>
-                        )}
-                        <span className="flex items-center gap-1.5">
-                          <Maximize className="w-3.5 h-3.5" />
-                          {listing.sqft}m²
-                        </span>
+              {listingsLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden animate-pulse"
+                    >
+                      <div className="h-44 bg-border-light/60" />
+                      <div className="p-5 space-y-3">
+                        <div className="h-5 bg-border-light/60 rounded-full w-1/3" />
+                        <div className="h-4 bg-border-light/60 rounded-full w-2/3" />
+                        <div className="h-3 bg-border-light/60 rounded-full w-1/2" />
+                        <div className="h-px bg-border-light my-2" />
+                        <div className="flex gap-4">
+                          <div className="h-3 bg-border-light/60 rounded-full w-16" />
+                          <div className="h-3 bg-border-light/60 rounded-full w-16" />
+                          <div className="h-3 bg-border-light/60 rounded-full w-16" />
+                        </div>
                       </div>
                     </div>
+                  ))}
+                </div>
+              ) : currentListings.length === 0 ? (
+                <EmptyState
+                  icon={<Search className="w-10 h-10" />}
+                  title="No Properties Found"
+                  description={
+                    searchQuery
+                      ? `No rental properties match "${searchQuery}". Try adjusting your search criteria.`
+                      : "No rental properties available for your current filters. Try adjusting your search criteria or browse our featured categories."
+                  }
+                  actions={[
+                    {
+                      label: "Clear All Filters",
+                      icon: <LayoutGrid className="w-4 h-4" />,
+                      onClick: () => {
+                        setSearchQuery("");
+                        setActiveCategory("All Property");
+                        setPriceRange("any");
+                        setBedsFilter("any");
+                        setBathsFilter("any");
+                      },
+                      variant: "primary",
+                    },
+                    {
+                      label: "Browse All",
+                      onClick: () => setActiveCategory("All Property"),
+                      variant: "secondary",
+                    },
+                  ]}
+                  suggestions={categories.slice(0, 4).map((cat) => ({
+                    icon: cat.icon,
+                    label: cat.label,
+                    onClick: () => setActiveCategory(cat.label),
+                  }))}
+                />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
+                  {currentListings.map((listing, i) => (
+                    <div
+                      key={i}
+                      onClick={() => {
+                        if (!isLoggedIn) {
+                          navigate("/onboarding");
+                          return;
+                        }
+                        setContactCard(contactCard === i ? null : i);
+                      }}
+                      onMouseEnter={() => setHoveredCard(i)}
+                      onMouseLeave={() => setHoveredCard(null)}
+                      className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                    >
+                      {/* Image */}
+                      <div className="h-44 overflow-hidden rounded-t-[20px] relative">
+                        <img
+                          src={listing.image}
+                          alt={listing.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <span className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-medium text-primary-dark">
+                          <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
+                          {listing.rating}
+                        </span>
+                        <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
+                          For Rent
+                        </span>
+                        <BookmarkButton
+                          id={`rent-${listing.title.replace(/\s/g, "-").toLowerCase()}`}
+                          type="property"
+                          className="absolute bottom-3 right-3"
+                          size="sm"
+                        />
+                      </div>
 
-                    {/* Arrow — clipped circle */}
-                    <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                      <ArrowUpRight className="w-5 h-5 text-white" />
-                    </div>
+                      {/* Glass content */}
+                      <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+                        <p className="font-heading font-bold text-primary-dark text-[18px]">
+                          {listing.price}
+                          <span className="text-text-subtle text-sm font-normal">
+                            {" "}
+                            /{listing.period}
+                          </span>
+                        </p>
+                        <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1 truncate">
+                          {listing.title}
+                        </h3>
+                        <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {listing.address}
+                        </p>
 
-                    {/* Contact overlay */}
-                    <AnimatePresence>
-                      {contactCard === i && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.25 }}
-                          className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-primary-dark/80 backdrop-blur-md rounded-[20px]"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <motion.button
-                            initial={{ opacity: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{
-                              delay: 0.15,
-                              duration: 0.3,
-                              ease: [0.23, 1, 0.32, 1],
-                            }}
-                            onClick={() => setContactCard(null)}
-                            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/25 transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </motion.button>
+                        <div className="h-px bg-border-light mt-3 mb-3" />
 
+                        <div className="flex items-center gap-4 text-text-secondary text-xs pr-10">
+                          {listing.beds > 0 && (
+                            <span className="flex items-center gap-1.5">
+                              <Bed className="w-3.5 h-3.5" />
+                              {listing.beds} Beds
+                            </span>
+                          )}
+                          {listing.baths > 0 && (
+                            <span className="flex items-center gap-1.5">
+                              <Bath className="w-3.5 h-3.5" />
+                              {listing.baths} Baths
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1.5">
+                            <Maximize className="w-3.5 h-3.5" />
+                            {listing.sqft}m²
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Arrow — clipped circle */}
+                      <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
+                        <ArrowUpRight className="w-5 h-5 text-white" />
+                      </div>
+
+                      {/* Contact overlay */}
+                      <AnimatePresence>
+                        {contactCard === i && (
                           <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                              delay: 0.1,
-                              duration: 0.35,
-                              ease: [0.23, 1, 0.32, 1],
-                            }}
-                            className="text-center"
-                          >
-                            <p className="text-white/60 text-xs">
-                              Contact Agent
-                            </p>
-                            <p className="font-heading font-bold text-white text-base mt-1">
-                              {listing.agent}
-                            </p>
-                          </motion.div>
-
-                          <div className="flex gap-4">
-                            <motion.a
-                              initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                              animate={{ opacity: 1, scale: 1, y: 0 }}
-                              transition={{
-                                delay: 0.2,
-                                duration: 0.4,
-                                ease: [0.23, 1, 0.32, 1],
-                              }}
-                              href="tel:+2341234567890"
-                              className="flex flex-col items-center gap-2"
-                            >
-                              <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">
-                                <Phone className="w-6 h-6" />
-                              </div>
-                              <span className="text-white/70 text-xs">
-                                Call
-                              </span>
-                            </motion.a>
-                          </div>
-
-                          <motion.button
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{
-                              delay: 0.4,
-                              duration: 0.35,
-                              ease: [0.23, 1, 0.32, 1],
-                            }}
-                            onClick={() =>
-                              navigate(getPropertyLink(listing.title))
-                            }
-                            className="mt-1 h-10 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all duration-300 inline-flex items-center gap-2"
-                          >
-                            <ArrowUpRight className="w-4 h-4" />
-                            View details
-                          </motion.button>
-
-                          <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5, duration: 0.3 }}
-                            className="text-white/40 text-xs text-center px-6 mt-1 truncate max-w-full"
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-primary-dark/80 backdrop-blur-md rounded-[20px]"
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            {listing.title}
-                          </motion.p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))}
-              </div>
+                            <motion.button
+                              initial={{ opacity: 0, scale: 0.5 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{
+                                delay: 0.15,
+                                duration: 0.3,
+                                ease: [0.23, 1, 0.32, 1],
+                              }}
+                              onClick={() => setContactCard(null)}
+                              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/25 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </motion.button>
+
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{
+                                delay: 0.1,
+                                duration: 0.35,
+                                ease: [0.23, 1, 0.32, 1],
+                              }}
+                              className="text-center"
+                            >
+                              <p className="text-white/60 text-xs">
+                                Contact Agent
+                              </p>
+                              <p className="font-heading font-bold text-white text-base mt-1">
+                                {listing.agent}
+                              </p>
+                            </motion.div>
+
+                            <div className="flex gap-4">
+                              <motion.a
+                                initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                transition={{
+                                  delay: 0.2,
+                                  duration: 0.4,
+                                  ease: [0.23, 1, 0.32, 1],
+                                }}
+                                href="tel:+2341234567890"
+                                className="flex flex-col items-center gap-2"
+                              >
+                                <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">
+                                  <Phone className="w-6 h-6" />
+                                </div>
+                                <span className="text-white/70 text-xs">
+                                  Call
+                                </span>
+                              </motion.a>
+                            </div>
+
+                            <motion.button
+                              initial={{ opacity: 0, y: 15 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{
+                                delay: 0.4,
+                                duration: 0.35,
+                                ease: [0.23, 1, 0.32, 1],
+                              }}
+                              onClick={() =>
+                                navigate(getPropertyLink(listing.title))
+                              }
+                              className="mt-1 h-10 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all duration-300 inline-flex items-center gap-2"
+                            >
+                              <ArrowUpRight className="w-4 h-4" />
+                              View details
+                            </motion.button>
+
+                            <motion.p
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.5, duration: 0.3 }}
+                              className="text-white/40 text-xs text-center px-6 mt-1 truncate max-w-full"
+                            >
+                              {listing.title}
+                            </motion.p>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Load more */}
               <div className="mt-10 text-center">
@@ -831,132 +892,23 @@ const Rent = () => {
               </a>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
-                  title: "3-Bed Flat, Lekki Phase 1",
-                  address: "Lekki Phase 1, Lagos",
-                  current: "₦3,000,000/yr",
-                  history: [
-                    { price: "₦3.8M", date: "Jan 2026" },
-                    { price: "₦3.5M", date: "Feb 2026" },
-                    { price: "₦3.0M", date: "Mar 2026" },
-                  ],
-                  drop: "21%",
-                },
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
-                  title: "2-Bed Flat, Victoria Island",
-                  address: "Victoria Island, Lagos",
-                  current: "₦5,500,000/yr",
-                  history: [
-                    { price: "₦6.5M", date: "Dec 2025" },
-                    { price: "₦6.0M", date: "Feb 2026" },
-                    { price: "₦5.5M", date: "Mar 2026" },
-                  ],
-                  drop: "15%",
-                },
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
-                  title: "4-Bed Duplex, Ikoyi",
-                  address: "Ikoyi, Lagos",
-                  current: "₦10,000,000/yr",
-                  history: [
-                    { price: "₦12M", date: "Nov 2025" },
-                    { price: "₦11M", date: "Jan 2026" },
-                    { price: "₦10M", date: "Mar 2026" },
-                  ],
-                  drop: "17%",
-                },
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
-                  title: "1-Bed Studio, Ajah",
-                  address: "Ajah, Lagos",
-                  current: "₦1,200,000/yr",
-                  history: [
-                    { price: "₦1.5M", date: "Oct 2025" },
-                    { price: "₦1.3M", date: "Jan 2026" },
-                    { price: "₦1.2M", date: "Mar 2026" },
-                  ],
-                  drop: "20%",
-                },
-              ].map((prop, i) => (
-                <div
-                  key={i}
-                  className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-                >
-                  <div className="h-36 overflow-hidden rounded-t-[20px] relative">
-                    <img
-                      src={prop.image}
-                      alt={prop.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <span className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#e74c3c]/90 backdrop-blur-sm text-white text-xs font-bold">
-                      <ArrowDown className="w-3 h-3" />
-                      {prop.drop}
-                    </span>
-                  </div>
-
-                  <div className="mx-3 mb-3 -mt-5 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-4 pt-4 pb-4 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                    <p className="font-heading font-bold text-primary-dark text-[17px]">
-                      {prop.current}
-                    </p>
-                    <h3 className="font-heading font-bold text-primary-dark text-[13px] leading-snug mt-1 truncate">
-                      {prop.title}
-                    </h3>
-                    <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {prop.address}
-                    </p>
-
-                    <div className="h-px bg-border-light mt-3 mb-3" />
-
-                    <div className="relative">
-                      <p className="text-text-subtle text-[10px] uppercase tracking-wide mb-2">
-                        Rent History
-                      </p>
-                      <div className="flex flex-col gap-2">
-                        {prop.history.map((h, j) => (
-                          <div key={j} className="flex items-center gap-2">
-                            <div className="flex flex-col items-center">
-                              <div
-                                className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                  j === prop.history.length - 1
-                                    ? "bg-primary"
-                                    : "bg-border-light"
-                                }`}
-                              />
-                              {j < prop.history.length - 1 && (
-                                <div className="w-px h-3 bg-border-light" />
-                              )}
-                            </div>
-                            <div className="flex items-center justify-between flex-1 min-w-0">
-                              <span
-                                className={`text-xs font-medium ${
-                                  j === prop.history.length - 1
-                                    ? "text-primary-dark font-bold"
-                                    : "text-text-subtle line-through"
-                                }`}
-                              >
-                                {h.price}
-                              </span>
-                              <span className="text-text-subtle text-[10px] flex items-center gap-1">
-                                <Calendar className="w-2.5 h-2.5" />
-                                {h.date}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {/* Empty state for rent reductions */}
+            <div className="flex flex-col items-center justify-center py-24 text-center rounded-[28px] bg-white/30 border border-border-light">
+              <div className="w-20 h-20 rounded-full bg-[#e74c3c]/10 flex items-center justify-center mb-4">
+                <TrendingDown className="w-8 h-8 text-[#e74c3c]/50" />
+              </div>
+              <h3 className="font-heading font-bold text-primary-dark text-lg">
+                Rent Reductions Coming Soon
+              </h3>
+              <p className="text-text-secondary text-sm mt-2 max-w-sm">
+                Track rentals with price drops and full rent history. See exactly how prices have changed over time.
+              </p>
+              <a
+                href="/reductions"
+                className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center"
+              >
+                Browse Reductions
+              </a>
             </div>
           </div>
         </div>

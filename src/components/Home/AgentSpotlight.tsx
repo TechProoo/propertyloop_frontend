@@ -1,16 +1,32 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, CheckCircle, Star, Home, Phone } from "lucide-react";
-import { agents as sharedAgents } from "../../data/agents";
 import AuthGate from "../ui/AuthGate";
+import agentsService from "../../api/services/agents";
+import type { AgentPublic } from "../../api/types";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const agents = sharedAgents.slice(0, 3);
-
 const AgentSpotlight = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [agents, setAgents] = useState<AgentPublic[]>([]);
+
+  useEffect(() => {
+    const loadAgents = async () => {
+      try {
+        const result = await agentsService.list({
+          limit: 100,
+          sort: "top_rated",
+        });
+        setAgents(result.items.slice(0, 3));
+      } catch (error) {
+        console.error("Failed to load agents:", error);
+        setAgents([]);
+      }
+    };
+    loadAgents();
+  }, []);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -153,9 +169,9 @@ const AgentSpotlight = () => {
               className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
             >
               {/* Photo */}
-              <div className="h-52 overflow-hidden rounded-t-[20px] relative">
+              <div className="h-52 overflow-hidden rounded-t-[20px] relative bg-linear-to-br from-primary/20 to-primary-dark/20">
                 <img
-                  src={agent.photo}
+                  src={agent.avatarUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=600&fit=crop"}
                   alt={agent.name}
                   className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                 />
@@ -190,9 +206,9 @@ const AgentSpotlight = () => {
                     </span>
                     <span className="flex items-center gap-1">
                       <Home className="w-3.5 h-3.5" />
-                      {agent.listings} active
+                      {agent.listingsCount} active
                     </span>
-                    <span>{agent.soldRented} closed</span>
+                    <span>{agent.soldRentedCount} closed</span>
                   </div>
                 </div>
               </div>

@@ -27,166 +27,6 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import agentsService from "../api/services/agents";
 
-/* ─── Sample listings per agent (keyed by agent id) ─── */
-
-const agentListings: Record<
-  string,
-  {
-    image: string;
-    price: string;
-    title: string;
-    address: string;
-    beds: number;
-    baths: number;
-    sqft: string;
-    type: string;
-  }[]
-> = {
-  "adebayo-johnson": [
-    {
-      image:
-        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-      price: "₦185,000,000",
-      title: "Contemporary Villa with Garden",
-      address: "Lekki Phase 1, Lagos",
-      beds: 4,
-      baths: 3,
-      sqft: "6,800",
-      type: "For Sale",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
-      price: "₦65,000,000",
-      title: "Luxury 3-Bed Flat in Lekki",
-      address: "Lekki Phase 1, Lagos",
-      beds: 3,
-      baths: 3,
-      sqft: "2,400",
-      type: "For Sale",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
-      price: "₦3,200,000 /yr",
-      title: "Modern Terrace in Gated Estate",
-      address: "Lekki Phase 1, Lagos",
-      beds: 3,
-      baths: 2,
-      sqft: "2,100",
-      type: "For Rent",
-    },
-  ],
-  "chioma-okafor": [
-    {
-      image:
-        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop",
-      price: "₦120,000,000",
-      title: "Penthouse with Ocean View",
-      address: "Victoria Island, Lagos",
-      beds: 4,
-      baths: 3,
-      sqft: "3,800",
-      type: "For Sale",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
-      price: "₦85,000 /night",
-      title: "Luxury Shortlet Apartment",
-      address: "Victoria Island, Lagos",
-      beds: 2,
-      baths: 2,
-      sqft: "1,600",
-      type: "Shortlet",
-    },
-  ],
-  "emeka-nwosu": [
-    {
-      image:
-        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
-      price: "₦450,000,000",
-      title: "Waterfront Mansion with Pool",
-      address: "Ikoyi, Lagos",
-      beds: 6,
-      baths: 5,
-      sqft: "12,000",
-      type: "For Sale",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
-      price: "₦220,000,000",
-      title: "Premium Office Space",
-      address: "Ikoyi, Lagos",
-      beds: 0,
-      baths: 2,
-      sqft: "4,200",
-      type: "Commercial",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
-      price: "₦95,000,000",
-      title: "Semi-Detached Duplex with BQ",
-      address: "Ikoyi, Lagos",
-      beds: 4,
-      baths: 3,
-      sqft: "5,200",
-      type: "For Sale",
-    },
-  ],
-};
-
-/* Default listings for agents without specific ones */
-const defaultListings = [
-  {
-    image:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-    price: "₦75,000,000",
-    title: "Modern Family Home",
-    address: "Lagos",
-    beds: 4,
-    baths: 3,
-    sqft: "4,500",
-    type: "For Sale",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&h=400&fit=crop",
-    price: "₦2,800,000 /yr",
-    title: "Spacious 3-Bed Apartment",
-    address: "Lagos",
-    beds: 3,
-    baths: 2,
-    sqft: "2,000",
-    type: "For Rent",
-  },
-];
-
-/* ─── Reviews ─── */
-
-const reviews = [
-  {
-    name: "Olumide A.",
-    date: "2 weeks ago",
-    rating: 5,
-    text: "Incredibly professional and responsive. Found us the perfect home within our budget in just 3 weeks. Highly recommend!",
-  },
-  {
-    name: "Sandra E.",
-    date: "1 month ago",
-    rating: 5,
-    text: "Transparent throughout the entire process. No hidden fees, no inflated prices. A rare find in Lagos real estate.",
-  },
-  {
-    name: "Tayo O.",
-    date: "2 months ago",
-    rating: 4,
-    text: "Very knowledgeable about the area. Helped us understand the neighbourhood scores and made sure everything was verified before we committed.",
-  },
-];
-
 const ease = [0.23, 1, 0.32, 1] as const;
 
 /* ─── Review / Dispute Section ─── */
@@ -454,8 +294,6 @@ const AgentProfile = () => {
     );
   }
 
-  const listings = agentListings[agent.id] || defaultListings;
-
   /* Pick 3 similar agents (same specialty, exclude self) */
   const similarAgents: any[] = [];
 
@@ -716,39 +554,45 @@ const AgentProfile = () => {
                 </div>
 
                 <div className="flex flex-col gap-5">
-                  {reviews.map((review, i) => (
-                    <div
-                      key={i}
-                      className="bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl p-5"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
-                            {review.name.charAt(0)}
+                  {agent.reviews && agent.reviews.length > 0 ? (
+                    agent.reviews.map((review: any, i: number) => (
+                      <div
+                        key={i}
+                        className="bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl p-5"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
+                              {review.clientName?.charAt(0) || review.name?.charAt(0) || '?'}
+                            </div>
+                            <div>
+                              <p className="font-heading font-semibold text-primary-dark text-sm">
+                                {review.clientName || review.name}
+                              </p>
+                              <p className="text-text-subtle text-[11px]">
+                                {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : review.date}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-heading font-semibold text-primary-dark text-sm">
-                              {review.name}
-                            </p>
-                            <p className="text-text-subtle text-[11px]">
-                              {review.date}
-                            </p>
+                          <div className="flex items-center gap-0.5">
+                            {Array.from({ length: review.rating }).map((_, j) => (
+                              <Star
+                                key={j}
+                                className="w-3 h-3 text-[#F5A623] fill-[#F5A623]"
+                              />
+                            ))}
                           </div>
                         </div>
-                        <div className="flex items-center gap-0.5">
-                          {Array.from({ length: review.rating }).map((_, j) => (
-                            <Star
-                              key={j}
-                              className="w-3 h-3 text-[#F5A623] fill-[#F5A623]"
-                            />
-                          ))}
-                        </div>
+                        <p className="text-text-secondary text-sm leading-relaxed">
+                          {review.comment || review.text}
+                        </p>
                       </div>
-                      <p className="text-text-secondary text-sm leading-relaxed">
-                        {review.text}
-                      </p>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-text-secondary text-sm text-center py-6">
+                      No reviews yet. Be the first to review this agent!
+                    </p>
+                  )}
                 </div>
               </motion.div>
 
@@ -773,55 +617,61 @@ const AgentProfile = () => {
                     Active Listings
                   </h2>
                   <span className="text-xs text-text-secondary">
-                    {listings.length} properties
+                    {agent.activeListings.length} properties
                   </span>
                 </div>
                 <div className="p-4 flex flex-col gap-4">
-                  {listings.map((listing, i) => (
-                    <div
-                      key={i}
-                      className="group flex gap-4 bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl p-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-                    >
-                      <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 relative">
-                        <img
-                          src={listing.image}
-                          alt={listing.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
-                          {listing.type}
-                        </span>
+                  {agent.activeListings.length > 0 ? (
+                    agent.activeListings.map((listing: any, i: number) => (
+                      <div
+                        key={i}
+                        className="group flex gap-4 bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl p-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                      >
+                        <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 relative">
+                          <img
+                            src={listing.image}
+                            alt={listing.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
+                            {listing.type}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0 py-0.5">
+                          <p className="font-heading font-bold text-primary-dark text-[15px]">
+                            {listing.price}
+                          </p>
+                          <p className="font-heading font-semibold text-primary-dark text-sm leading-snug mt-0.5 truncate">
+                            {listing.title}
+                          </p>
+                          <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {listing.address}
+                          </p>
+                          {listing.beds > 0 && (
+                            <div className="flex items-center gap-3 text-text-secondary text-[11px] mt-2">
+                              <span className="flex items-center gap-1">
+                                <Bed className="w-3 h-3" />
+                                {listing.beds}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Bath className="w-3 h-3" />
+                                {listing.baths}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Maximize className="w-3 h-3" />
+                                {listing.sqft}m²
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0 py-0.5">
-                        <p className="font-heading font-bold text-primary-dark text-[15px]">
-                          {listing.price}
-                        </p>
-                        <p className="font-heading font-semibold text-primary-dark text-sm leading-snug mt-0.5 truncate">
-                          {listing.title}
-                        </p>
-                        <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {listing.address}
-                        </p>
-                        {listing.beds > 0 && (
-                          <div className="flex items-center gap-3 text-text-secondary text-[11px] mt-2">
-                            <span className="flex items-center gap-1">
-                              <Bed className="w-3 h-3" />
-                              {listing.beds}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Bath className="w-3 h-3" />
-                              {listing.baths}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Maximize className="w-3 h-3" />
-                              {listing.sqft}m²
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-text-secondary text-sm text-center py-6">
+                      No active listings at the moment.
+                    </p>
+                  )}
                 </div>
                 <div className="px-4 pb-4">
                   <button className="w-full h-10 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">

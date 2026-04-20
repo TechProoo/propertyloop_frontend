@@ -61,112 +61,7 @@ const categories = [
   },
 ];
 
-const developments: Development[] = [
-  {
-    image:
-      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop",
-    title: "Emerald Bay Estate",
-    developer: "Prime Realty Lagos",
-    address: "Lekki Phase 2, Lagos",
-    priceFrom: "₦45,000,000",
-    totalUnits: 120,
-    soldPercentage: 72,
-    completionDate: "Q4 2026",
-    type: "Estate",
-    status: "Selling",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop",
-    title: "The Pinnacle Towers",
-    developer: "Island Properties",
-    address: "Victoria Island, Lagos",
-    priceFrom: "₦185,000,000",
-    totalUnits: 64,
-    soldPercentage: 45,
-    completionDate: "Q2 2027",
-    type: "Apartment Complex",
-    status: "Selling",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
-    title: "Lekki Gardens Phase 3",
-    developer: "Prestige Homes",
-    address: "Lekki, Lagos",
-    priceFrom: "₦38,000,000",
-    totalUnits: 200,
-    soldPercentage: 88,
-    completionDate: "Q1 2026",
-    type: "Gated Community",
-    status: "Almost Sold Out",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-    title: "Oceanview Terraces",
-    developer: "Royal Estate Advisors",
-    address: "Banana Island, Lagos",
-    priceFrom: "₦320,000,000",
-    totalUnits: 32,
-    soldPercentage: 28,
-    completionDate: "Q3 2027",
-    type: "Apartment Complex",
-    status: "Pre-Launch",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
-    title: "Heritage Park Estate",
-    developer: "Cityscape Properties",
-    address: "Gbagada, Lagos",
-    priceFrom: "₦28,000,000",
-    totalUnits: 180,
-    soldPercentage: 65,
-    completionDate: "Q2 2026",
-    type: "Estate",
-    status: "Selling",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
-    title: "The Axis Hub",
-    developer: "Horizon Properties",
-    address: "Ikeja, Lagos",
-    priceFrom: "₦55,000,000",
-    totalUnits: 96,
-    soldPercentage: 52,
-    completionDate: "Q4 2026",
-    type: "Mixed-Use",
-    status: "Selling",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
-    title: "Sapphire Court Residences",
-    developer: "Sapphire Homes",
-    address: "Yaba, Lagos",
-    priceFrom: "₦22,000,000",
-    totalUnits: 150,
-    soldPercentage: 91,
-    completionDate: "Q1 2026",
-    type: "Apartment Complex",
-    status: "Almost Sold Out",
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&h=400&fit=crop",
-    title: "Greenfield Villas",
-    developer: "Metro Living Realty",
-    address: "Ajah, Lagos",
-    priceFrom: "₦32,000,000",
-    totalUnits: 80,
-    soldPercentage: 15,
-    completionDate: "Q1 2028",
-    type: "Gated Community",
-    status: "Pre-Launch",
-  },
-];
+const developments: Development[] = [];
 
 const steps = [
   {
@@ -450,8 +345,24 @@ const NewDevelopments = () => {
               </div>
 
               {/* Cards grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
-                {filtered.map((dev, i) => (
+              {filtered.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-24 text-center rounded-[28px] bg-white/30 border border-border-light">
+                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                    <Building2 className="w-8 h-8 text-primary/50" />
+                  </div>
+                  <h3 className="font-heading font-bold text-primary-dark text-lg">
+                    New Developments Coming Soon
+                  </h3>
+                  <p className="text-text-secondary text-sm mt-2 max-w-sm">
+                    Verified off-plan properties and new estates from trusted developers will be featured here.
+                  </p>
+                  <button className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors">
+                    Register Interest
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
+                  {filtered.map((dev, i) => (
                   <div
                     key={i}
                     onClick={() => setContactCard(contactCard === i ? null : i)}
@@ -619,8 +530,9 @@ const NewDevelopments = () => {
                       )}
                     </AnimatePresence>
                   </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
 
               {/* Load more */}
               <div className="mt-10 text-center">

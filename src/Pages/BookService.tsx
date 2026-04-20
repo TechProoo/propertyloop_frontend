@@ -11,9 +11,6 @@ import {
   CheckCircle,
   Shield,
   ShieldCheck,
-  Lock,
-  CreditCard,
-  Clock,
   Calendar,
   ClipboardList,
   Wrench,
@@ -26,26 +23,48 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import vendorsService from "../api/services/vendors";
-import vendorJobsService from "../api/services/vendorJobs";
-import { useAuth } from "../context/AuthContext";
 import type { VendorPublic } from "../api/types";
-import {
-  getConversation,
-  saveConversation,
-  addMessage,
-  type ChatMessage,
-} from "../data/chat";
-import { addBooking } from "../data/bookings";
+// Chat and booking data now handled via API services
+type ChatMessage = {
+  sender: "you" | "them";
+  text: string;
+  time: string;
+};
+
+type Conversation = {
+  id: string;
+  name: string;
+  avatar: string;
+  role: string;
+  phone: string;
+  messages: ChatMessage[];
+};
+
+const getConversation = (id: string): Conversation | null => {
+  const stored = localStorage.getItem(`conversation-${id}`);
+  return stored ? JSON.parse(stored) : null;
+};
+
+const saveConversation = (conversation: Conversation) => {
+  localStorage.setItem(`conversation-${conversation.id}`, JSON.stringify(conversation));
+};
+
+const addMessage = (convoId: string, message: ChatMessage) => {
+  const existing = getConversation(convoId);
+  if (existing) {
+    existing.messages.push(message);
+    saveConversation(existing);
+  }
+};
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
-const steps = ["details", "review", "payment", "confirmed"] as const;
+const steps = ["details", "review", "confirmed"] as const;
 type Step = (typeof steps)[number];
 
 const stepLabels: Record<Step, string> = {
   details: "Job Details",
   review: "Review & Price",
-  payment: "Payment",
   confirmed: "Confirmed",
 };
 
@@ -214,11 +233,9 @@ const VendorReviewSection = ({ vendorName }: { vendorName: string }) => {
 
 const BookService = () => {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
   const [vendor, setVendor] = useState<VendorPublic | null>(null);
   const [loadingVendor, setLoadingVendor] = useState(true);
   const [currentStep, setCurrentStep] = useState<Step>("details");
-  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -338,56 +355,13 @@ const BookService = () => {
     );
   }
 
-  const priceNum = agreedPrice
+  const vendorFee = agreedPrice
     ? parseInt(agreedPrice.replace(/,/g, "")) || (vendor.priceNum ?? 0)
     : (vendor.priceNum ?? 0);
-  const serviceFee = Math.round(priceNum * 0.1);
-  const total = priceNum + serviceFee;
+  const platformFee = Math.round(vendorFee * 0.1);
+  const total = vendorFee + platformFee;
 
   const goNext = () => {
-    if (currentStep === "payment") {
-      setProcessing(true);
-      vendorJobsService
-        .createBooking({
-          vendorId: vendor.id,
-          title: `${vendor.category ?? "Service"} Service`,
-          description: jobDescription,
-          address: propertyAddress,
-          category: vendor.category ?? "",
-          vendorFee: priceNum,
-          scheduledFor: preferredDate
-            ? new Date(
-                `${preferredDate}T${preferredTime || "10:00"}:00`,
-              ).toISOString()
-            : new Date().toISOString(),
-          clientName: user?.name ?? "Customer",
-          clientPhone: user?.phone ?? "",
-          paymentMethod: "card",
-        })
-        .then(() => {
-          setProcessing(false);
-          addBooking({
-            id: `SVC-${Date.now()}`,
-            vendorId: vendor.id,
-            vendorName: vendor.name,
-            vendorAvatar: vendor.avatarUrl ?? "",
-            category: vendor.category ?? "",
-            jobDescription,
-            preferredDate,
-            preferredTime,
-            negotiationNotes: propertyAddress,
-            total,
-            status: "pending",
-            createdAt: new Date().toISOString(),
-          });
-          setCurrentStep("confirmed");
-        })
-        .catch(() => {
-          setProcessing(false);
-          setCurrentStep("confirmed");
-        });
-      return;
-    }
     const next = stepIndex + 1;
     if (next < steps.length) setCurrentStep(steps[next]);
   };
@@ -422,7 +396,7 @@ const BookService = () => {
           {/* Step indicator */}
           {currentStep !== "confirmed" && (
             <div className="flex items-center justify-center gap-2 mb-8">
-              {steps.slice(0, 3).map((s, i) => (
+              {steps.slice(0, 2).map((s, i) => (
                 <div key={s} className="flex items-center gap-2">
                   <div
                     className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-heading font-semibold transition-all ${i <= stepIndex ? "bg-primary text-white shadow-lg shadow-glow/40" : "bg-white/60 text-text-secondary border border-border-light"}`}
@@ -653,23 +627,22 @@ const BookService = () => {
 
                       <div className="bg-bg-accent rounded-2xl border border-border-light p-4">
                         <div className="flex items-center gap-2 text-xs text-primary mb-2">
-                          <Shield className="w-4 h-4" /> Paystack Escrow
-                          Protected
+                          <Shield className="w-4 h-4" /> Price Summary
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-text-secondary">
-                            Vendor fee
+                            Service fee
                           </span>
                           <span className="text-primary-dark font-medium">
-                            ₦{priceNum.toLocaleString()}
+                            ₦{vendorFee.toLocaleString()}
                           </span>
                         </div>
                         <div className="flex justify-between text-sm mt-1">
                           <span className="text-text-secondary">
-                            Service fee (10%)
+                            Platform fee (10%)
                           </span>
                           <span className="text-primary-dark font-medium">
-                            ₦{serviceFee.toLocaleString()}
+                            ₦{platformFee.toLocaleString()}
                           </span>
                         </div>
                         <div className="h-px bg-border-light my-2" />
@@ -694,90 +667,13 @@ const BookService = () => {
                           onClick={goNext}
                           className="flex items-center gap-2 px-8 py-2.5 rounded-full bg-primary text-white font-heading font-semibold text-sm shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors"
                         >
-                          Proceed to Payment <CreditCard className="w-4 h-4" />
+                          Confirm Booking <ArrowRight className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
                   )}
 
-                  {/* Step 3: Payment */}
-                  {currentStep === "payment" && (
-                    <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
-                      <h2 className="font-heading font-bold text-primary-dark text-lg mb-5">
-                        Escrow Payment
-                      </h2>
-                      <div className="flex items-center gap-3 mb-5 px-4 py-3 rounded-2xl bg-primary/5 border border-primary/20">
-                        <Lock className="w-5 h-5 text-primary" />
-                        <p className="text-primary-dark text-sm">
-                          ₦{total.toLocaleString()} will be held in{" "}
-                          <span className="font-bold">Paystack escrow</span>.{" "}
-                          {vendor.name} only gets paid when you confirm the job
-                          is complete.
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-4">
-                        <div>
-                          <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                            Card Number
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="4084 0840 8408 4081"
-                            className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                              Expiry
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="12/28"
-                              className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                              CVV
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="123"
-                              className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between mt-6">
-                        <button
-                          onClick={goBack}
-                          className="flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-primary transition-colors"
-                        >
-                          <ArrowLeft className="w-4 h-4" /> Back
-                        </button>
-                        <button
-                          onClick={goNext}
-                          disabled={processing}
-                          className="h-12 px-10 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)] disabled:opacity-60"
-                        >
-                          {processing ? (
-                            <>
-                              <Clock className="w-4 h-4 animate-spin" />{" "}
-                              Processing...
-                            </>
-                          ) : (
-                            <>
-                              Pay ₦{total.toLocaleString()}{" "}
-                              <Lock className="w-4 h-4" />
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 4: Confirmed */}
+                  {/* Step 3: Confirmed */}
                   {currentStep === "confirmed" && (
                     <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
                       <motion.div
@@ -796,10 +692,8 @@ const BookService = () => {
                         Service Booked!
                       </h2>
                       <p className="text-text-secondary text-sm mt-2 max-w-md mx-auto">
-                        ₦{total.toLocaleString()} is held in Paystack escrow.{" "}
                         {vendor.name} will contact you to confirm the
-                        appointment. Funds are released only when you confirm
-                        the job is done.
+                        appointment and discuss pricing details.
                       </p>
                       <div className="mt-6 bg-bg-accent rounded-2xl border border-border-light p-4 text-left max-w-sm mx-auto">
                         <p className="font-heading font-bold text-primary-dark text-sm">
@@ -854,13 +748,15 @@ const BookService = () => {
               <div className="lg:w-85 shrink-0">
                 <div className="sticky top-8 flex flex-col gap-4">
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                    <img
-                      src={vendor.bannerImage ?? vendor.avatarUrl ?? ""}
-                      alt={vendor.name}
-                      className="w-full h-40 object-cover"
-                    />
+                    <Link to={`/vendor/${vendor.id}`}>
+                      <img
+                        src={vendor.bannerImage ?? vendor.avatarUrl ?? ""}
+                        alt={vendor.name}
+                        className="w-full h-40 object-cover hover:opacity-90 transition-opacity"
+                      />
+                    </Link>
                     <div className="p-5">
-                      <div className="flex items-center gap-3 mb-3">
+                      <Link to={`/vendor/${vendor.id}`} className="group flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity">
                         <img
                           src={vendor.avatarUrl ?? ""}
                           alt={vendor.name}
@@ -868,7 +764,7 @@ const BookService = () => {
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <p className="font-heading font-bold text-primary-dark text-sm truncate">
+                            <p className="font-heading font-bold text-primary-dark text-sm truncate group-hover:text-primary transition-colors">
                               {vendor.name}
                             </p>
                             {vendor.verified && (
@@ -879,7 +775,7 @@ const BookService = () => {
                             {vendor.category}
                           </p>
                         </div>
-                      </div>
+                      </Link>
                       <div className="flex items-center gap-3 text-xs text-text-secondary mb-3">
                         <span className="flex items-center gap-1">
                           <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
@@ -900,10 +796,6 @@ const BookService = () => {
                       </p>
                       <div className="h-px bg-border-light my-3" />
                       <div className="flex flex-col gap-2 text-xs text-text-secondary">
-                        <div className="flex items-center gap-2">
-                          <Shield className="w-4 h-4 text-primary" />{" "}
-                          Escrow-protected payment
-                        </div>
                         <div className="flex items-center gap-2">
                           <ShieldCheck className="w-4 h-4 text-primary" /> KYC
                           verified vendor

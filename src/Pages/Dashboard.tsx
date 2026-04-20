@@ -46,7 +46,6 @@ import { getBookings } from "../data/bookings";
 import {
   getConversations,
   addMessage,
-  seedDefaultConversations,
   type Conversation,
   type ChatMessage,
 } from "../data/chat";
@@ -87,99 +86,6 @@ const navItems = [
     id: "logbook",
   },
   { icon: <Settings className="w-5 h-5" />, label: "Settings", id: "settings" },
-];
-
-const defaultConversations: Conversation[] = [
-  {
-    id: "conv-1",
-    name: "Adebayo Johnson",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
-    role: "Agent",
-    phone: "2348012345678",
-    messages: [
-      {
-        sender: "them",
-        text: "Good morning! I wanted to follow up on the Lekki property you viewed last week.",
-        time: "Yesterday, 9:15 AM",
-      },
-      {
-        sender: "you",
-        text: "Hi Adebayo, yes I'm still very interested. Can we schedule another viewing?",
-        time: "Yesterday, 10:02 AM",
-      },
-      {
-        sender: "them",
-        text: "Of course! The owner is available Thursday morning. Would 10am work for you?",
-        time: "Yesterday, 10:30 AM",
-      },
-      {
-        sender: "you",
-        text: "Thursday at 10am works perfectly. See you then!",
-        time: "Yesterday, 11:00 AM",
-      },
-      {
-        sender: "them",
-        text: "The viewing for the Lekki flat is confirmed for Thursday at 10am",
-        time: "10 min ago",
-      },
-    ],
-  },
-  {
-    id: "conv-2",
-    name: "Chioma Okafor",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face",
-    role: "Agent",
-    phone: "2348023456789",
-    messages: [
-      {
-        sender: "them",
-        text: "Hello! Based on your search preferences, I found some properties you might like.",
-        time: "Today, 8:00 AM",
-      },
-      {
-        sender: "you",
-        text: "Hi Chioma! That sounds great, please share them",
-        time: "Today, 8:45 AM",
-      },
-      {
-        sender: "them",
-        text: "I have 3 new listings in Victoria Island that match your budget",
-        time: "2 hours ago",
-      },
-    ],
-  },
-  {
-    id: "conv-3",
-    name: "Chinedu Okonkwo",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
-    role: "Vendor",
-    phone: "2348034567890",
-    messages: [
-      {
-        sender: "you",
-        text: "Hi Chinedu, when can you come fix the kitchen pipes?",
-        time: "Mon, 2:00 PM",
-      },
-      {
-        sender: "them",
-        text: "I can come Wednesday morning. Will that work?",
-        time: "Mon, 2:30 PM",
-      },
-      {
-        sender: "you",
-        text: "Wednesday morning is fine. Please come by 9am.",
-        time: "Mon, 3:00 PM",
-      },
-      {
-        sender: "them",
-        text: "The plumbing work is complete. Please inspect and confirm.",
-        time: "5 hours ago",
-      },
-    ],
-  },
 ];
 
 /* stats are computed inside the component to use bookmark counts */
@@ -223,9 +129,8 @@ const Dashboard = () => {
   const getProductById = (id: string) =>
     products.find((p) => p.id === id) || null;
 
-  // Seed defaults + load all conversations (including vendor chats from BookService)
+  // Load conversations from localStorage (populated by real user interactions)
   useEffect(() => {
-    seedDefaultConversations(defaultConversations);
     const convos = getConversations();
     setAllConversations(Object.values(convos));
   }, [activeNav]); // refresh when switching to messages tab

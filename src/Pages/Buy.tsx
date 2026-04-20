@@ -26,8 +26,6 @@ import {
   GraduationCap,
   Car,
   TrendingDown,
-  ArrowDown,
-  Calendar,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -35,6 +33,7 @@ import Footer from "../components/Home/Footer";
 import PropertyMap from "../components/ui/PropertyMap";
 import type { MapListing } from "../components/ui/PropertyMap";
 import BookmarkButton from "../components/ui/BookmarkButton";
+import EmptyState from "../components/ui/EmptyState";
 
 const categories = [
   {
@@ -662,29 +661,39 @@ const Buy = () => {
                   ))}
                 </div>
               ) : currentListings.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="w-16 h-16 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-4">
-                    <Search className="w-7 h-7 text-text-subtle" />
-                  </div>
-                  <h3 className="font-heading font-bold text-primary-dark text-lg">
-                    No properties found
-                  </h3>
-                  <p className="text-text-secondary text-sm mt-2">
-                    Try adjusting your filters or search query.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setActiveCategory("All Property");
-                      setPriceRange("any");
-                      setBedsFilter("any");
-                      setBathsFilter("any");
-                    }}
-                    className="mt-4 h-10 px-6 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all"
-                  >
-                    Clear All Filters
-                  </button>
-                </div>
+                <EmptyState
+                  icon={<Search className="w-10 h-10" />}
+                  title="No Properties Found"
+                  description={
+                    searchQuery
+                      ? `No properties for sale match "${searchQuery}". Try adjusting your search criteria.`
+                      : "No properties available for your current filters. Try adjusting your search criteria or browse our featured categories."
+                  }
+                  actions={[
+                    {
+                      label: "Clear All Filters",
+                      icon: <LayoutGrid className="w-4 h-4" />,
+                      onClick: () => {
+                        setSearchQuery("");
+                        setActiveCategory("All Property");
+                        setPriceRange("any");
+                        setBedsFilter("any");
+                        setBathsFilter("any");
+                      },
+                      variant: "primary",
+                    },
+                    {
+                      label: "Browse All",
+                      onClick: () => setActiveCategory("All Property"),
+                      variant: "secondary",
+                    },
+                  ]}
+                  suggestions={categories.slice(0, 4).map((cat) => ({
+                    icon: cat.icon,
+                    label: cat.label,
+                    onClick: () => setActiveCategory(cat.label),
+                  }))}
+                />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
                   {currentListings.map((listing, i) => (
@@ -901,138 +910,23 @@ const Buy = () => {
               </a>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
-                  title: "4-Bed Villa, Lekki Phase 1",
-                  address: "Lekki Phase 1, Lagos",
-                  current: "₦165,000,000",
-                  history: [
-                    { price: "₦185M", date: "Jan 2026" },
-                    { price: "₦175M", date: "Feb 2026" },
-                    { price: "₦165M", date: "Mar 2026" },
-                  ],
-                  drop: "11%",
-                },
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
-                  title: "Penthouse, Victoria Island",
-                  address: "Victoria Island, Lagos",
-                  current: "₦290,000,000",
-                  history: [
-                    { price: "₦320M", date: "Dec 2025" },
-                    { price: "₦305M", date: "Feb 2026" },
-                    { price: "₦290M", date: "Mar 2026" },
-                  ],
-                  drop: "9%",
-                },
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop",
-                  title: "Waterfront Duplex, Ikoyi",
-                  address: "Ikoyi, Lagos",
-                  current: "₦410,000,000",
-                  history: [
-                    { price: "₦450M", date: "Nov 2025" },
-                    { price: "₦430M", date: "Jan 2026" },
-                    { price: "₦410M", date: "Mar 2026" },
-                  ],
-                  drop: "9%",
-                },
-                {
-                  image:
-                    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop",
-                  title: "Terrace House, Ajah",
-                  address: "Ajah, Lagos",
-                  current: "₦62,000,000",
-                  history: [
-                    { price: "₦75M", date: "Oct 2025" },
-                    { price: "₦68M", date: "Jan 2026" },
-                    { price: "₦62M", date: "Mar 2026" },
-                  ],
-                  drop: "17%",
-                },
-              ].map((prop, i) => (
-                <div
-                  key={i}
-                  className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-                >
-                  {/* Image */}
-                  <div className="h-36 overflow-hidden rounded-t-[20px] relative">
-                    <img
-                      src={prop.image}
-                      alt={prop.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    {/* Drop badge */}
-                    <span className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#e74c3c]/90 backdrop-blur-sm text-white text-xs font-bold">
-                      <ArrowDown className="w-3 h-3" />
-                      {prop.drop}
-                    </span>
-                  </div>
-
-                  {/* Glass content */}
-                  <div className="mx-3 mb-3 -mt-5 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-4 pt-4 pb-4 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                    {/* Current price */}
-                    <p className="font-heading font-bold text-primary-dark text-[17px]">
-                      {prop.current}
-                    </p>
-                    <h3 className="font-heading font-bold text-primary-dark text-[13px] leading-snug mt-1 truncate">
-                      {prop.title}
-                    </h3>
-                    <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
-                      {prop.address}
-                    </p>
-
-                    <div className="h-px bg-border-light mt-3 mb-3" />
-
-                    {/* Price timeline */}
-                    <div className="relative">
-                      <p className="text-text-subtle text-[10px] uppercase tracking-wide mb-2">
-                        Price History
-                      </p>
-                      <div className="flex flex-col gap-2">
-                        {prop.history.map((h, j) => (
-                          <div key={j} className="flex items-center gap-2">
-                            {/* Dot + line */}
-                            <div className="flex flex-col items-center">
-                              <div
-                                className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                                  j === prop.history.length - 1
-                                    ? "bg-primary"
-                                    : "bg-border-light"
-                                }`}
-                              />
-                              {j < prop.history.length - 1 && (
-                                <div className="w-px h-3 bg-border-light" />
-                              )}
-                            </div>
-                            <div className="flex items-center justify-between flex-1 min-w-0">
-                              <span
-                                className={`text-xs font-medium ${
-                                  j === prop.history.length - 1
-                                    ? "text-primary-dark font-bold"
-                                    : "text-text-subtle line-through"
-                                }`}
-                              >
-                                {h.price}
-                              </span>
-                              <span className="text-text-subtle text-[10px] flex items-center gap-1">
-                                <Calendar className="w-2.5 h-2.5" />
-                                {h.date}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {/* Empty state for price reductions */}
+            <div className="flex flex-col items-center justify-center py-24 text-center rounded-[28px] bg-white/30 border border-border-light">
+              <div className="w-20 h-20 rounded-full bg-[#e74c3c]/10 flex items-center justify-center mb-4">
+                <TrendingDown className="w-8 h-8 text-[#e74c3c]/50" />
+              </div>
+              <h3 className="font-heading font-bold text-primary-dark text-lg">
+                Price Reductions Coming Soon
+              </h3>
+              <p className="text-text-secondary text-sm mt-2 max-w-sm">
+                Track properties with price drops and full price history. See exactly how prices have changed over time.
+              </p>
+              <a
+                href="/reductions"
+                className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center"
+              >
+                Browse Reductions
+              </a>
             </div>
           </div>
         </div>

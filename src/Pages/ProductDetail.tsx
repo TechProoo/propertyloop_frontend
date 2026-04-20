@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -17,16 +17,52 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import { getProductById, products } from "../data/products";
+import productsService from "../api/services/products";
+import type { Product } from "../api/types";
+import { DetailSkeleton } from "../components/ui/Skeleton";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const product = getProductById(id || "");
+  const [product, setProduct] = useState<Product | null>(null);
+  const [similar, setSimilar] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    productsService
+      .getById(id)
+      .then((data) => {
+        setProduct(data);
+        productsService
+          .list({ category: data.category, limit: 4 })
+          .then((res) =>
+            setSimilar(res.items.filter((p) => p.id !== data.id).slice(0, 3)),
+          )
+          .catch(() => {});
+      })
+      .catch(() => setProduct(null))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f5f0eb]">
+        <Navbar />
+        <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">
+          <div className="max-w-7xl mx-auto py-8">
+            <DetailSkeleton />
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -51,17 +87,7 @@ const ProductDetail = () => {
     );
   }
 
-  const similar = products
-    .filter((p) => p.id !== product.id && p.category === product.category)
-    .slice(0, 3);
-  if (similar.length < 3) {
-    const more = products
-      .filter((p) => p.id !== product.id && p.category !== product.category)
-      .slice(0, 3 - similar.length);
-    similar.push(...more);
-  }
-
-  const subtotal = product.price * quantity;
+  const subtotal = product.priceNaira * quantity;
 
   const handleAddToCart = () => {
     const cart = JSON.parse(localStorage.getItem("pl_cart") || "[]");
@@ -210,7 +236,7 @@ const ProductDetail = () => {
                     <Star className="w-4 h-4 text-[#F5A623] fill-[#F5A623]" />{" "}
                     {product.rating}
                   </span>
-                  <span>{product.reviews} reviews</span>
+                  <span>{product.reviewsCount} reviews</span>
                   <span
                     className={`px-2 py-0.5 rounded-full text-xs font-medium ${product.inStock ? "bg-primary/10 text-primary" : "bg-red-50 text-red-500"}`}
                   >
@@ -333,7 +359,7 @@ const ProductDetail = () => {
                       >
                         <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0">
                           <img
-                            src={s.image}
+                            src={s.coverImage}
                             alt={s.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />

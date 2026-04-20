@@ -34,6 +34,7 @@ import ProductDetail from "./Pages/ProductDetail";
 import Cart from "./Pages/Cart";
 import BookService from "./Pages/BookService";
 import VendorDashboard from "./Pages/VendorDashboard";
+import VendorProfile from "./Pages/VendorProfile";
 import BlogPost from "./Pages/BlogPost";
 import JobDetail from "./Pages/JobDetail";
 import Settings from "./Pages/Settings";
@@ -44,6 +45,7 @@ import Messages from "./Pages/Messages";
 import DisputeCenter from "./Pages/DisputeCenter";
 import AdminPanel from "./Pages/AdminPanel";
 import PartnersAdmin from "./Pages/PartnersAdmin";
+import VerifyEmail from "./Pages/VerifyEmail";
 import NotFound from "./Pages/NotFound";
 
 const roleDashboard: Record<string, string> = {
@@ -71,6 +73,12 @@ function ProtectedRoute({
 function App() {
   return (
     <BrowserRouter>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-primary focus:text-white focus:text-sm focus:font-medium"
+      >
+        Skip to content
+      </a>
       <AuthProvider>
         <BookmarkProvider>
           <Routes>
@@ -84,6 +92,7 @@ function App() {
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/find-agent" element={<FindAgent />} />
             <Route path="/agent/:id" element={<AgentProfile />} />
+            <Route path="/vendor/:id" element={<VendorProfile />} />
             <Route
               path="/add-property"
               element={
@@ -96,6 +105,7 @@ function App() {
             <Route path="/services" element={<Services />} />
             <Route path="/property/:id" element={<PropertyDetail />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
             <Route
               path="/dashboard"
               element={
@@ -169,7 +179,7 @@ function App() {
             <Route
               path="/admin"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["AGENT"]}>
                   <AdminPanel />
                 </ProtectedRoute>
               }
@@ -177,7 +187,7 @@ function App() {
             <Route
               path="/partners"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["AGENT"]}>
                   <PartnersAdmin />
                 </ProtectedRoute>
               }

@@ -1,6 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import AuthGate from "../ui/AuthGate";
+import vendorsService from "../../api/services/vendors";
+import type { VendorPublic } from "../../api/types";
 import {
   ArrowUpRight,
   Wrench,
@@ -27,89 +29,31 @@ const categories = [
   { icon: <Wrench className="w-5 h-5" />, label: "Plumbing" },
 ];
 
-const vendors = [
-  {
-    image:
-      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
-    name: "Adewale Plumbing Co.",
-    category: "Plumbing",
-    rating: 4.9,
-    jobs: 234,
-    location: "Lekki, Lagos",
-    price: "From ₦15,000",
-    verified: true,
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=600&h=400&fit=crop",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face",
-    name: "BrightSpark Electricals",
-    category: "Electrical",
-    rating: 4.8,
-    jobs: 189,
-    location: "Victoria Island, Lagos",
-    price: "From ₦20,000",
-    verified: true,
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop",
-    avatar:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
-    name: "Solid Foundation Builders",
-    category: "Building",
-    rating: 4.7,
-    jobs: 156,
-    location: "Ikoyi, Lagos",
-    price: "From ₦50,000",
-    verified: true,
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=400&fit=crop",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face",
-    name: "CleanSpace Services",
-    category: "Cleaning",
-    rating: 4.9,
-    jobs: 312,
-    location: "Ajah, Lagos",
-    price: "From ₦10,000",
-    verified: true,
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?w=600&h=400&fit=crop",
-    avatar:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=80&h=80&fit=crop&crop=face",
-    name: "ProFinish Painters",
-    category: "Painting",
-    rating: 4.6,
-    jobs: 98,
-    location: "Gbagada, Lagos",
-    price: "From ₦25,000",
-    verified: true,
-  },
-  {
-    image:
-      "https://images.unsplash.com/photo-1607400201889-565b1ee75f8e?w=600&h=400&fit=crop",
-    avatar:
-      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=80&h=80&fit=crop&crop=face",
-    name: "QuickFix Maintenance",
-    category: "Plumbing",
-    rating: 4.8,
-    jobs: 275,
-    location: "Surulere, Lagos",
-    price: "From ₦12,000",
-    verified: true,
-  },
-];
-
 const ServiceLoop = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [vendors, setVendors] = useState<VendorPublic[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch verified vendors from API
+  useEffect(() => {
+    const loadVendors = async () => {
+      try {
+        const result = await vendorsService.list({
+          limit: 100,
+          sort: "top_rated",
+        });
+        // Filter for verified vendors and take top 3
+        const verifiedVendors = result.items.filter((v) => v.verified && v.availableForHire);
+        setVendors(verifiedVendors.slice(0, 3));
+      } catch (error) {
+        console.error("Failed to load vendors:", error);
+        setVendors([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadVendors();
+  }, []);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -276,80 +220,111 @@ const ServiceLoop = () => {
         </div>
 
         {/* Vendor cards — 3 per row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {vendors.slice(0, 3).map((vendor, i) => (
-            <AuthGate
-              key={i}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-80 bg-gradient-to-br from-white/40 to-white/20 rounded-[20px] animate-pulse"
+              />
+            ))}
+          </div>
+        ) : vendors.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+              <Wrench className="w-8 h-8 text-primary/50" />
+            </div>
+            <h3 className="font-heading font-bold text-primary-dark text-lg">
+              Quality Vendors Coming Soon
+            </h3>
+            <p className="text-text-secondary text-sm mt-2 max-w-sm">
+              We're onboarding verified vendors. Browse our full services catalog to see what's available.
+            </p>
+            <a
               href="/services"
-              data-sl-card
-              className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+              className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center"
             >
-              {/* Cover image */}
-              <div className="relative h-44 overflow-hidden rounded-t-[20px]">
-                <img
-                  src={vendor.image}
-                  alt={vendor.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                {/* Category badge */}
-                <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
-                  {vendor.category}
-                </span>
-              </div>
-
-              {/* Glass content panel */}
-              <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                {/* Vendor header — avatar + name + verified */}
-                <div className="flex items-center gap-3">
+              Browse All Services
+            </a>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {vendors.map((vendor) => (
+              <AuthGate
+                key={vendor.id}
+                href="/services"
+                data-sl-card
+                className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+              >
+                {/* Cover image */}
+                <div className="relative h-44 overflow-hidden rounded-t-[20px]">
                   <img
-                    src={vendor.avatar}
+                    src={vendor.bannerImage || "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=600&h=400&fit=crop"}
                     alt={vendor.name}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug truncate">
-                        {vendor.name}
-                      </h3>
-                      {vendor.verified && (
-                        <CheckCircle className="w-4 h-4 text-primary shrink-0" />
-                      )}
-                    </div>
-                    <p className="text-text-secondary text-xs">
-                      {vendor.location}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="h-px bg-border-light mt-3 mb-3" />
-
-                {/* Stats row */}
-                <div className="flex items-center flex-wrap gap-y-2 justify-between text-xs">
-                  <div className="flex items-center gap-2 sm:gap-3 text-text-secondary min-w-0">
-                    <span className="flex items-center gap-1 shrink-0">
-                      <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                      {vendor.rating}
-                    </span>
-                    <span className="shrink-0">{vendor.jobs} jobs</span>
-                    <span className="flex items-center gap-1 shrink-0">
-                      <Shield className="w-3.5 h-3.5" />
-                      Escrow
-                    </span>
-                  </div>
-                  <span className="font-heading font-bold text-primary-dark text-sm shrink-0 ml-auto">
-                    {vendor.price}
+                  {/* Category badge */}
+                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
+                    {vendor.category || "Service"}
                   </span>
                 </div>
-              </div>
 
-              {/* Arrow — clipped circle at bottom-right corner */}
-              <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                <ArrowUpRight className="w-5 h-5 text-white" />
-              </div>
-            </AuthGate>
-          ))}
-        </div>
+                {/* Glass content panel */}
+                <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+                  {/* Vendor header — avatar + name + verified */}
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={vendor.avatarUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop"}
+                      alt={vendor.name}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug truncate">
+                          {vendor.name}
+                        </h3>
+                        {vendor.verified && (
+                          <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                        )}
+                      </div>
+                      <p className="text-text-secondary text-xs">
+                        {vendor.location}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="h-px bg-border-light mt-3 mb-3" />
+
+                  {/* Stats row */}
+                  <div className="flex items-center flex-wrap gap-y-2 justify-between text-xs">
+                    <div className="flex items-center gap-2 sm:gap-3 text-text-secondary min-w-0">
+                      <span className="flex items-center gap-1 shrink-0">
+                        <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
+                        {vendor.rating}
+                      </span>
+                      <span className="shrink-0">
+                        {vendor.jobsCount} jobs
+                      </span>
+                      <span className="flex items-center gap-1 shrink-0">
+                        <Shield className="w-3.5 h-3.5" />
+                        Escrow
+                      </span>
+                    </div>
+                    <span className="font-heading font-bold text-primary-dark text-sm shrink-0 ml-auto">
+                      {vendor.priceLabel || "From ₦15,000"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Arrow — clipped circle at bottom-right corner */}
+                <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
+                  <ArrowUpRight className="w-5 h-5 text-white" />
+                </div>
+              </AuthGate>
+            ))}
+          </div>
+        )}
 
         {/* Escrow trust banner */}
         <div

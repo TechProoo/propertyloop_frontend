@@ -1,49 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Play, X, Star, Quote } from "lucide-react";
+import { X, Quote } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const testimonials = [
-  {
-    name: "Adaeze Okafor",
-    role: "Home Buyer, Lagos",
-    avatar:
-      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=120&h=120&fit=crop&crop=face",
-    quote:
-      "PropertyLoop made buying my first home stress-free. The escrow system gave me total confidence — I knew my money was safe until the deal was sealed.",
-    rating: 5,
-    videoId: "dQw4w9WgXcQ",
-    thumbnail:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=640&h=360&fit=crop",
-  },
-  {
-    name: "Chinedu Eze",
-    role: "Property Investor, Abuja",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&h=120&fit=crop&crop=face",
-    quote:
-      "I've used many platforms but nothing compares. The verified agents, video tours, and the logbook feature are game-changers for serious investors.",
-    rating: 5,
-    videoId: "dQw4w9WgXcQ",
-    thumbnail:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=640&h=360&fit=crop",
-  },
-  {
-    name: "Funke Adeyemi",
-    role: "Vendor (Plumber), Lagos",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&h=120&fit=crop&crop=face",
-    quote:
-      "Since joining PropertyLoop, my bookings have tripled. The escrow system means I always get paid for completed work. It's transformed my business.",
-    rating: 5,
-    videoId: "dQw4w9WgXcQ",
-    thumbnail:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=640&h=360&fit=crop",
-  },
-];
 
 const VideoTestimonials = () => {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
@@ -149,71 +111,20 @@ const VideoTestimonials = () => {
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((t) => (
-            <div
-              key={t.name}
-              data-vt-card
-              className="group bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
-            >
-              {/* Video thumbnail */}
-              <div
-                className="relative aspect-video cursor-pointer overflow-hidden"
-                onClick={() => setActiveVideo(t.videoId)}
-              >
-                <img
-                  src={t.thumbnail}
-                  alt={`${t.name} testimonial`}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors duration-300" />
-
-                {/* Play button */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-14 h-14 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <Play className="w-5 h-5 text-primary ml-0.5" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                {/* Quote */}
-                <div className="relative">
-                  <Quote className="w-6 h-6 text-primary/20 absolute -top-1 -left-1" />
-                  <p className="text-text-secondary text-[13px] leading-relaxed pl-6">
-                    {t.quote}
-                  </p>
-                </div>
-
-                {/* Rating */}
-                <div className="flex gap-0.5 mt-4">
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <Star
-                      key={j}
-                      className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]"
-                    />
-                  ))}
-                </div>
-
-                {/* Author */}
-                <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border-light">
-                  <img
-                    src={t.avatar}
-                    alt={t.name}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
-                  />
-                  <div>
-                    <p className="font-heading font-bold text-primary-dark text-sm">
-                      {t.name}
-                    </p>
-                    <p className="text-text-subtle text-xs">{t.role}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* Testimonials coming soon */}
+        <div className="flex flex-col items-center justify-center py-24 text-center rounded-[28px] bg-white/30 border border-border-light">
+          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+            <Quote className="w-8 h-8 text-primary/50" />
+          </div>
+          <h3 className="font-heading font-bold text-primary-dark text-lg">
+            Community Testimonials Coming Soon
+          </h3>
+          <p className="text-text-secondary text-sm mt-2 max-w-sm">
+            Video testimonials from buyers, agents, and vendors will be featured here. Join thousands of happy PropertyLoop users.
+          </p>
+          <button className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors">
+            Share Your Story
+          </button>
         </div>
       </div>
 

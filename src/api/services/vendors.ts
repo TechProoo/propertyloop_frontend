@@ -21,6 +21,7 @@ export interface UpdateVendorProfilePayload {
   phone?: string;
   location?: string;
   bio?: string;
+  website?: string;
   avatarUrl?: string;
   serviceCategory?: string;
   yearsExperience?: string;

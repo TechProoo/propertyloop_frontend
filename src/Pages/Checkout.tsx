@@ -38,6 +38,7 @@ const Checkout = () => {
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [stage, setStage] = useState<Stage>("delivery");
   const [processing, setProcessing] = useState(false);
+  const [orderError, setOrderError] = useState("");
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -91,6 +92,7 @@ const Checkout = () => {
 
   const handlePlaceOrder = async () => {
     setProcessing(true);
+    setOrderError("");
     try {
       const payMethodMap: Record<string, string> = {
         card: "CARD",
@@ -115,35 +117,11 @@ const Checkout = () => {
         JSON.stringify(order),
       );
       navigate(`/order-confirmation/${order.orderNumber}`);
-    } catch {
-      // Fallback: save locally if API fails
-      const orderId = `MAT-${Date.now().toString().slice(-8)}`;
-      const fallbackOrder = {
-        id: orderId,
-        items: cartProducts.map((p) => ({
-          id: p!.id,
-          name: p!.name,
-          image: p!.coverImage,
-          supplier: p!.supplier,
-          price: p!.price,
-          priceLabel: p!.priceLabel,
-          unit: p!.unit,
-          quantity: p!.cartQty,
-        })),
-        delivery: { name, phone, address, city, notes },
-        payMethod,
-        subtotal,
-        deliveryFee,
-        serviceFee,
-        total,
-        placedAt: new Date().toISOString(),
-      };
-      localStorage.setItem(
-        `pl_order_${orderId}`,
-        JSON.stringify(fallbackOrder),
-      );
-      localStorage.setItem("pl_cart", "[]");
-      navigate(`/order-confirmation/${orderId}`);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        "Something went wrong placing your order. Please try again.";
+      setOrderError(typeof msg === "string" ? msg : msg[0]);
     } finally {
       setProcessing(false);
     }
@@ -477,6 +455,12 @@ const Checkout = () => {
                       Your PropertyLoop wallet balance:{" "}
                       <span className="font-bold">₦0</span>. Please top up
                       before continuing or pick another method.
+                    </div>
+                  )}
+
+                  {orderError && (
+                    <div className="mt-4 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                      {orderError}
                     </div>
                   )}
 

@@ -1,13 +1,6 @@
 import { useEffect, useRef } from "react";
 import {
-  ArrowUpRight,
-  Wrench,
-  Zap,
-  Paintbrush,
   ShieldCheck,
-  Droplets,
-  ThermometerSun,
-  FileCheck,
   Home,
 } from "lucide-react";
 import gsap from "gsap";
@@ -15,64 +8,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const timelineEntries = [
-  {
-    date: "Mar 2026",
-    icon: <Wrench className="w-4 h-4" />,
-    title: "Plumbing Repair",
-    vendor: "Adewale Plumbing Co.",
-    description: "Kitchen sink replacement and pipe rerouting for ground floor",
-    cost: "₦45,000",
-    status: "Verified",
-  },
-  {
-    date: "Jan 2026",
-    icon: <Zap className="w-4 h-4" />,
-    title: "Electrical Rewiring",
-    vendor: "BrightSpark Electricals",
-    description:
-      "Full rewiring of second floor bedrooms and new circuit breaker",
-    cost: "₦120,000",
-    status: "Verified",
-  },
-  {
-    date: "Nov 2025",
-    icon: <Paintbrush className="w-4 h-4" />,
-    title: "Interior Painting",
-    vendor: "ProFinish Painters",
-    description: "Complete repaint of living room, hallway, and master bedroom",
-    cost: "₦85,000",
-    status: "Verified",
-  },
-  {
-    date: "Sep 2025",
-    icon: <Droplets className="w-4 h-4" />,
-    title: "Waterproofing",
-    vendor: "SealTight Solutions",
-    description: "Roof and terrace waterproofing with 5-year warranty coating",
-    cost: "₦200,000",
-    status: "Verified",
-  },
-  {
-    date: "Jun 2025",
-    icon: <ThermometerSun className="w-4 h-4" />,
-    title: "AC Installation",
-    vendor: "CoolBreeze HVAC",
-    description:
-      "Installed 3 split-unit air conditioners across main living areas",
-    cost: "₦350,000",
-    status: "Verified",
-  },
-  {
-    date: "Mar 2025",
-    icon: <FileCheck className="w-4 h-4" />,
-    title: "Property Inspection",
-    vendor: "PropertyLoop Verified",
-    description: "Initial property inspection and logbook creation on platform",
-    cost: "—",
-    status: "Verified",
-  },
-];
 
 const PropertyLogbook = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -252,66 +187,19 @@ const PropertyLogbook = () => {
 
           {/* Right — timeline */}
           <div className="flex-1 relative">
-            {/* Vertical line */}
-            <div
-              data-pl-line
-              className="absolute left-5.75 top-0 bottom-0 w-px bg-border-light"
-            />
-
-            <div className="flex flex-col gap-5">
-              {timelineEntries.slice(0, 3).map((entry, i) => (
-                <div
-                  key={i}
-                  data-pl-entry
-                  className="flex gap-5 relative group"
-                >
-                  {/* Timeline dot */}
-                  <div className="shrink-0 relative z-10 mt-5">
-                    <div className="w-11.5 h-11.5 rounded-full bg-white/80 backdrop-blur-sm border border-border-light shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center text-primary">
-                      {entry.icon}
-                    </div>
-                  </div>
-
-                  {/* Card */}
-                  <div className="flex-1 relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-300">
-                    {/* Glass content */}
-                    <div className="p-5">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
-                          {entry.date}
-                        </span>
-                        <span className="flex items-center gap-1 text-xs text-primary">
-                          <ShieldCheck className="w-3.5 h-3.5" />
-                          {entry.status}
-                        </span>
-                      </div>
-                      <h3 className="font-heading font-bold text-primary-dark text-[15px] mt-2">
-                        {entry.title}
-                      </h3>
-                      <p className="text-text-secondary text-xs mt-0.5">
-                        by {entry.vendor}
-                      </p>
-                      <p className="text-text-secondary text-[13px] leading-relaxed mt-2">
-                        {entry.description}
-                      </p>
-                      <div className="h-px bg-border-light mt-3 mb-3" />
-                      <div className="flex items-center justify-between">
-                        <span className="font-heading font-bold text-primary-dark text-sm">
-                          {entry.cost}
-                        </span>
-                        <span className="text-text-secondary text-xs">
-                          Escrow protected
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Clipped arrow circle */}
-                    <div className="w-16 h-16 bg-[#1a1a1a] rounded-full absolute -right-4 -bottom-4 z-20 group-hover:bg-primary transition-colors duration-300">
-                      <ArrowUpRight className="absolute top-3 left-4 w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                <ShieldCheck className="w-8 h-8 text-primary/50" />
+              </div>
+              <h3 className="font-heading font-bold text-primary-dark text-lg">
+                Property Logbooks Coming Soon
+              </h3>
+              <p className="text-text-secondary text-sm mt-2 max-w-sm">
+                Permanent digital records of all maintenance and repairs will be displayed here. Each property gets a verified logbook history.
+              </p>
+              <button className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors">
+                Learn about logbooks
+              </button>
             </div>
           </div>
         </div>

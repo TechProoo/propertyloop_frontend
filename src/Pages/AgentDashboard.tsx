@@ -33,7 +33,6 @@ import {
   ClipboardList,
   ArrowLeft,
   Send,
-  Download,
   Upload,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -44,6 +43,7 @@ import leadsService from "../api/services/leads";
 import viewingsService from "../api/services/viewings";
 import type { AgentStats, Listing } from "../api/types";
 import { useConversations } from "../api/hooks";
+import { StatSkeleton } from "../components/ui/Skeleton";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -134,7 +134,7 @@ const AgentDashboard = () => {
       verified: boolean;
     }[]
   >([]);
-  const [, setDashLoading] = useState(true);
+  const [dashLoading, setDashLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadListingId, setUploadListingId] = useState("");
   const [uploadDocName, setUploadDocName] = useState("");
@@ -142,6 +142,18 @@ const AgentDashboard = () => {
     "C_OF_O" | "SURVEY_PLAN" | "BUILDING_PERMIT" | "RECEIPT"
   >("C_OF_O");
   const [uploading, setUploading] = useState(false);
+
+  // ─── Profile form state ──────────────────────────────────────────────────
+  const [profileName, setProfileName] = useState("");
+  const [profilePhone, setProfilePhone] = useState("");
+  const [profileAgency, setProfileAgency] = useState("");
+  const [profileLocation, setProfileLocation] = useState("");
+  const [profileBio, setProfileBio] = useState("");
+  const [profileWebsite, setProfileWebsite] = useState("");
+  const [profileYears, setProfileYears] = useState<number>(0);
+  const [profileSpecialties, setProfileSpecialties] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -212,6 +224,63 @@ const AgentDashboard = () => {
     };
     load();
   }, []);
+
+  // ─── Populate profile form from user data ────────────────────────────────
+  useEffect(() => {
+    if (user) {
+      setProfileName(user.name || "");
+      setProfilePhone(user.phone || "");
+      setProfileLocation(user.location || "");
+      setProfileBio(user.bio || "");
+      setProfileWebsite((user as any).website || "");
+      const agentProfile = user.agentProfile as any;
+      if (agentProfile) {
+        setProfileAgency(agentProfile.agencyName || "");
+        setProfileYears(agentProfile.yearsExperience || 0);
+        setProfileSpecialties(Array.isArray(agentProfile.specialty) ? agentProfile.specialty.join(", ") : "");
+      }
+    }
+  }, [user]);
+
+  // ─── Save profile handler ────────────────────────────────────────────────
+  const handleSaveProfile = async () => {
+    if (!profileName.trim()) {
+      setProfileMessage({ type: "error", text: "Name is required" });
+      return;
+    }
+
+    setSavingProfile(true);
+    setProfileMessage(null);
+    try {
+      const specialtyArray = profileSpecialties
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s.length > 0);
+
+      await agentsService.updateMe({
+        name: profileName,
+        phone: profilePhone,
+        location: profileLocation,
+        bio: profileBio,
+        website: profileWebsite,
+        agencyName: profileAgency,
+        yearsExperience: profileYears,
+        specialty: specialtyArray,
+      });
+      setProfileMessage({ type: "success", text: "Profile saved successfully!" });
+      setTimeout(() => {
+        setProfileMessage(null);
+        setActiveNav("overview");
+      }, 2000);
+    } catch (error) {
+      setProfileMessage({
+        type: "error",
+        text: error instanceof Error ? error.message : "Failed to save profile",
+      });
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   // Build stats from API data
   const agent = {
@@ -599,307 +668,315 @@ const AgentDashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease }}
             >
-              {/* Welcome */}
-              <div className="mb-6">
-                <h2 className="font-heading text-[1.3rem] sm:text-[1.6rem] font-bold text-primary-dark">
-                  Welcome back, {agent.name.split(" ")[0]}
-                </h2>
-                <p className="text-text-secondary text-sm mt-1">
-                  Here's your performance overview
-                </p>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-                {stats.map((s, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05, duration: 0.3, ease }}
-                    className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-5 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 transition-all duration-300"
-                  >
-                    <div
-                      className={`w-10 h-10 rounded-2xl ${s.bg} flex items-center justify-center ${s.color} mb-3`}
-                    >
-                      {s.icon}
-                    </div>
-                    <p className="font-heading font-bold text-primary-dark text-xl">
-                      {s.value}
+              {dashLoading ? (
+                <StatSkeleton />
+              ) : (
+                <>
+                  {/* Welcome */}
+                  <div className="mb-6">
+                    <h2 className="font-heading text-[1.3rem] sm:text-[1.6rem] font-bold text-primary-dark">
+                      Welcome back, {agent.name.split(" ")[0]}
+                    </h2>
+                    <p className="text-text-secondary text-sm mt-1">
+                      Here's your performance overview
                     </p>
-                    <p className="text-text-secondary text-xs mt-0.5">
-                      {s.label}
-                    </p>
-                    <p className="text-primary text-[11px] font-medium mt-1 flex items-center gap-1">
-                      <TrendingUp className="w-3 h-3" />
-                      {s.change}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Two-Column */}
-              <div className="flex flex-col xl:flex-row gap-6">
-                {/* Left */}
-                <div className="flex-1 flex flex-col gap-6">
-                  {/* Recent Leads */}
-                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                    <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
-                      <h3 className="font-heading font-bold text-primary-dark text-base">
-                        Recent Leads
-                      </h3>
-                      <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
-                        12 new
-                      </span>
-                    </div>
-                    <div className="divide-y divide-white/30">
-                      {recentLeads.map((lead, i) => (
-                        <div
-                          key={i}
-                          className="px-6 py-4 flex items-center gap-4 hover:bg-white/50 transition-colors"
-                        >
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold shrink-0">
-                            {lead.name.charAt(0)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-heading font-semibold text-primary-dark text-sm">
-                              {lead.name}
-                            </p>
-                            <p className="text-text-secondary text-xs truncate">
-                              {lead.property}
-                            </p>
-                          </div>
-                          <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
-                            <span
-                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${statusColors[lead.status]}`}
-                            >
-                              {lead.status}
-                            </span>
-                            <span className="text-text-subtle text-[11px] flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {lead.time}
-                            </span>
-                          </div>
-                          <a
-                            href={`tel:${lead.phone}`}
-                            className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shrink-0"
-                          >
-                            <Phone className="w-3.5 h-3.5" />
-                          </a>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="px-6 py-3 border-t border-white/30">
-                      <button className="text-primary text-xs font-medium hover:underline flex items-center gap-1">
-                        View all leads
-                        <ArrowRight className="w-3 h-3" />
-                      </button>
-                    </div>
                   </div>
 
-                  {/* My Listings */}
-                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                    <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
-                      <h3 className="font-heading font-bold text-primary-dark text-base">
-                        My Listings
-                      </h3>
-                      <Link
-                        to="/add-property"
-                        className="text-primary text-xs font-medium hover:underline flex items-center gap-1"
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+                    {stats.map((s, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05, duration: 0.3, ease }}
+                        className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-5 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 transition-all duration-300"
                       >
-                        <PlusCircle className="w-3 h-3" />
-                        Add new
-                      </Link>
-                    </div>
-                    <div className="p-4 flex flex-col gap-3">
-                      {agentListings.map((listing) => (
-                        <Link
-                          key={listing.id}
-                          to={`/property/${listing.id}`}
-                          className="group flex gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
+                        <div
+                          className={`w-10 h-10 rounded-2xl ${s.bg} flex items-center justify-center ${s.color} mb-3`}
                         >
-                          <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 relative">
-                            <img
-                              src={listing.coverImage}
-                              alt={listing.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                            <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
-                              {listing.type === "SALE" ? "Sale" : "Rent"}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0 py-0.5">
-                            <p className="font-heading font-bold text-primary-dark text-sm">
-                              {listing.priceLabel}
-                            </p>
-                            <p className="font-heading font-semibold text-primary-dark text-xs leading-snug mt-0.5 truncate">
-                              {listing.title}
-                            </p>
-                            <p className="text-text-secondary text-[11px] mt-0.5 flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {listing.location}
-                            </p>
-                            <div className="flex items-center gap-3 text-text-secondary text-[11px] mt-1.5">
-                              <span className="flex items-center gap-1">
-                                <Bed className="w-3 h-3" />
-                                {listing.beds}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Bath className="w-3 h-3" />
-                                {listing.baths}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Maximize className="w-3 h-3" />
-                                {listing.sqft}m²
-                              </span>
+                          {s.icon}
+                        </div>
+                        <p className="font-heading font-bold text-primary-dark text-xl">
+                          {s.value}
+                        </p>
+                        <p className="text-text-secondary text-xs mt-0.5">
+                          {s.label}
+                        </p>
+                        <p className="text-primary text-[11px] font-medium mt-1 flex items-center gap-1">
+                          <TrendingUp className="w-3 h-3" />
+                          {s.change}
+                        </p>
+                      </motion.div>
+                    ))}
+                  </div>
+
+                  {/* Two-Column */}
+                  <div className="flex flex-col xl:flex-row gap-6">
+                    {/* Left */}
+                    <div className="flex-1 flex flex-col gap-6">
+                      {/* Recent Leads */}
+                      <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                        <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
+                          <h3 className="font-heading font-bold text-primary-dark text-base">
+                            Recent Leads
+                          </h3>
+                          <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
+                            12 new
+                          </span>
+                        </div>
+                        <div className="divide-y divide-white/30">
+                          {recentLeads.map((lead, i) => (
+                            <div
+                              key={i}
+                              className="px-6 py-4 flex items-center gap-4 hover:bg-white/50 transition-colors"
+                            >
+                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold shrink-0">
+                                {lead.name.charAt(0)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-heading font-semibold text-primary-dark text-sm">
+                                  {lead.name}
+                                </p>
+                                <p className="text-text-secondary text-xs truncate">
+                                  {lead.property}
+                                </p>
+                              </div>
+                              <div className="hidden sm:flex flex-col items-end gap-1 shrink-0">
+                                <span
+                                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${statusColors[lead.status]}`}
+                                >
+                                  {lead.status}
+                                </span>
+                                <span className="text-text-subtle text-[11px] flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  {lead.time}
+                                </span>
+                              </div>
+                              <a
+                                href={`tel:${lead.phone}`}
+                                className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shrink-0"
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                              </a>
                             </div>
-                          </div>
-                        </Link>
-                      ))}
-                      {agentListings.length === 0 && (
-                        <div className="text-center py-8">
-                          <p className="text-text-secondary text-sm">
-                            No listings yet
-                          </p>
+                          ))}
+                        </div>
+                        <div className="px-6 py-3 border-t border-white/30">
+                          <button className="text-primary text-xs font-medium hover:underline flex items-center gap-1">
+                            View all leads
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* My Listings */}
+                      <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                        <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
+                          <h3 className="font-heading font-bold text-primary-dark text-base">
+                            My Listings
+                          </h3>
                           <Link
                             to="/add-property"
-                            className="text-primary text-xs font-medium mt-2 inline-flex items-center gap-1"
+                            className="text-primary text-xs font-medium hover:underline flex items-center gap-1"
                           >
-                            Add your first listing{" "}
-                            <ArrowRight className="w-3 h-3" />
+                            <PlusCircle className="w-3 h-3" />
+                            Add new
                           </Link>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right */}
-                <div className="xl:w-90 shrink-0 flex flex-col gap-6">
-                  {/* Performance */}
-                  <div className="bg-primary rounded-[20px] p-6 text-white">
-                    <h3 className="font-heading font-bold text-base mb-4">
-                      Performance
-                    </h3>
-                    <div className="flex flex-col gap-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60 text-sm">Rating</span>
-                        <div className="flex items-center gap-1.5">
-                          <Star className="w-4 h-4 text-[#F5A623] fill-[#F5A623]" />
-                          <span className="font-heading font-bold">
-                            {agent.rating}
-                          </span>
+                        <div className="p-4 flex flex-col gap-3">
+                          {agentListings.map((listing) => (
+                            <Link
+                              key={listing.id}
+                              to={`/property/${listing.id}`}
+                              className="group flex gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
+                            >
+                              <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 relative">
+                                <img
+                                  src={listing.coverImage}
+                                  alt={listing.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                                <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">
+                                  {listing.type === "SALE" ? "Sale" : "Rent"}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0 py-0.5">
+                                <p className="font-heading font-bold text-primary-dark text-sm">
+                                  {listing.priceLabel}
+                                </p>
+                                <p className="font-heading font-semibold text-primary-dark text-xs leading-snug mt-0.5 truncate">
+                                  {listing.title}
+                                </p>
+                                <p className="text-text-secondary text-[11px] mt-0.5 flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {listing.location}
+                                </p>
+                                <div className="flex items-center gap-3 text-text-secondary text-[11px] mt-1.5">
+                                  <span className="flex items-center gap-1">
+                                    <Bed className="w-3 h-3" />
+                                    {listing.beds}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Bath className="w-3 h-3" />
+                                    {listing.baths}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Maximize className="w-3 h-3" />
+                                    {listing.sqft}m²
+                                  </span>
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                          {agentListings.length === 0 && (
+                            <div className="text-center py-8">
+                              <p className="text-text-secondary text-sm">
+                                No listings yet
+                              </p>
+                              <Link
+                                to="/add-property"
+                                className="text-primary text-xs font-medium mt-2 inline-flex items-center gap-1"
+                              >
+                                Add your first listing{" "}
+                                <ArrowRight className="w-3 h-3" />
+                              </Link>
+                            </div>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60 text-sm">
-                          Deals Closed
-                        </span>
-                        <span className="font-heading font-bold">
-                          {agent.soldRented}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60 text-sm">
-                          Experience
-                        </span>
-                        <span className="font-heading font-bold">
-                          {agent.yearsExperience} years
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white/60 text-sm">
-                          Response Rate
-                        </span>
-                        <span className="font-heading font-bold">96%</span>
-                      </div>
-                      <div className="h-px bg-white/20 my-1" />
-                      <div className="flex items-center gap-2 text-white/60 text-xs">
-                        <CheckCircle className="w-4 h-4 text-[hsl(142,71%,45%)]" />
-                        KYC Verified · Smile Identity
-                      </div>
                     </div>
-                  </div>
 
-                  {/* Recent Activity */}
-                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
-                    <h3 className="font-heading font-bold text-primary-dark text-sm mb-4">
-                      Recent Activity
-                    </h3>
-                    <div className="relative">
-                      <div className="absolute left-4.5 top-2 bottom-2 w-px bg-white/40" />
-                      <div className="flex flex-col gap-4">
-                        {recentActivity.map((item, i) => (
-                          <div
-                            key={i}
-                            className="flex items-start gap-3 relative"
-                          >
-                            <div
-                              className={`w-9 h-9 rounded-full ${item.bg} flex items-center justify-center ${item.color} shrink-0 relative z-10 border-2 border-[#f5f0eb]`}
+                    {/* Right */}
+                    <div className="xl:w-90 shrink-0 flex flex-col gap-6">
+                      {/* Performance */}
+                      <div className="bg-primary rounded-[20px] p-6 text-white">
+                        <h3 className="font-heading font-bold text-base mb-4">
+                          Performance
+                        </h3>
+                        <div className="flex flex-col gap-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/60 text-sm">
+                              Rating
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <Star className="w-4 h-4 text-[#F5A623] fill-[#F5A623]" />
+                              <span className="font-heading font-bold">
+                                {agent.rating}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/60 text-sm">
+                              Deals Closed
+                            </span>
+                            <span className="font-heading font-bold">
+                              {agent.soldRented}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/60 text-sm">
+                              Experience
+                            </span>
+                            <span className="font-heading font-bold">
+                              {agent.yearsExperience} years
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-white/60 text-sm">
+                              Response Rate
+                            </span>
+                            <span className="font-heading font-bold">96%</span>
+                          </div>
+                          <div className="h-px bg-white/20 my-1" />
+                          <div className="flex items-center gap-2 text-white/60 text-xs">
+                            <CheckCircle className="w-4 h-4 text-[hsl(142,71%,45%)]" />
+                            KYC Verified · Smile Identity
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Recent Activity */}
+                      <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
+                        <h3 className="font-heading font-bold text-primary-dark text-sm mb-4">
+                          Recent Activity
+                        </h3>
+                        <div className="relative">
+                          <div className="absolute left-4.5 top-2 bottom-2 w-px bg-white/40" />
+                          <div className="flex flex-col gap-4">
+                            {recentActivity.map((item, i) => (
+                              <div
+                                key={i}
+                                className="flex items-start gap-3 relative"
+                              >
+                                <div
+                                  className={`w-9 h-9 rounded-full ${item.bg} flex items-center justify-center ${item.color} shrink-0 relative z-10 border-2 border-[#f5f0eb]`}
+                                >
+                                  {item.icon}
+                                </div>
+                                <div className="flex-1 min-w-0 pt-1">
+                                  <p className="text-primary-dark text-xs font-medium leading-snug">
+                                    {item.text}
+                                  </p>
+                                  <p className="text-text-subtle text-[11px] mt-0.5 flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {item.time}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
+                        <h3 className="font-heading font-bold text-primary-dark text-sm mb-4">
+                          Quick Actions
+                        </h3>
+                        <div className="flex flex-col gap-2.5">
+                          {[
+                            {
+                              icon: <PlusCircle className="w-4 h-4" />,
+                              label: "Add New Listing",
+                              href: "/add-property",
+                            },
+                            {
+                              icon: <Users className="w-4 h-4" />,
+                              label: "View All Leads",
+                              href: "#",
+                            },
+                            {
+                              icon: <Briefcase className="w-4 h-4" />,
+                              label: "Edit Agent Profile",
+                              href: `/agent/${agent.id}`,
+                            },
+                            {
+                              icon: <ClipboardList className="w-4 h-4" />,
+                              label: "Property Logbook",
+                              href: "#",
+                            },
+                          ].map((action) => (
+                            <Link
+                              key={action.label}
+                              to={action.href}
+                              className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 hover:border-primary hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200"
                             >
-                              {item.icon}
-                            </div>
-                            <div className="flex-1 min-w-0 pt-1">
-                              <p className="text-primary-dark text-xs font-medium leading-snug">
-                                {item.text}
-                              </p>
-                              <p className="text-text-subtle text-[11px] mt-0.5 flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {item.time}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                {action.icon}
+                              </div>
+                              <span className="flex-1 font-heading font-medium text-primary-dark text-sm">
+                                {action.label}
+                              </span>
+                              <ArrowUpRight className="w-3.5 h-3.5 text-text-subtle" />
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
-
-                  {/* Quick Actions */}
-                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
-                    <h3 className="font-heading font-bold text-primary-dark text-sm mb-4">
-                      Quick Actions
-                    </h3>
-                    <div className="flex flex-col gap-2.5">
-                      {[
-                        {
-                          icon: <PlusCircle className="w-4 h-4" />,
-                          label: "Add New Listing",
-                          href: "/add-property",
-                        },
-                        {
-                          icon: <Users className="w-4 h-4" />,
-                          label: "View All Leads",
-                          href: "#",
-                        },
-                        {
-                          icon: <Briefcase className="w-4 h-4" />,
-                          label: "Edit Agent Profile",
-                          href: `/agent/${agent.id}`,
-                        },
-                        {
-                          icon: <ClipboardList className="w-4 h-4" />,
-                          label: "Property Logbook",
-                          href: "#",
-                        },
-                      ].map((action) => (
-                        <Link
-                          key={action.label}
-                          to={action.href}
-                          className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 hover:border-primary hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                            {action.icon}
-                          </div>
-                          <span className="flex-1 font-heading font-medium text-primary-dark text-sm">
-                            {action.label}
-                          </span>
-                          <ArrowUpRight className="w-3.5 h-3.5 text-text-subtle" />
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                </>
+              )}
             </motion.div>
           )}
 
@@ -1694,46 +1771,110 @@ const AgentDashboard = () => {
                 <h3 className="font-heading font-bold text-primary-dark text-base mb-6">
                   Agent Profile
                 </h3>
+
+                {profileMessage && (
+                  <div
+                    className={`mb-6 p-4 rounded-xl ${
+                      profileMessage.type === "success"
+                        ? "bg-green-50 border border-green-200 text-green-800"
+                        : "bg-red-50 border border-red-200 text-red-800"
+                    } text-sm`}
+                  >
+                    {profileMessage.text}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {[
-                    {
-                      label: "Full Name",
-                      value: user?.name || agent.name,
-                      type: "text",
-                    },
-                    { label: "Email", value: user?.email || "", type: "email" },
-                    {
-                      label: "Phone",
-                      value: agent.phone || "+234 801 234 5678",
-                      type: "tel",
-                    },
-                    {
-                      label: "Agency",
-                      value: agent.agency || "Independent",
-                      type: "text",
-                    },
-                    {
-                      label: "Location",
-                      value: agent.location || "Lagos, Nigeria",
-                      type: "text",
-                    },
-                    {
-                      label: "License No.",
-                      value: "LG/RE/2024/0847",
-                      type: "text",
-                    },
-                  ].map((field) => (
-                    <div key={field.label}>
-                      <label className="block text-sm font-medium text-primary-dark mb-1.5">
-                        {field.label}
-                      </label>
-                      <input
-                        type={field.type}
-                        defaultValue={field.value}
-                        className="w-full h-11 px-4 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                      />
-                    </div>
-                  ))}
+                  <div>
+                    <label className="block text-sm font-medium text-primary-dark mb-1.5">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      value={profileName}
+                      onChange={(e) => setProfileName(e.target.value)}
+                      className="w-full h-11 px-4 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-primary-dark mb-1.5">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={user?.email || ""}
+                      disabled
+                      className="w-full h-11 px-4 rounded-xl bg-white/30 border border-white/40 text-sm text-text-subtle opacity-60 cursor-not-allowed"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-primary-dark mb-1.5">
+                      Phone
+                    </label>
+                    <input
+                      type="tel"
+                      value={profilePhone}
+                      onChange={(e) => setProfilePhone(e.target.value)}
+                      className="w-full h-11 px-4 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-primary-dark mb-1.5">
+                      Agency Name
+                    </label>
+                    <input
+                      type="text"
+                      value={profileAgency}
+                      onChange={(e) => setProfileAgency(e.target.value)}
+                      className="w-full h-11 px-4 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-primary-dark mb-1.5">
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      value={profileLocation}
+                      onChange={(e) => setProfileLocation(e.target.value)}
+                      className="w-full h-11 px-4 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-primary-dark mb-1.5">
+                      Years of Experience
+                    </label>
+                    <input
+                      type="number"
+                      value={profileYears}
+                      onChange={(e) => setProfileYears(parseInt(e.target.value) || 0)}
+                      className="w-full h-11 px-4 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-primary-dark mb-1.5">
+                      Website
+                    </label>
+                    <input
+                      type="url"
+                      value={profileWebsite}
+                      onChange={(e) => setProfileWebsite(e.target.value)}
+                      placeholder="https://example.com"
+                      className="w-full h-11 px-4 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-primary-dark mb-1.5">
+                      Specialties (comma-separated)
+                    </label>
+                    <input
+                      type="text"
+                      value={profileSpecialties}
+                      onChange={(e) => setProfileSpecialties(e.target.value)}
+                      placeholder="e.g., Residential, Commercial, Rentals"
+                      className="w-full h-11 px-4 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
                 </div>
                 <div className="mt-5">
                   <label className="block text-sm font-medium text-primary-dark mb-1.5">
@@ -1741,16 +1882,19 @@ const AgentDashboard = () => {
                   </label>
                   <textarea
                     rows={4}
-                    defaultValue={
-                      agent.bio ||
-                      "Experienced real estate agent specialising in residential and commercial properties across Lagos."
-                    }
+                    value={profileBio}
+                    onChange={(e) => setProfileBio(e.target.value)}
+                    placeholder="Tell your clients about your experience and specialties..."
                     className="w-full px-4 py-3 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                   />
                 </div>
                 <div className="flex items-center gap-3 mt-6">
-                  <button className="h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-glow/30">
-                    Save Changes
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={savingProfile}
+                    className="h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-glow/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {savingProfile ? "Saving..." : "Save Changes"}
                   </button>
                   <button
                     onClick={() => setActiveNav("overview")}

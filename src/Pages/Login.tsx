@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { ArrowRight, Eye, EyeOff, Mail, Lock, CheckCircle } from "lucide-react";
@@ -15,6 +15,7 @@ const roleDashboard: Record<string, string> = {
 
 const Login = () => {
   const { login, user } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -38,6 +39,11 @@ const Login = () => {
     try {
       await login({ email, password });
       setSubmitted(true);
+      // Auto-redirect after short delay
+      setTimeout(() => {
+        const dest = roleDashboard[user?.role || "BUYER"] || "/dashboard";
+        navigate(dest);
+      }, 1500);
     } catch (err: any) {
       const msg = err?.response?.data?.message || "Invalid email or password";
       setErrors({ email: msg });

@@ -149,6 +149,24 @@ export interface VendorProfile {
   verified: boolean;
 }
 
+export interface VendorBankAccount {
+  id: string;
+  vendorUserId: string;
+  accountName: string;
+  accountNumber: string;
+  bankCode: string;
+  bankName: string;
+  paystackRecipientCode: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Bank {
+  id: number;
+  name: string;
+  code: string;
+}
+
 export interface UserSettings {
   id: string;
   userId: string;
@@ -193,6 +211,7 @@ export interface VendorPublic {
   phone?: string | null;
   email: string;
   bio?: string | null;
+  website?: string | null;
   category: string | null;
   serviceArea?: string | null;
   yearsExperience?: string | null;
@@ -229,6 +248,7 @@ export interface Listing {
   coverImage: string;
   images: string[];
   virtualTourUrl?: string | null;
+  videoUrl?: string | null;
   rating: number;
   verified: boolean;
   status: ListingStatus;

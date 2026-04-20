@@ -24,11 +24,6 @@ import {
   ChevronRight,
   Share2,
   ClipboardList,
-  TrendingDown,
-  Wrench,
-  Paintbrush,
-  ThermometerSun,
-  FileCheck,
   Clock,
   FileText,
   Download,
@@ -42,96 +37,10 @@ import Footer from "../components/Home/Footer";
 import listingsService from "../api/services/listings";
 import type { Listing as ApiListing } from "../api/types";
 import BookmarkButton from "../components/ui/BookmarkButton";
+import { DetailSkeleton } from "../components/ui/Skeleton";
 // Agent data now comes embedded in the listing response
 
 const ease = [0.23, 1, 0.32, 1] as const;
-
-/* ─── Price History Data ─── */
-const priceHistory = [
-  {
-    date: "Mar 2026",
-    price: "₦65,000,000",
-    change: null,
-    event: "Current listing price",
-  },
-  {
-    date: "Jan 2026",
-    price: "₦68,000,000",
-    change: -4.4,
-    event: "Price reduced",
-  },
-  {
-    date: "Oct 2025",
-    price: "₦68,000,000",
-    change: null,
-    event: "Re-listed by new agent",
-  },
-  {
-    date: "Jul 2025",
-    price: "₦72,000,000",
-    change: null,
-    event: "Listed for sale",
-  },
-  { date: "Mar 2025", price: "₦58,000,000", change: null, event: "Last sold" },
-  {
-    date: "Sep 2023",
-    price: "₦52,000,000",
-    change: null,
-    event: "Previous sale",
-  },
-];
-
-/* ─── Property Logbook Data ─── */
-const logbookEntries = [
-  {
-    date: "Mar 2026",
-    icon: <Wrench className="w-4 h-4" />,
-    title: "Plumbing Repair",
-    vendor: "Adewale Plumbing Co.",
-    description: "Kitchen sink replacement and pipe rerouting",
-    cost: "₦45,000",
-  },
-  {
-    date: "Jan 2026",
-    icon: <Zap className="w-4 h-4" />,
-    title: "Electrical Rewiring",
-    vendor: "BrightSpark Electricals",
-    description: "Full rewiring of second floor bedrooms",
-    cost: "₦120,000",
-  },
-  {
-    date: "Nov 2025",
-    icon: <Paintbrush className="w-4 h-4" />,
-    title: "Interior Painting",
-    vendor: "ProFinish Painters",
-    description: "Complete repaint of living room and hallway",
-    cost: "₦85,000",
-  },
-  {
-    date: "Sep 2025",
-    icon: <Droplets className="w-4 h-4" />,
-    title: "Waterproofing",
-    vendor: "SealTight Solutions",
-    description: "Roof and terrace waterproofing with warranty",
-    cost: "₦200,000",
-  },
-  {
-    date: "Jun 2025",
-    icon: <ThermometerSun className="w-4 h-4" />,
-    title: "AC Installation",
-    vendor: "CoolBreeze HVAC",
-    description: "3 split-unit ACs across main living areas",
-    cost: "₦350,000",
-  },
-  {
-    date: "Mar 2025",
-    icon: <FileCheck className="w-4 h-4" />,
-    title: "Property Inspection",
-    vendor: "PropertyLoop Verified",
-    description: "Initial inspection and logbook creation",
-    cost: "—",
-  },
-];
 
 type OfferStatus = "idle" | "form" | "submitted" | "countered" | "accepted";
 
@@ -168,9 +77,11 @@ const PropertyDetail = () => {
     return (
       <div className="min-h-screen bg-[#f5f0eb]">
         <Navbar />
-        <div className="flex items-center justify-center py-32">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        </div>
+        <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">
+          <div className="max-w-7xl mx-auto py-8">
+            <DetailSkeleton />
+          </div>
+        </main>
         <Footer />
       </div>
     );
@@ -550,72 +461,17 @@ const PropertyDetail = () => {
                 transition={{ delay: 0.22, duration: 0.4, ease }}
                 className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8 mb-6"
               >
-                <div className="flex items-center justify-between mb-5">
-                  <h2 className="font-heading font-bold text-primary-dark text-lg">
-                    Price History
-                  </h2>
-                  <span className="text-text-subtle text-xs">
-                    {priceHistory.length} records
-                  </span>
-                </div>
-
-                <div className="relative">
-                  {/* Vertical line */}
-                  <div className="absolute left-3.75 top-3 bottom-3 w-px bg-border-light" />
-
-                  <div className="flex flex-col gap-4">
-                    {priceHistory.map((entry, i) => (
-                      <div key={i} className="flex items-start gap-4 relative">
-                        {/* Dot */}
-                        <div
-                          className={`w-7.75 h-7.75 rounded-full flex items-center justify-center shrink-0 relative z-10 border-2 border-[#f5f0eb] ${
-                            i === 0
-                              ? "bg-primary text-white"
-                              : entry.change !== null
-                                ? "bg-[#FFF8ED] text-[#F5A623]"
-                                : "bg-white/80 border-border-light text-text-subtle"
-                          }`}
-                        >
-                          {i === 0 ? (
-                            <Home className="w-3.5 h-3.5" />
-                          ) : entry.change !== null ? (
-                            <TrendingDown className="w-3.5 h-3.5" />
-                          ) : (
-                            <Clock className="w-3.5 h-3.5" />
-                          )}
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex-1 min-w-0 pb-1">
-                          <div className="flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2">
-                              <span className="font-heading font-bold text-primary-dark text-sm">
-                                {entry.price}
-                              </span>
-                              {entry.change !== null && (
-                                <span
-                                  className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                                    entry.change < 0
-                                      ? "bg-[#FFF8ED] text-[#F5A623]"
-                                      : "bg-primary/10 text-primary"
-                                  }`}
-                                >
-                                  {entry.change > 0 ? "+" : ""}
-                                  {entry.change}%
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-text-subtle text-xs shrink-0">
-                              {entry.date}
-                            </span>
-                          </div>
-                          <p className="text-text-secondary text-xs mt-0.5">
-                            {entry.event}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <h2 className="font-heading font-bold text-primary-dark text-lg mb-5">
+                  Price History
+                </h2>
+                <div className="text-center py-6">
+                  <Clock className="w-8 h-8 text-text-subtle mx-auto mb-2" />
+                  <p className="text-text-secondary text-sm">
+                    No price history available yet.
+                  </p>
+                  <p className="text-text-subtle text-xs mt-1">
+                    Price changes will appear here once tracked.
+                  </p>
                 </div>
               </motion.div>
 
@@ -744,8 +600,7 @@ const PropertyDetail = () => {
                     </div>
                   </div>
                   <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    {logbookEntries.length} verified records
+                    <ShieldCheck className="w-3.5 h-3.5" />0 records
                   </span>
                 </div>
                 <p className="text-text-secondary text-xs mb-5 leading-relaxed">
@@ -753,54 +608,14 @@ const PropertyDetail = () => {
                   property is permanently recorded with verified vendor details.
                 </p>
 
-                {/* Timeline */}
-                <div className="relative">
-                  <div className="absolute left-4.5 top-3 bottom-3 w-px bg-border-light" />
-
-                  <div className="flex flex-col gap-4">
-                    {logbookEntries.map((entry, i) => (
-                      <div
-                        key={i}
-                        className="flex items-start gap-4 relative group"
-                      >
-                        {/* Dot */}
-                        <div className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm border border-border-light shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center text-primary shrink-0 relative z-10 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-colors duration-300">
-                          {entry.icon}
-                        </div>
-
-                        {/* Card */}
-                        <div className="flex-1 bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl p-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-xs font-medium text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
-                              {entry.date}
-                            </span>
-                            <span className="flex items-center gap-1 text-xs text-primary">
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                              Verified
-                            </span>
-                          </div>
-                          <h4 className="font-heading font-bold text-primary-dark text-sm">
-                            {entry.title}
-                          </h4>
-                          <p className="text-text-secondary text-xs mt-0.5">
-                            by {entry.vendor}
-                          </p>
-                          <p className="text-text-subtle text-xs mt-1.5 leading-relaxed">
-                            {entry.description}
-                          </p>
-                          <div className="h-px bg-border-light mt-3 mb-2" />
-                          <div className="flex items-center justify-between">
-                            <span className="font-heading font-bold text-primary-dark text-sm">
-                              {entry.cost}
-                            </span>
-                            <span className="text-text-subtle text-[11px]">
-                              Auto-logged via Service Loop
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                <div className="text-center py-6">
+                  <ClipboardList className="w-8 h-8 text-text-subtle mx-auto mb-2" />
+                  <p className="text-text-secondary text-sm">
+                    No logbook entries yet.
+                  </p>
+                  <p className="text-text-subtle text-xs mt-1">
+                    Service records will appear here once vendors complete jobs.
+                  </p>
                 </div>
               </motion.div>
             </div>
