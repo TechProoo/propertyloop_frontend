@@ -149,17 +149,6 @@ const Dashboard = () => {
     .slice(0, 2)
     .toUpperCase();
 
-  const cartItems = JSON.parse(localStorage.getItem("pl_cart") || "[]") as {
-    id: string;
-    quantity: number;
-  }[];
-  const cartProducts = cartItems
-    .map((item) => {
-      const p = getProductById(item.id);
-      return p ? { ...p, cartQty: item.quantity } : null;
-    })
-    .filter(Boolean);
-
   // Bookmarked items
   const savedPropertyIds = getByType("PROPERTY");
   const savedVendorIds = getByType("SERVICE");
@@ -203,13 +192,6 @@ const Dashboard = () => {
       label: "Booked Services",
       color: "text-primary",
       bg: "bg-primary/10",
-    },
-    {
-      icon: <ShoppingCart className="w-5 h-5" />,
-      value: String(cartItems.length),
-      label: "Cart Items",
-      color: "text-blue-500",
-      bg: "bg-blue-50",
     },
   ];
 
@@ -761,68 +743,6 @@ const Dashboard = () => {
                         </Link>
                       ))}
                     </div>
-                  </div>
-
-                  {/* Marketplace Cart */}
-                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-heading font-bold text-primary-dark text-sm flex items-center gap-2">
-                        <ShoppingCart className="w-4 h-4 text-primary" /> Cart
-                      </h3>
-                      <Link
-                        to="/marketplace"
-                        className="text-primary text-xs font-medium hover:underline"
-                      >
-                        Browse
-                      </Link>
-                    </div>
-                    {cartProducts.length > 0 ? (
-                      <div className="flex flex-col gap-3">
-                        {cartProducts.slice(0, 2).map((p) => (
-                          <Link
-                            key={p!.id}
-                            to={`/product/${p!.id}`}
-                            className="flex items-center gap-3 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all"
-                          >
-                            <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
-                              <img
-                                src={p!.coverImage}
-                                alt={p!.name}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-primary-dark text-xs font-medium truncate">
-                                {p!.name}
-                              </p>
-                              <p className="text-text-secondary text-[11px]">
-                                {p!.priceLabel}/{p!.unit} × {p!.cartQty}
-                              </p>
-                            </div>
-                          </Link>
-                        ))}
-                        <Link
-                          to="/cart"
-                          className="w-full h-10 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
-                        >
-                          <ShoppingCart className="w-3.5 h-3.5" /> View Cart (
-                          {cartItems.length})
-                        </Link>
-                      </div>
-                    ) : (
-                      <div className="text-center py-4">
-                        <Package className="w-8 h-8 text-text-subtle mx-auto mb-2" />
-                        <p className="text-text-secondary text-xs">
-                          No items in cart
-                        </p>
-                        <Link
-                          to="/marketplace"
-                          className="text-primary text-xs font-medium mt-1 inline-flex items-center gap-1"
-                        >
-                          Browse materials <ArrowRight className="w-3 h-3" />
-                        </Link>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
