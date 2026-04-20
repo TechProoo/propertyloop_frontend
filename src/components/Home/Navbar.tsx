@@ -232,8 +232,8 @@ const Navbar = () => {
               </li>
               <li data-nav-action>
                 <button
-                  onClick={() => {
-                    logout();
+                  onClick={async () => {
+                    await logout();
                     window.location.href = "/";
                   }}
                   className="text-sm font-medium px-4 py-2 rounded-full bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
@@ -342,8 +342,8 @@ const Navbar = () => {
                   Dashboard
                 </a>
                 <button
-                  onClick={() => {
-                    logout();
+                  onClick={async () => {
+                    await logout();
                     window.location.href = "/";
                   }}
                   className="py-2 px-4 rounded-full text-left bg-red-50 text-red-700 hover:bg-red-100 transition-colors"

@@ -289,8 +289,8 @@ const Dashboard = () => {
             )}
             {sidebarOpen && (
               <button
-                onClick={() => {
-                  logout();
+                onClick={async () => {
+                  await logout();
                   window.location.href = "/";
                 }}
                 className="text-white/40 hover:text-white transition-colors"
@@ -1766,8 +1766,8 @@ const Dashboard = () => {
                   Log out of your account.
                 </p>
                 <button
-                  onClick={() => {
-                    logout();
+                  onClick={async () => {
+                    await logout();
                     window.location.href = "/";
                   }}
                   className="h-10 px-6 rounded-full border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors flex items-center gap-2"
