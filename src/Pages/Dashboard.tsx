@@ -287,17 +287,15 @@ const Dashboard = () => {
                 </p>
               </div>
             )}
-            {sidebarOpen && (
-              <button
-                onClick={async () => {
-                  await logout();
-                  window.location.href = "/";
-                }}
-                className="text-white/40 hover:text-white transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            )}
+            <button
+              onClick={async () => {
+                await logout();
+                window.location.href = "/";
+              }}
+              className="text-white/40 hover:text-white transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </motion.aside>
@@ -363,7 +361,7 @@ const Dashboard = () => {
                 className="px-3 py-4 border-t"
                 style={{ borderColor: "hsl(160, 20%, 22%)" }}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-9 h-9 rounded-full bg-[hsl(142,71%,45%)] flex items-center justify-center text-white text-xs font-bold">
                     {initials}
                   </div>
@@ -376,6 +374,15 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </div>
+                <button
+                  onClick={async () => {
+                    await logout();
+                    window.location.href = "/";
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm"
+                >
+                  <LogOut className="w-4 h-4" /> Logout
+                </button>
               </div>
             </motion.aside>
           </>
