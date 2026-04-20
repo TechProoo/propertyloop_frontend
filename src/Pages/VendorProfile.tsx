@@ -24,8 +24,10 @@ const ease = [0.23, 1, 0.32, 1] as const;
 
 const ReviewDisputeSection = ({
   targetName,
+  vendorId,
 }: {
   targetName: string;
+  vendorId: string;
 }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showDisputeForm, setShowDisputeForm] = useState(false);
@@ -33,17 +35,31 @@ const ReviewDisputeSection = ({
   const [reviewText, setReviewText] = useState("");
   const [disputeText, setDisputeText] = useState("");
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [reviewLoading, setReviewLoading] = useState(false);
   const [disputeSubmitted, setDisputeSubmitted] = useState(false);
 
-  const handleReviewSubmit = () => {
+  const handleReviewSubmit = async () => {
     if (reviewRating > 0 && reviewText.trim()) {
-      setReviewSubmitted(true);
-      setTimeout(() => {
-        setShowReviewForm(false);
-        setReviewSubmitted(false);
-        setReviewRating(0);
-        setReviewText("");
-      }, 2000);
+      setReviewLoading(true);
+      setReviewError("");
+      try {
+        await vendorsService.createReview(vendorId, {
+          rating: reviewRating,
+          comment: reviewText.trim(),
+        });
+        setReviewSubmitted(true);
+        setTimeout(() => {
+          setShowReviewForm(false);
+          setReviewSubmitted(false);
+          setReviewRating(0);
+          setReviewText("");
+        }, 2000);
+      } catch (error) {
+        setReviewError(error instanceof Error ? error.message : "Failed to submit review");
+      } finally {
+        setReviewLoading(false);
+      }
     }
   };
 
@@ -136,12 +152,15 @@ const ReviewDisputeSection = ({
                 rows={3}
                 className="w-full px-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
               />
+              {reviewError && (
+                <p className="text-red-600 text-xs mt-2">{reviewError}</p>
+              )}
               <button
                 onClick={handleReviewSubmit}
-                disabled={reviewRating === 0 || !reviewText.trim()}
+                disabled={reviewRating === 0 || !reviewText.trim() || reviewLoading}
                 className="mt-3 h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Send className="w-3.5 h-3.5" /> Submit Review
+                <Send className="w-3.5 h-3.5" /> {reviewLoading ? "Submitting..." : "Submit Review"}
               </button>
             </>
           )}
@@ -655,7 +674,7 @@ const VendorProfile = () => {
                 </div>
 
                 {/* Review section */}
-                <ReviewDisputeSection targetName={vendor.name.split(" ")[0]} />
+                <ReviewDisputeSection targetName={vendor.name.split(" ")[0]} vendorId={vendor.id} />
               </div>
             </div>
           </div>
