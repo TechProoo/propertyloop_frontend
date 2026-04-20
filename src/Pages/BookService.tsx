@@ -277,18 +277,22 @@ const BookService = () => {
         setConvoId(result.conversationId);
 
         // Load existing messages
-        const messages = await messagesService.getMessages(result.conversationId);
-        console.log("Messages loaded:", messages);
-        if (messages && messages.length > 0) {
-          const formattedMessages: ChatMessage[] = messages.map((msg) => ({
-            sender: msg.isYou ? "you" : "them",
-            text: msg.text,
-            time: new Date(msg.createdAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-          }));
-          setChatMessages(formattedMessages);
+        try {
+          const messages = await messagesService.getMessages(result.conversationId);
+          console.log("Messages loaded:", messages);
+          if (messages && messages.length > 0) {
+            const formattedMessages: ChatMessage[] = messages.map((msg) => ({
+              sender: msg.isYou ? "you" : "them",
+              text: msg.text,
+              time: new Date(msg.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+            }));
+            setChatMessages(formattedMessages);
+          }
+        } catch (msgError) {
+          console.warn("Could not load messages:", msgError);
         }
       } catch (error) {
         console.error("Failed to initialize chat:", error);

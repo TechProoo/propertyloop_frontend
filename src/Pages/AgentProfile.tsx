@@ -265,15 +265,23 @@ const AgentProfile = () => {
     if (!msgText.trim() || !agent?.id || !user) return;
     setSending(true);
     try {
+      const senderRole = user.role || "BUYER";
+      if (!senderRole) {
+        alert("Unable to determine your user role. Please log in again.");
+        setSending(false);
+        return;
+      }
       const { conversationId } = await messagesService.createOrFind({
         recipientId: agent.id,
         recipientRole: "AGENT",
-        senderRole: user.role || "BUYER",
+        senderRole: senderRole as "BUYER" | "AGENT" | "VENDOR",
       });
       await messagesService.sendMessage(conversationId, msgText.trim());
+      setMsgText("");
       navigate(`/messages?with=${conversationId}`);
     } catch (error) {
       console.error("Failed to send message:", error);
+      alert("Failed to send message. Please try again.");
     } finally {
       setSending(false);
     }
