@@ -28,7 +28,6 @@ import {
   Bell,
   PlusCircle,
   Briefcase,
-  ClipboardList,
   ArrowLeft,
   Send,
   ChevronDown,
@@ -37,7 +36,7 @@ import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/logo.png";
 import agentsService from "../api/services/agents";
 import listingsService from "../api/services/listings";
-import type { AgentStats, Listing } from "../api/types";
+import type { AgentStats, Listing, ListingStatus } from "../api/types";
 import { useConversations } from "../api/hooks";
 import { StatSkeleton } from "../components/ui/Skeleton";
 
@@ -201,9 +200,9 @@ const AgentDashboard = () => {
     setStatusUpdating((prev) => ({ ...prev, [listingId]: true }));
     setOpenStatusMenu(null);
     try {
-      await listingsService.update(listingId, { status: newStatus as any });
+      await listingsService.update(listingId, { status: newStatus as ListingStatus });
       setAgentListings((prev) =>
-        prev.map((l) => l.id === listingId ? { ...l, status: newStatus } : l)
+        prev.map((l) => l.id === listingId ? { ...l, status: newStatus as ListingStatus } : l)
       );
     } catch {
       /* ignore */
