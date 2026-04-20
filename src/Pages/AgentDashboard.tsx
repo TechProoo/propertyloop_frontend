@@ -693,19 +693,9 @@ const AgentDashboard = () => {
                               href: "/add-property",
                             },
                             {
-                              icon: <Users className="w-4 h-4" />,
-                              label: "View All Leads",
-                              href: "#",
-                            },
-                            {
                               icon: <Briefcase className="w-4 h-4" />,
                               label: "Edit Agent Profile",
                               href: `/agent/${agent.id}`,
-                            },
-                            {
-                              icon: <ClipboardList className="w-4 h-4" />,
-                              label: "Property Logbook",
-                              href: "#",
                             },
                           ].map((action) => (
                             <Link
