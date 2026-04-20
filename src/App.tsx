@@ -48,6 +48,7 @@ import AdminPanel from "./Pages/AdminPanel";
 import PartnersAdmin from "./Pages/PartnersAdmin";
 import VerifyEmail from "./Pages/VerifyEmail";
 import SearchResults from "./Pages/SearchResults";
+import LogbookInfo from "./Pages/LogbookInfo";
 import NotFound from "./Pages/NotFound";
 
 const roleDashboard: Record<string, string> = {
@@ -84,6 +85,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/logbook" element={<LogbookInfo />} />
           <Route path="/buy" element={<Buy />} />
           <Route path="/rent" element={<Rent />} />
           <Route path="/sell" element={<Sell />} />

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ShieldCheck,
   Home,
@@ -211,12 +212,13 @@ const PropertyLogbook = () => {
               </div>
             </div>
 
-            <button
+            <Link
+              to="/logbook"
               data-pl-learn
-              className="mt-6 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+              className="mt-6 inline-flex h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
             >
               Learn about logbooks
-            </button>
+            </Link>
           </div>
 
           {/* Right — timeline */}
