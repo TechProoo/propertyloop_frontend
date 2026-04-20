@@ -59,6 +59,11 @@ const listingsService = {
     return data;
   },
 
+  async getStats(type: "SALE" | "RENT") {
+    const { data } = await api.get(`/listings/stats/${type}`);
+    return data;
+  },
+
   async getById(id: string): Promise<Listing> {
     const { data } = await api.get<Listing>(`/listings/${id}`);
     return data;

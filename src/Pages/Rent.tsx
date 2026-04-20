@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useListings } from "../api/hooks";
+import listingsService from "../api/services/listings";
 import {
   ArrowUpRight,
   Bed,
@@ -35,25 +36,12 @@ import type { MapListing } from "../components/ui/PropertyMap";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import EmptyState from "../components/ui/EmptyState";
 
-const categories = [
-  {
-    icon: <Building2 className="w-5 h-5" />,
-    label: "Flats & Apartments",
-    count: 4820,
-  },
-  { icon: <Home className="w-5 h-5" />, label: "Houses", count: 1950 },
-  {
-    icon: <Store className="w-5 h-5" />,
-    label: "Office Space",
-    count: 1120,
-  },
-  { icon: <LandPlot className="w-5 h-5" />, label: "Land Lease", count: 680 },
-  {
-    icon: <LayoutGrid className="w-5 h-5" />,
-    label: "All Property",
-    count: 8570,
-  },
-];
+const categoryIcons: Record<string, React.ReactNode> = {
+  "Flat / Apartment": <Building2 className="w-5 h-5" />,
+  House: <Home className="w-5 h-5" />,
+  Land: <LandPlot className="w-5 h-5" />,
+  Commercial: <Store className="w-5 h-5" />,
+};
 
 const rentPropertyTypeMap: Record<string, string> = {
   "Flats & Apartments": "Flat / Apartment",
@@ -73,6 +61,8 @@ const Rent = () => {
   const [bedsFilter, setBedsFilter] = useState("any");
   const [bathsFilter, setBathsFilter] = useState("any");
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [stats, setStats] = useState<any>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   const {
     items: apiListings,
@@ -82,6 +72,39 @@ const Rent = () => {
     type: "RENT",
     limit: 50,
   });
+
+  // Fetch category stats
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await listingsService.getStats("RENT");
+        setStats(data);
+      } catch (err) {
+        console.error("Failed to fetch stats:", err);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  // Build categories from stats
+  const categories = stats
+    ? [
+        ...Object.entries(stats.byType || {}).map(([type, count]) => ({
+          icon: categoryIcons[type as keyof typeof categoryIcons] || <LayoutGrid className="w-5 h-5" />,
+          label: Object.keys(rentPropertyTypeMap).find(
+            (key) => rentPropertyTypeMap[key] === type
+          ) || type,
+          count: count as number,
+        })),
+        {
+          icon: <LayoutGrid className="w-5 h-5" />,
+          label: "All Property",
+          count: stats.total || 0,
+        },
+      ]
+    : [];
 
   useEffect(() => {
     const p: Record<string, unknown> = { type: "RENT" as const, limit: 50 };
@@ -575,11 +598,32 @@ const Rent = () => {
                   Rental Snapshot
                 </h4>
                 <div className="flex flex-col gap-3">
-                  {[
-                    { label: "Avg. rent (Lagos)", value: "₦4.2M/yr" },
-                    { label: "New this week", value: "518" },
-                    { label: "Escrow deposits", value: "Active" },
-                  ].map((stat) => (
+                  {(statsLoading || !stats
+                    ? [
+                        { label: "Avg. rent (Lagos)", value: "–" },
+                        { label: "New this week", value: "–" },
+                        { label: "Verified agents", value: "–" },
+                      ]
+                    : [
+                        {
+                          label: "Avg. rent (Lagos)",
+                          value: stats.avgPrice
+                            ? `₦${(stats.avgPrice / 1000000).toFixed(1)}M/yr`
+                            : "–",
+                        },
+                        {
+                          label: "New this week",
+                          value: stats.newThisWeek?.toLocaleString() || "0",
+                        },
+                        {
+                          label: "Verified agents",
+                          value:
+                            stats.verifiedAgents > 999
+                              ? `${(stats.verifiedAgents / 1000).toFixed(1)}K+`
+                              : stats.verifiedAgents.toString(),
+                        },
+                      ]
+                  ).map((stat) => (
                     <div
                       key={stat.label}
                       className="flex items-center justify-between"

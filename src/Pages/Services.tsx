@@ -24,26 +24,22 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import { useVendors } from "../api/hooks";
+import vendorsService from "../api/services/vendors";
 import BookmarkButton from "../components/ui/BookmarkButton";
 
 /* ─── Data ─── */
 
-const categories = [
-  {
-    icon: <LayoutGrid className="w-5 h-5" />,
-    label: "All Services",
-    count: 1840,
-  },
-  { icon: <HardHat className="w-5 h-5" />, label: "Building", count: 215 },
-  { icon: <Hammer className="w-5 h-5" />, label: "Carpentry", count: 108 },
-  { icon: <Sparkles className="w-5 h-5" />, label: "Cleaning", count: 380 },
-  { icon: <Zap className="w-5 h-5" />, label: "Electrical", count: 298 },
-  { icon: <Wind className="w-5 h-5" />, label: "HVAC", count: 40 },
-  { icon: <Leaf className="w-5 h-5" />, label: "Landscaping", count: 72 },
-  { icon: <Paintbrush className="w-5 h-5" />, label: "Painting", count: 265 },
-  { icon: <PipetteIcon className="w-5 h-5" />, label: "Plaster", count: 120 },
-  { icon: <Wrench className="w-5 h-5" />, label: "Plumbing", count: 342 },
-];
+const categoryIcons: Record<string, React.ReactNode> = {
+  Building: <HardHat className="w-5 h-5" />,
+  Carpentry: <Hammer className="w-5 h-5" />,
+  Cleaning: <Sparkles className="w-5 h-5" />,
+  Electrical: <Zap className="w-5 h-5" />,
+  HVAC: <Wind className="w-5 h-5" />,
+  Landscaping: <Leaf className="w-5 h-5" />,
+  Painting: <Paintbrush className="w-5 h-5" />,
+  Plaster: <PipetteIcon className="w-5 h-5" />,
+  Plumbing: <Wrench className="w-5 h-5" />,
+};
 
 const locations = [
   "All Locations",
@@ -70,6 +66,7 @@ const Services = () => {
   const [activeRating, setActiveRating] = useState("Any Rating");
   const [searchQuery, setSearchQuery] = useState("");
   const [categorySearch, setCategorySearch] = useState("");
+  const [stats, setStats] = useState<any>(null);
 
   const minRating =
     activeRating === "Any Rating"
@@ -83,6 +80,41 @@ const Services = () => {
     minRating,
     limit: 50,
   });
+
+  // Fetch vendor stats
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await vendorsService.getPublicStats();
+        setStats(data);
+      } catch (err) {
+        console.error("Failed to fetch vendor stats:", err);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  // Build categories from stats
+  const categories = stats
+    ? [
+        {
+          icon: <LayoutGrid className="w-5 h-5" />,
+          label: "All Services",
+          count: stats.total || 0,
+        },
+        ...Object.entries(stats.byCategory || {}).map(([category, count]) => ({
+          icon: categoryIcons[category as keyof typeof categoryIcons] || <Wrench className="w-5 h-5" />,
+          label: category,
+          count: count as number,
+        })),
+      ]
+    : [
+        {
+          icon: <LayoutGrid className="w-5 h-5" />,
+          label: "All Services",
+          count: 0,
+        },
+      ];
 
   useEffect(() => {
     updateParams({

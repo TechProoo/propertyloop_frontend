@@ -48,6 +48,11 @@ const vendorsService = {
     return data;
   },
 
+  async getPublicStats() {
+    const { data } = await api.get("/vendors/stats");
+    return data;
+  },
+
   async getById(id: string): Promise<VendorPublic & { reviews: VendorReview[] }> {
     const { data } = await api.get(`/vendors/${id}`);
     return data;
