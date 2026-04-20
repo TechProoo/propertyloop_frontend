@@ -9,7 +9,6 @@ import {
   Phone,
   MessageCircle,
   CheckCircle,
-  Shield,
   ShieldCheck,
   Calendar,
   ClipboardList,
@@ -60,14 +59,6 @@ const addMessage = (convoId: string, message: ChatMessage) => {
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
-const steps = ["details", "review", "confirmed"] as const;
-type Step = (typeof steps)[number];
-
-const stepLabels: Record<Step, string> = {
-  details: "Job Details",
-  review: "Review & Price",
-  confirmed: "Confirmed",
-};
 
 /* ─── Review / Report Vendor ─── */
 const VendorReviewSection = ({ vendorName }: { vendorName: string }) => {
@@ -236,7 +227,6 @@ const BookService = () => {
   const { id } = useParams<{ id: string }>();
   const [vendor, setVendor] = useState<VendorPublic | null>(null);
   const [loadingVendor, setLoadingVendor] = useState(true);
-  const [currentStep, setCurrentStep] = useState<Step>("details");
 
   useEffect(() => {
     if (!id) {
@@ -255,7 +245,6 @@ const BookService = () => {
   const [preferredDate, setPreferredDate] = useState("");
   const [preferredTime, setPreferredTime] = useState("10:00");
   const [propertyAddress, setPropertyAddress] = useState("");
-  const [agreedPrice, setAgreedPrice] = useState("");
 
   // Mini chat state
   const [chatOpen, setChatOpen] = useState(false);
@@ -263,6 +252,10 @@ const BookService = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [convoId, setConvoId] = useState<string>("");
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Booking negotiation state
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   // Initialize chat - create/find conversation and load messages
   useEffect(() => {
@@ -306,6 +299,42 @@ const BookService = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
 
+  const handleSendNegotiationRequest = async () => {
+    if (!jobDescription.trim() || !vendor || !convoId) {
+      console.log("Negotiation blocked:", { hasDescription: !!jobDescription.trim(), hasVendor: !!vendor, hasConvoId: !!convoId });
+      return;
+    }
+
+    setSending(true);
+
+    try {
+      // Format the booking details as a nicely formatted message
+      const messageText = `📋 **Service Request**
+
+**What I need:**
+${jobDescription}
+
+${preferredDate ? `📅 **Preferred Date:** ${new Date(preferredDate).toLocaleDateString("en-NG", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}` : ""}
+${preferredDate ? `⏰ **Preferred Time:** ${preferredTime}` : ""}
+
+${propertyAddress ? `📝 **Notes:** ${propertyAddress}` : ""}
+
+Let's negotiate the scope and pricing. Looking forward to your response!`;
+
+      await messagesService.sendMessage(convoId, messageText);
+      setSent(true);
+      console.log("Negotiation request sent successfully");
+
+      // Redirect to dashboard after 2 seconds
+      setTimeout(() => {
+        window.location.href = "/dashboard?tab=messages";
+      }, 2000);
+    } catch (error) {
+      console.error("Failed to send negotiation request:", error);
+      setSending(false);
+    }
+  };
+
   const handleChatSend = async () => {
     if (!chatInput.trim() || !vendor || !convoId) {
       console.log("Chat send blocked:", { hasInput: !!chatInput.trim(), hasVendor: !!vendor, hasConvoId: !!convoId });
@@ -338,8 +367,6 @@ const BookService = () => {
     }
   };
 
-  const stepIndex = steps.indexOf(currentStep);
-
   if (loadingVendor) {
     return (
       <div className="min-h-screen bg-[#f5f0eb] flex items-center justify-center">
@@ -371,21 +398,6 @@ const BookService = () => {
     );
   }
 
-  const vendorFee = agreedPrice
-    ? parseInt(agreedPrice.replace(/,/g, "")) || (vendor.priceNum ?? 0)
-    : (vendor.priceNum ?? 0);
-  const platformFee = Math.round(vendorFee * 0.1);
-  const total = vendorFee + platformFee;
-
-  const goNext = () => {
-    const next = stepIndex + 1;
-    if (next < steps.length) setCurrentStep(steps[next]);
-  };
-
-  const goBack = () => {
-    const prev = stepIndex - 1;
-    if (prev >= 0) setCurrentStep(steps[prev]);
-  };
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
@@ -409,49 +421,12 @@ const BookService = () => {
             </span>
           </div>
 
-          {/* Step indicator */}
-          {currentStep !== "confirmed" && (
-            <div className="flex items-center justify-center gap-2 mb-8">
-              {steps.slice(0, 2).map((s, i) => (
-                <div key={s} className="flex items-center gap-2">
-                  <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-heading font-semibold transition-all ${i <= stepIndex ? "bg-primary text-white shadow-lg shadow-glow/40" : "bg-white/60 text-text-secondary border border-border-light"}`}
-                  >
-                    {i < stepIndex ? (
-                      <CheckCircle className="w-4 h-4" />
-                    ) : (
-                      i + 1
-                    )}
-                  </div>
-                  <span
-                    className={`hidden sm:inline text-xs font-medium ${i <= stepIndex ? "text-primary-dark" : "text-text-subtle"}`}
-                  >
-                    {stepLabels[s]}
-                  </span>
-                  {i < 2 && (
-                    <div
-                      className={`w-8 sm:w-12 h-0.5 rounded-full ${i < stepIndex ? "bg-primary" : "bg-border-light"}`}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
 
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
             {/* Left — step content */}
             <div className="flex-1">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentStep}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.4, ease }}
-                >
-                  {/* Step 1: Job Details */}
-                  {currentStep === "details" && (
-                    <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
+              <div>
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
                       <h2 className="font-heading font-bold text-primary-dark text-lg mb-5">
                         Describe Your Job
                       </h2>
@@ -557,211 +532,67 @@ const BookService = () => {
 
                       <div className="flex justify-end mt-6">
                         <button
-                          onClick={goNext}
-                          className="flex items-center gap-2 px-8 py-2.5 rounded-full bg-primary text-white font-heading font-semibold text-sm shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors"
+                          onClick={handleSendNegotiationRequest}
+                          disabled={!jobDescription.trim() || sending}
+                          className="flex items-center gap-2 px-8 py-2.5 rounded-full bg-primary text-white font-heading font-semibold text-sm shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Continue <ArrowRight className="w-4 h-4" />
+                          {sending ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              Sending...
+                            </>
+                          ) : (
+                            <>
+                              Continue Negotiation <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
-                  )}
 
-                  {/* Step 2: Review & Price */}
-                  {currentStep === "review" && (
-                    <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
-                      <h2 className="font-heading font-bold text-primary-dark text-lg mb-5">
-                        Review & Agree on Price
-                      </h2>
-
-                      <div className="flex flex-col gap-3 text-sm mb-6">
-                        {[
-                          { label: "Vendor", value: vendor.name },
-                          { label: "Service", value: vendor.category },
-                          {
-                            label: "Date",
-                            value: preferredDate
-                              ? new Date(preferredDate).toLocaleDateString(
-                                  "en-NG",
-                                  {
-                                    weekday: "long",
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                  },
-                                )
-                              : "Not set",
-                          },
-                          { label: "Time", value: preferredTime },
-                          {
-                            label: "Negotiation",
-                            value: propertyAddress || "Not set",
-                          },
-                        ].map((r) => (
-                          <div
-                            key={r.label}
-                            className="flex items-center justify-between py-2 border-b border-border-light last:border-0"
-                          >
-                            <span className="text-text-secondary">
-                              {r.label}
-                            </span>
-                            <span className="font-heading font-medium text-primary-dark text-right max-w-[60%] truncate">
-                              {r.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {jobDescription && (
-                        <div className="bg-white/60 border border-border-light rounded-2xl p-4 mb-6">
-                          <p className="text-xs font-heading font-semibold text-primary-dark mb-1">
-                            Job Description
-                          </p>
-                          <p className="text-text-secondary text-sm">
-                            {jobDescription}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="mb-6">
-                        <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                          Agreed Price (₦)
-                        </label>
-                        <input
-                          type="text"
-                          value={agreedPrice}
-                          onChange={(e) => setAgreedPrice(e.target.value)}
-                          placeholder={String(vendor.priceNum ?? 0)}
-                          className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
-                        />
-                        <p className="text-text-subtle text-xs mt-1">
-                          Vendor's starting price:{" "}
-                          {vendor.priceLabel ??
-                            `₦${(vendor.priceNum ?? 0).toLocaleString()}`}
-                          . Enter the agreed amount.
-                        </p>
-                      </div>
-
-                      <div className="bg-bg-accent rounded-2xl border border-border-light p-4">
-                        <div className="flex items-center gap-2 text-xs text-primary mb-2">
-                          <Shield className="w-4 h-4" /> Price Summary
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-text-secondary">
-                            Service fee
-                          </span>
-                          <span className="text-primary-dark font-medium">
-                            ₦{vendorFee.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm mt-1">
-                          <span className="text-text-secondary">
-                            Platform fee (10%)
-                          </span>
-                          <span className="text-primary-dark font-medium">
-                            ₦{platformFee.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="h-px bg-border-light my-2" />
-                        <div className="flex justify-between">
-                          <span className="font-heading font-bold text-primary-dark">
-                            Total
-                          </span>
-                          <span className="font-heading font-bold text-primary-dark text-lg">
-                            ₦{total.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between mt-6">
-                        <button
-                          onClick={goBack}
-                          className="flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-primary transition-colors"
-                        >
-                          <ArrowLeft className="w-4 h-4" /> Back
-                        </button>
-                        <button
-                          onClick={goNext}
-                          className="flex items-center gap-2 px-8 py-2.5 rounded-full bg-primary text-white font-heading font-semibold text-sm shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors"
-                        >
-                          Confirm Booking <ArrowRight className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 3: Confirmed */}
-                  {currentStep === "confirmed" && (
-                    <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
+                {/* Success Message Overlay */}
+                  <AnimatePresence>
+                    {sent && (
                       <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 300,
-                          damping: 20,
-                        }}
-                        className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-5 shadow-lg shadow-glow/40"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3 }}
+                        className="fixed inset-0 flex items-center justify-center z-50 p-4"
                       >
-                        <CheckCircle className="w-8 h-8 text-white" />
-                      </motion.div>
-                      <h2 className="font-heading font-bold text-primary-dark text-xl">
-                        Service Booked!
-                      </h2>
-                      <p className="text-text-secondary text-sm mt-2 max-w-md mx-auto">
-                        {vendor.name} will contact you to confirm the
-                        appointment and discuss pricing details.
-                      </p>
-                      <div className="mt-6 bg-bg-accent rounded-2xl border border-border-light p-4 text-left max-w-sm mx-auto">
-                        <p className="font-heading font-bold text-primary-dark text-sm">
-                          {vendor.category} — {vendor.name}
-                        </p>
-                        <p className="text-text-secondary text-xs mt-1">
-                          Booking #SVC-20260402-0023 · ₦{total.toLocaleString()}
-                        </p>
-                        {preferredDate && (
-                          <p className="text-text-secondary text-xs mt-1 flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />{" "}
-                            {new Date(preferredDate).toLocaleDateString(
-                              "en-NG",
-                              {
-                                weekday: "short",
-                                month: "short",
-                                day: "numeric",
-                              },
-                            )}{" "}
-                            at {preferredTime}
+                        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+                        <div className="relative bg-white/95 backdrop-blur-md border border-white/40 rounded-[20px] shadow-2xl p-8 sm:p-10 text-center max-w-sm">
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 20,
+                            }}
+                            className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-5 shadow-lg shadow-glow/40"
+                          >
+                            <MessageCircle className="w-8 h-8 text-white" />
+                          </motion.div>
+                          <h2 className="font-heading font-bold text-primary-dark text-xl">
+                            Request Sent!
+                          </h2>
+                          <p className="text-text-secondary text-sm mt-2">
+                            Your service request has been sent to {vendor.name}. Continue negotiating details on your dashboard.
                           </p>
-                        )}
-                      </div>
-                      <div className="mt-4 bg-white/25 backdrop-blur-md rounded-2xl border border-white/40 p-4 max-w-sm mx-auto">
-                        <div className="flex items-center gap-2 text-xs text-primary">
-                          <ClipboardList className="w-4 h-4" /> This job will be
-                          auto-logged to the Property Logbook once completed.
+                          <div className="mt-6 flex items-center justify-center gap-2 text-xs text-text-secondary">
+                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                            Redirecting to dashboard...
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
-                        <Link
-                          to="/dashboard"
-                          className="h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center gap-2"
-                        >
-                          Go to Dashboard <ArrowRight className="w-4 h-4" />
-                        </Link>
-                        <Link
-                          to="/services"
-                          className="h-10 px-6 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all"
-                        >
-                          Browse more vendors
-                        </Link>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+              </div>
             </div>
 
             {/* Right — Vendor summary */}
-            {currentStep !== "confirmed" && (
-              <div className="lg:w-85 shrink-0">
+            <div className="lg:w-85 shrink-0">
                 <div className="sticky top-8 flex flex-col gap-4">
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                     <Link to={`/vendor/${vendor.id}`}>
@@ -936,7 +767,6 @@ const BookService = () => {
                   </div>
                 </div>
               </div>
-            )}
           </div>
         </div>
       </main>
