@@ -321,9 +321,13 @@ const BookService = () => {
       time: "Just now",
     };
 
-    console.log("Sending message:", { convoId, messageText });
+    console.log("Sending message:", { convoId, messageText, msg });
     addMessage(convoId, msg);
-    setChatMessages((prev) => [...prev, msg]);
+    setChatMessages((prev) => {
+      const updated = [...prev, msg];
+      console.log("Chat messages updated:", updated);
+      return updated;
+    });
 
     // Send message to backend API
     try {
