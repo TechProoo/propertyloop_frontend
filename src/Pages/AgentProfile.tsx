@@ -271,17 +271,27 @@ const AgentProfile = () => {
         setSending(false);
         return;
       }
-      const { conversationId } = await messagesService.createOrFind({
+
+      const payload = {
         recipientId: agent.id,
-        recipientRole: "AGENT",
+        recipientRole: "AGENT" as const,
         senderRole: senderRole as "BUYER" | "AGENT" | "VENDOR",
-      });
+      };
+      console.log("Sending message with payload:", JSON.stringify(payload));
+
+      const { conversationId } = await messagesService.createOrFind(payload);
+      console.log("Conversation created:", conversationId);
+
       await messagesService.sendMessage(conversationId, msgText.trim());
       setMsgText("");
       navigate(`/messages?with=${conversationId}`);
     } catch (error) {
       console.error("Failed to send message:", error);
-      alert("Failed to send message. Please try again.");
+      if (error instanceof Error) {
+        alert(`Failed to send message: ${error.message}`);
+      } else {
+        alert("Failed to send message. Please try again.");
+      }
     } finally {
       setSending(false);
     }
