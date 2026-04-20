@@ -195,13 +195,6 @@ const Navbar = () => {
                 isActive={path === "/services"}
               />
             </li>
-            <li data-nav-link>
-              <FlipLink
-                label="Building Materials"
-                href="/marketplace"
-                isActive={path === "/marketplace"}
-              />
-            </li>
           </ul>
         </div>
 
