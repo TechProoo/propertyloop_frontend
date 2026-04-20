@@ -270,16 +270,19 @@ const BookService = () => {
 
     const initializeChat = async () => {
       try {
+        console.log("Initializing chat with vendor:", vendor);
         // Create or find conversation with vendor
-        const { conversationId } = await messagesService.createOrFind({
+        const result = await messagesService.createOrFind({
           recipientId: vendor.id,
           recipientRole: "VENDOR",
           senderRole: "BUYER",
         });
-        setConvoId(conversationId);
+        console.log("Conversation created/found:", result);
+        setConvoId(result.conversationId);
 
         // Load existing messages
-        const messages = await messagesService.getMessages(conversationId);
+        const messages = await messagesService.getMessages(result.conversationId);
+        console.log("Messages loaded:", messages);
         if (messages && messages.length > 0) {
           const formattedMessages: ChatMessage[] = messages.map((msg) => ({
             sender: msg.isYou ? "you" : "them",
@@ -304,7 +307,10 @@ const BookService = () => {
   }, [chatMessages]);
 
   const handleChatSend = async () => {
-    if (!chatInput.trim() || !vendor || !convoId) return;
+    if (!chatInput.trim() || !vendor || !convoId) {
+      console.log("Chat send blocked:", { hasInput: !!chatInput.trim(), hasVendor: !!vendor, hasConvoId: !!convoId });
+      return;
+    }
 
     const messageText = chatInput.trim();
     setChatInput("");
@@ -315,12 +321,14 @@ const BookService = () => {
       time: "Just now",
     };
 
+    console.log("Sending message:", { convoId, messageText });
     addMessage(convoId, msg);
     setChatMessages((prev) => [...prev, msg]);
 
     // Send message to backend API
     try {
-      await messagesService.sendMessage(convoId, messageText);
+      const result = await messagesService.sendMessage(convoId, messageText);
+      console.log("Message sent successfully:", result);
     } catch (error) {
       console.error("Failed to send message:", error);
     }
