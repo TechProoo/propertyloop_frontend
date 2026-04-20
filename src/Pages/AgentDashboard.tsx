@@ -39,8 +39,6 @@ import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/logo.png";
 import agentsService from "../api/services/agents";
 import listingsService from "../api/services/listings";
-import leadsService from "../api/services/leads";
-import viewingsService from "../api/services/viewings";
 import type { AgentStats, Listing } from "../api/types";
 import { useConversations } from "../api/hooks";
 import { StatSkeleton } from "../components/ui/Skeleton";
@@ -57,7 +55,6 @@ const navItems = [
     id: "overview",
   },
   { icon: <Home className="w-5 h-5" />, label: "My Listings", id: "listings" },
-  { icon: <Users className="w-5 h-5" />, label: "Leads", id: "leads" },
   {
     icon: <BarChart3 className="w-5 h-5" />,
     label: "Analytics",
@@ -67,12 +64,6 @@ const navItems = [
     icon: <MessageCircle className="w-5 h-5" />,
     label: "Messages",
     id: "messages",
-  },
-  { icon: <Calendar className="w-5 h-5" />, label: "Viewings", id: "viewings" },
-  {
-    icon: <FileText className="w-5 h-5" />,
-    label: "Documents",
-    id: "documents",
   },
   { icon: <Settings className="w-5 h-5" />, label: "Settings", id: "settings" },
 ];
@@ -120,28 +111,7 @@ const AgentDashboard = () => {
   // ─── API state ──────────────────────────────────────────────────────────
   const [apiStats, setApiStats] = useState<AgentStats | null>(null);
   const [agentListings, setAgentListings] = useState<Listing[]>([]);
-  const [recentLeads, setRecentLeads] = useState<any[]>([]);
-  const [upcomingViewings, setUpcomingViewings] = useState<any[]>([]);
-  const [documents, setDocuments] = useState<
-    {
-      id: string;
-      listingId: string;
-      listingTitle: string;
-      name: string;
-      type: string;
-      date: string;
-      size: string;
-      verified: boolean;
-    }[]
-  >([]);
   const [dashLoading, setDashLoading] = useState(true);
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [uploadListingId, setUploadListingId] = useState("");
-  const [uploadDocName, setUploadDocName] = useState("");
-  const [uploadDocType, setUploadDocType] = useState<
-    "C_OF_O" | "SURVEY_PLAN" | "BUILDING_PERMIT" | "RECEIPT"
-  >("C_OF_O");
-  const [uploading, setUploading] = useState(false);
 
   // ─── Profile form state ──────────────────────────────────────────────────
   const [profileName, setProfileName] = useState("");
@@ -158,65 +128,12 @@ const AgentDashboard = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const [statsRes, listingsRes, leadsRes, viewingsRes] =
-          await Promise.all([
-            agentsService.getStats().catch(() => null),
-            listingsService
-              .listMine({ limit: 50 })
-              .catch(() => ({ items: [] })),
-            leadsService.list({ limit: 20 }).catch(() => ({ items: [] })),
-            viewingsService
-              .list({ upcoming: true, limit: 20 })
-              .catch(() => ({ items: [] })),
-          ]);
+        const [statsRes, listingsRes] = await Promise.all([
+          agentsService.getStats().catch(() => null),
+          listingsService.listMine({ limit: 50 }).catch(() => ({ items: [] })),
+        ]);
         if (statsRes) setApiStats(statsRes);
         setAgentListings(listingsRes.items);
-        setRecentLeads(
-          leadsRes.items.map((l: any) => ({
-            ...l,
-            property: l.listing?.title || "Property enquiry",
-            time: new Date(l.createdAt).toLocaleDateString(),
-          })),
-        );
-        setUpcomingViewings(
-          viewingsRes.items.map((v: any) => {
-            const d = new Date(v.scheduledFor);
-            return {
-              ...v,
-              date: d.toLocaleDateString("en-NG", {
-                month: "short",
-                day: "numeric",
-              }),
-              time: d.toLocaleTimeString("en-NG", {
-                hour: "numeric",
-                minute: "2-digit",
-              }),
-              client: v.clientName,
-              property: v.listing?.title || "Property viewing",
-              phone: v.clientPhone,
-              status:
-                v.status === "CONFIRMED"
-                  ? "Confirmed"
-                  : v.status === "COMPLETED"
-                    ? "Completed"
-                    : "Pending",
-            };
-          }),
-        );
-        // Extract documents from all listings
-        const docs = listingsRes.items.flatMap((l: any) =>
-          (l.documents || []).map((d: any) => ({
-            id: d.id,
-            listingId: l.id,
-            listingTitle: l.title || "Untitled",
-            name: d.name,
-            type: d.type?.replace(/_/g, " ") || d.type,
-            date: d.date || new Date(d.createdAt).toLocaleDateString(),
-            size: "—",
-            verified: d.verified ?? false,
-          })),
-        );
-        setDocuments(docs);
       } catch {
         /* ignore */
       }
@@ -335,60 +252,6 @@ const AgentDashboard = () => {
       bg: "bg-primary/10",
     },
   ];
-
-  const handleUploadDocument = async () => {
-    if (!uploadListingId || !uploadDocName.trim()) return;
-    setUploading(true);
-    try {
-      const doc = await listingsService.addDocument(uploadListingId, {
-        name: uploadDocName.trim(),
-        type: uploadDocType as any,
-        date: new Date().toISOString().split("T")[0],
-      });
-      const listing = agentListings.find((l) => l.id === uploadListingId);
-      setDocuments((prev) => [
-        {
-          id: doc.id,
-          listingId: uploadListingId,
-          listingTitle: listing?.title || "Untitled",
-          name: doc.name,
-          type: doc.type?.replace(/_/g, " ") || doc.type,
-          date: doc.date || new Date().toLocaleDateString(),
-          size: "—",
-          verified: false,
-        },
-        ...prev,
-      ]);
-      setShowUploadModal(false);
-      setUploadDocName("");
-      setUploadListingId("");
-    } catch {
-      /* ignore */
-    }
-    setUploading(false);
-  };
-
-  const handleRemoveDocument = async (docListingId: string, docId: string) => {
-    try {
-      await listingsService.removeDocument(docListingId, docId);
-      setDocuments((prev) => prev.filter((d) => d.id !== docId));
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const recentActivity = recentLeads.slice(0, 4).map((lead) => ({
-    icon:
-      lead.status === "NEW" ? (
-        <Bell className="w-4 h-4" />
-      ) : (
-        <Users className="w-4 h-4" />
-      ),
-    text: `${lead.name} — ${lead.listing?.title || "property enquiry"}`,
-    time: new Date(lead.createdAt).toLocaleDateString(),
-    bg: lead.status === "NEW" ? "bg-blue-50" : "bg-primary/10",
-    color: lead.status === "NEW" ? "text-blue-500" : "text-primary",
-  }));
 
   return (
     <div className="min-h-screen bg-[#f5f0eb] flex">
@@ -1097,62 +960,6 @@ const AgentDashboard = () => {
             </motion.div>
           )}
 
-          {/* ─── Leads Panel ─── */}
-          {activeNav === "leads" && (
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease }}
-            >
-              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
-                  <h2 className="font-heading font-bold text-primary-dark text-base">
-                    All Leads ({recentLeads.length})
-                  </h2>
-                  <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-medium">
-                    12 new this week
-                  </span>
-                </div>
-                <div className="divide-y divide-white/30">
-                  {recentLeads.map((lead, i) => (
-                    <div
-                      key={i}
-                      className="px-6 py-4 flex items-center gap-4 hover:bg-white/30 transition-colors"
-                    >
-                      <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold shrink-0">
-                        {lead.name.charAt(0)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-heading font-semibold text-primary-dark text-sm">
-                          {lead.name}
-                        </p>
-                        <p className="text-text-secondary text-xs truncate">
-                          {lead.property}
-                        </p>
-                        <p className="text-text-subtle text-[11px] mt-0.5 flex items-center gap-1">
-                          <Clock className="w-3 h-3" /> {lead.time}
-                        </p>
-                      </div>
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium shrink-0 ${statusColors[lead.status]}`}
-                      >
-                        {lead.status}
-                      </span>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <a
-                          href={`tel:${lead.phone}`}
-                          className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
-                        >
-                          <Phone className="w-3.5 h-3.5" />
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-
           {/* ─── Analytics Panel ─── */}
           {activeNav === "analytics" && (
             <motion.div
@@ -1356,7 +1163,7 @@ const AgentDashboard = () => {
                             >
                               <div className="relative shrink-0">
                                 <img
-                                  src={convo.avatar}
+                                  src={convo.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
                                   alt={convo.name}
                                   className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm"
                                 />
@@ -1397,40 +1204,42 @@ const AgentDashboard = () => {
                       <div
                         className={`${mobileChat ? "flex" : "hidden md:flex"} flex-col flex-1 min-w-0`}
                       >
-                        <div className="px-5 py-3.5 border-b border-white/30 bg-white/20 backdrop-blur-sm flex items-center gap-3">
-                          <button
-                            onClick={() => setMobileChat(false)}
-                            className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:bg-white/80 transition-colors shrink-0"
-                          >
-                            <ArrowLeft className="w-4 h-4" />
-                          </button>
-                          <img
-                            src={activeConvo.avatar}
-                            alt={activeConvo.name}
-                            className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <p className="font-heading font-bold text-primary-dark text-sm truncate">
-                                {activeConvo.name}
-                              </p>
-                              <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 bg-blue-50 text-blue-600">
-                                {activeConvo.role}
-                              </span>
-                            </div>
-                            <p className="text-text-subtle text-[11px]">
-                              Active now
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <a
-                              href={`tel:+${activeConvo.phone}`}
-                              className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
+                        {activeConvo ? (
+                          <div className="px-5 py-3.5 border-b border-white/30 bg-white/20 backdrop-blur-sm flex items-center gap-3">
+                            <button
+                              onClick={() => setMobileChat(false)}
+                              className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:bg-white/80 transition-colors shrink-0"
                             >
-                              <Phone className="w-3.5 h-3.5" />
-                            </a>
+                              <ArrowLeft className="w-4 h-4" />
+                            </button>
+                            <img
+                              src={activeConvo.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
+                              alt={activeConvo.name}
+                              className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <p className="font-heading font-bold text-primary-dark text-sm truncate">
+                                  {activeConvo.name}
+                                </p>
+                                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 bg-blue-50 text-blue-600">
+                                  {activeConvo.role}
+                                </span>
+                              </div>
+                              <p className="text-text-subtle text-[11px]">
+                                Active now
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <a
+                                href={`tel:+${activeConvo.phone}`}
+                                className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                              </a>
+                            </div>
                           </div>
-                        </div>
+                        ) : null}
                         <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
                           {activeMessages.map((msg, i) => (
                             <div
@@ -1479,284 +1288,6 @@ const AgentDashboard = () => {
                 </motion.div>
               );
             })()}
-
-          {/* ─── Viewings Panel ─── */}
-          {activeNav === "viewings" && (
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease }}
-            >
-              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
-                  <h2 className="font-heading font-bold text-primary-dark text-base">
-                    Upcoming Viewings ({upcomingViewings.length})
-                  </h2>
-                </div>
-                <div className="p-4 flex flex-col gap-3">
-                  {upcomingViewings.map((v, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] transition-all"
-                    >
-                      <div className="w-14 h-16 rounded-xl bg-primary/10 flex flex-col items-center justify-center shrink-0">
-                        <span className="font-heading font-bold text-primary text-base leading-none">
-                          {v.date.split(" ")[1]}
-                        </span>
-                        <span className="text-primary text-[10px] mt-0.5">
-                          {v.date.split(" ")[0]}
-                        </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-heading font-semibold text-primary-dark text-sm">
-                          {v.property}
-                        </p>
-                        <p className="text-text-secondary text-xs mt-0.5">
-                          {v.time} · {v.client}
-                        </p>
-                        <span
-                          className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${v.status === "Confirmed" ? "bg-primary/10 text-primary" : "bg-[#FFF8ED] text-[#F5A623]"}`}
-                        >
-                          {v.status}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <a
-                          href={`tel:${v.phone}`}
-                          className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
-                        >
-                          <Phone className="w-3.5 h-3.5" />
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* ─── Documents Panel ─── */}
-          {activeNav === "documents" && (
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease }}
-            >
-              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
-                  <h2 className="font-heading font-bold text-primary-dark text-base">
-                    Documents ({documents.length})
-                  </h2>
-                  <button
-                    onClick={() => setShowUploadModal(true)}
-                    className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm"
-                  >
-                    <Upload className="w-3.5 h-3.5" /> Upload
-                  </button>
-                </div>
-
-                {documents.length === 0 ? (
-                  <div className="px-6 py-16 text-center">
-                    <div className="w-14 h-14 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-4">
-                      <FileText className="w-6 h-6 text-text-subtle" />
-                    </div>
-                    <p className="font-heading font-bold text-primary-dark text-sm">
-                      No documents yet
-                    </p>
-                    <p className="text-text-secondary text-xs mt-1.5 max-w-xs mx-auto">
-                      Upload C of O, survey plans, building permits, and
-                      receipts for your properties.
-                    </p>
-                    <button
-                      onClick={() => setShowUploadModal(true)}
-                      className="mt-5 h-9 px-5 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors"
-                    >
-                      Upload your first document
-                    </button>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-white/30">
-                    {documents.map((doc) => (
-                      <div
-                        key={doc.id}
-                        className="px-6 py-4 flex items-center gap-4 hover:bg-white/30 transition-colors"
-                      >
-                        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                          <FileText className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="font-heading font-semibold text-primary-dark text-sm truncate">
-                              {doc.name}
-                            </p>
-                            {doc.verified && (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
-                                <CheckCircle className="w-3 h-3" /> Verified
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-text-secondary text-xs mt-0.5">
-                            {doc.type} · {doc.listingTitle}
-                          </p>
-                        </div>
-                        <span className="text-text-subtle text-xs shrink-0 hidden sm:block">
-                          {doc.date}
-                        </span>
-                        <button
-                          onClick={() =>
-                            handleRemoveDocument(doc.listingId, doc.id)
-                          }
-                          className="w-8 h-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-red-400 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shrink-0"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Upload Modal */}
-              <AnimatePresence>
-                {showUploadModal && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4"
-                    onClick={() => setShowUploadModal(false)}
-                  >
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                      transition={{ duration: 0.3, ease }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full max-w-md bg-white/90 backdrop-blur-xl border border-white/50 rounded-3xl shadow-[0_16px_64px_rgba(0,0,0,0.15)] p-6 sm:p-8"
-                    >
-                      <div className="flex items-center justify-between mb-6">
-                        <h3 className="font-heading font-bold text-primary-dark text-lg">
-                          Upload Document
-                        </h3>
-                        <button
-                          onClick={() => setShowUploadModal(false)}
-                          className="w-8 h-8 rounded-full bg-bg-accent flex items-center justify-center text-text-subtle hover:text-primary-dark transition-colors"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      <div className="flex flex-col gap-4">
-                        <div>
-                          <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                            Property
-                          </label>
-                          <select
-                            value={uploadListingId}
-                            onChange={(e) => setUploadListingId(e.target.value)}
-                            className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none"
-                          >
-                            <option value="">Select a listing…</option>
-                            {agentListings.map((l) => (
-                              <option key={l.id} value={l.id}>
-                                {l.title}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                            Document Name
-                          </label>
-                          <input
-                            type="text"
-                            value={uploadDocName}
-                            onChange={(e) => setUploadDocName(e.target.value)}
-                            placeholder="e.g. Certificate of Occupancy – Plot 14"
-                            className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                            Document Type
-                          </label>
-                          <div className="grid grid-cols-2 gap-2">
-                            {(
-                              [
-                                {
-                                  value: "C_OF_O",
-                                  label: "C of O",
-                                  icon: "📜",
-                                },
-                                {
-                                  value: "SURVEY_PLAN",
-                                  label: "Survey Plan",
-                                  icon: "📐",
-                                },
-                                {
-                                  value: "BUILDING_PERMIT",
-                                  label: "Building Permit",
-                                  icon: "🏗️",
-                                },
-                                {
-                                  value: "RECEIPT",
-                                  label: "Receipt",
-                                  icon: "🧾",
-                                },
-                              ] as const
-                            ).map((opt) => (
-                              <button
-                                key={opt.value}
-                                onClick={() => setUploadDocType(opt.value)}
-                                className={`h-11 rounded-2xl border text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                                  uploadDocType === opt.value
-                                    ? "bg-primary text-white border-primary shadow-lg shadow-glow/30"
-                                    : "bg-white/60 border-border-light text-primary-dark hover:border-primary/40"
-                                }`}
-                              >
-                                <span>{opt.icon}</span> {opt.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 mt-6">
-                        <button
-                          onClick={handleUploadDocument}
-                          disabled={
-                            uploading ||
-                            !uploadListingId ||
-                            !uploadDocName.trim()
-                          }
-                          className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 shadow-lg shadow-glow/30"
-                        >
-                          {uploading ? (
-                            <>
-                              <Clock className="w-4 h-4 animate-spin" />{" "}
-                              Uploading…
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-4 h-4" /> Upload Document
-                            </>
-                          )}
-                        </button>
-                        <button
-                          onClick={() => setShowUploadModal(false)}
-                          className="h-11 px-5 rounded-full border border-border-light bg-white/60 text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )}
 
           {/* ─── Settings Panel ─── */}
           {activeNav === "settings" && (
