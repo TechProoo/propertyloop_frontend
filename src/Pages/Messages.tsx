@@ -306,7 +306,7 @@ const Messages = () => {
                                 : "bg-white border border-border-light text-primary-dark rounded-bl-md"
                             }`}
                           >
-                            {m.sender === "you" && (m.text.includes("SERVICE REQUEST") || m.text.includes("**Service Request**")) ? (
+                            {(m.text.includes("SERVICE REQUEST") || m.text.includes("**Service Request**")) ? (
                               <ServiceRequestMessage text={m.text} />
                             ) : (
                               <p className="whitespace-pre-wrap break-words">{m.text}</p>

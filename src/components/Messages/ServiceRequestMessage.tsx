@@ -30,34 +30,34 @@ const ServiceRequestMessage = ({ text }: { text: string }) => {
   }
 
   return (
-    <div className="space-y-3 whitespace-normal break-words">
-      <div className="flex items-center gap-2 font-semibold text-white">
+    <div className="space-y-2 whitespace-normal">
+      <div className="flex items-center gap-2 font-semibold">
         <span>📋</span>
         <span>Service Request</span>
       </div>
 
       {sections.whatIneed && (
-        <div className="bg-white/10 rounded-lg p-3">
-          <p className="text-white/70 text-xs font-medium mb-1">📝 What I need:</p>
-          <p className="text-white text-sm">{sections.whatIneed}</p>
+        <div className="opacity-90">
+          <p className="text-xs font-medium mb-1">📝 What I need:</p>
+          <p className="text-sm">{sections.whatIneed}</p>
         </div>
       )}
 
-      <div className="space-y-2">
+      <div className="space-y-1 text-sm">
         {sections.date && (
-          <div className="flex items-start gap-2 text-sm text-white">
+          <div className="flex items-start gap-2">
             <span>📅</span>
             <span>{sections.date}</span>
           </div>
         )}
         {sections.time && (
-          <div className="flex items-start gap-2 text-sm text-white">
+          <div className="flex items-start gap-2">
             <span>⏰</span>
             <span>{sections.time}</span>
           </div>
         )}
         {sections.notes && (
-          <div className="flex items-start gap-2 text-sm text-white">
+          <div className="flex items-start gap-2">
             <span>📌</span>
             <span>{sections.notes}</span>
           </div>
@@ -65,7 +65,7 @@ const ServiceRequestMessage = ({ text }: { text: string }) => {
       </div>
 
       {notes && (
-        <div className="text-white/80 text-sm italic border-t border-white/20 pt-2">
+        <div className="text-sm italic opacity-90 border-t pt-2">
           {notes}
         </div>
       )}
