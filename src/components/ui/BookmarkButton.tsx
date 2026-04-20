@@ -1,4 +1,4 @@
-import { Heart } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useBookmarks } from "../../context/BookmarkContext";
 import { useAuth } from "../../context/AuthContext";
@@ -39,14 +39,14 @@ const BookmarkButton = ({ id, type, className = "", size = "md" }: Props) => {
       }}
       className={`${sizeClass} rounded-full flex items-center justify-center transition-all duration-200 ${
         active
-          ? "bg-red-500 text-white shadow-lg"
-          : "bg-white/80 backdrop-blur-sm border border-white/50 text-text-subtle hover:text-red-400 hover:border-red-200"
+          ? "bg-primary text-white shadow-lg"
+          : "bg-white/80 backdrop-blur-sm border border-white/50 text-text-subtle hover:text-primary hover:border-primary/20"
       } ${className}`}
       title={
         !isLoggedIn ? "Log in to save" : active ? "Remove bookmark" : "Save"
       }
     >
-      <Heart className={`${iconSize} ${active ? "fill-white" : ""}`} />
+      <Bookmark className={`${iconSize} ${active ? "fill-white" : ""}`} />
     </button>
   );
 };
