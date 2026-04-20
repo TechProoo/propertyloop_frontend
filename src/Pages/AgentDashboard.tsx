@@ -1030,51 +1030,65 @@ const AgentDashboard = () => {
                           </p>
                         </div>
                         <div className="flex-1 overflow-y-auto">
-                          {agentConversations.map((convo) => (
-                            <button
-                              key={convo.id}
-                              onClick={() => {
-                                setSelectedConvo(convo.id);
-                                setMobileChat(true);
-                              }}
-                              className={`w-full flex items-start gap-3 px-4 py-3.5 text-left transition-all hover:bg-white/40 ${selectedConvo === convo.id ? "bg-white/50 backdrop-blur-sm border-l-2 border-primary" : "border-l-2 border-transparent"}`}
-                            >
-                              <div className="relative shrink-0">
-                                <img
-                                  src={convo.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
-                                  alt={convo.name}
-                                  className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm"
-                                />
-                                {convo.unread > 0 && (
-                                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
-                                    {convo.unread}
-                                  </span>
-                                )}
+                          {agentConversations.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-full text-center px-6 py-16">
+                              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                                <MessageCircle className="w-6 h-6 text-primary" />
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-2">
-                                  <div className="flex items-center gap-1.5 min-w-0">
-                                    <p
-                                      className={`text-sm truncate ${convo.unread > 0 ? "font-bold text-primary-dark" : "font-medium text-primary-dark"}`}
-                                    >
-                                      {convo.name}
-                                    </p>
-                                    <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 bg-blue-50 text-blue-600">
-                                      {convo.role}
+                              <h3 className="font-heading font-bold text-primary-dark text-base">
+                                No messages yet
+                              </h3>
+                              <p className="text-text-secondary text-sm mt-2 max-w-xs">
+                                When buyers contact you through your profile, conversations will appear here.
+                              </p>
+                            </div>
+                          ) : (
+                            agentConversations.map((convo) => (
+                              <button
+                                key={convo.id}
+                                onClick={() => {
+                                  setSelectedConvo(convo.id);
+                                  setMobileChat(true);
+                                }}
+                                className={`w-full flex items-start gap-3 px-4 py-3.5 text-left transition-all hover:bg-white/40 ${selectedConvo === convo.id ? "bg-white/50 backdrop-blur-sm border-l-2 border-primary" : "border-l-2 border-transparent"}`}
+                              >
+                                <div className="relative shrink-0">
+                                  <img
+                                    src={convo.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
+                                    alt={convo.name}
+                                    className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm"
+                                  />
+                                  {convo.unread > 0 && (
+                                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
+                                      {convo.unread}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                      <p
+                                        className={`text-sm truncate ${convo.unread > 0 ? "font-bold text-primary-dark" : "font-medium text-primary-dark"}`}
+                                      >
+                                        {convo.name}
+                                      </p>
+                                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 bg-blue-50 text-blue-600">
+                                        {convo.role}
+                                      </span>
+                                    </div>
+                                    <span className="text-text-subtle text-[10px] shrink-0">
+                                      {convo.time}
                                     </span>
                                   </div>
-                                  <span className="text-text-subtle text-[10px] shrink-0">
-                                    {convo.time}
-                                  </span>
+                                  <p
+                                    className={`text-xs mt-0.5 truncate ${convo.unread > 0 ? "text-primary-dark font-medium" : "text-text-secondary"}`}
+                                  >
+                                    {convo.lastMessage}
+                                  </p>
                                 </div>
-                                <p
-                                  className={`text-xs mt-0.5 truncate ${convo.unread > 0 ? "text-primary-dark font-medium" : "text-text-secondary"}`}
-                                >
-                                  {convo.lastMessage}
-                                </p>
-                              </div>
-                            </button>
-                          ))}
+                              </button>
+                            ))
+                          )}
                         </div>
                       </div>
 

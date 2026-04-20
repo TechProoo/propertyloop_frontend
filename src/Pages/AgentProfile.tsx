@@ -26,6 +26,8 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import agentsService from "../api/services/agents";
+import messagesService from "../api/services/messages";
+import { useAuth } from "../context/AuthContext";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -220,8 +222,12 @@ const ReviewDisputeSection = ({
 const AgentProfile = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isLoggedIn, user } = useAuth();
   const [agent, setAgent] = useState<any>(null);
   const [loadingAgent, setLoadingAgent] = useState(true);
+  const [showMsgBox, setShowMsgBox] = useState(false);
+  const [msgText, setMsgText] = useState("");
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -254,6 +260,24 @@ const AgentProfile = () => {
       .catch(() => setAgent(null))
       .finally(() => setLoadingAgent(false));
   }, [id]);
+
+  const handleSendMessage = async () => {
+    if (!msgText.trim() || !agent?.id || !user) return;
+    setSending(true);
+    try {
+      const { conversationId } = await messagesService.createOrFind({
+        recipientId: agent.id,
+        recipientRole: "AGENT",
+        senderRole: user.role || "BUYER",
+      });
+      await messagesService.sendMessage(conversationId, msgText.trim());
+      navigate(`/messages?with=${conversationId}`);
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    } finally {
+      setSending(false);
+    }
+  };
 
   if (loadingAgent) {
     return (
@@ -439,28 +463,88 @@ const AgentProfile = () => {
                     <Mail className="w-4 h-4" />
                     Email
                   </a>
+                  {isLoggedIn && (
+                    <button
+                      onClick={() => setShowMsgBox(!showMsgBox)}
+                      className="h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      Message
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           </motion.div>
 
           {/* Mobile contact buttons */}
-          <div className="lg:hidden flex gap-3 mb-8 -mt-4">
-            <a
-              href={`tel:+${agent.phone}`}
-              className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
-            >
-              <Phone className="w-4 h-4" />
-              Call
-            </a>
-            <a
-              href={`mailto:${agent.email}`}
-              className="flex-1 h-11 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-2"
-            >
-              <Mail className="w-4 h-4" />
-              Email
-            </a>
+          <div className="lg:hidden flex flex-col gap-3 mb-8 -mt-4">
+            <div className="flex gap-3">
+              <a
+                href={`tel:+${agent.phone}`}
+                className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
+              >
+                <Phone className="w-4 h-4" />
+                Call
+              </a>
+              <a
+                href={`mailto:${agent.email}`}
+                className="flex-1 h-11 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-2"
+              >
+                <Mail className="w-4 h-4" />
+                Email
+              </a>
+            </div>
+            {isLoggedIn && (
+              <button
+                onClick={() => setShowMsgBox(!showMsgBox)}
+                className="h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                Message Agent
+              </button>
+            )}
           </div>
+
+          {/* Message Input Form */}
+          <AnimatePresence>
+            {showMsgBox && isLoggedIn && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 mb-8"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-heading font-bold text-primary-dark text-base">
+                    Message {agent.name.split(" ")[0]}
+                  </h3>
+                  <button
+                    onClick={() => setShowMsgBox(false)}
+                    className="text-text-subtle hover:text-primary-dark"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <textarea
+                  value={msgText}
+                  onChange={(e) => setMsgText(e.target.value)}
+                  placeholder="Type your message..."
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-2xl bg-white/60 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors resize-none mb-4"
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!msgText.trim() || sending}
+                  className="h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="w-4 h-4" />
+                  {sending ? "Sending..." : "Send Message"}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* ─── Main content grid ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
