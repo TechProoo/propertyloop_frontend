@@ -19,6 +19,7 @@ interface Props {
   onBack: () => void;
   onContinue: () => void | Promise<void>;
   error?: string;
+  isLoading?: boolean;
 }
 
 const vendorCategories = [
@@ -34,7 +35,7 @@ const vendorCategories = [
   "Other",
 ];
 
-const ProfileSetup = ({ data, updateData, onBack, onContinue, error }: Props) => {
+const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }: Props) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -429,12 +430,22 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error }: Props) =>
 
           <motion.button
             onClick={handleContinue}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-2 px-8 py-2.5 rounded-full bg-primary text-white font-heading font-semibold text-sm shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors"
+            disabled={isLoading}
+            whileHover={{ scale: isLoading ? 1 : 1.03 }}
+            whileTap={{ scale: isLoading ? 1 : 0.98 }}
+            className="flex items-center gap-2 px-8 py-2.5 rounded-full bg-primary text-white font-heading font-semibold text-sm shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {data.role === "buyer" ? "Finish" : "Submit for Verification"}
-            <ArrowRight className="w-4 h-4" />
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Creating account...
+              </>
+            ) : (
+              <>
+                {data.role === "buyer" ? "Finish" : "Submit for Verification"}
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </motion.button>
         </div>
         {error && (

@@ -39,6 +39,7 @@ const Onboarding = () => {
   const { signup } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>("role");
   const [signupError, setSignupError] = useState("");
+  const [isSigningUp, setIsSigningUp] = useState(false);
   const [data, setData] = useState<OnboardingData>({
     role: null,
     fullName: "",
@@ -56,6 +57,7 @@ const Onboarding = () => {
   const handleSignup = async () => {
     if (!data.role) return;
     setSignupError("");
+    setIsSigningUp(true);
     const apiRole = roleMap[data.role];
     try {
       await signup({
@@ -87,6 +89,8 @@ const Onboarding = () => {
       setSignupError(
         err?.response?.data?.message || "Signup failed. Please try again.",
       );
+    } finally {
+      setIsSigningUp(false);
     }
   };
 
@@ -195,6 +199,7 @@ const Onboarding = () => {
                 onBack={() => goTo("signup")}
                 onContinue={handleSignup}
                 error={signupError}
+                isLoading={isSigningUp}
               />
             )}
             {currentStep === "welcome" && <Welcome data={data} />}
