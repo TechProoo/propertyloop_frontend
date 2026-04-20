@@ -47,11 +47,6 @@ const navItems = [
   },
   { icon: <Briefcase className="w-5 h-5" />, label: "My Jobs", id: "jobs" },
   {
-    icon: <DollarSign className="w-5 h-5" />,
-    label: "Earnings",
-    id: "earnings",
-  },
-  {
     icon: <MessageCircle className="w-5 h-5" />,
     label: "Messages",
     id: "messages",
