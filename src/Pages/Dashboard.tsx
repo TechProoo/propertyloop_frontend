@@ -1715,6 +1715,7 @@ const Dashboard = () => {
             activeNav !== "vendors" &&
             activeNav !== "marketplace" &&
             activeNav !== "messages" &&
+            activeNav !== "logbook" &&
             activeNav !== "settings" && (
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
