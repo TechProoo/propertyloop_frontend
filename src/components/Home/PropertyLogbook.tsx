@@ -21,24 +21,46 @@ const PropertyLogbook = () => {
   useEffect(() => {
     const fetchLogbookData = async () => {
       try {
+        console.log("Fetching SOLD properties...");
         const result = await listingsService.list({
           status: "SOLD",
           limit: 6,
           sort: "newest",
         });
-        setLogbookListings(result.items || []);
-      } catch {
-        // If no SOLD properties, try RENTED
-        try {
-          const result = await listingsService.list({
-            status: "RENTED",
-            limit: 6,
-            sort: "newest",
-          });
-          setLogbookListings(result.items || []);
-        } catch {
-          setLogbookListings([]);
+        console.log("SOLD properties result:", result);
+
+        if (result.items && result.items.length > 0) {
+          setLogbookListings(result.items);
+          setLoading(false);
+          return;
         }
+
+        // If no SOLD properties, try RENTED
+        console.log("No SOLD properties, trying RENTED...");
+        const rentedResult = await listingsService.list({
+          status: "RENTED",
+          limit: 6,
+          sort: "newest",
+        });
+        console.log("RENTED properties result:", rentedResult);
+
+        if (rentedResult.items && rentedResult.items.length > 0) {
+          setLogbookListings(rentedResult.items);
+          setLoading(false);
+          return;
+        }
+
+        // If no SOLD or RENTED, fetch all properties as fallback
+        console.log("No SOLD or RENTED properties, fetching all listings...");
+        const allResult = await listingsService.list({
+          limit: 6,
+          sort: "newest",
+        });
+        console.log("All properties result:", allResult);
+        setLogbookListings(allResult.items || []);
+      } catch (error) {
+        console.error("Error fetching logbook data:", error);
+        setLogbookListings([]);
       } finally {
         setLoading(false);
       }
@@ -297,7 +319,10 @@ const PropertyLogbook = () => {
                   Property Logbooks Coming Soon
                 </h3>
                 <p className="text-text-secondary text-sm mt-2 max-w-sm">
-                  Permanent digital records of all sold and rented properties will appear here.
+                  Mark properties as sold or rented to see them in the logbook. Currently showing properties from your listings.
+                </p>
+                <p className="text-text-subtle text-xs mt-4 max-w-sm">
+                  Tip: To test, mark a listing as SOLD or RENTED from your agent dashboard.
                 </p>
               </div>
             )}
