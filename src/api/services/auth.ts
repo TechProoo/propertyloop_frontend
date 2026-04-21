@@ -82,6 +82,11 @@ const authService = {
     return data;
   },
 
+  async resendVerification(): Promise<SuccessResponse> {
+    const { data } = await api.post<SuccessResponse>("/auth/resend-verification");
+    return data;
+  },
+
   async listSessions(): Promise<Session[]> {
     const { data } = await api.get<Session[]>("/auth/sessions");
     return data;

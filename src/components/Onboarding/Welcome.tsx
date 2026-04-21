@@ -16,8 +16,8 @@ const roleConfig = {
   buyer: {
     heading: "You're all set!",
     subheading: "Start exploring verified properties across Nigeria.",
-    cta: "Browse Properties",
-    ctaHref: "/dashboard",
+    cta: "Verify Email",
+    ctaHref: "/verify-email-required",
     features: [
       {
         icon: <Search className="w-5 h-5" />,
@@ -40,8 +40,8 @@ const roleConfig = {
     heading: "Application submitted!",
     subheading:
       "We'll verify your details and activate your agent profile within 24–48 hours.",
-    cta: "Go to Dashboard",
-    ctaHref: "/agent-dashboard",
+    cta: "Verify Email",
+    ctaHref: "/verify-email-required",
     features: [
       {
         icon: <LayoutDashboard className="w-5 h-5" />,
@@ -64,8 +64,8 @@ const roleConfig = {
     heading: "Application submitted!",
     subheading:
       "We'll verify your profile and onboard you to the Service Loop within 24–48 hours.",
-    cta: "Go to Dashboard",
-    ctaHref: "/vendor-dashboard",
+    cta: "Verify Email",
+    ctaHref: "/verify-email-required",
     features: [
       {
         icon: <Briefcase className="w-5 h-5" />,

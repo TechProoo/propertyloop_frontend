@@ -47,6 +47,7 @@ import DisputeCenter from "./Pages/DisputeCenter";
 import AdminPanel from "./Pages/AdminPanel";
 import PartnersAdmin from "./Pages/PartnersAdmin";
 import VerifyEmail from "./Pages/VerifyEmail";
+import VerifyEmailRequired from "./Pages/VerifyEmailRequired";
 import SearchResults from "./Pages/SearchResults";
 import LogbookInfo from "./Pages/LogbookInfo";
 import NotFound from "./Pages/NotFound";
@@ -67,6 +68,9 @@ function ProtectedRoute({
   const { user, isLoggedIn, loading } = useAuth();
   if (loading) return null;
   if (!isLoggedIn) return <Navigate to="/onboarding" replace />;
+  if (user && !user.emailVerifiedAt) {
+    return <Navigate to="/verify-email-required" replace />;
+  }
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     return <Navigate to={roleDashboard[user.role] || "/dashboard"} replace />;
   }
@@ -108,6 +112,7 @@ function AppContent() {
           <Route path="/property/:id" element={<PropertyDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/verify-email-required" element={<VerifyEmailRequired />} />
           <Route
             path="/dashboard"
             element={
