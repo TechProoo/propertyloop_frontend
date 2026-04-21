@@ -77,6 +77,18 @@ function ProtectedRoute({
   return <>{children}</>;
 }
 
+function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoggedIn, loading } = useAuth();
+  if (loading) return null;
+  if (isLoggedIn && user) {
+    if (!user.emailVerifiedAt) {
+      return <Navigate to="/verify-email-required" replace />;
+    }
+    return <Navigate to={roleDashboard[user.role] || "/dashboard"} replace />;
+  }
+  return <>{children}</>;
+}
+
 function AppContent() {
   const { loading } = useAuth();
 
@@ -95,7 +107,7 @@ function AppContent() {
           <Route path="/sell" element={<Sell />} />
           <Route path="/shortlet" element={<Shortlet />} />
           <Route path="/new-developments" element={<NewDevelopments />} />
-          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding" element={<PublicOnlyRoute><Onboarding /></PublicOnlyRoute>} />
           <Route path="/find-agent" element={<FindAgent />} />
           <Route path="/agent/:id" element={<AgentProfile />} />
           <Route path="/vendor/:id" element={<VendorProfile />} />
@@ -110,7 +122,7 @@ function AppContent() {
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/verify-email-required" element={<VerifyEmailRequired />} />
           <Route
