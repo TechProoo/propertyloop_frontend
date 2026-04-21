@@ -923,7 +923,7 @@ const Buy = () => {
               )}
 
               {/* Load more */}
-              {page && pages && page < pages && (
+              {!!page && !!pages && page < pages && (
                 <div className="mt-10 text-center">
                   <button
                     onClick={nextPage}

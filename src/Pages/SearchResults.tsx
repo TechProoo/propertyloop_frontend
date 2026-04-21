@@ -201,7 +201,7 @@ const SearchResults = () => {
               </motion.div>
 
               {/* Load More Button */}
-              {page && pages && page < pages && (
+              {!!page && !!pages && page < pages && (
                 <div className="mt-12 text-center">
                   <button
                     onClick={nextPage}
