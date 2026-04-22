@@ -30,7 +30,6 @@ import Careers from "./Pages/Careers";
 import Blog from "./Pages/Blog";
 import VideoTours from "./Pages/VideoTours";
 import VideoTourDetail from "./Pages/VideoTourDetail";
-import Reductions from "./Pages/Reductions";
 import ProductDetail from "./Pages/ProductDetail";
 import Cart from "./Pages/Cart";
 import BookService from "./Pages/BookService";
@@ -175,7 +174,6 @@ function AppContent() {
           <Route path="/video-tours" element={<VideoTours />} />
           <Route path="/video-tour/:id" element={<VideoTourDetail />} />
           <Route path="/search" element={<SearchResults />} />
-          <Route path="/reductions" element={<Reductions />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/book-service/:id" element={<BookService />} />

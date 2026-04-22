@@ -26,7 +26,6 @@ import {
   ShieldCheck,
   GraduationCap,
   Car,
-  TrendingDown,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -934,53 +933,6 @@ const Buy = () => {
                   </button>
                 </div>
               )}
-            </div>
-          </div>
-          {/* ─── Price History / Recently Reduced ─── */}
-          <div className="mb-20">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-[#e74c3c]/10 flex items-center justify-center">
-                    <TrendingDown className="w-4 h-4 text-[#e74c3c]" />
-                  </div>
-                  <p className="text-[#e74c3c] text-sm font-medium tracking-wide uppercase">
-                    Price Drops
-                  </p>
-                </div>
-                <h2 className="font-heading text-[1.5rem] sm:text-[2rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
-                  Recently <span className="text-primary">Reduced</span>
-                </h2>
-                <p className="text-text-secondary text-sm leading-relaxed mt-2 max-w-lg">
-                  Properties with verified price reductions. Full price history
-                  on every listing — no hidden inflation.
-                </p>
-              </div>
-              <a
-                href="/reductions"
-                className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
-              >
-                View all reductions
-              </a>
-            </div>
-
-            {/* Empty state for price reductions */}
-            <div className="flex flex-col items-center justify-center py-24 text-center rounded-[28px] bg-white/30 border border-border-light">
-              <div className="w-20 h-20 rounded-full bg-[#e74c3c]/10 flex items-center justify-center mb-4">
-                <TrendingDown className="w-8 h-8 text-[#e74c3c]/50" />
-              </div>
-              <h3 className="font-heading font-bold text-primary-dark text-lg">
-                Price Reductions Coming Soon
-              </h3>
-              <p className="text-text-secondary text-sm mt-2 max-w-sm">
-                Track properties with price drops and full price history. See exactly how prices have changed over time.
-              </p>
-              <a
-                href="/reductions"
-                className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center"
-              >
-                Browse Reductions
-              </a>
             </div>
           </div>
         </div>
