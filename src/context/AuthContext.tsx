@@ -19,8 +19,8 @@ interface AuthContextType {
   user: User | null;
   isLoggedIn: boolean;
   loading: boolean;
-  signup: (payload: SignupPayload) => Promise<void>;
-  login: (payload: LoginPayload) => Promise<void>;
+  signup: (payload: SignupPayload) => Promise<User>;
+  login: (payload: LoginPayload) => Promise<User>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -79,11 +79,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signup = useCallback(async (payload: SignupPayload) => {
     const res = await authService.signup(payload);
     setUser(res.user);
+    return res.user;
   }, []);
 
   const login = useCallback(async (payload: LoginPayload) => {
     const res = await authService.login(payload);
     setUser(res.user);
+    return res.user;
   }, []);
 
   const logout = useCallback(async () => {

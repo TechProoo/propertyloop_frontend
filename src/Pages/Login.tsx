@@ -37,11 +37,14 @@ const Login = () => {
     if (!validate()) return;
     setLoading(true);
     try {
-      await login({ email, password });
+      const loggedInUser = await login({ email, password });
       setSubmitted(true);
-      // Auto-redirect after short delay
       setTimeout(() => {
-        const dest = roleDashboard[user?.role || "BUYER"] || "/dashboard";
+        if (!loggedInUser.emailVerifiedAt) {
+          navigate("/verify-email-required");
+          return;
+        }
+        const dest = roleDashboard[loggedInUser.role] || "/dashboard";
         navigate(dest);
       }, 1500);
     } catch (err: any) {
