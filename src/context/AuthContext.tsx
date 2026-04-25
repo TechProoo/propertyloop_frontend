@@ -56,25 +56,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     init();
   }, []);
 
-  // Auto-refresh token every 10 minutes to keep session alive
-  useEffect(() => {
-    if (!user) return;
-
-    const refreshInterval = setInterval(async () => {
-      try {
-        const rt = tokens.getRefresh();
-        if (rt) {
-          await authService.refresh();
-        }
-      } catch (error) {
-        console.error("Token refresh failed:", error);
-        tokens.clear();
-        setUser(null);
-      }
-    }, 10 * 60 * 1000); // Refresh every 10 minutes
-
-    return () => clearInterval(refreshInterval);
-  }, [user]);
+  // No proactive refresh interval — the axios interceptor in client.ts
+  // refreshes the access token on demand whenever a request 401s, with
+  // a shared refreshPromise that dedupes concurrent calls. Running a
+  // second refresh path here caused refresh-token rotation reuse
+  // detection on the backend, which revoked the entire session.
 
   const signup = useCallback(async (payload: SignupPayload) => {
     const res = await authService.signup(payload);
