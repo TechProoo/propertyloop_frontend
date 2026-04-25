@@ -158,7 +158,7 @@ const AddProperty = () => {
   };
 
   const [, setSubmitError] = useState("");
-  const [, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const goNext = async () => {
     if (currentStep === "details" && !validateStep1()) return;
@@ -430,6 +430,34 @@ const AddProperty = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
+      {submitting && (
+        <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl px-10 py-8 flex flex-col items-center gap-5">
+            <div className="flex gap-2">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className="w-3 h-3 rounded-full bg-primary"
+                  style={{
+                    animation: "ap-bounce 1s infinite ease-in-out",
+                    animationDelay: `${i * 0.16}s`,
+                  }}
+                />
+              ))}
+            </div>
+            <p className="text-primary-dark font-heading font-semibold text-sm">
+              Submitting...
+            </p>
+          </div>
+          <style>{`
+            @keyframes ap-bounce {
+              0%, 80%, 100% { transform: translateY(0); opacity: 0.6; }
+              40% { transform: translateY(-10px); opacity: 1; }
+            }
+          `}</style>
+        </div>
+      )}
+
       <Navbar />
 
       <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">
