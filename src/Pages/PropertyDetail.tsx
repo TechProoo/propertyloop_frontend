@@ -26,8 +26,6 @@ import {
   ClipboardList,
   Clock,
   FileText,
-  Download,
-  Eye,
   Handshake,
   Send,
   DollarSign,
@@ -413,56 +411,44 @@ const PropertyDetail = () => {
                   </div>
 
                   <div className="flex flex-col gap-3">
-                    {listing.documents.map((doc, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-4 bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl p-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 group"
-                      >
-                        {/* Doc icon */}
-                        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                          <FileText className="w-5 h-5" />
-                        </div>
+                    {listing.documents.map((doc, i) => {
+                      const docTypeLabel: Record<string, string> = {
+                        C_OF_O: "Certificate of Occupancy",
+                        SURVEY_PLAN: "Survey Plan",
+                        BUILDING_PERMIT: "Building Permit",
+                        RECEIPT: "Purchase Receipt",
+                      };
+                      return (
+                        <div
+                          key={i}
+                          className="flex items-center gap-4 bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl p-4"
+                        >
+                          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <FileText className="w-5 h-5" />
+                          </div>
 
-                        {/* Doc info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="font-heading font-semibold text-primary-dark text-sm truncate">
-                              {doc.name}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-heading font-semibold text-primary-dark text-sm">
+                              {docTypeLabel[doc.type] || doc.type}
                             </p>
-                            {doc.verified && (
-                              <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
-                            )}
+                            <p className="text-text-secondary text-xs mt-0.5">
+                              Verified Apr 2026
+                            </p>
                           </div>
-                          <div className="flex items-center gap-3 text-text-secondary text-xs mt-0.5">
-                            <span className="px-2 py-0.5 rounded-full bg-bg-accent border border-border-light text-[11px] font-medium">
-                              {doc.type}
-                            </span>
-                            <span>Uploaded {doc.date}</span>
-                          </div>
-                        </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
-                            title="Preview"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
-                            title="Download"
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                          </button>
+                          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium shrink-0">
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            Verified
+                          </span>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   <p className="text-text-subtle text-[11px] mt-4 leading-relaxed">
-                    All documents are verified by PropertyLoop before listing.
-                    Original copies can be requested through the listing agent.
+                    Documents are verified by PropertyLoop. For your safety,
+                    original copies are not displayed publicly — request them
+                    directly from the listing agent.
                   </p>
                 </motion.div>
               )}
