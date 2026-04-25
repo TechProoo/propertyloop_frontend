@@ -37,17 +37,33 @@ const vendorCategories = [
 
 const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }: Props) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [photoError, setPhotoError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        updateData({ profilePhoto: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+    setPhotoError("");
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Please choose an image file (JPG, PNG, GIF)");
+      e.target.value = "";
+      return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoError("Image must be under 5MB");
+      e.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      updateData({
+        profilePhoto: reader.result as string,
+        profilePhotoFile: file,
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
   const validate = () => {
@@ -142,6 +158,11 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
             </button>
           </div>
         </div>
+        {photoError && (
+          <p className="text-xs text-red-600 text-center mb-4 -mt-2">
+            {photoError}
+          </p>
+        )}
 
         {/* BUYER FIELDS */}
         {data.role === "buyer" && (

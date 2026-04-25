@@ -6,6 +6,8 @@ import ProfileSetup from "../components/Onboarding/ProfileSetup";
 import Welcome from "../components/Onboarding/Welcome";
 import Logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
+import uploadService from "../api/services/upload";
+import usersService from "../api/services/users";
 
 export type UserRole = "buyer" | "agent" | "vendor";
 
@@ -16,6 +18,7 @@ export interface OnboardingData {
   phone: string;
   password: string;
   profilePhoto?: string;
+  profilePhotoFile?: File;
   // Buyer-specific
   lookingFor?: string;
   preferredLocation?: string;
@@ -36,7 +39,7 @@ type Step = (typeof steps)[number];
 const roleMap = { buyer: "BUYER", agent: "AGENT", vendor: "VENDOR" } as const;
 
 const Onboarding = () => {
-  const { signup } = useAuth();
+  const { signup, refreshUser } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>("role");
   const [signupError, setSignupError] = useState("");
   const [isSigningUp, setIsSigningUp] = useState(false);
@@ -84,6 +87,21 @@ const Onboarding = () => {
           },
         }),
       });
+
+      // Upload profile photo (if provided) now that we have an auth token.
+      // Failures here shouldn't block the signup — user can retry from settings.
+      if (data.profilePhotoFile) {
+        try {
+          const { url } = await uploadService.uploadProfilePicture(
+            data.profilePhotoFile,
+          );
+          await usersService.updateProfile({ avatarUrl: url });
+          await refreshUser();
+        } catch (uploadErr) {
+          console.error("Profile photo upload failed:", uploadErr);
+        }
+      }
+
       setCurrentStep("welcome");
     } catch (err: any) {
       setSignupError(
