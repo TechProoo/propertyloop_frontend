@@ -1239,12 +1239,87 @@ const Dashboard = () => {
               const activeConvo =
                 chat.conversations.find((c) => c.id === chat.activeConversationId) ||
                 chat.conversations[0];
-              if (!activeConvo || chat.loading)
+
+              // Initial fetch in flight — bouncing balls overlay
+              if (chat.loading) {
                 return (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease }}
+                    className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] flex items-center justify-center"
+                    style={{ height: "calc(100vh - 140px)" }}
+                  >
+                    <div className="flex flex-col items-center gap-5">
+                      <div className="flex gap-2">
+                        {[0, 1, 2].map((i) => (
+                          <span
+                            key={i}
+                            className="w-3 h-3 rounded-full bg-primary"
+                            style={{
+                              animation: "pl-msg-bounce 1s infinite ease-in-out",
+                              animationDelay: `${i * 0.16}s`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-text-secondary text-sm">
+                        Loading conversations...
+                      </p>
+                    </div>
+                    <style>{`
+                      @keyframes pl-msg-bounce {
+                        0%, 80%, 100% { transform: translateY(0); opacity: 0.6; }
+                        40% { transform: translateY(-10px); opacity: 1; }
+                      }
+                    `}</style>
+                  </motion.div>
                 );
+              }
+
+              // No conversations yet — friendly empty state
+              if (!activeConvo) {
+                return (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease }}
+                    className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] flex items-center justify-center px-8 py-12"
+                    style={{ height: "calc(100vh - 140px)" }}
+                  >
+                    <div className="max-w-md text-center">
+                      <div className="relative inline-flex mb-6">
+                        <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl scale-110" />
+                        <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-[0_8px_24px_rgba(31,111,67,0.3)]">
+                          <MessageCircle className="w-10 h-10 text-white" />
+                        </div>
+                      </div>
+                      <h3 className="font-heading font-bold text-primary-dark text-xl mb-3">
+                        No messages yet
+                      </h3>
+                      <p className="text-text-secondary text-sm leading-relaxed mb-6">
+                        When you message an agent about a property or book a
+                        service vendor, the conversation will appear here.
+                      </p>
+                      <div className="flex flex-wrap gap-3 justify-center">
+                        <Link
+                          to="/buy"
+                          className="h-10 px-5 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center"
+                        >
+                          Browse properties
+                        </Link>
+                        <Link
+                          to="/services"
+                          className="h-10 px-5 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:border-primary transition-colors inline-flex items-center"
+                        >
+                          Find a vendor
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              }
+
               const activeMessages = chat.messages;
 
               const handleSend = () => {
