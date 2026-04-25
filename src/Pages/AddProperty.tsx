@@ -177,7 +177,7 @@ const AddProperty = () => {
 
         const uploadedUrls = await uploadPendingPhotos();
 
-        await listingsService.create({
+        const created = await listingsService.create({
           title: form.title,
           type: typeMap[form.listingType] || "SALE",
           propertyType: form.propertyType,
@@ -201,6 +201,11 @@ const AddProperty = () => {
           virtualTourUrl: form.virtualTourUrl || undefined,
           videoUrl: form.videoUrl || undefined,
         });
+
+        if (pendingDocFiles.length > 0) {
+          await uploadAndAttachDocs(created.id);
+        }
+
         setSubmitted(true);
       } catch (err: any) {
         setSubmitError(
@@ -308,6 +313,35 @@ const AddProperty = () => {
 
   const removeDoc = (index: number) => {
     setPendingDocFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const inferDocType = (
+    name: string,
+  ): "C_OF_O" | "SURVEY_PLAN" | "BUILDING_PERMIT" | "RECEIPT" => {
+    const n = name.toLowerCase();
+    if (n.includes("survey")) return "SURVEY_PLAN";
+    if (n.includes("permit")) return "BUILDING_PERMIT";
+    if (n.includes("receipt")) return "RECEIPT";
+    return "C_OF_O";
+  };
+
+  const uploadAndAttachDocs = async (listingId: string) => {
+    for (const file of pendingDocFiles) {
+      const formData = new FormData();
+      formData.append("file", file);
+      const { fileUrl } = await api
+        .post<{ fileUrl: string }>(
+          "/listings/upload/photo",
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } },
+        )
+        .then((res) => res.data);
+      await listingsService.addDocument(listingId, {
+        name: file.name,
+        type: inferDocType(file.name),
+        url: fileUrl,
+      });
+    }
   };
 
   const uploadVideo = async (file: File) => {

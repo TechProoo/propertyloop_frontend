@@ -50,6 +50,7 @@ export interface UpdateListingPayload extends Partial<CreateListingPayload> {
 export interface AddDocumentPayload {
   name: string;
   type: "C_OF_O" | "SURVEY_PLAN" | "BUILDING_PERMIT" | "RECEIPT";
+  url?: string;
   date?: string;
 }
 

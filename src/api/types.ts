@@ -263,6 +263,7 @@ export interface ListingDocument {
   listingId: string;
   name: string;
   type: DocumentType;
+  url?: string | null;
   verified: boolean;
   date: string;
 }
