@@ -345,8 +345,8 @@ const AgentDashboard = () => {
               </div>
             )}
             <button
-              onClick={() => {
-                logout();
+              onClick={async () => {
+                await logout();
                 window.location.href = "/";
               }}
               className={`flex items-center gap-2 transition-colors ${
@@ -449,8 +449,8 @@ const AgentDashboard = () => {
                 </div>
               </div>
               <button
-                onClick={() => {
-                  logout();
+                onClick={async () => {
+                  await logout();
                   window.location.href = "/";
                 }}
                 className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm"
@@ -1502,8 +1502,8 @@ const AgentDashboard = () => {
                   Log out of your agent account.
                 </p>
                 <button
-                  onClick={() => {
-                    logout();
+                  onClick={async () => {
+                    await logout();
                     window.location.href = "/";
                   }}
                   className="h-10 px-6 rounded-full border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors flex items-center gap-2"
