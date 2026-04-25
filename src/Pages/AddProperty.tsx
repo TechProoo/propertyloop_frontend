@@ -127,10 +127,11 @@ const AddProperty = () => {
   const [docUploadError, setDocUploadError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [, setUploadingVideo] = useState(false);
   const [videoUploadError, setVideoUploadError] = useState("");
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [videoInputType, setVideoInputType] = useState<"url" | "file">("url");
+  const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
   const [useCustomLocation, setUseCustomLocation] = useState(false);
 
   const stepIndex = steps.indexOf(currentStep);
@@ -178,6 +179,7 @@ const AddProperty = () => {
         }
 
         const uploadedUrls = await uploadPendingPhotos();
+        const uploadedVideoUrl = await uploadPendingVideo();
 
         const created = await listingsService.create({
           title: form.title,
@@ -201,7 +203,7 @@ const AddProperty = () => {
           coverImage: uploadedUrls[0],
           images: uploadedUrls,
           virtualTourUrl: form.virtualTourUrl || undefined,
-          videoUrl: form.videoUrl || undefined,
+          videoUrl: uploadedVideoUrl || form.videoUrl || undefined,
         });
 
         if (pendingDocFiles.length > 0) {
@@ -238,6 +240,7 @@ const AddProperty = () => {
     setForm(initialForm);
     setPendingPhotoFiles([]);
     setPendingDocFiles([]);
+    setPendingVideoFile(null);
     photoPreviews.forEach((url) => URL.revokeObjectURL(url));
     setPhotoPreviews([]);
     setSubmitted(false);
@@ -376,27 +379,23 @@ const AddProperty = () => {
     }
   };
 
-  const uploadVideo = async (file: File) => {
+  const uploadPendingVideo = async (): Promise<string | undefined> => {
+    if (!pendingVideoFile) return undefined;
     setUploadingVideo(true);
-    setVideoUploadError("");
     try {
       const formData = new FormData();
-      formData.append("file", file);
-
-      const { fileUrl } = await api.post<{ fileUrl: string }>(
-        "/listings/upload/video",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      ).then((res) => res.data);
-
-      updateForm({ videoUrl: fileUrl });
-    } catch (err: any) {
-      const serverMsg = err?.response?.data?.message;
-      const errorMsg =
-        serverMsg ||
-        (err instanceof Error ? err.message : "Failed to upload video");
-      setVideoUploadError(errorMsg);
-      console.error("Video upload failed:", err?.response?.data || err);
+      formData.append("file", pendingVideoFile);
+      const { fileUrl } = await api
+        .post<{ fileUrl: string }>(
+          "/listings/upload/video",
+          formData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            timeout: 5 * 60 * 1000, // 5 min — videos take time
+          },
+        )
+        .then((res) => res.data);
+      return fileUrl;
     } finally {
       setUploadingVideo(false);
     }
@@ -404,15 +403,27 @@ const AddProperty = () => {
 
   const handleVideoInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
+    setVideoUploadError("");
     if (files?.length) {
       const file = files[0];
-      if (file.size > 50 * 1024 * 1024) {
-        setVideoUploadError("Video must be less than 50MB");
+      if (!file.type.startsWith("video/")) {
+        setVideoUploadError("Please choose a video file");
         return;
       }
-      uploadVideo(file);
+      if (file.size > 50 * 1024 * 1024) {
+        setVideoUploadError(
+          `Video is ${(file.size / 1024 / 1024).toFixed(1)}MB — must be under 50MB`,
+        );
+        return;
+      }
+      setPendingVideoFile(file);
     }
     if (videoInputRef.current) videoInputRef.current.value = "";
+  };
+
+  const removePendingVideo = () => {
+    setPendingVideoFile(null);
+    setVideoUploadError("");
   };
 
   const triggerVideoUpload = () => {
@@ -1101,6 +1112,29 @@ const AddProperty = () => {
                                 </button>
                               </div>
                             </div>
+                          ) : pendingVideoFile ? (
+                            <div className="rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 p-4">
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <Video className="w-5 h-5 text-primary shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="text-sm text-primary-dark font-medium truncate">
+                                      {pendingVideoFile.name}
+                                    </p>
+                                    <p className="text-[11px] text-text-subtle">
+                                      {(pendingVideoFile.size / 1024 / 1024).toFixed(2)} MB · uploads when you submit
+                                    </p>
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={removePendingVideo}
+                                  className="text-text-subtle hover:text-red-600 transition-colors shrink-0"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
                           ) : (
                             <div className="flex flex-col gap-3">
                               <div className="flex items-center gap-2">
@@ -1114,23 +1148,16 @@ const AddProperty = () => {
                                 <button
                                   type="button"
                                   onClick={triggerVideoUpload}
-                                  disabled={uploadingVideo}
-                                  className="border-2 border-dashed border-white/40 rounded-xl p-4 flex flex-col items-center gap-2 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="border-2 border-dashed border-white/40 rounded-xl p-4 flex flex-col items-center gap-2 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 transition-all"
                                 >
                                   <div className="w-8 h-8 rounded-full bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center">
-                                    {uploadingVideo ? (
-                                      <div className="animate-spin">
-                                        <Video className="w-4 h-4 text-primary" />
-                                      </div>
-                                    ) : (
-                                      <Video className="w-4 h-4 text-primary" />
-                                    )}
+                                    <Video className="w-4 h-4 text-primary" />
                                   </div>
                                   <p className="text-xs text-primary-dark font-medium text-center">
-                                    {uploadingVideo ? "Uploading..." : "Upload Video"}
+                                    Choose Video
                                   </p>
                                   <p className="text-[10px] text-text-subtle text-center">
-                                    MP4, MOV (max 100MB)
+                                    MP4, MOV (max 50MB)
                                   </p>
                                 </button>
 
