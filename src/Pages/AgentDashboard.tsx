@@ -365,12 +365,12 @@ const AgentDashboard = () => {
               }}
               className={`flex items-center gap-2 transition-colors ${
                 sidebarOpen
-                  ? "text-primary-dark bg-primary/10 px-2 py-1 rounded-md hover:bg-primary/20"
-                  : "text-white/40 hover:text-white"
+                  ? "text-red-400 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-md hover:bg-red-500/20 hover:text-red-300"
+                  : "text-red-400 hover:text-red-300"
               }`}
             >
               <LogOut className="w-4 h-4" />
-              {sidebarOpen && <span className="text-xs">Logout</span>}
+              {sidebarOpen && <span className="text-xs font-medium">Logout</span>}
             </button>
           </div>
         </div>
@@ -467,7 +467,7 @@ const AgentDashboard = () => {
                   await logout();
                   window.location.href = "/";
                 }}
-                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm"
+                className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:text-red-300 transition-colors text-sm font-medium"
               >
                 <LogOut className="w-4 h-4" /> Logout
               </button>
