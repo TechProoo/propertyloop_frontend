@@ -119,8 +119,8 @@ const AddProperty = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [pendingPhotoFiles, setPendingPhotoFiles] = useState<File[]>([]);
   const [uploadingPhotoIndex, setUploadingPhotoIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -168,10 +168,12 @@ const AddProperty = () => {
           rent: "RENT",
           shortlet: "SHORTLET",
         };
-        if (photos.length === 0) {
-          setSubmitError("Please upload at least one property photo");
+        if (pendingPhotoFiles.length === 0) {
+          setSubmitError("Please add at least one property photo");
           return;
         }
+
+        const uploadedUrls = await uploadPendingPhotos();
 
         await listingsService.create({
           title: form.title,
@@ -192,8 +194,8 @@ const AddProperty = () => {
           yearBuilt: form.yearBuilt,
           description: form.description,
           features: [],
-          coverImage: photos[0],
-          images: photos,
+          coverImage: uploadedUrls[0],
+          images: uploadedUrls,
           virtualTourUrl: form.virtualTourUrl || undefined,
           videoUrl: form.videoUrl || undefined,
         });
@@ -225,47 +227,47 @@ const AddProperty = () => {
 
   const handleReset = () => {
     setForm(initialForm);
-    setPhotos([]);
+    setPendingPhotoFiles([]);
+    photoPreviews.forEach((url) => URL.revokeObjectURL(url));
+    setPhotoPreviews([]);
     setSubmitted(false);
     setAgreedTerms(false);
     setCurrentStep("details");
     setErrors({});
   };
 
-  const uploadPhoto = async (file: File) => {
-    if (photos.length >= 10) return;
-
+  const queuePhoto = (file: File) => {
+    if (pendingPhotoFiles.length >= 10) return;
     const localPreview = URL.createObjectURL(file);
-    const previewIndex = photoPreviews.length;
     setPhotoPreviews((prev) => [...prev, localPreview]);
-    setUploadingPhotoIndex(previewIndex);
+    setPendingPhotoFiles((prev) => [...prev, file]);
+  };
 
-    try {
+  const uploadPendingPhotos = async (): Promise<string[]> => {
+    const urls: string[] = [];
+    for (let i = 0; i < pendingPhotoFiles.length; i++) {
+      const file = pendingPhotoFiles[i];
+      setUploadingPhotoIndex(i);
       const formData = new FormData();
       formData.append("file", file);
-
-      const { fileUrl } = await api.post<{ fileUrl: string }>(
-        "/listings/upload/photo",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      ).then((res) => res.data);
-
-      setPhotos((prev) => [...prev, fileUrl]);
-    } catch (err) {
-      console.error("Photo upload failed:", err);
-      // Roll back the preview if the upload fails
-      setPhotoPreviews((prev) => prev.filter((_, i) => i !== previewIndex));
-      URL.revokeObjectURL(localPreview);
-    } finally {
-      setUploadingPhotoIndex(null);
+      const { fileUrl } = await api
+        .post<{ fileUrl: string }>(
+          "/listings/upload/photo",
+          formData,
+          { headers: { "Content-Type": "multipart/form-data" } },
+        )
+        .then((res) => res.data);
+      urls.push(fileUrl);
     }
+    setUploadingPhotoIndex(null);
+    return urls;
   };
 
   const handlePhotoInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
     if (files) {
       Array.from(files).forEach((file) => {
-        if (photos.length < 10) uploadPhoto(file);
+        if (pendingPhotoFiles.length < 10) queuePhoto(file);
       });
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -276,7 +278,7 @@ const AddProperty = () => {
   };
 
   const removePhoto = (index: number) => {
-    setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setPendingPhotoFiles((prev) => prev.filter((_, i) => i !== index));
     setPhotoPreviews((prev) => {
       const removed = prev[index];
       if (removed) URL.revokeObjectURL(removed);
@@ -780,7 +782,7 @@ const AddProperty = () => {
                           <button
                             type="button"
                             onClick={triggerPhotoUpload}
-                            disabled={uploadingPhotoIndex !== null || photos.length >= 10}
+                            disabled={uploadingPhotoIndex !== null || pendingPhotoFiles.length >= 10}
                             className="w-full border-2 border-dashed border-white/40 rounded-2xl p-8 flex flex-col items-center gap-3 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <div className="w-14 h-14 rounded-full bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center shadow-[0_4px_16px_rgba(31,111,67,0.06)]">
@@ -795,11 +797,11 @@ const AddProperty = () => {
                             <div className="text-center">
                               <p className="text-primary-dark text-sm font-medium">
                                 {uploadingPhotoIndex !== null
-                                  ? "Uploading..."
+                                  ? `Uploading ${uploadingPhotoIndex + 1}/${pendingPhotoFiles.length}...`
                                   : "Click to add photos"}
                               </p>
                               <p className="text-text-subtle text-xs mt-1">
-                                {photos.length}/10 photos uploaded
+                                {pendingPhotoFiles.length}/10 photos selected
                               </p>
                             </div>
                           </button>
@@ -830,7 +832,7 @@ const AddProperty = () => {
                                   )}
                                 </div>
                               ))}
-                              {photos.length < 10 && (
+                              {pendingPhotoFiles.length < 10 && (
                                 <button
                                   type="button"
                                   onClick={triggerPhotoUpload}
@@ -1042,10 +1044,10 @@ const AddProperty = () => {
                                 ? "For Rent"
                                 : "Shortlet"}
                           </span>
-                          {photos.length > 1 && (
+                          {pendingPhotoFiles.length > 1 && (
                             <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium flex items-center gap-1">
                               <Camera className="w-3 h-3" />
-                              {photos.length} photos
+                              {pendingPhotoFiles.length} photos
                             </span>
                           )}
                         </div>
@@ -1122,7 +1124,7 @@ const AddProperty = () => {
                             { label: "Year Built", value: form.yearBuilt },
                             {
                               label: "Photos",
-                              value: `${photos.length} uploaded`,
+                              value: `${pendingPhotoFiles.length} selected`,
                             },
                             {
                               label: "Virtual Tour",
