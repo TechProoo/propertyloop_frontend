@@ -15,8 +15,10 @@ export interface UseChatReturn {
   unreadCount: number;
   /** Whether the socket is connected */
   connected: boolean;
-  /** Whether the initial load is still in progress */
+  /** Whether the initial conversation list is still loading */
   loading: boolean;
+  /** Whether the messages of the active conversation are still loading */
+  messagesLoading: boolean;
   /** ID of the currently active conversation */
   activeConversationId: string | null;
   /** Select a conversation — loads messages + marks read */
@@ -35,6 +37,7 @@ export function useChat(): UseChatReturn {
   const [unreadCount, setUnreadCount] = useState(0);
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [messagesLoading, setMessagesLoading] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<
     string | null
   >(null);
@@ -161,6 +164,8 @@ export function useChat(): UseChatReturn {
   const openConversation = useCallback(async (id: string) => {
     setActiveConversationId(id);
     setOtherTyping(false);
+    setMessages([]);
+    setMessagesLoading(true);
 
     // Join the socket room
     socketRef.current?.emit("join_conversation", { conversationId: id });
@@ -171,6 +176,8 @@ export function useChat(): UseChatReturn {
       setMessages(msgs);
     } catch {
       setMessages([]);
+    } finally {
+      setMessagesLoading(false);
     }
 
     // Mark as read locally
@@ -219,6 +226,7 @@ export function useChat(): UseChatReturn {
     unreadCount,
     connected,
     loading,
+    messagesLoading,
     activeConversationId,
     openConversation,
     sendMessage,

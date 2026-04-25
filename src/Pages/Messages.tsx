@@ -19,6 +19,9 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import { useAuth } from "../context/AuthContext";
 import ServiceRequestMessage from "../components/Messages/ServiceRequestMessage";
+import MessagesSkeleton, {
+  ConversationsSkeleton,
+} from "../components/Messages/MessagesSkeleton";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -180,20 +183,7 @@ const Messages = () => {
               {/* List */}
               <div className="flex-1 overflow-y-auto">
                 {chat.loading ? (
-                  <div className="flex flex-col gap-2 p-3">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="flex items-start gap-3 px-3 py-3 rounded-xl bg-white/40 animate-pulse"
-                      >
-                        <div className="w-11 h-11 rounded-full bg-border-light/60 shrink-0" />
-                        <div className="flex-1 space-y-2 pt-1">
-                          <div className="h-3 w-2/3 bg-border-light/60 rounded-full" />
-                          <div className="h-2.5 w-1/2 bg-border-light/60 rounded-full" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <ConversationsSkeleton />
                 ) : list.length === 0 ? (
                   <div className="text-center py-16 px-6">
                     <div className="w-12 h-12 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-3">
@@ -304,41 +294,45 @@ const Messages = () => {
                   </div>
 
                   {/* Messages */}
-                  <div className="flex-1 overflow-y-auto px-5 py-6 bg-[#fafaf6]">
-                    <div className="flex flex-col gap-3">
-                      {active.messages.map((m, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2, ease }}
-                          className={`flex ${m.sender === "you" ? "justify-end" : "justify-start"}`}
-                        >
-                          <div
-                            className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                              m.sender === "you"
-                                ? "bg-primary text-white rounded-br-md shadow-[0_2px_8px_rgba(31,111,67,0.2)]"
-                                : "bg-white border border-border-light text-primary-dark rounded-bl-md"
-                            }`}
+                  <div className="flex-1 overflow-y-auto bg-[#fafaf6]">
+                    {chat.messagesLoading ? (
+                      <MessagesSkeleton />
+                    ) : (
+                      <div className="flex flex-col gap-3 px-5 py-6">
+                        {active.messages.map((m, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.2, ease }}
+                            className={`flex ${m.sender === "you" ? "justify-end" : "justify-start"}`}
                           >
-                            {(m.text.includes("SERVICE REQUEST") || m.text.includes("**Service Request**")) ? (
-                              <ServiceRequestMessage text={m.text} />
-                            ) : (
-                              <p className="whitespace-pre-wrap break-words">{m.text}</p>
-                            )}
                             <div
-                              className={`flex items-center gap-1 mt-1 text-[10px] ${m.sender === "you" ? "text-white/70 justify-end" : "text-text-subtle"}`}
+                              className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                                m.sender === "you"
+                                  ? "bg-primary text-white rounded-br-md shadow-[0_2px_8px_rgba(31,111,67,0.2)]"
+                                  : "bg-white border border-border-light text-primary-dark rounded-bl-md"
+                              }`}
                             >
-                              {m.time}
-                              {m.sender === "you" && (
-                                <CheckCheck className="w-3 h-3" />
+                              {(m.text.includes("SERVICE REQUEST") || m.text.includes("**Service Request**")) ? (
+                                <ServiceRequestMessage text={m.text} />
+                              ) : (
+                                <p className="whitespace-pre-wrap break-words">{m.text}</p>
                               )}
+                              <div
+                                className={`flex items-center gap-1 mt-1 text-[10px] ${m.sender === "you" ? "text-white/70 justify-end" : "text-text-subtle"}`}
+                              >
+                                {m.time}
+                                {m.sender === "you" && (
+                                  <CheckCheck className="w-3 h-3" />
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                      <div ref={messagesEndRef} />
-                    </div>
+                          </motion.div>
+                        ))}
+                        <div ref={messagesEndRef} />
+                      </div>
+                    )}
                   </div>
 
                   {/* Composer */}

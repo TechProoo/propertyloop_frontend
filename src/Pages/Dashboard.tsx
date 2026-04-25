@@ -44,6 +44,9 @@ import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import { useChat } from "../api/hooks";
+import MessagesSkeleton, {
+  ConversationsSkeleton,
+} from "../components/Messages/MessagesSkeleton";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -1240,39 +1243,41 @@ const Dashboard = () => {
                 chat.conversations.find((c) => c.id === chat.activeConversationId) ||
                 chat.conversations[0];
 
-              // Initial fetch in flight — bouncing balls overlay
+              // Initial fetch in flight — full layout skeleton
               if (chat.loading) {
                 return (
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease }}
-                    className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] flex items-center justify-center"
-                    style={{ height: "calc(100vh - 140px)" }}
                   >
-                    <div className="flex flex-col items-center gap-5">
-                      <div className="flex gap-2">
-                        {[0, 1, 2].map((i) => (
-                          <span
-                            key={i}
-                            className="w-3 h-3 rounded-full bg-primary"
-                            style={{
-                              animation: "pl-msg-bounce 1s infinite ease-in-out",
-                              animationDelay: `${i * 0.16}s`,
-                            }}
-                          />
-                        ))}
+                    <div
+                      className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden"
+                      style={{ height: "calc(100vh - 140px)" }}
+                    >
+                      <div className="flex h-full">
+                        <div className="hidden md:flex flex-col w-85 lg:w-90 shrink-0 border-r border-white/30 bg-white/30 backdrop-blur-sm">
+                          <div className="px-4 pt-4 pb-3 border-b border-white/30">
+                            <div className="h-6 w-1/2 bg-border-light/60 rounded-full animate-pulse" />
+                          </div>
+                          <div className="flex-1 overflow-y-auto">
+                            <ConversationsSkeleton count={6} />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0 bg-gradient-to-b from-white/10 to-white/30 flex flex-col">
+                          <div className="px-5 py-3.5 border-b border-white/30 flex items-center gap-3 animate-pulse">
+                            <div className="w-10 h-10 rounded-full bg-border-light/60" />
+                            <div className="flex-1 space-y-2">
+                              <div className="h-3 w-1/3 bg-border-light/60 rounded-full" />
+                              <div className="h-2 w-1/4 bg-border-light/60 rounded-full" />
+                            </div>
+                          </div>
+                          <div className="flex-1 overflow-y-auto">
+                            <MessagesSkeleton />
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-text-secondary text-sm">
-                        Loading conversations...
-                      </p>
                     </div>
-                    <style>{`
-                      @keyframes pl-msg-bounce {
-                        0%, 80%, 100% { transform: translateY(0); opacity: 0.6; }
-                        40% { transform: translateY(-10px); opacity: 1; }
-                      }
-                    `}</style>
                   </motion.div>
                 );
               }
@@ -1479,44 +1484,43 @@ const Dashboard = () => {
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
-                          {chat.loading ? (
-                            <div className="flex items-center justify-center h-full">
-                              <div className="flex flex-col items-center gap-3">
-                                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-                                <p className="text-text-secondary text-sm">Loading messages...</p>
-                              </div>
-                            </div>
+                        <div className="flex-1 overflow-y-auto">
+                          {chat.messagesLoading ? (
+                            <MessagesSkeleton />
                           ) : activeMessages.length === 0 ? (
-                            <div className="flex items-center justify-center h-full">
+                            <div className="flex items-center justify-center h-full p-5">
                               <p className="text-text-secondary text-sm">No messages yet. Start the conversation!</p>
                             </div>
                           ) : (
-                            activeMessages.map((msg, i) => {
-                              const msgTime = new Date(msg.createdAt).toLocaleTimeString("en-NG", {
-                                hour: "numeric",
-                                minute: "2-digit",
-                              });
-                              return (
-                                <div
-                                  key={i}
-                                  className={`flex ${msg.isYou ? "justify-end" : "justify-start"}`}
-                                >
+                            <div className="p-5 flex flex-col gap-3">
+                              {activeMessages.map((msg, i) => {
+                                const msgTime = new Date(
+                                  msg.createdAt,
+                                ).toLocaleTimeString("en-NG", {
+                                  hour: "numeric",
+                                  minute: "2-digit",
+                                });
+                                return (
                                   <div
-                                    className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.isYou ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
+                                    key={i}
+                                    className={`flex ${msg.isYou ? "justify-end" : "justify-start"}`}
                                   >
-                                    <p className="text-sm leading-relaxed">
-                                      {msg.text}
-                                    </p>
-                                    <p
-                                      className={`text-[10px] mt-1 ${msg.isYou ? "text-white/60" : "text-text-subtle"}`}
+                                    <div
+                                      className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.isYou ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
                                     >
-                                      {msgTime}
-                                    </p>
+                                      <p className="text-sm leading-relaxed">
+                                        {msg.text}
+                                      </p>
+                                      <p
+                                        className={`text-[10px] mt-1 ${msg.isYou ? "text-white/60" : "text-text-subtle"}`}
+                                      >
+                                        {msgTime}
+                                      </p>
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            })
+                                );
+                              })}
+                            </div>
                           )}
                         </div>
 
