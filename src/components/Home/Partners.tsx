@@ -27,10 +27,6 @@ const partners = [
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Coat_of_arms_of_Nigeria.svg/200px-Coat_of_arms_of_Nigeria.svg.png",
   },
   {
-    name: "Paystack",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Paystack_Logo.png/1200px-Paystack_Logo.png",
-  },
-  {
     name: "Dangote Group",
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Dangote-Group-Logo.svg/1200px-Dangote-Group-Logo.svg.png",
   },
@@ -51,7 +47,7 @@ const partnerBenefits = [
     icon: <Shield className="w-5 h-5" />,
     title: "Trusted Ecosystem",
     description:
-      "Join a verified, escrow-protected platform that prioritises transparency and security.",
+      "Join a verified, KYC-checked platform that prioritises transparency and trust.",
   },
   {
     icon: <Users className="w-5 h-5" />,

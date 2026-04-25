@@ -191,9 +191,9 @@ const ServiceLoop = () => {
               data-sl-subtitle
               className="text-text-secondary text-sm leading-relaxed mt-3 max-w-lg"
             >
-              Book trusted, KYC-verified vendors for any home service. Every
-              payment is protected by escrow — funds release only when the job
-              is done.
+              Book trusted, KYC-verified vendors for any home service. Connect
+              with professionals you can trust for plumbing, electrical,
+              cleaning, and more.
             </p>
           </div>
           <a
@@ -308,7 +308,7 @@ const ServiceLoop = () => {
                       </span>
                       <span className="flex items-center gap-1 shrink-0">
                         <Shield className="w-3.5 h-3.5" />
-                        Escrow
+                        Verified
                       </span>
                     </div>
                     <span className="font-heading font-bold text-primary-dark text-sm shrink-0 ml-auto">
@@ -326,7 +326,7 @@ const ServiceLoop = () => {
           </div>
         )}
 
-        {/* Escrow trust banner */}
+        {/* Trust banner */}
         <div
           data-sl-banner
           className="mt-12 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] px-8 py-6 flex flex-col sm:flex-row items-center gap-6"
@@ -336,11 +336,11 @@ const ServiceLoop = () => {
           </div>
           <div className="flex-1 text-center sm:text-left">
             <h3 className="font-heading font-bold text-primary-dark text-lg">
-              Every payment is escrow-protected
+              KYC-verified, trusted vendors
             </h3>
             <p className="text-text-secondary text-sm mt-1">
-              Your money is held securely via Paystack. Funds are only released
-              to the vendor when you confirm the job is complete. No surprises.
+              Every vendor is identity-verified and rated by the community.
+              Browse, message, and book directly — no middlemen.
             </p>
           </div>
           <Link

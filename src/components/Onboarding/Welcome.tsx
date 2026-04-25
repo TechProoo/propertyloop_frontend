@@ -32,7 +32,7 @@ const roleConfig = {
       {
         icon: <Briefcase className="w-5 h-5" />,
         title: "Close the Deal",
-        desc: "Make offers, sign agreements, and manage payments — all in-platform.",
+        desc: "Make offers and connect directly with verified agents.",
       },
     ],
   },
@@ -56,7 +56,7 @@ const roleConfig = {
       {
         icon: <Briefcase className="w-5 h-5" />,
         title: "Close Deals",
-        desc: "Handle offers, e-signing, and escrow payments seamlessly.",
+        desc: "Receive enquiries and offers from buyers in your inbox.",
       },
     ],
   },

@@ -654,21 +654,21 @@ const PropertyDetail = () => {
                 className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8"
               >
                 {/* Header */}
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                       <ClipboardList className="w-5 h-5" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <h2 className="font-heading font-bold text-primary-dark text-lg">
                         Property Logbook
                       </h2>
-                      <p className="text-text-subtle text-[11px]">
+                      <p className="text-text-subtle text-[11px] truncate">
                         Property ID: PL-{listing.id.slice(0, 5).toUpperCase()}
                       </p>
                     </div>
                   </div>
-                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium shrink-0">
                     <ShieldCheck className="w-3.5 h-3.5" />0 records
                   </span>
                 </div>

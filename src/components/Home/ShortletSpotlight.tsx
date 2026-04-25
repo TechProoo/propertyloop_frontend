@@ -131,8 +131,8 @@ const ShortletSpotlight = () => {
               data-ss-subtitle
               className="text-text-secondary text-sm leading-relaxed mt-3 max-w-lg"
             >
-              Book verified short-term apartments by the night. Instant booking,
-              transparent pricing, and Paystack-powered payments.
+              Browse verified short-term apartments by the night. Transparent
+              pricing and direct contact with the host.
             </p>
           </div>
           <a
@@ -211,7 +211,7 @@ const ShortletSpotlight = () => {
             Shortlets Coming Soon
           </h3>
           <p className="text-text-secondary text-sm mt-2 max-w-sm">
-            Book verified short-term apartments by the night with instant booking and Paystack-powered payments.
+            Browse verified short-term apartments by the night and message hosts directly.
           </p>
           <button className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors">
             Stay Notified

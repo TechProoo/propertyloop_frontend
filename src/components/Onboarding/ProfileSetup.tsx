@@ -423,15 +423,16 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
               )}
             </div>
 
-            {/* Escrow Notice */}
+            {/* Verification Notice */}
             <div className="bg-bg-accent rounded-2xl border border-border-light p-4 mt-1">
               <p className="text-xs text-text-secondary leading-relaxed">
                 <span className="font-semibold text-primary-dark">
-                  Escrow-Protected Payments
+                  KYC Verification Required
                 </span>
                 <br />
-                All payments on PropertyLoop go through Paystack escrow. Funds
-                are only released when the client confirms job completion.
+                Vendors are identity-verified before listings go live so
+                clients can trust the network. We'll guide you through it
+                after sign-up.
               </p>
             </div>
           </div>

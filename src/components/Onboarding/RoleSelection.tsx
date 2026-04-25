@@ -61,7 +61,7 @@ const roles: {
       "Join the Service Loop as a verified plumber, electrician, builder, or other professional.",
     icon: <Wrench className="w-6 h-6" />,
     features: [
-      { icon: <ShieldCheck className="w-3.5 h-3.5" />, text: "Escrow-protected payments" },
+      { icon: <ShieldCheck className="w-3.5 h-3.5" />, text: "Reach KYC-verified clients" },
       { icon: <Star className="w-3.5 h-3.5" />, text: "Build your reputation" },
       { icon: <ClipboardList className="w-3.5 h-3.5" />, text: "Job booking & scheduling" },
     ],

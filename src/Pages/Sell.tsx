@@ -47,7 +47,7 @@ const steps = [
     icon: <Handshake className="w-6 h-6" />,
     title: "Close the Deal",
     description:
-      "E-signing via DocuSeal, escrow-protected payments via Paystack, and seamless ownership transfer.",
+      "Receive offers, message buyers directly, and coordinate handover with your verified agent.",
   },
 ];
 
@@ -72,9 +72,9 @@ const benefits = [
     icon: <Lock className="w-5 h-5" />,
     image:
       "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&h=400&fit=crop",
-    title: "Escrow-Protected Payments",
+    title: "Verified Buyers",
     description:
-      "All transaction funds are held in Paystack escrow until both parties confirm completion.",
+      "Every PropertyLoop user is identity-verified, so the offers you receive come from real people you can trust.",
   },
   {
     icon: <FileSignature className="w-5 h-5" />,
@@ -183,8 +183,8 @@ const faqs = [
     a: "The average time to sell on PropertyLoop is 45 days, but this varies by property type, location, and pricing.",
   },
   {
-    q: "Is the payment process secure?",
-    a: "All transaction payments go through Paystack-powered escrow. Funds are only released when both parties confirm.",
+    q: "How do I screen buyers?",
+    a: "Every PropertyLoop user is identity-verified. You'll see who you're talking to and can review their profile before accepting an offer.",
   },
   {
     q: "What if I'm not happy with my agent?",
@@ -269,7 +269,7 @@ const Sell = () => {
               <p className="text-white/60 text-sm leading-relaxed mt-4 max-w-xl">
                 On PropertyLoop, every sale is managed by a KYC-verified agent.
                 No DIY listings. Just professional representation, transparent
-                pricing, and escrow-protected transactions.
+                pricing, and verified buyers.
               </p>
 
               <div className="flex flex-wrap gap-3 mt-6">
@@ -358,8 +358,8 @@ const Sell = () => {
                   Why Sell <span className="text-primary">With Us</span>
                 </h2>
                 <p className="text-text-secondary text-sm leading-relaxed mt-3 max-w-lg">
-                  Every tool a seller needs — from verified agents to
-                  escrow-protected payments and digital e-signing.
+                  Every tool a seller needs — verified agents, verified
+                  buyers, transparent pricing, and direct messaging.
                 </p>
               </div>
             </div>

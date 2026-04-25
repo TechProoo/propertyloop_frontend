@@ -228,11 +228,6 @@ const Settings = () => {
       label: "Notifications",
       icon: <Bell className="w-4 h-4" />,
     },
-    {
-      key: "payments",
-      label: "Payments",
-      icon: <CreditCard className="w-4 h-4" />,
-    },
     { key: "privacy", label: "Privacy", icon: <Shield className="w-4 h-4" /> },
     {
       key: "preferences",
@@ -708,7 +703,7 @@ const Settings = () => {
                         {[
                           {
                             label: "Email notifications",
-                            desc: "Booking confirmations, escrow updates, important account alerts.",
+                            desc: "Booking confirmations, message replies, and important account alerts.",
                             on: notifEmail,
                             set: setNotifEmail,
                           },
@@ -784,8 +779,7 @@ const Settings = () => {
                             No payment methods yet
                           </p>
                           <p className="text-text-secondary text-xs mt-1.5 max-w-sm mx-auto">
-                            Add a card or bank account to speed up checkout and
-                            escrow payments.
+                            Save a card for quicker future checkout.
                           </p>
                           <button
                             onClick={() => setShowAddPayment(true)}

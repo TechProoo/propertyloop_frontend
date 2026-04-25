@@ -116,16 +116,16 @@ const Shortlet = () => {
                 Shortlet <span className="text-white/70">Stays</span>
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
-                Book verified short-term apartments by the night. Instant
-                booking, transparent pricing, and Paystack-powered payments.
-                Every stay is managed by a verified agent.
+                Browse verified short-term apartments by the night with
+                transparent pricing. Every stay is managed by a verified
+                agent.
               </p>
 
               <div className="flex flex-wrap gap-3 mt-6">
                 {[
                   { value: "5,960+", label: "Shortlets" },
-                  { value: "Instant", label: "Booking" },
-                  { value: "Paystack", label: "Payments" },
+                  { value: "Verified", label: "Hosts" },
+                  { value: "Instant", label: "Messaging" },
                 ].map((s) => (
                   <div
                     key={s.label}
@@ -720,12 +720,12 @@ const Shortlet = () => {
             </div>
             <div className="flex-1 text-center sm:text-left">
               <h3 className="font-heading font-bold text-primary-dark text-lg">
-                Every stay is Paystack-protected
+                Every host is verified
               </h3>
               <p className="text-text-secondary text-sm mt-1">
-                All shortlet bookings are processed through Paystack with escrow
-                protection. Your payment is held securely until check-in is
-                confirmed — giving you peace of mind on every booking.
+                Hosts pass KYC before their listings go live, and ratings
+                from past guests are public. Message a host directly to
+                check availability and confirm your stay.
               </p>
             </div>
             <Link

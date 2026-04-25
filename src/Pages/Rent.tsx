@@ -203,15 +203,15 @@ const Rent = () => {
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
                 Find your next rental from verified agents. Every listing
-                includes verified documents, rental history, and
-                escrow-protected deposit payments.
+                includes verified documents, rental history, and direct
+                contact with the listing agent.
               </p>
 
               <div className="flex flex-wrap gap-3 mt-6">
                 {[
                   { value: "8,570+", label: "Rentals" },
                   { value: "1,200+", label: "Agents" },
-                  { value: "Escrow", label: "Deposits" },
+                  { value: "100%", label: "Verified" },
                 ].map((s) => (
                   <div
                     key={s.label}

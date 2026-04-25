@@ -1635,7 +1635,7 @@ const Dashboard = () => {
                                 ₦{job.amount.toLocaleString()}
                               </span>
                               <span className="text-text-secondary text-xs">
-                                Escrow protected
+                                Verified vendor
                               </span>
                             </div>
                           </div>

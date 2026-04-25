@@ -19,11 +19,11 @@ const Home = () => {
       <Hero />
       <TrustedSection />
       <FeaturedHomes />
-      <VideoListings />
       <ServiceLoop />
-      <PropertyLogbook />
-      <AgentSpotlight />
       <ShortletSpotlight />
+      <VideoListings />
+      <AgentSpotlight />
+      <PropertyLogbook />
       <VideoTestimonials />
       <Partners />
       <CtaBanner />

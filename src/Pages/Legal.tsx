@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShieldCheck, FileText, ScrollText, Handshake } from "lucide-react";
+import { ShieldCheck, FileText, Handshake } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 
@@ -19,11 +19,11 @@ const legalContent: Record<string, { title: string; icon: React.ReactNode; updat
         "We automatically collect usage data including IP address, browser type, pages visited, search queries, and property interactions to improve our platform and personalise your experience.",
       ]},
       { id: "usage", title: "2. How We Use Your Information", content: [
-        "We use your information to provide and improve PropertyLoop services, process transactions through Paystack, match you with verified agents and vendors, send relevant property alerts, and comply with legal obligations.",
+        "We use your information to provide and improve PropertyLoop services, match you with verified agents and vendors, send relevant property alerts, and comply with legal obligations.",
         "Your KYC verification data is used solely for identity verification purposes and is processed by our partner, Smile Identity, under their own privacy policy.",
       ]},
       { id: "sharing", title: "3. Information Sharing", content: [
-        "We share your contact information with agents when you enquire about a listing, with vendors when you book a service, and with Paystack for payment processing. We never sell your personal data to third parties.",
+        "We share your contact information with agents when you enquire about a listing and with vendors when you book a service. We never sell your personal data to third parties.",
         "We may disclose information when required by Nigerian law, to protect PropertyLoop's rights, or to prevent fraud and abuse on the platform.",
       ]},
       { id: "cookies", title: "4. Cookies & Tracking", content: [
@@ -33,7 +33,7 @@ const legalContent: Record<string, { title: string; icon: React.ReactNode; updat
         "You have the right to access, correct, or delete your personal data. You can update your information in your dashboard settings or contact us at privacy@propertyloop.ng. Account deletion requests are processed within 30 days.",
       ]},
       { id: "security", title: "6. Data Security", content: [
-        "We implement industry-standard security measures including encryption in transit (TLS), secure storage, and regular security audits. Payment data is handled entirely by Paystack and never stored on our servers.",
+        "We implement industry-standard security measures including encryption in transit (TLS), secure storage, and regular security audits.",
       ]},
     ],
   },
@@ -53,44 +53,11 @@ const legalContent: Record<string, { title: string; icon: React.ReactNode; updat
         "All property listings must be submitted by KYC-verified agents. Individual landlord listings are not permitted. Agents are responsible for the accuracy of listing information, pricing, and property images.",
         "PropertyLoop reserves the right to remove listings that contain misleading information, inflated pricing, or violate Nigerian property law.",
       ]},
-      { id: "payments", title: "4. Payments & Escrow", content: [
-        "All payments are processed through Paystack. Escrow payments are held securely until the relevant conditions are met (job completion for services, check-in for shortlets, lease signing for rentals).",
-        "PropertyLoop charges a service fee on transactions. Fee rates are displayed before payment confirmation. Refund policies vary by transaction type and are detailed in our Escrow Policy.",
-      ]},
-      { id: "liability", title: "5. Limitation of Liability", content: [
+      { id: "liability", title: "4. Limitation of Liability", content: [
         "PropertyLoop provides a marketplace platform. We do not own, manage, or inspect properties. While we verify agent and vendor identities, we are not liable for the condition of properties, quality of services, or disputes between users.",
-        "Our maximum liability is limited to the service fees collected on the relevant transaction.",
       ]},
-      { id: "termination", title: "6. Termination", content: [
-        "Either party may terminate the relationship at any time. Upon termination, your data will be handled according to our Privacy Policy. Active escrow transactions will be completed before account closure.",
-      ]},
-    ],
-  },
-  "escrow-policy": {
-    title: "Escrow Policy",
-    icon: <ScrollText className="w-6 h-6" />,
-    updated: "March 1, 2026",
-    sections: [
-      { id: "overview", title: "1. How Escrow Works", content: [
-        "PropertyLoop uses Paystack escrow to protect both parties in every transaction. When a payment is initiated, funds are held securely by Paystack — the recipient (vendor, agent, or landlord) cannot access them until the agreed conditions are met.",
-      ]},
-      { id: "service", title: "2. Service Escrow (Vendors)", content: [
-        "When you hire a vendor through the Service Loop, your payment is held in escrow. The vendor completes the work and submits a completion request. You review the work and either confirm completion (releasing funds) or raise a dispute.",
-        "Service fees: PropertyLoop retains 10% as a service fee. The vendor receives the remaining 90% upon job confirmation. Completed jobs are auto-logged to the Property Logbook.",
-      ]},
-      { id: "rental", title: "3. Rental Deposit Escrow", content: [
-        "Rental deposits are held in Paystack escrow until the tenancy agreement is signed via DocuSeal. The deposit breakdown (rent, agency fee, legal fee, service fee) is displayed transparently before payment.",
-        "If the deal falls through before lease signing, the tenant receives a full refund of the deposit within 5 business days.",
-      ]},
-      { id: "shortlet", title: "4. Shortlet Booking Escrow", content: [
-        "Shortlet payments are held in escrow until check-in is confirmed. Cancellations made 48+ hours before check-in receive a full refund. Cancellations within 48 hours are subject to a 50% charge.",
-      ]},
-      { id: "disputes", title: "5. Dispute Resolution", content: [
-        "If you're unsatisfied with a service or there's a disagreement, you can raise a dispute within 72 hours of job completion. PropertyLoop's dispute team will review evidence from both parties and make a binding decision within 5 business days.",
-        "During disputes, funds remain in escrow. Resolution options include: full release to vendor, full refund to client, or a negotiated split.",
-      ]},
-      { id: "timeline", title: "6. Payment Timeline", content: [
-        "Funds are released to vendors within 24 hours of client confirmation. Refunds are processed within 3-5 business days. All transactions are tracked and can be viewed in your dashboard.",
+      { id: "termination", title: "5. Termination", content: [
+        "Either party may terminate the relationship at any time. Upon termination, your data will be handled according to our Privacy Policy.",
       ]},
     ],
   },
@@ -109,7 +76,6 @@ const legalContent: Record<string, { title: string; icon: React.ReactNode; updat
       ]},
       { id: "commission", title: "3. Commission & Fees", content: [
         "PropertyLoop does not charge agents to list properties. We earn through service fees on completed transactions (5% on sales, 5% on rental deposits). Agents set their own agency fees separately.",
-        "Commission from Paystack-processed transactions is automatically split. Agents receive their share within 24 hours of transaction completion.",
       ]},
       { id: "crm", title: "4. Agent CRM & Tools", content: [
         "Verified agents get access to the Agent Dashboard with CRM tools, lead management, listing analytics, and performance tracking. These tools are provided free as part of the platform.",
@@ -119,7 +85,7 @@ const legalContent: Record<string, { title: string; icon: React.ReactNode; updat
         "PropertyLoop monitors agent response rates and client reviews. Agents with consistently low ratings or slow response times may have their visibility reduced.",
       ]},
       { id: "termination", title: "6. Termination", content: [
-        "Either party may terminate this agreement with 30 days notice. Active listings will remain until their natural expiry. Outstanding escrow transactions will be completed before account closure.",
+        "Either party may terminate this agreement with 30 days notice. Active listings will remain until their natural expiry.",
         "PropertyLoop may immediately suspend agents who engage in fraud, misrepresentation, or illegal activity.",
       ]},
     ],

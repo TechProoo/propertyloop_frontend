@@ -183,13 +183,13 @@ const Services = () => {
                 The Service <span className="text-white/70">Loop</span>
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
-                Hire verified plumbers, electricians, builders, cleaners, and
-                more — all with escrow-protected payments via Paystack.
+                Browse verified plumbers, electricians, builders, cleaners,
+                and more — all KYC-verified and rated by real customers.
               </p>
               <div className="flex flex-wrap gap-3 mt-6">
                 {[
                   { value: "1,840+", label: "Verified Vendors" },
-                  { value: "Escrow", label: "Protected" },
+                  { value: "100%", label: "KYC Checked" },
                   { value: "4.8", label: "Avg. Rating" },
                 ].map((s) => (
                   <div
@@ -485,7 +485,7 @@ const Services = () => {
                                 </span>
                                 <span>{vendor.jobs} jobs</span>
                                 <span className="flex items-center gap-1 text-primary font-medium">
-                                  <Shield className="w-3.5 h-3.5" /> Escrow
+                                  <Shield className="w-3.5 h-3.5" /> Verified
                                 </span>
                               </div>
                             </div>
@@ -553,11 +553,11 @@ const Services = () => {
             </div>
             <div className="flex-1 text-center sm:text-left">
               <h3 className="font-heading font-bold text-primary-dark text-lg">
-                Every payment is escrow-protected
+                Every vendor is KYC-verified
               </h3>
               <p className="text-text-secondary text-sm mt-1">
-                Your money is held securely via Paystack escrow. Vendors only
-                get paid when you confirm the job is complete.
+                Identity-checked, rated, and reviewed. Browse profiles,
+                message vendors directly, and book with confidence.
               </p>
             </div>
             <Link

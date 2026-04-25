@@ -358,7 +358,7 @@ const Checkout = () => {
                       <span className="font-bold">
                         ₦{total.toLocaleString()}
                       </span>{" "}
-                      is processed securely via Paystack.
+                      will be confirmed by the vendor after checkout.
                     </p>
                   </div>
 
@@ -565,8 +565,8 @@ const Checkout = () => {
                 <div className="h-px bg-border-light my-4" />
                 <div className="flex flex-col gap-2 text-xs text-text-secondary">
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-primary" /> Secure
-                    Paystack payment
+                    <ShieldCheck className="w-4 h-4 text-primary" /> Verified
+                    suppliers
                   </div>
                   <div className="flex items-center gap-2">
                     <Truck className="w-4 h-4 text-primary" /> Tracked delivery

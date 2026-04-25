@@ -24,7 +24,7 @@ const stats = [
   {
     icon: <Shield className="w-4 h-4" />,
     value: "8,500+",
-    label: "Escrow Jobs",
+    label: "Verified Vendors",
   },
   {
     icon: <MapPin className="w-4 h-4" />,

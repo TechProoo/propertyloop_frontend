@@ -74,7 +74,7 @@ const steps = [
     icon: <ClipboardCheck className="w-6 h-6" />,
     title: "Reserve Your Unit",
     description:
-      "Secure your preferred unit with an escrow-protected deposit via Paystack. No risk.",
+      "Express interest with the developer's verified agent and lock in your preferred unit.",
   },
   {
     icon: <TrendingUp className="w-6 h-6" />,
@@ -157,15 +157,15 @@ const NewDevelopments = () => {
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
                 Explore off-plan properties and new estates from verified
-                developers. Secure your unit early with escrow-protected
-                deposits via Paystack.
+                developers. Connect with the listing agent and secure your
+                unit early.
               </p>
 
               <div className="flex flex-wrap gap-3 mt-6">
                 {[
                   { value: "320+", label: "Developments" },
                   { value: "45+", label: "Developers" },
-                  { value: "Escrow", label: "Protected" },
+                  { value: "100%", label: "Verified" },
                 ].map((s) => (
                   <div
                     key={s.label}
@@ -600,8 +600,7 @@ const NewDevelopments = () => {
               </h3>
               <p className="text-text-secondary text-sm mt-1">
                 Every developer on PropertyLoop is KYC-verified and their
-                projects are reviewed before listing. Deposits are held in
-                Paystack escrow for your protection.
+                projects are reviewed before listing. Connect with confidence.
               </p>
             </div>
             <Link

@@ -39,7 +39,7 @@ const problems = [
   {
     problem: "No Transactions",
     reality: "Platforms generate leads then step aside",
-    solution: "Offers, e-signing, escrow — all in-platform",
+    solution: "Offers and direct messaging — all in-platform",
     icon: <FileSignature className="w-5 h-5" />,
   },
   {
@@ -57,7 +57,7 @@ const problems = [
   {
     problem: "No Post-Move Support",
     reality: "Users leave platform to find plumbers and electricians",
-    solution: "Verified Service Vendors with escrow-protected payments",
+    solution: "KYC-verified Service Vendors you can message and book",
     icon: <Wrench className="w-5 h-5" />,
   },
 ];
@@ -66,15 +66,15 @@ const differentiators = [
   {
     title: "The Service Loop",
     description:
-      "Verified home service vendors — plumbers, electricians, builders — bookable and payable inside the platform. No more hunting for tradespeople after you move in.",
+      "Verified home service vendors — plumbers, electricians, builders — bookable and contactable inside the platform. No more hunting for tradespeople after you move in.",
     icon: <Wrench className="w-6 h-6" />,
     image:
       "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
   },
   {
-    title: "Service Escrow",
+    title: "Verified Vendors",
     description:
-      "Paystack-powered escrow protects users on every vendor payment. Funds only release when you confirm the job is complete — no more paying upfront and hoping.",
+      "Every vendor on the Service Loop is KYC-verified through Smile Identity. Browse ratings, message directly, and book with confidence — all without leaving the platform.",
     icon: <Lock className="w-6 h-6" />,
     image:
       "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop",
@@ -133,7 +133,7 @@ const timeline = [
     phase: "Phase 3",
     period: "Transactions & Tools",
     description:
-      "Shortlet booking with Paystack, rental escrow, e-signing, agent CRM dashboard, Service Loop launch, and Service Escrow launch.",
+      "Shortlet browsing, agent CRM dashboard, and the Service Loop launch — connecting buyers, agents, and vendors in one place.",
   },
   {
     phase: "Phase 4",
