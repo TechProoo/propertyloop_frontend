@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import agentsService from "../api/services/agents";
+import type { AgentPublic } from "../api/types";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -102,69 +104,6 @@ const benefits = [
   },
 ];
 
-const agents = [
-  {
-    photo:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
-    name: "Adebayo Johnson",
-    agency: "Prime Realty Lagos",
-    location: "Lekki, Lagos",
-    rating: 4.9,
-    listings: 42,
-    sold: 187,
-  },
-  {
-    photo:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=face",
-    name: "Chioma Okafor",
-    agency: "Island Properties",
-    location: "Victoria Island, Lagos",
-    rating: 4.8,
-    listings: 38,
-    sold: 156,
-  },
-  {
-    photo:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face",
-    name: "Emeka Nwosu",
-    agency: "Prestige Homes",
-    location: "Ikoyi, Lagos",
-    rating: 4.9,
-    listings: 55,
-    sold: 231,
-  },
-  {
-    photo:
-      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop&crop=face",
-    name: "Tunde Bakare",
-    agency: "Royal Estate Advisors",
-    location: "Banana Island, Lagos",
-    rating: 4.7,
-    listings: 29,
-    sold: 124,
-  },
-  {
-    photo:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face",
-    name: "Aisha Mohammed",
-    agency: "Metro Living Realty",
-    location: "Ajah, Lagos",
-    rating: 4.8,
-    listings: 47,
-    sold: 198,
-  },
-  {
-    photo:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face",
-    name: "Femi Adeyemi",
-    agency: "Cityscape Properties",
-    location: "Gbagada, Lagos",
-    rating: 4.6,
-    listings: 33,
-    sold: 142,
-  },
-];
-
 const faqs = [
   {
     q: "Can I list my property myself?",
@@ -222,13 +161,27 @@ const Sell = () => {
   const { isLoggedIn } = useAuth();
   const [submitted, setSubmitted] = useState(false);
 
-  const handleCardClick = () => {
-    if (!isLoggedIn) {
-      navigate("/onboarding");
-      return;
-    }
-    navigate("/find-agent");
-  };
+  const [agents, setAgents] = useState<AgentPublic[]>([]);
+  const [agentsLoading, setAgentsLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    agentsService
+      .list({ sort: "top_rated", limit: 6 })
+      .then((res) => {
+        if (active) setAgents(res.items);
+      })
+      .catch(() => {
+        if (active) setAgents([]);
+      })
+      .finally(() => {
+        if (active) setAgentsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
@@ -413,62 +366,111 @@ const Sell = () => {
                   represent your property and close the deal.
                 </p>
               </div>
-              <button className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
+              <Link
+                to="/find-agent"
+                className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
+              >
                 View all agents
-              </button>
+              </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {agents.map((agent, i) => (
-                <div
-                  key={i}
-                  onClick={handleCardClick}
-                  className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-                >
-                  {/* Photo */}
-                  <div className="h-52 overflow-hidden rounded-t-[20px] relative">
-                    <img
-                      src={agent.photo}
-                      alt={agent.name}
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <span className="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary text-xs font-medium">
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      KYC Verified
-                    </span>
-                  </div>
-
-                  {/* Glass content panel */}
-                  <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                    <h3 className="font-heading font-bold text-primary-dark text-[16px] leading-snug">
-                      {agent.name}
-                    </h3>
-                    <p className="text-text-secondary text-xs mt-0.5">
-                      {agent.agency} · {agent.location}
-                    </p>
-
-                    <div className="h-px bg-border-light mt-3 mb-3" />
-
-                    <div className="flex items-center gap-4 text-text-secondary text-xs pr-8">
-                      <span className="flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                        {agent.rating}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Home className="w-3.5 h-3.5" />
-                        {agent.listings} active
-                      </span>
-                      <span>{agent.sold} sold</span>
+            {agentsLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-white/60 border border-border-light rounded-[20px] overflow-hidden animate-pulse"
+                  >
+                    <div className="h-52 bg-border-light/40" />
+                    <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 border border-white/40 rounded-2xl px-5 pt-4 pb-5">
+                      <div className="h-5 w-2/3 bg-border-light/60 rounded-full" />
+                      <div className="h-3 w-1/2 bg-border-light/60 rounded-full mt-2" />
+                      <div className="h-px bg-border-light mt-3 mb-3" />
+                      <div className="flex gap-3">
+                        <div className="h-3 w-10 bg-border-light/60 rounded-full" />
+                        <div className="h-3 w-14 bg-border-light/60 rounded-full" />
+                        <div className="h-3 w-12 bg-border-light/60 rounded-full" />
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+            ) : agents.length === 0 ? (
+              <div className="bg-white/60 border border-border-light rounded-[20px] p-12 text-center">
+                <p className="text-text-secondary text-sm">
+                  No verified agents are listed yet. Check back soon, or
+                  submit a valuation request and we'll match you to one.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {agents.map((agent) => (
+                  <Link
+                    key={agent.id}
+                    to={`/agent/${agent.id}`}
+                    onClick={(e) => {
+                      if (!isLoggedIn) {
+                        e.preventDefault();
+                        navigate("/onboarding");
+                      }
+                    }}
+                    className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                  >
+                    {/* Photo */}
+                    <div className="h-52 overflow-hidden rounded-t-[20px] relative bg-bg-accent">
+                      {agent.avatarUrl ? (
+                        <img
+                          src={agent.avatarUrl}
+                          alt={agent.name}
+                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <UserCheck className="w-12 h-12 text-text-subtle" />
+                        </div>
+                      )}
+                      {agent.verified && (
+                        <span className="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary text-xs font-medium">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          KYC Verified
+                        </span>
+                      )}
+                    </div>
 
-                  {/* Clipped arrow */}
-                  <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                    <ArrowUpRight className="w-5 h-5 text-white" />
-                  </div>
-                </div>
-              ))}
-            </div>
+                    {/* Glass content panel */}
+                    <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+                      <h3 className="font-heading font-bold text-primary-dark text-[16px] leading-snug truncate">
+                        {agent.name}
+                      </h3>
+                      <p className="text-text-secondary text-xs mt-0.5 truncate">
+                        {[agent.agency, agent.location]
+                          .filter(Boolean)
+                          .join(" · ") || "Verified agent"}
+                      </p>
+
+                      <div className="h-px bg-border-light mt-3 mb-3" />
+
+                      <div className="flex items-center gap-4 text-text-secondary text-xs pr-8">
+                        <span className="flex items-center gap-1">
+                          <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
+                          {agent.rating ? agent.rating.toFixed(1) : "—"}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Home className="w-3.5 h-3.5" />
+                          {agent.listingsCount} active
+                        </span>
+                        <span>{agent.soldRentedCount} closed</span>
+                      </div>
+                    </div>
+
+                    {/* Clipped arrow */}
+                    <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
+                      <ArrowUpRight className="w-5 h-5 text-white" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* ─── 5. Valuation Form ─── */}
