@@ -120,6 +120,7 @@ const AddProperty = () => {
   const [submitted, setSubmitted] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [uploadingPhotoIndex, setUploadingPhotoIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -234,7 +235,11 @@ const AddProperty = () => {
   const uploadPhoto = async (file: File) => {
     if (photos.length >= 10) return;
 
-    setUploadingPhotoIndex(photos.length);
+    const localPreview = URL.createObjectURL(file);
+    const previewIndex = photoPreviews.length;
+    setPhotoPreviews((prev) => [...prev, localPreview]);
+    setUploadingPhotoIndex(previewIndex);
+
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -248,6 +253,9 @@ const AddProperty = () => {
       setPhotos((prev) => [...prev, fileUrl]);
     } catch (err) {
       console.error("Photo upload failed:", err);
+      // Roll back the preview if the upload fails
+      setPhotoPreviews((prev) => prev.filter((_, i) => i !== previewIndex));
+      URL.revokeObjectURL(localPreview);
     } finally {
       setUploadingPhotoIndex(null);
     }
@@ -269,6 +277,11 @@ const AddProperty = () => {
 
   const removePhoto = (index: number) => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setPhotoPreviews((prev) => {
+      const removed = prev[index];
+      if (removed) URL.revokeObjectURL(removed);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const uploadVideo = async (file: File) => {
@@ -792,15 +805,15 @@ const AddProperty = () => {
                           </button>
 
                           {/* Photo previews */}
-                          {photos.length > 0 && (
+                          {photoPreviews.length > 0 && (
                             <div className="grid grid-cols-3 gap-3 mt-4">
-                              {photos.map((photo, i) => (
+                              {photoPreviews.map((preview, i) => (
                                 <div
                                   key={i}
                                   className="relative rounded-xl overflow-hidden h-24 group"
                                 >
                                   <img
-                                    src={photo}
+                                    src={preview}
                                     alt={`Photo ${i + 1}`}
                                     className="w-full h-full object-cover"
                                   />
@@ -1011,9 +1024,9 @@ const AddProperty = () => {
                       <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                         {/* Preview image */}
                         <div className="h-48 overflow-hidden relative bg-bg-accent">
-                          {photos.length > 0 ? (
+                          {photoPreviews.length > 0 ? (
                             <img
-                              src={photos[0]}
+                              src={photoPreviews[0]}
                               alt="Cover"
                               className="w-full h-full object-cover"
                             />
