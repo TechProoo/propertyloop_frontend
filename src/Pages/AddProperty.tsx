@@ -41,9 +41,31 @@ interface PropertyForm {
   yearBuilt: string;
   price: string;
   description: string;
+  features: string[];
   virtualTourUrl: string;
   videoUrl: string;
 }
+
+const PRESET_FEATURES = [
+  "24hr Power",
+  "Borehole Water",
+  "Swimming Pool",
+  "Gym",
+  "Air Conditioning",
+  "Balcony",
+  "Parking Space",
+  "Security",
+  "CCTV",
+  "Furnished",
+  "WiFi / Internet",
+  "Elevator",
+  "Generator",
+  "Solar Power",
+  "Garden",
+  "Servant Quarters",
+  "Smart Home",
+  "Fireplace",
+];
 
 const initialForm: PropertyForm = {
   listingType: "sale",
@@ -57,6 +79,7 @@ const initialForm: PropertyForm = {
   yearBuilt: "",
   price: "",
   description: "",
+  features: [],
   virtualTourUrl: "",
   videoUrl: "",
 };
@@ -133,6 +156,18 @@ const AddProperty = () => {
   const [videoInputType, setVideoInputType] = useState<"url" | "file">("url");
   const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
   const [useCustomLocation, setUseCustomLocation] = useState(false);
+  const [customFeature, setCustomFeature] = useState("");
+
+  const addCustomFeature = () => {
+    const value = customFeature.trim();
+    if (!value) return;
+    if (form.features.includes(value)) {
+      setCustomFeature("");
+      return;
+    }
+    setForm((prev) => ({ ...prev, features: [...prev.features, value] }));
+    setCustomFeature("");
+  };
 
   const stepIndex = steps.indexOf(currentStep);
 
@@ -199,7 +234,7 @@ const AddProperty = () => {
           sqft: form.size,
           yearBuilt: form.yearBuilt,
           description: form.description,
-          features: [],
+          features: form.features,
           coverImage: uploadedUrls[0],
           images: uploadedUrls,
           virtualTourUrl: form.virtualTourUrl || undefined,
@@ -875,6 +910,96 @@ const AddProperty = () => {
                             className="w-full h-28 px-4 py-3 rounded-2xl bg-white/40 backdrop-blur-md border border-white/50 text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary focus:bg-white/60 focus:shadow-[0_4px_20px_rgba(31,111,67,0.08)] transition-all resize-none"
                           />
                         </div>
+
+                        {/* Features & Amenities */}
+                        <div>
+                          <label className={labelClass}>
+                            Features & Amenities
+                          </label>
+                          <p className="text-text-subtle text-xs mb-2">
+                            Tap any that apply, or add your own.
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {PRESET_FEATURES.map((f) => {
+                              const selected = form.features.includes(f);
+                              return (
+                                <button
+                                  key={f}
+                                  type="button"
+                                  onClick={() =>
+                                    updateForm({
+                                      features: selected
+                                        ? form.features.filter(
+                                            (x) => x !== f,
+                                          )
+                                        : [...form.features, f],
+                                    })
+                                  }
+                                  className={`h-8 px-3 rounded-full text-xs font-medium border transition-all ${
+                                    selected
+                                      ? "bg-primary text-white border-primary"
+                                      : "bg-white/50 text-primary-dark border-white/50 hover:border-primary"
+                                  }`}
+                                >
+                                  {selected && (
+                                    <CheckCircle className="w-3 h-3 inline-block mr-1.5 -mt-0.5" />
+                                  )}
+                                  {f}
+                                </button>
+                              );
+                            })}
+                            {form.features
+                              .filter((f) => !PRESET_FEATURES.includes(f))
+                              .map((f) => (
+                                <button
+                                  key={f}
+                                  type="button"
+                                  onClick={() =>
+                                    updateForm({
+                                      features: form.features.filter(
+                                        (x) => x !== f,
+                                      ),
+                                    })
+                                  }
+                                  className="h-8 px-3 rounded-full text-xs font-medium border bg-primary text-white border-primary inline-flex items-center gap-1.5"
+                                >
+                                  <CheckCircle className="w-3 h-3" />
+                                  {f}
+                                  <X className="w-3 h-3 opacity-70" />
+                                </button>
+                              ))}
+                          </div>
+                          <div className="mt-3 flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Add custom feature (e.g. Boys' Quarters)"
+                              value={customFeature}
+                              onChange={(e) =>
+                                setCustomFeature(e.target.value)
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  addCustomFeature();
+                                }
+                              }}
+                              className={inputClass}
+                            />
+                            <button
+                              type="button"
+                              onClick={addCustomFeature}
+                              disabled={!customFeature.trim()}
+                              className="h-11 px-5 rounded-2xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                            >
+                              Add
+                            </button>
+                          </div>
+                          {form.features.length > 0 && (
+                            <p className="text-text-subtle text-[11px] mt-2">
+                              {form.features.length} selected
+                            </p>
+                          )}
+                        </div>
                       </div>
 
                       {/* Navigation */}
@@ -1322,6 +1447,13 @@ const AddProperty = () => {
                             },
                             { label: "Location", value: form.location },
                             { label: "Year Built", value: form.yearBuilt },
+                            {
+                              label: "Features",
+                              value:
+                                form.features.length > 0
+                                  ? `${form.features.length} selected`
+                                  : "",
+                            },
                             {
                               label: "Photos",
                               value: `${pendingPhotoFiles.length} selected`,
