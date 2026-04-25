@@ -234,7 +234,7 @@ const Sell = () => {
     <div className="min-h-screen bg-[#f5f0eb]">
       <Navbar />
 
-      <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">
+      <main className="w-full px-4 sm:px-6 md:px-12 lg:px-20 pt-5 pb-0">
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-text-secondary text-sm mb-8">
@@ -473,12 +473,12 @@ const Sell = () => {
 
           {/* ─── 5. Valuation Form ─── */}
           <section id="valuation" className="mb-20 scroll-mt-8">
-            <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-3">
+            <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-2 sm:p-3">
               <div className="relative overflow-hidden bg-white/80 backdrop-blur-md border border-white/40 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
                 <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary/5" />
                 <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-primary/5" />
 
-                <div className="relative z-10 px-8 sm:px-12 lg:px-16 py-14 flex flex-col lg:flex-row gap-12 lg:gap-16">
+                <div className="relative z-10 px-5 sm:px-8 md:px-12 lg:px-16 py-8 sm:py-12 lg:py-14 flex flex-col lg:flex-row gap-10 lg:gap-16">
                   {/* Left — copy */}
                   <div className="flex-1 lg:max-w-md">
                     <p className="text-primary text-sm font-medium tracking-wide uppercase mb-2">
@@ -511,11 +511,11 @@ const Sell = () => {
 
                     {/* Stats */}
                     <div className="mt-10 pt-8 border-t border-border-light">
-                      <div className="grid grid-cols-2 gap-5">
+                      <div className="grid grid-cols-2 gap-3 sm:gap-5">
                         {platformStats.map((stat, i) => (
                           <div
                             key={i}
-                            className="bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+                            className="bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl px-3 sm:px-4 py-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
                           >
                             <div className="flex items-center gap-2 text-text-secondary mb-1">
                               <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">
