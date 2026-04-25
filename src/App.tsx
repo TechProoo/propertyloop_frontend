@@ -50,6 +50,7 @@ import VerifyEmailRequired from "./Pages/VerifyEmailRequired";
 import SearchResults from "./Pages/SearchResults";
 import LogbookInfo from "./Pages/LogbookInfo";
 import NotFound from "./Pages/NotFound";
+import ScrollToTop from "./components/ScrollToTop";
 
 const roleDashboard: Record<string, string> = {
   BUYER: "/dashboard",
@@ -219,6 +220,7 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-primary focus:text-white focus:text-sm focus:font-medium"
