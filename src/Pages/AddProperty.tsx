@@ -126,6 +126,7 @@ const AddProperty = () => {
   const [videoUploadError, setVideoUploadError] = useState("");
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [videoInputType, setVideoInputType] = useState<"url" | "file">("url");
+  const [useCustomLocation, setUseCustomLocation] = useState(false);
 
   const stepIndex = steps.indexOf(currentStep);
 
@@ -588,9 +589,22 @@ const AddProperty = () => {
                         <div>
                           <label className={labelClass}>Location / Area</label>
                           <select
-                            value={form.location}
+                            value={
+                              useCustomLocation
+                                ? "__OTHER__"
+                                : locations.includes(form.location)
+                                ? form.location
+                                : ""
+                            }
                             onChange={(e) => {
-                              updateForm({ location: e.target.value });
+                              const val = e.target.value;
+                              if (val === "__OTHER__") {
+                                setUseCustomLocation(true);
+                                updateForm({ location: "" });
+                              } else {
+                                setUseCustomLocation(false);
+                                updateForm({ location: val });
+                              }
                               if (errors.location)
                                 setErrors((p) => ({ ...p, location: "" }));
                             }}
@@ -602,7 +616,22 @@ const AddProperty = () => {
                                 {loc}
                               </option>
                             ))}
+                            <option value="__OTHER__">Other (enter manually)</option>
                           </select>
+                          {useCustomLocation && (
+                            <input
+                              type="text"
+                              placeholder="Enter your location/area"
+                              value={form.location}
+                              onChange={(e) => {
+                                updateForm({ location: e.target.value });
+                                if (errors.location)
+                                  setErrors((p) => ({ ...p, location: "" }));
+                              }}
+                              className={`${inputClass} mt-2`}
+                              autoFocus
+                            />
+                          )}
                           {errors.location && (
                             <p className="text-red-500 text-xs mt-1 ml-1">
                               {errors.location}
