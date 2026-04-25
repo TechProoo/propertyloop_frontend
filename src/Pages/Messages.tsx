@@ -179,7 +179,22 @@ const Messages = () => {
 
               {/* List */}
               <div className="flex-1 overflow-y-auto">
-                {list.length === 0 ? (
+                {chat.loading ? (
+                  <div className="flex flex-col gap-2 p-3">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="flex items-start gap-3 px-3 py-3 rounded-xl bg-white/40 animate-pulse"
+                      >
+                        <div className="w-11 h-11 rounded-full bg-border-light/60 shrink-0" />
+                        <div className="flex-1 space-y-2 pt-1">
+                          <div className="h-3 w-2/3 bg-border-light/60 rounded-full" />
+                          <div className="h-2.5 w-1/2 bg-border-light/60 rounded-full" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : list.length === 0 ? (
                   <div className="text-center py-16 px-6">
                     <div className="w-12 h-12 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-3">
                       <MessageCircle className="w-5 h-5 text-text-subtle" />

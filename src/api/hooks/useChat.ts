@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { getSocket, disconnectSocket } from "../socket";
+import { getSocket } from "../socket";
 import messagesService, {
   type ConversationPreview,
   type ChatMessage,
@@ -140,6 +140,12 @@ export function useChat(): UseChatReturn {
       .finally(() => setLoading(false));
 
     return () => {
+      // Detach this hook's listeners but DON'T disconnect the socket.
+      // The socket is process-wide and shared — disconnecting on cleanup
+      // races with React StrictMode's double-mount in dev (cleanup fires
+      // before the WebSocket handshake completes → "closed before
+      // established"). The socket disconnects naturally on logout (when
+      // the access token is cleared) or full page unload.
       socket.off("connect");
       socket.off("disconnect");
       socket.off("connected");
@@ -147,7 +153,6 @@ export function useChat(): UseChatReturn {
       socket.off("unread_update");
       socket.off("user_typing");
       socket.off("conversation_read");
-      disconnectSocket();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -7,7 +7,11 @@ const SOCKET_URL =
 let socket: Socket | null = null;
 
 export function getSocket(): Socket {
-  if (socket?.connected) return socket;
+  // Reuse the cached socket whether it's currently connected OR still
+  // mid-handshake (active === true means io() has been called and not
+  // yet disconnected). Prevents creating a second socket while the
+  // first is still negotiating.
+  if (socket && (socket.connected || socket.active)) return socket;
 
   const token = tokens.getAccess();
   socket = io(`${SOCKET_URL}/chat`, {
