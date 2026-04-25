@@ -143,6 +143,8 @@ const AgentDashboard = () => {
     try {
       const { url } = await uploadService.uploadProfilePicture(file);
       await agentsService.updateMe({ avatarUrl: url });
+      // Reload so the new avatar shows up everywhere it's read from auth context
+      setTimeout(() => window.location.reload(), 800);
       return url;
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : "Failed to upload profile picture");
@@ -186,9 +188,8 @@ const AgentDashboard = () => {
       await agentsService.updateMe(payload);
       setProfileMessage({ type: "success", text: "Profile saved successfully!" });
       setTimeout(() => {
-        setProfileMessage(null);
-        setActiveNav("overview");
-      }, 2000);
+        window.location.reload();
+      }, 1200);
     } catch (error: any) {
       const serverMsg = error?.response?.data?.message;
       const text = Array.isArray(serverMsg)

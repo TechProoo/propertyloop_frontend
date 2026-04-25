@@ -139,6 +139,7 @@ const Settings = () => {
       const { url } = await uploadService.uploadProfilePicture(file);
       setAvatar(url);
       await api.patch("/users/me", { avatarUrl: url });
+      setTimeout(() => window.location.reload(), 800);
       return url;
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : "Failed to upload profile picture");
@@ -167,7 +168,7 @@ const Settings = () => {
         twoFactorEnabled: twoFactor,
       });
       setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+      setTimeout(() => window.location.reload(), 1200);
     } catch {
       /* ignore — show error toast in the future */
     }
