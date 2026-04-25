@@ -390,10 +390,13 @@ const AddProperty = () => {
       ).then((res) => res.data);
 
       updateForm({ videoUrl: fileUrl });
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : "Failed to upload video";
+    } catch (err: any) {
+      const serverMsg = err?.response?.data?.message;
+      const errorMsg =
+        serverMsg ||
+        (err instanceof Error ? err.message : "Failed to upload video");
       setVideoUploadError(errorMsg);
-      console.error("Video upload failed:", err);
+      console.error("Video upload failed:", err?.response?.data || err);
     } finally {
       setUploadingVideo(false);
     }
