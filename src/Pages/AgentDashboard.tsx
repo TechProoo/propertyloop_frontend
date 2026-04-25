@@ -164,26 +164,38 @@ const AgentDashboard = () => {
         .map((s) => s.trim())
         .filter((s) => s.length > 0);
 
-      await agentsService.updateMe({
-        name: profileName,
-        phone: profilePhone,
-        location: profileLocation,
-        bio: profileBio,
-        website: profileWebsite,
-        agencyName: profileAgency,
-        yearsExperience: profileYears,
+      // Only send fields with actual values — empty strings fail
+      // backend validators like @IsUrl() (website) even when @IsOptional.
+      const payload: Record<string, unknown> = {
+        name: profileName.trim(),
         specialty: specialtyArray,
-      });
+      };
+      if (profilePhone.trim()) payload.phone = profilePhone.trim();
+      if (profileLocation.trim()) payload.location = profileLocation.trim();
+      if (profileBio.trim()) payload.bio = profileBio.trim();
+      if (profileAgency.trim()) payload.agencyName = profileAgency.trim();
+      if (Number.isFinite(profileYears) && profileYears >= 0) {
+        payload.yearsExperience = profileYears;
+      }
+      if (profileWebsite.trim()) {
+        let site = profileWebsite.trim();
+        if (!/^https?:\/\//i.test(site)) site = `https://${site}`;
+        payload.website = site;
+      }
+
+      await agentsService.updateMe(payload);
       setProfileMessage({ type: "success", text: "Profile saved successfully!" });
       setTimeout(() => {
         setProfileMessage(null);
         setActiveNav("overview");
       }, 2000);
-    } catch (error) {
-      setProfileMessage({
-        type: "error",
-        text: error instanceof Error ? error.message : "Failed to save profile",
-      });
+    } catch (error: any) {
+      const serverMsg = error?.response?.data?.message;
+      const text = Array.isArray(serverMsg)
+        ? serverMsg.join(", ")
+        : serverMsg ||
+          (error instanceof Error ? error.message : "Failed to save profile");
+      setProfileMessage({ type: "error", text });
     } finally {
       setSavingProfile(false);
     }

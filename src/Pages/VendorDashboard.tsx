@@ -265,26 +265,33 @@ const VendorDashboard = () => {
     setSavingProfile(true);
     setProfileMessage(null);
     try {
-      await vendorsService.updateMe({
-        name: profileName,
-        phone: profilePhone,
-        location: profileLocation,
-        bio: profileBio,
-        website: profileWebsite,
-        serviceCategory: profileCategory,
-        yearsExperience: profileYears,
-        serviceArea: profileServiceArea,
-      });
+      // Strip empty strings — @IsUrl on website rejects "" even with @IsOptional
+      const payload: Record<string, unknown> = { name: profileName.trim() };
+      if (profilePhone.trim()) payload.phone = profilePhone.trim();
+      if (profileLocation.trim()) payload.location = profileLocation.trim();
+      if (profileBio.trim()) payload.bio = profileBio.trim();
+      if (profileCategory.trim()) payload.serviceCategory = profileCategory.trim();
+      if (profileYears.trim()) payload.yearsExperience = profileYears.trim();
+      if (profileServiceArea.trim()) payload.serviceArea = profileServiceArea.trim();
+      if (profileWebsite.trim()) {
+        let site = profileWebsite.trim();
+        if (!/^https?:\/\//i.test(site)) site = `https://${site}`;
+        payload.website = site;
+      }
+
+      await vendorsService.updateMe(payload);
       setProfileMessage({ type: "success", text: "Profile saved successfully!" });
       setTimeout(() => {
         setProfileMessage(null);
         setActiveNav("overview");
       }, 2000);
-    } catch (error) {
-      setProfileMessage({
-        type: "error",
-        text: error instanceof Error ? error.message : "Failed to save profile",
-      });
+    } catch (error: any) {
+      const serverMsg = error?.response?.data?.message;
+      const text = Array.isArray(serverMsg)
+        ? serverMsg.join(", ")
+        : serverMsg ||
+          (error instanceof Error ? error.message : "Failed to save profile");
+      setProfileMessage({ type: "error", text });
     } finally {
       setSavingProfile(false);
     }
