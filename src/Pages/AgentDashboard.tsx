@@ -84,6 +84,10 @@ const AgentDashboard = () => {
     sendMessage: sendConvoMessage,
   } = useConversations();
   const [selectedConvo, setSelectedConvo] = useState("");
+  const unreadMessagesCount = agentConversations.reduce(
+    (sum, c) => sum + (c.unread || 0),
+    0,
+  );
 
   // ─── API state ──────────────────────────────────────────────────────────
   const [apiStats, setApiStats] = useState<AgentStats | null>(null);
@@ -319,16 +323,13 @@ const AgentDashboard = () => {
                   {item.label}
                 </span>
               )}
-              {sidebarOpen && item.id === "messages" && (
-                <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-[hsl(142,71%,45%)] text-white">
-                  5
-                </span>
-              )}
-              {sidebarOpen && item.id === "leads" && (
-                <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500 text-white">
-                  12
-                </span>
-              )}
+              {sidebarOpen &&
+                item.id === "messages" &&
+                unreadMessagesCount > 0 && (
+                  <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-[hsl(142,71%,45%)] text-white">
+                    {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
+                  </span>
+                )}
             </button>
           ))}
         </nav>
