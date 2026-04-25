@@ -179,14 +179,27 @@ const PropertyDetail = () => {
             transition={{ duration: 0.5, ease }}
             className="relative overflow-hidden rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] mb-8"
           >
-            <div className="relative h-75 sm:h-100 lg:h-125">
+            <div className="relative h-75 sm:h-100 lg:h-125 bg-black">
+              {/* Blurred backdrop so sub-resolution images don't get upscaled.
+                  The main image then sits centered at its native size via
+                  object-contain — sharp, no stretching artifacts. */}
               <img
                 src={listing.images[activeImage]}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+              />
+              <img
+                key={listing.images[activeImage]}
+                src={listing.images[activeImage]}
                 alt={listing.title}
-                className="w-full h-full object-cover transition-all duration-500"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                className="relative w-full h-full object-contain"
               />
               {/* Gradient overlay bottom */}
-              <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-black/50 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-black/50 to-transparent pointer-events-none" />
 
               {/* Nav arrows */}
               {listing.images.length > 1 && (
