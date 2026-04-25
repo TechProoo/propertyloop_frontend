@@ -122,7 +122,9 @@ const AddProperty = () => {
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [pendingPhotoFiles, setPendingPhotoFiles] = useState<File[]>([]);
   const [uploadingPhotoIndex, setUploadingPhotoIndex] = useState<number | null>(null);
+  const [pendingDocFiles, setPendingDocFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const docInputRef = useRef<HTMLInputElement>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [videoUploadError, setVideoUploadError] = useState("");
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -228,6 +230,7 @@ const AddProperty = () => {
   const handleReset = () => {
     setForm(initialForm);
     setPendingPhotoFiles([]);
+    setPendingDocFiles([]);
     photoPreviews.forEach((url) => URL.revokeObjectURL(url));
     setPhotoPreviews([]);
     setSubmitted(false);
@@ -284,6 +287,27 @@ const AddProperty = () => {
       if (removed) URL.revokeObjectURL(removed);
       return prev.filter((_, i) => i !== index);
     });
+  };
+
+  const triggerDocUpload = () => {
+    docInputRef.current?.click();
+  };
+
+  const handleDocInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.currentTarget.files;
+    if (files) {
+      const max = 10 * 1024 * 1024;
+      const accepted: File[] = [];
+      Array.from(files).forEach((file) => {
+        if (file.size <= max) accepted.push(file);
+      });
+      setPendingDocFiles((prev) => [...prev, ...accepted]);
+    }
+    if (docInputRef.current) docInputRef.current.value = "";
+  };
+
+  const removeDoc = (index: number) => {
+    setPendingDocFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const uploadVideo = async (file: File) => {
@@ -859,7 +883,19 @@ const AddProperty = () => {
                           <label className={labelClass}>
                             Documents (C of O, Survey Plan)
                           </label>
-                          <div className="w-full border-2 border-dashed border-white/40 rounded-2xl p-6 flex items-center gap-4 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all cursor-pointer">
+                          <input
+                            ref={docInputRef}
+                            type="file"
+                            multiple
+                            accept=".pdf,image/jpeg,image/png"
+                            onChange={handleDocInput}
+                            className="hidden"
+                          />
+                          <button
+                            type="button"
+                            onClick={triggerDocUpload}
+                            className="w-full border-2 border-dashed border-white/40 rounded-2xl p-6 flex items-center gap-4 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all cursor-pointer text-left"
+                          >
                             <div className="w-10 h-10 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center shrink-0">
                               <FileText className="w-5 h-5 text-primary" />
                             </div>
@@ -871,7 +907,35 @@ const AddProperty = () => {
                                 PDF, JPG or PNG — max 10MB per file
                               </p>
                             </div>
-                          </div>
+                          </button>
+
+                          {pendingDocFiles.length > 0 && (
+                            <div className="mt-3 flex flex-col gap-2">
+                              {pendingDocFiles.map((file, i) => (
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50"
+                                >
+                                  <FileText className="w-4 h-4 text-primary shrink-0" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-primary-dark text-sm font-medium truncate">
+                                      {file.name}
+                                    </p>
+                                    <p className="text-text-subtle text-[11px]">
+                                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                                    </p>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeDoc(i)}
+                                    className="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center text-text-secondary hover:bg-red-100 hover:text-red-600 transition-colors"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
 
                         {/* Virtual tour */}
