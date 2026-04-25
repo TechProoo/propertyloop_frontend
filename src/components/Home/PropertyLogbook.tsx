@@ -21,13 +21,12 @@ const PropertyLogbook = () => {
   useEffect(() => {
     const fetchLogbookData = async () => {
       try {
-        console.log("Fetching SOLD properties...");
+        const HOME_LIMIT = 5;
         const result = await listingsService.list({
           status: "SOLD",
-          limit: 6,
+          limit: HOME_LIMIT,
           sort: "newest",
         });
-        console.log("SOLD properties result:", result);
 
         if (result.items && result.items.length > 0) {
           setLogbookListings(result.items);
@@ -36,13 +35,11 @@ const PropertyLogbook = () => {
         }
 
         // If no SOLD properties, try RENTED
-        console.log("No SOLD properties, trying RENTED...");
         const rentedResult = await listingsService.list({
           status: "RENTED",
-          limit: 6,
+          limit: HOME_LIMIT,
           sort: "newest",
         });
-        console.log("RENTED properties result:", rentedResult);
 
         if (rentedResult.items && rentedResult.items.length > 0) {
           setLogbookListings(rentedResult.items);
@@ -50,13 +47,12 @@ const PropertyLogbook = () => {
           return;
         }
 
-        // If no SOLD or RENTED, fetch all properties as fallback
-        console.log("No SOLD or RENTED properties, fetching all listings...");
+        // If no SOLD or RENTED, fetch any listings as fallback so the
+        // section never appears empty on a fresh deployment.
         const allResult = await listingsService.list({
-          limit: 6,
+          limit: HOME_LIMIT,
           sort: "newest",
         });
-        console.log("All properties result:", allResult);
         setLogbookListings(allResult.items || []);
       } catch (error) {
         console.error("Error fetching logbook data:", error);
@@ -234,13 +230,23 @@ const PropertyLogbook = () => {
               </div>
             </div>
 
-            <Link
-              to="/logbook"
-              data-pl-learn
-              className="mt-6 inline-flex h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
-            >
-              Learn about logbooks
-            </Link>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/logbook/about"
+                data-pl-learn
+                className="inline-flex h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+              >
+                Learn about logbooks
+              </Link>
+              {logbookListings.length >= 5 && (
+                <Link
+                  to="/logbook"
+                  className="inline-flex h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-primary/25"
+                >
+                  View more
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Right — timeline */}

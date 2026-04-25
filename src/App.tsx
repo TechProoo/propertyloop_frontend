@@ -49,6 +49,7 @@ import VerifyEmail from "./Pages/VerifyEmail";
 import VerifyEmailRequired from "./Pages/VerifyEmailRequired";
 import SearchResults from "./Pages/SearchResults";
 import LogbookInfo from "./Pages/LogbookInfo";
+import LogbookList from "./Pages/LogbookList";
 import NotFound from "./Pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -101,7 +102,8 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/logbook" element={<LogbookInfo />} />
+          <Route path="/logbook" element={<LogbookList />} />
+          <Route path="/logbook/about" element={<LogbookInfo />} />
           <Route path="/buy" element={<Buy />} />
           <Route path="/rent" element={<Rent />} />
           <Route path="/sell" element={<Sell />} />
