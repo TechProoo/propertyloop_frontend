@@ -1205,86 +1205,133 @@ const AgentDashboard = () => {
 
                       {/* Right: Chat */}
                       <div
-                        className={`${mobileChat ? "flex" : "hidden md:flex"} flex-col flex-1 min-w-0`}
+                        className={`${mobileChat ? "flex" : "hidden md:flex"} flex-col flex-1 min-w-0 bg-gradient-to-b from-white/10 to-white/30`}
                       >
                         {activeConvo ? (
-                          <div className="px-5 py-3.5 border-b border-white/30 bg-white/20 backdrop-blur-sm flex items-center gap-3">
-                            <button
-                              onClick={() => setMobileChat(false)}
-                              className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:bg-white/80 transition-colors shrink-0"
-                            >
-                              <ArrowLeft className="w-4 h-4" />
-                            </button>
-                            <img
-                              src={activeConvo.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
-                              alt={activeConvo.name}
-                              className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <p className="font-heading font-bold text-primary-dark text-sm truncate">
-                                  {activeConvo.name}
+                          <>
+                            <div className="px-5 py-3.5 border-b border-white/30 bg-white/20 backdrop-blur-sm flex items-center gap-3">
+                              <button
+                                onClick={() => setMobileChat(false)}
+                                className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:bg-white/80 transition-colors shrink-0"
+                              >
+                                <ArrowLeft className="w-4 h-4" />
+                              </button>
+                              <img
+                                src={activeConvo.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
+                                alt={activeConvo.name}
+                                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <p className="font-heading font-bold text-primary-dark text-sm truncate">
+                                    {activeConvo.name}
+                                  </p>
+                                  <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 bg-blue-50 text-blue-600">
+                                    {activeConvo.role}
+                                  </span>
+                                </div>
+                                <p className="text-text-subtle text-[11px]">
+                                  Active now
                                 </p>
-                                <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 bg-blue-50 text-blue-600">
-                                  {activeConvo.role}
-                                </span>
                               </div>
-                              <p className="text-text-subtle text-[11px]">
-                                Active now
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <a
-                                href={`tel:+${activeConvo.phone}`}
-                                className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
-                              >
-                                <Phone className="w-3.5 h-3.5" />
-                              </a>
-                            </div>
-                          </div>
-                        ) : null}
-                        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
-                          {activeMessages.map((msg, i) => (
-                            <div
-                              key={i}
-                              className={`flex ${msg.sender === "you" ? "justify-end" : "justify-start"}`}
-                            >
-                              <div
-                                className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.sender === "you" ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
-                              >
-                                <p className="text-sm leading-relaxed">
-                                  {msg.text}
-                                </p>
-                                <p
-                                  className={`text-[10px] mt-1 ${msg.sender === "you" ? "text-white/60" : "text-text-subtle"}`}
+                              <div className="flex items-center gap-2 shrink-0">
+                                <a
+                                  href={`tel:+${activeConvo.phone}`}
+                                  className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                                 >
-                                  {msg.time}
-                                </p>
+                                  <Phone className="w-3.5 h-3.5" />
+                                </a>
                               </div>
                             </div>
-                          ))}
-                        </div>
-                        <div className="px-4 py-3 border-t border-white/30 bg-white/20 backdrop-blur-sm">
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="text"
-                              value={chatInput}
-                              onChange={(e) => setChatInput(e.target.value)}
-                              onKeyDown={(e) =>
-                                e.key === "Enter" && handleSend()
-                              }
-                              placeholder="Type a message..."
-                              className="flex-1 h-10 px-4 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                            />
-                            <button
-                              onClick={handleSend}
-                              disabled={!chatInput.trim()}
-                              className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 shadow-sm"
-                            >
-                              <Send className="w-4 h-4" />
-                            </button>
+                            <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
+                              {activeMessages.map((msg, i) => (
+                                <div
+                                  key={i}
+                                  className={`flex ${msg.sender === "you" ? "justify-end" : "justify-start"}`}
+                                >
+                                  <div
+                                    className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.sender === "you" ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
+                                  >
+                                    <p className="text-sm leading-relaxed">
+                                      {msg.text}
+                                    </p>
+                                    <p
+                                      className={`text-[10px] mt-1 ${msg.sender === "you" ? "text-white/60" : "text-text-subtle"}`}
+                                    >
+                                      {msg.time}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="px-4 py-3 border-t border-white/30 bg-white/20 backdrop-blur-sm">
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={chatInput}
+                                  onChange={(e) => setChatInput(e.target.value)}
+                                  onKeyDown={(e) =>
+                                    e.key === "Enter" && handleSend()
+                                  }
+                                  placeholder="Type a message..."
+                                  className="flex-1 h-10 px-4 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                />
+                                <button
+                                  onClick={handleSend}
+                                  disabled={!chatInput.trim()}
+                                  className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 shadow-sm"
+                                >
+                                  <Send className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex-1 flex items-center justify-center px-8 py-12">
+                            <div className="max-w-md text-center">
+                              <div className="relative inline-flex mb-6">
+                                <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl scale-110" />
+                                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center shadow-[0_8px_24px_rgba(31,111,67,0.3)]">
+                                  <MessageCircle className="w-10 h-10 text-white" />
+                                </div>
+                              </div>
+                              <h3 className="font-heading font-bold text-primary-dark text-xl mb-3">
+                                Your inbox is quiet — for now
+                              </h3>
+                              <p className="text-text-secondary text-sm leading-relaxed mb-6">
+                                When a buyer wants to negotiate or ask about one of your listings, their conversation will appear here.
+                              </p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
+                                <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-white/50 backdrop-blur-sm border border-white/40">
+                                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                    <Briefcase className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <p className="font-heading font-semibold text-primary-dark text-xs">
+                                      Listing inquiries
+                                    </p>
+                                    <p className="text-text-secondary text-[11px] mt-0.5 leading-snug">
+                                      Buyers reach out about specific properties.
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-white/50 backdrop-blur-sm border border-white/40">
+                                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                    <TrendingUp className="w-4 h-4" />
+                                  </div>
+                                  <div>
+                                    <p className="font-heading font-semibold text-primary-dark text-xs">
+                                      Price negotiations
+                                    </p>
+                                    <p className="text-text-secondary text-[11px] mt-0.5 leading-snug">
+                                      Counter-offers will land in your inbox.
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
