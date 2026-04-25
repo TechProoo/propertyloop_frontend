@@ -123,6 +123,8 @@ const AddProperty = () => {
   const [pendingPhotoFiles, setPendingPhotoFiles] = useState<File[]>([]);
   const [uploadingPhotoIndex, setUploadingPhotoIndex] = useState<number | null>(null);
   const [pendingDocFiles, setPendingDocFiles] = useState<File[]>([]);
+  const [photoUploadError, setPhotoUploadError] = useState("");
+  const [docUploadError, setDocUploadError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
   const [uploadingVideo, setUploadingVideo] = useState(false);
@@ -273,10 +275,27 @@ const AddProperty = () => {
 
   const handlePhotoInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
+    setPhotoUploadError("");
     if (files) {
+      const MAX = 10 * 1024 * 1024; // 10MB — matches backend cap
+      const rejected: string[] = [];
       Array.from(files).forEach((file) => {
-        if (pendingPhotoFiles.length < 10) queuePhoto(file);
+        if (pendingPhotoFiles.length >= 10) return;
+        if (!file.type.startsWith("image/")) {
+          rejected.push(`${file.name} (not an image)`);
+          return;
+        }
+        if (file.size > MAX) {
+          rejected.push(
+            `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB > 10MB)`,
+          );
+          return;
+        }
+        queuePhoto(file);
       });
+      if (rejected.length) {
+        setPhotoUploadError(`Skipped: ${rejected.join(", ")}`);
+      }
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -300,13 +319,26 @@ const AddProperty = () => {
 
   const handleDocInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
+    setDocUploadError("");
     if (files) {
-      const max = 10 * 1024 * 1024;
+      const MAX = 10 * 1024 * 1024; // 10MB — matches backend cap
       const accepted: File[] = [];
+      const rejected: string[] = [];
       Array.from(files).forEach((file) => {
-        if (file.size <= max) accepted.push(file);
+        if (file.size > MAX) {
+          rejected.push(
+            `${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB > 10MB)`,
+          );
+          return;
+        }
+        accepted.push(file);
       });
-      setPendingDocFiles((prev) => [...prev, ...accepted]);
+      if (accepted.length) {
+        setPendingDocFiles((prev) => [...prev, ...accepted]);
+      }
+      if (rejected.length) {
+        setDocUploadError(`Skipped: ${rejected.join(", ")}`);
+      }
     }
     if (docInputRef.current) docInputRef.current.value = "";
   };
@@ -371,8 +403,8 @@ const AddProperty = () => {
     const files = e.currentTarget.files;
     if (files?.length) {
       const file = files[0];
-      if (file.size > 100 * 1024 * 1024) {
-        setVideoUploadError("Video must be less than 100MB");
+      if (file.size > 50 * 1024 * 1024) {
+        setVideoUploadError("Video must be less than 50MB");
         return;
       }
       uploadVideo(file);
@@ -864,6 +896,12 @@ const AddProperty = () => {
                             </div>
                           </button>
 
+                          {photoUploadError && (
+                            <p className="text-xs text-red-600 mt-2 ml-1">
+                              {photoUploadError}
+                            </p>
+                          )}
+
                           {/* Photo previews */}
                           {photoPreviews.length > 0 && (
                             <div className="grid grid-cols-3 gap-3 mt-4">
@@ -942,6 +980,12 @@ const AddProperty = () => {
                               </p>
                             </div>
                           </button>
+
+                          {docUploadError && (
+                            <p className="text-xs text-red-600 mt-2 ml-1">
+                              {docUploadError}
+                            </p>
+                          )}
 
                           {pendingDocFiles.length > 0 && (
                             <div className="mt-3 flex flex-col gap-2">
