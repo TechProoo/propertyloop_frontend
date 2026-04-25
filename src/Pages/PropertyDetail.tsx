@@ -154,7 +154,6 @@ const PropertyDetail = () => {
       "",
       `Property:    ${listing.title}`,
       `Location:    ${listing.address}`,
-      `Listing ID:  ${listing.id}`,
       `Asking:      ${listing.priceLabel}`,
       `My offer:    ${formattedAmount}`,
     ];
