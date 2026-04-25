@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -33,17 +33,21 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import listingsService from "../api/services/listings";
+import messagesService from "../api/services/messages";
 import type { Listing as ApiListing } from "../api/types";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import { DetailSkeleton } from "../components/ui/Skeleton";
+import { useAuth } from "../context/AuthContext";
 // Agent data now comes embedded in the listing response
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
-type OfferStatus = "idle" | "form" | "submitted" | "countered" | "accepted";
+type OfferStatus = "idle" | "form" | "sending" | "sent";
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user, isLoggedIn } = useAuth();
   const [listing, setListing] = useState<ApiListing | null>(null);
   const [similar, setSimilar] = useState<ApiListing[]>([]);
   const [loadingPage, setLoadingPage] = useState(true);
@@ -51,6 +55,7 @@ const PropertyDetail = () => {
   const [offerStatus, setOfferStatus] = useState<OfferStatus>("idle");
   const [offerAmount, setOfferAmount] = useState("");
   const [offerNote, setOfferNote] = useState("");
+  const [offerError, setOfferError] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -135,6 +140,71 @@ const PropertyDetail = () => {
     setActiveImage(
       (p) => (p - 1 + listing.images.length) % listing.images.length,
     );
+
+  const buildOfferMessage = () => {
+    const cleanAmount = offerAmount.replace(/[^\d]/g, "");
+    const formattedAmount = cleanAmount
+      ? `₦${Number(cleanAmount).toLocaleString()}`
+      : "(amount not specified)";
+    const buyerName = user?.name || "A prospective buyer";
+    const lines = [
+      `Hello ${agent?.name || "there"},`,
+      "",
+      `I'd like to make an offer on the property listed below.`,
+      "",
+      `Property:    ${listing.title}`,
+      `Location:    ${listing.address}`,
+      `Listing ID:  ${listing.id}`,
+      `Asking:      ${listing.priceLabel}`,
+      `My offer:    ${formattedAmount}`,
+    ];
+    if (offerNote.trim()) {
+      lines.push("", "Additional notes:", offerNote.trim());
+    }
+    lines.push(
+      "",
+      "Please let me know if this works, or share a counter-offer.",
+      "",
+      `Thanks,`,
+      buyerName,
+    );
+    return lines.join("\n");
+  };
+
+  const handleSubmitOffer = async () => {
+    if (!isLoggedIn || !user) {
+      navigate("/onboarding");
+      return;
+    }
+    if (!agent?.id) {
+      setOfferError("Agent details unavailable for this listing.");
+      return;
+    }
+    if (!offerAmount.replace(/[^\d]/g, "")) {
+      setOfferError("Please enter your offer amount.");
+      return;
+    }
+    setOfferError("");
+    setOfferStatus("sending");
+    try {
+      const text = buildOfferMessage();
+      const { conversationId } = await messagesService.createOrFind({
+        recipientId: agent.id,
+        recipientRole: "AGENT",
+        senderRole: (user.role as "BUYER" | "AGENT" | "VENDOR") || "BUYER",
+        listingId: listing.id,
+      });
+      await messagesService.sendMessage(conversationId, text);
+      setOfferStatus("sent");
+      setTimeout(() => navigate(`/messages?with=${conversationId}`), 1800);
+    } catch (err: any) {
+      setOfferError(
+        err?.response?.data?.message ||
+          "Could not send your offer. Please try again.",
+      );
+      setOfferStatus("form");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
@@ -747,99 +817,49 @@ const PropertyDetail = () => {
                             />
                           </div>
                         </div>
+                        {offerError && (
+                          <p className="mt-3 text-xs text-red-600">
+                            {offerError}
+                          </p>
+                        )}
                         <div className="flex items-center gap-2 mt-4">
                           <button
-                            onClick={() => setOfferStatus("idle")}
+                            onClick={() => {
+                              setOfferStatus("idle");
+                              setOfferError("");
+                            }}
                             className="flex-1 h-10 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-bg-accent transition-all"
                           >
                             Cancel
                           </button>
                           <button
-                            onClick={() => {
-                              setOfferStatus("submitted");
-                              setTimeout(
-                                () => setOfferStatus("countered"),
-                                2500,
-                              );
-                            }}
+                            onClick={handleSubmitOffer}
                             className="flex-1 h-10 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
                           >
                             <Send className="w-3.5 h-3.5" />
-                            Submit Offer
+                            Send Offer
                           </button>
                         </div>
                       </>
                     )}
 
-                    {/* Submitted — waiting */}
-                    {offerStatus === "submitted" && (
+                    {/* Sending — in flight */}
+                    {offerStatus === "sending" && (
                       <div className="text-center py-4">
                         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 animate-pulse">
                           <Clock className="w-6 h-6 text-primary" />
                         </div>
                         <p className="font-heading font-bold text-primary-dark text-sm">
-                          Offer Submitted
+                          Sending your offer…
                         </p>
                         <p className="text-text-secondary text-xs mt-1">
-                          Waiting for agent response...
+                          Delivering it to {agent?.name || "the agent"}.
                         </p>
                       </div>
                     )}
 
-                    {/* Counter offer */}
-                    {offerStatus === "countered" && (
-                      <>
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="w-8 h-8 rounded-full bg-[#FFF8ED] flex items-center justify-center">
-                            <Handshake className="w-4 h-4 text-[#F5A623]" />
-                          </div>
-                          <p className="font-heading font-bold text-primary-dark text-sm">
-                            Counter Offer Received
-                          </p>
-                        </div>
-                        <div className="bg-[#FFF8ED] border border-[#F5A623]/20 rounded-2xl p-4 mb-4">
-                          <p className="text-primary-dark text-sm">
-                            {agent?.name} has responded with a counter offer:
-                          </p>
-                          <p className="font-heading font-bold text-primary-dark text-xl mt-2">
-                            ₦62,000,000
-                          </p>
-                          <p className="text-text-secondary text-xs mt-1">
-                            "Thank you for your offer. The owner is willing to
-                            come down to ₦62M. This is the best price we can do
-                            given the property's features and recent
-                            renovations."
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              setOfferStatus("idle");
-                              setOfferAmount("");
-                              setOfferNote("");
-                            }}
-                            className="flex-1 h-10 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-bg-accent transition-all"
-                          >
-                            Decline
-                          </button>
-                          <button
-                            onClick={() => setOfferStatus("form")}
-                            className="flex-1 h-10 rounded-full bg-white/80 border border-[#F5A623] text-[#F5A623] text-sm font-medium hover:bg-[#FFF8ED] transition-all"
-                          >
-                            Counter Again
-                          </button>
-                          <button
-                            onClick={() => setOfferStatus("accepted")}
-                            className="flex-1 h-10 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
-                          >
-                            Accept
-                          </button>
-                        </div>
-                      </>
-                    )}
-
-                    {/* Accepted */}
-                    {offerStatus === "accepted" && (
+                    {/* Sent */}
+                    {offerStatus === "sent" && (
                       <div className="text-center py-4">
                         <motion.div
                           initial={{ scale: 0 }}
@@ -854,20 +874,12 @@ const PropertyDetail = () => {
                           <CheckCircle className="w-6 h-6 text-white" />
                         </motion.div>
                         <p className="font-heading font-bold text-primary-dark text-sm">
-                          Offer Accepted!
+                          Offer sent!
                         </p>
                         <p className="text-text-secondary text-xs mt-1 max-w-xs mx-auto">
-                          Congratulations! Your offer of ₦62,000,000 has been
-                          accepted. The agent will contact you to proceed with
-                          e-signing and escrow payment.
+                          Your offer is now in {agent?.name || "the agent"}'s
+                          inbox. Opening the conversation…
                         </p>
-                        <Link
-                          to="/rental-escrow"
-                          className="mt-4 inline-flex items-center gap-2 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors"
-                        >
-                          Proceed to Payment
-                          <ArrowRight className="w-4 h-4" />
-                        </Link>
                       </div>
                     )}
                   </motion.div>
@@ -875,52 +887,6 @@ const PropertyDetail = () => {
               </AnimatePresence>
 
               {/* Price card */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.4, ease }}
-                className="bg-primary rounded-[20px] p-6 text-white mb-6"
-              >
-                <p className="text-white/60 text-xs">
-                  {listing.type === "SALE"
-                    ? "Asking Price"
-                    : listing.type === "RENT"
-                      ? "Annual Rent"
-                      : "Per Night"}
-                </p>
-                <p className="font-heading font-bold text-[1.8rem] leading-tight mt-1">
-                  {listing.priceLabel}
-                  {listing.period && (
-                    <span className="text-white/60 text-lg font-normal">
-                      /{listing.period}
-                    </span>
-                  )}
-                </p>
-                <div className="h-px bg-white/20 my-4" />
-                <div className="flex items-center gap-2 text-white/70 text-xs mb-4">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Escrow-protected transaction via Paystack</span>
-                </div>
-                {listing.type === "RENT" && (
-                  <Link
-                    to={`/rental-escrow?listingId=${listing.id}`}
-                    className="w-full h-10 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center justify-center gap-2"
-                  >
-                    Start Rental Process
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                )}
-                {listing.type === "SHORTLET" && (
-                  <Link
-                    to={`/shortlet-booking?listingId=${listing.id}`}
-                    className="w-full h-10 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center justify-center gap-2"
-                  >
-                    Book Now
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                )}
-              </motion.div>
-
               {/* Similar properties */}
               {similar.length > 0 && (
                 <motion.div
