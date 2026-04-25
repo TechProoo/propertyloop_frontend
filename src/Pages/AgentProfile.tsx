@@ -19,6 +19,7 @@ import {
   Maximize,
   TrendingUp,
   Users,
+  User,
   Flag,
   Send,
   X,
@@ -701,15 +702,29 @@ const AgentProfile = () => {
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">
-                              {review.clientName?.charAt(0) || review.name?.charAt(0) || '?'}
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                              {(review.reviewerName ||
+                                review.clientName ||
+                                review.name)
+                                ?.charAt(0)
+                                ?.toUpperCase() || (
+                                <User className="w-4 h-4" />
+                              )}
                             </div>
                             <div>
-                              <p className="font-heading font-semibold text-primary-dark text-sm">
-                                {review.clientName || review.name}
-                              </p>
+                              {(review.reviewerName ||
+                                review.clientName ||
+                                review.name) && (
+                                <p className="font-heading font-semibold text-primary-dark text-sm">
+                                  {review.reviewerName ||
+                                    review.clientName ||
+                                    review.name}
+                                </p>
+                              )}
                               <p className="text-text-subtle text-[11px]">
-                                {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : review.date}
+                                {review.createdAt
+                                  ? new Date(review.createdAt).toLocaleDateString()
+                                  : review.date}
                               </p>
                             </div>
                           </div>
