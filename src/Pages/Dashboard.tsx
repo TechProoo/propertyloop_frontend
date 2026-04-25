@@ -17,7 +17,6 @@ import {
   Users,
   Wrench,
   Home,
-  ShoppingCart,
   Package,
   Settings,
   LogOut,
@@ -728,11 +727,6 @@ const Dashboard = () => {
                           icon: <Wrench className="w-4 h-4" />,
                           label: "Book a Service",
                           href: "/services",
-                        },
-                        {
-                          icon: <ShoppingCart className="w-4 h-4" />,
-                          label: "Browse Materials",
-                          href: "/marketplace",
                         },
                       ].map((action) => (
                         <Link
