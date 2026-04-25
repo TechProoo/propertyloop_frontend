@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -35,9 +35,13 @@ const ease = [0.23, 1, 0.32, 1] as const;
 const ReviewDisputeSection = ({
   targetName,
   targetType,
+  agentId,
+  onReviewCreated,
 }: {
   targetName: string;
   targetType: "agent" | "vendor";
+  agentId?: string;
+  onReviewCreated?: () => Promise<void> | void;
 }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showDisputeForm, setShowDisputeForm] = useState(false);
@@ -46,16 +50,37 @@ const ReviewDisputeSection = ({
   const [disputeText, setDisputeText] = useState("");
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [disputeSubmitted, setDisputeSubmitted] = useState(false);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState("");
 
-  const handleReviewSubmit = () => {
-    if (reviewRating > 0 && reviewText.trim()) {
+  const handleReviewSubmit = async () => {
+    if (!(reviewRating > 0 && reviewText.trim())) return;
+    if (!agentId) {
+      setReviewError("Cannot submit — agent not loaded yet.");
+      return;
+    }
+    setReviewError("");
+    setReviewSubmitting(true);
+    try {
+      await agentsService.createReview(agentId, {
+        rating: reviewRating,
+        comment: reviewText.trim(),
+      });
+      await onReviewCreated?.();
       setReviewSubmitted(true);
       setTimeout(() => {
         setShowReviewForm(false);
         setReviewSubmitted(false);
         setReviewRating(0);
         setReviewText("");
-      }, 2000);
+      }, 1500);
+    } catch (err: any) {
+      setReviewError(
+        err?.response?.data?.message ||
+          "Could not submit review. Please try again.",
+      );
+    } finally {
+      setReviewSubmitting(false);
     }
   };
 
@@ -151,12 +176,20 @@ const ReviewDisputeSection = ({
                   rows={3}
                   className="w-full px-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
                 />
+                {reviewError && (
+                  <p className="mt-3 text-xs text-red-600">{reviewError}</p>
+                )}
                 <button
                   onClick={handleReviewSubmit}
-                  disabled={reviewRating === 0 || !reviewText.trim()}
+                  disabled={
+                    reviewRating === 0 ||
+                    !reviewText.trim() ||
+                    reviewSubmitting
+                  }
                   className="mt-3 h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  <Send className="w-3.5 h-3.5" /> Submit Review
+                  <Send className="w-3.5 h-3.5" />
+                  {reviewSubmitting ? "Submitting..." : "Submit Review"}
                 </button>
               </>
             )}
@@ -229,37 +262,41 @@ const AgentProfile = () => {
   const [msgText, setMsgText] = useState("");
   const [sending, setSending] = useState(false);
 
+  const loadAgent = useCallback(async () => {
+    if (!id) return;
+    try {
+      const data = await agentsService.getById(id);
+      setAgent({
+        id: data.id,
+        photo:
+          data.avatarUrl ||
+          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
+        name: data.name,
+        agency: data.agency || "",
+        location: data.location || "",
+        rating: data.rating,
+        listings: data.listingsCount,
+        soldRented: data.soldRentedCount,
+        verified: data.verified,
+        phone: data.phone || "",
+        specialty: data.specialty,
+        bio: data.bio || "",
+        yearsExperience: data.yearsExperience,
+        website: data.website,
+        email: data.email,
+        activeListings: data.activeListings || [],
+        reviews: data.reviews || [],
+      });
+    } catch {
+      setAgent(null);
+    }
+  }, [id]);
+
   useEffect(() => {
     if (!id) return;
     setLoadingAgent(true);
-    agentsService
-      .getById(id)
-      .then((data) => {
-        setAgent({
-          id: data.id,
-          photo:
-            data.avatarUrl ||
-            "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
-          name: data.name,
-          agency: data.agency || "",
-          location: data.location || "",
-          rating: data.rating,
-          listings: data.listingsCount,
-          soldRented: data.soldRentedCount,
-          verified: data.verified,
-          phone: data.phone || "",
-          specialty: data.specialty,
-          bio: data.bio || "",
-          yearsExperience: data.yearsExperience,
-          website: data.website,
-          email: data.email,
-          activeListings: data.activeListings || [],
-          reviews: data.reviews || [],
-        });
-      })
-      .catch(() => setAgent(null))
-      .finally(() => setLoadingAgent(false));
-  }, [id]);
+    loadAgent().finally(() => setLoadingAgent(false));
+  }, [id, loadAgent]);
 
   const handleSendMessage = async () => {
     if (!msgText.trim() || !agent?.id || !user) return;
@@ -702,6 +739,8 @@ const AgentProfile = () => {
               <ReviewDisputeSection
                 targetName={agent.name}
                 targetType="agent"
+                agentId={agent.id}
+                onReviewCreated={loadAgent}
               />
             </div>
 
