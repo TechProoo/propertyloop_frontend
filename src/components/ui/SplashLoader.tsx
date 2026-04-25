@@ -19,12 +19,19 @@ const SplashLoader = () => {
           <img src={Logo} alt="PropertyLoop" className="w-40" />
         </motion.div>
 
-        {/* Spinner */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full"
-        />
+        {/* Bouncing balls */}
+        <div className="flex gap-2">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className="w-3 h-3 rounded-full bg-primary"
+              style={{
+                animation: "pl-bounce 1s infinite ease-in-out",
+                animationDelay: `${i * 0.16}s`,
+              }}
+            />
+          ))}
+        </div>
 
         {/* Loading text */}
         <motion.p
@@ -36,6 +43,12 @@ const SplashLoader = () => {
           Loading PropertyLoop...
         </motion.p>
       </div>
+      <style>{`
+        @keyframes pl-bounce {
+          0%, 80%, 100% { transform: translateY(0); opacity: 0.6; }
+          40% { transform: translateY(-10px); opacity: 1; }
+        }
+      `}</style>
     </motion.div>
   );
 };
