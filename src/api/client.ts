@@ -74,9 +74,19 @@ api.interceptors.response.use(
     const original = error.config as AxiosRequestConfig & { _retry?: boolean };
     if (!original) return Promise.reject(error);
 
-    const isAuthRoute = original.url?.includes("/auth/");
+    // Only /auth/refresh and /auth/login should bypass refresh-on-401:
+    //   - /auth/refresh failure means the refresh token is genuinely invalid;
+    //     trying to refresh again would loop.
+    //   - /auth/login 401 just means wrong credentials.
+    // Everything else (including /auth/me, /auth/logout, /auth/sessions...)
+    // is a normal authenticated request that should silently refresh.
+    const url = original.url || "";
+    const isRefreshOrLogin =
+      url.includes("/auth/refresh") || url.includes("/auth/login");
     const shouldRetry =
-      error.response?.status === 401 && !original._retry && !isAuthRoute;
+      error.response?.status === 401 &&
+      !original._retry &&
+      !isRefreshOrLogin;
 
     if (!shouldRetry) return Promise.reject(error);
 
