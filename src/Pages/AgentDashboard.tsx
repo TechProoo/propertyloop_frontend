@@ -765,32 +765,31 @@ const AgentDashboard = () => {
                           Quick Actions
                         </h3>
                         <div className="flex flex-col gap-2.5">
-                          {[
-                            {
-                              icon: <PlusCircle className="w-4 h-4" />,
-                              label: "Add New Listing",
-                              href: "/add-property",
-                            },
-                            {
-                              icon: <Briefcase className="w-4 h-4" />,
-                              label: "Edit Agent Profile",
-                              href: `/agent/${agent.id}`,
-                            },
-                          ].map((action) => (
-                            <Link
-                              key={action.label}
-                              to={action.href}
-                              className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 hover:border-primary hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200"
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                                {action.icon}
-                              </div>
-                              <span className="flex-1 font-heading font-medium text-primary-dark text-sm">
-                                {action.label}
-                              </span>
-                              <ArrowUpRight className="w-3.5 h-3.5 text-text-subtle" />
-                            </Link>
-                          ))}
+                          <Link
+                            to="/add-property"
+                            className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 hover:border-primary hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                              <PlusCircle className="w-4 h-4" />
+                            </div>
+                            <span className="flex-1 font-heading font-medium text-primary-dark text-sm text-left">
+                              Add New Listing
+                            </span>
+                            <ArrowUpRight className="w-3.5 h-3.5 text-text-subtle" />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => setActiveNav("settings")}
+                            className="flex items-center gap-3 w-full px-3.5 py-2.5 rounded-xl bg-white/50 backdrop-blur-sm border border-white/40 hover:border-primary hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                              <Briefcase className="w-4 h-4" />
+                            </div>
+                            <span className="flex-1 font-heading font-medium text-primary-dark text-sm text-left">
+                              Edit Agent Profile
+                            </span>
+                            <ArrowUpRight className="w-3.5 h-3.5 text-text-subtle" />
+                          </button>
                         </div>
                       </div>
                     </div>
