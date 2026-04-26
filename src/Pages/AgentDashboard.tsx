@@ -519,7 +519,7 @@ const AgentDashboard = () => {
         </div>
 
         {/* Page Content */}
-        <div className="p-6 lg:p-8">
+        <div className="p-6 lg:p-8 overflow-x-hidden">
           {/* ─── Overview Panel ─── */}
           {activeNav === "overview" && (
             <motion.div
@@ -571,9 +571,9 @@ const AgentDashboard = () => {
                   </div>
 
                   {/* Two-Column */}
-                  <div className="flex flex-col xl:flex-row gap-6">
+                  <div className="flex flex-col xl:flex-row gap-6 min-w-0">
                     {/* Left */}
-                    <div className="flex-1 flex flex-col gap-6">
+                    <div className="flex-1 min-w-0 flex flex-col gap-6">
                       {/* My Listings */}
                       <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                         <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between">
