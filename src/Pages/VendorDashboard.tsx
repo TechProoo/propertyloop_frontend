@@ -1105,18 +1105,57 @@ const VendorDashboard = () => {
                     </div>
                   ))}
                   {filteredJobs.length === 0 && (
-                    <div className="text-center py-16">
-                      <Briefcase className="w-12 h-12 text-text-subtle mx-auto mb-3" />
-                      <p className="text-primary-dark font-heading font-bold text-base">
-                        No {jobTab} jobs
-                      </p>
-                      <p className="text-text-secondary text-sm mt-1">
+                    <div className="px-6 py-14 sm:py-20 text-center">
+                      <div className="relative inline-flex mb-6">
+                        <div className="absolute inset-0 rounded-full bg-primary/15 blur-2xl scale-110" />
+                        <div className="relative w-20 h-20 rounded-full bg-linear-to-br from-primary to-primary-dark flex items-center justify-center shadow-[0_8px_24px_rgba(31,111,67,0.3)]">
+                          <Briefcase className="w-10 h-10 text-white" />
+                        </div>
+                      </div>
+                      <h3 className="font-heading font-bold text-primary-dark text-xl mb-3">
                         {jobTab === "pending"
-                          ? "No new requests at the moment"
+                          ? "No new requests yet"
                           : jobTab === "active"
-                            ? "No active jobs right now"
+                            ? "Nothing in progress"
                             : "No completed jobs yet"}
+                      </h3>
+                      <p className="text-text-secondary text-sm leading-relaxed max-w-md mx-auto mb-6">
+                        {jobTab === "pending"
+                          ? "When a client books your service from your profile, it lands here. Tap any job card to jump straight into the conversation with them."
+                          : jobTab === "active"
+                            ? "Once you accept a request, it moves here. Click the card to message the client and coordinate the job."
+                            : "Jobs you mark as complete will be archived here for your records."}
                       </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto text-left">
+                        <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/50">
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <MessageCircle className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="font-heading font-semibold text-primary-dark text-xs">
+                              Tap to open chat
+                            </p>
+                            <p className="text-text-secondary text-[11px] mt-0.5 leading-snug">
+                              Every job card is a shortcut to the client's
+                              conversation.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-white/60 backdrop-blur-sm border border-white/50">
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                            <CheckCircle className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="font-heading font-semibold text-primary-dark text-xs">
+                              Accept &amp; deliver
+                            </p>
+                            <p className="text-text-secondary text-[11px] mt-0.5 leading-snug">
+                              Action buttons on each card move the job
+                              through its stages.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
