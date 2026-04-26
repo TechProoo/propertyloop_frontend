@@ -226,7 +226,7 @@ const ServiceLoop = () => {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-80 bg-gradient-to-br from-white/40 to-white/20 rounded-[20px] animate-pulse"
+                className="h-80 bg-linear-to-br from-white/40 to-white/20 rounded-[20px] animate-pulse"
               />
             ))}
           </div>
@@ -239,7 +239,8 @@ const ServiceLoop = () => {
               Quality Vendors Coming Soon
             </h3>
             <p className="text-text-secondary text-sm mt-2 max-w-sm">
-              We're onboarding verified vendors. Browse our full services catalog to see what's available.
+              We're onboarding verified vendors. Browse our full services
+              catalog to see what's available.
             </p>
             <a
               href="/services"
@@ -257,15 +258,37 @@ const ServiceLoop = () => {
                 data-sl-card
                 className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
               >
-                {/* Cover image */}
-                <div className="relative h-44 overflow-hidden rounded-t-[20px]">
-                  <img
-                    src={vendor.bannerImage || "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=600&h=400&fit=crop"}
-                    alt={vendor.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                {/* Cover image — banner if uploaded, otherwise the vendor's
+                    profile picture (with a blurred copy as backdrop so a
+                    portrait-oriented avatar still fills the box nicely). */}
+                <div className="relative h-44 overflow-hidden rounded-t-[20px] bg-bg-accent">
+                  {vendor.bannerImage ? (
+                    <img
+                      src={vendor.bannerImage}
+                      alt={vendor.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : vendor.avatarUrl ? (
+                    <>
+                      <img
+                        src={vendor.avatarUrl}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-70"
+                      />
+                      <img
+                        src={vendor.avatarUrl}
+                        alt={vendor.name}
+                        className="relative w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Wrench className="w-12 h-12 text-text-subtle" />
+                    </div>
+                  )}
                   {/* Category badge */}
-                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
+                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium z-10">
                     {vendor.category || "Service"}
                   </span>
                 </div>
@@ -275,7 +298,10 @@ const ServiceLoop = () => {
                   {/* Vendor header — avatar + name + verified */}
                   <div className="flex items-center gap-3">
                     <img
-                      src={vendor.avatarUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop"}
+                      src={
+                        vendor.avatarUrl ||
+                        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop"
+                      }
                       alt={vendor.name}
                       className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
                     />
@@ -304,9 +330,7 @@ const ServiceLoop = () => {
                         <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
                         {vendor.rating}
                       </span>
-                      <span className="shrink-0">
-                        {vendor.jobsCount} jobs
-                      </span>
+                      <span className="shrink-0">{vendor.jobsCount} jobs</span>
                       <span className="flex items-center gap-1 shrink-0">
                         <Shield className="w-3.5 h-3.5" />
                         Verified
