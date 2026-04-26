@@ -158,7 +158,21 @@ const VideoListings = () => {
             {listings.map((home, i) => {
             const videoUrl = home.videoUrl;
             const thumbnail = home.coverImage;
-            const price = `₦${(home.priceNaira / 1000000).toFixed(1)}M`;
+            const fullPrice = home.priceLabel || `₦${home.priceNaira.toLocaleString()}`;
+            const period =
+              home.period && home.period.replace(/^\//, "");
+            const categoryLabel =
+              home.type === "SALE"
+                ? "For Sale"
+                : home.type === "RENT"
+                  ? "For Rent"
+                  : "Shortlet";
+            const categoryStyles =
+              home.type === "SALE"
+                ? "bg-primary text-white"
+                : home.type === "RENT"
+                  ? "bg-blue-500 text-white"
+                  : "bg-amber-500 text-white";
 
             return (
               <div
@@ -168,6 +182,12 @@ const VideoListings = () => {
               >
                 {/* Video / Thumbnail area */}
                 <div className="relative h-52 overflow-hidden rounded-t-[20px] bg-black">
+                  {/* Category pill */}
+                  <span
+                    className={`absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-sm ${categoryStyles}`}
+                  >
+                    {categoryLabel}
+                  </span>
                   {playingIdx === i && videoUrl ? (
                     <>
                       {videoUrl.includes("youtu") || videoUrl.includes("vimeo") ? (
@@ -230,7 +250,12 @@ const VideoListings = () => {
                 >
                   {/* Price */}
                   <p className="font-heading font-bold text-primary-dark text-[18px]">
-                    {price}
+                    {fullPrice}
+                    {period && (
+                      <span className="text-text-subtle text-[13px] font-normal ml-1">
+                        /{period}
+                      </span>
+                    )}
                   </p>
 
                   {/* Title */}

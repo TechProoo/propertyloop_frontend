@@ -140,13 +140,33 @@ const VideoTours = () => {
 
           {/* ─── Video Grid ─── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-20">
-            {filtered.map((tour, i) => (
+            {filtered.map((tour, i) => {
+              const categoryLabel =
+                tour.type === "SALE"
+                  ? "For Sale"
+                  : tour.type === "RENT"
+                    ? "For Rent"
+                    : "Shortlet";
+              const categoryStyles =
+                tour.type === "SALE"
+                  ? "bg-primary text-white"
+                  : tour.type === "RENT"
+                    ? "bg-blue-500 text-white"
+                    : "bg-amber-500 text-white";
+              const period = tour.period && tour.period.replace(/^\//, "");
+              return (
               <div
                 key={tour.id}
                 className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
               >
                 {/* Video / Thumbnail */}
                 <div className="relative h-56 sm:h-64 overflow-hidden rounded-t-[20px] bg-black">
+                  {/* Category pill */}
+                  <span
+                    className={`absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-sm ${categoryStyles}`}
+                  >
+                    {categoryLabel}
+                  </span>
                   {playingIdx === i && tour.videoUrl ? (
                     <>
                       {tour.videoUrl.includes("youtu") || tour.videoUrl.includes("vimeo") ? (
@@ -213,6 +233,11 @@ const VideoTours = () => {
                 >
                   <p className="font-heading font-bold text-primary-dark text-[18px]">
                     {tour.priceLabel}
+                    {period && (
+                      <span className="text-text-subtle text-[13px] font-normal ml-1">
+                        /{period}
+                      </span>
+                    )}
                   </p>
                   <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1 truncate">
                     {tour.title}
@@ -248,7 +273,8 @@ const VideoTours = () => {
                   <ArrowUpRight className="w-5 h-5 text-white" />
                 </Link>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </main>
