@@ -232,15 +232,13 @@ const VendorDashboard = () => {
     if (user) {
       setProfileName(user.name || "");
       setProfilePhone(user.phone || "");
+      setProfileLocation(user.location || "");
       setProfileBio(user.bio || "");
-      setProfileWebsite((user as any).website || "");
       const vendorProfile = user.vendorProfile as any;
-      if (vendorProfile) {
-        setProfileCategory(vendorProfile.serviceCategory || "");
-        setProfileLocation(user.location || "");
-        setProfileYears(vendorProfile.yearsExperience || "");
-        setProfileServiceArea(vendorProfile.serviceArea || "");
-      }
+      setProfileWebsite(vendorProfile?.website || (user as any).website || "");
+      setProfileCategory(vendorProfile?.serviceCategory || "");
+      setProfileYears(vendorProfile?.yearsExperience || "");
+      setProfileServiceArea(vendorProfile?.serviceArea || "");
     }
   }, [user]);
 

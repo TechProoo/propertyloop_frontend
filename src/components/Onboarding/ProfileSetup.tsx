@@ -320,18 +320,6 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
               )}
             </div>
 
-            {/* KYC Notice */}
-            <div className="bg-bg-accent rounded-2xl border border-border-light p-4 mt-1">
-              <p className="text-xs text-text-secondary leading-relaxed">
-                <span className="font-semibold text-primary-dark">
-                  KYC Verification Required
-                </span>
-                <br />
-                You'll need to complete identity verification via Smile Identity
-                after sign-up. This ensures all agents on PropertyLoop are
-                verified and trusted.
-              </p>
-            </div>
           </div>
         )}
 
@@ -423,18 +411,6 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
               )}
             </div>
 
-            {/* Verification Notice */}
-            <div className="bg-bg-accent rounded-2xl border border-border-light p-4 mt-1">
-              <p className="text-xs text-text-secondary leading-relaxed">
-                <span className="font-semibold text-primary-dark">
-                  KYC Verification Required
-                </span>
-                <br />
-                Vendors are identity-verified before listings go live so
-                clients can trust the network. We'll guide you through it
-                after sign-up.
-              </p>
-            </div>
           </div>
         )}
 
