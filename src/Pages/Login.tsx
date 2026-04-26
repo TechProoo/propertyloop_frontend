@@ -2,7 +2,16 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
-import { ArrowRight, Eye, EyeOff, Mail, Lock, CheckCircle } from "lucide-react";
+import {
+  ArrowRight,
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  CheckCircle,
+  LogOut,
+  AlertCircle,
+} from "lucide-react";
 import Logo from "../assets/logo.png";
 
 const ease = [0.23, 1, 0.32, 1] as const;
@@ -14,7 +23,7 @@ const roleDashboard: Record<string, string> = {
 };
 
 const Login = () => {
-  const { login, user } = useAuth();
+  const { login, user, isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -104,7 +113,51 @@ const Login = () => {
           transition={{ duration: 0.5, ease }}
           className="w-full max-w-md"
         >
-          {submitted ? (
+          {isLoggedIn && user && !submitted ? (
+            /* ─── Already signed in ─── */
+            <div className="backdrop-blur-md bg-white/60 rounded-[28px] border border-border-light shadow-[0_8px_32px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
+              <div className="w-16 h-16 rounded-full bg-amber-100 border border-amber-200 flex items-center justify-center mx-auto mb-5">
+                <AlertCircle className="w-8 h-8 text-amber-600" />
+              </div>
+              <h2 className="font-heading font-bold text-primary-dark text-xl">
+                You're already signed in
+              </h2>
+              <p className="text-text-secondary text-sm mt-2">
+                Logged in as
+              </p>
+              <p className="font-heading font-semibold text-primary-dark text-base mt-1 break-all">
+                {user.email}
+              </p>
+              <p className="text-text-subtle text-xs mt-4">
+                To sign in with a different account, log out first.
+              </p>
+              <div className="flex flex-col gap-2 mt-6">
+                <button
+                  onClick={() => {
+                    if (!user.emailVerifiedAt) {
+                      navigate("/verify-email-required");
+                      return;
+                    }
+                    navigate(roleDashboard[user.role] || "/dashboard");
+                  }}
+                  className="w-full h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  {user.emailVerifiedAt ? "Go to dashboard" : "Continue setup"}
+                </button>
+                <button
+                  onClick={async () => {
+                    await logout();
+                    // Stay on /login so they can sign in fresh
+                  }}
+                  className="w-full h-11 px-6 rounded-full border border-border-light bg-white/70 text-text-secondary text-sm font-medium hover:border-red-300 hover:text-red-600 transition-colors inline-flex items-center justify-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign out and use a different account
+                </button>
+              </div>
+            </div>
+          ) : submitted ? (
             /* ─── Success State ─── */
             <div className="backdrop-blur-md bg-white/60 rounded-[28px] border border-border-light shadow-[0_8px_32px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
               <div className="w-16 h-16 rounded-full bg-primary/15 backdrop-blur-sm border border-primary/20 flex items-center justify-center mx-auto mb-5">
