@@ -18,7 +18,9 @@ const VideoListings = () => {
     const loadVideoListings = async () => {
       try {
         const result = await listingsService.list({ limit: 100 });
-        const videoListingsData = result.items.filter((l) => l.videoUrl);
+        const videoListingsData = result.items.filter(
+          (l) => l.videoUrl && l.status !== "SOLD" && l.status !== "RENTED",
+        );
         setListings(videoListingsData.slice(0, 3));
       } catch (error) {
         console.error("Failed to load video listings:", error);
