@@ -10,7 +10,7 @@ interface Props {
 /**
  * Wraps a card/link so that:
  * - If logged in → navigates to href normally
- * - If NOT logged in → redirects to /onboarding
+ * - If NOT logged in → redirects to /login
  */
 const AuthGate = ({ children, href, className = "" }: Props) => {
   const { isLoggedIn } = useAuth();
@@ -18,7 +18,7 @@ const AuthGate = ({ children, href, className = "" }: Props) => {
   const handleClick = (e: MouseEvent) => {
     if (!isLoggedIn) {
       e.preventDefault();
-      window.location.href = "/onboarding";
+      window.location.href = "/login";
     }
   };
 

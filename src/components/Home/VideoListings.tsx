@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowUpRight, Bed, Bath, Maximize, Play, X } from "lucide-react";
+import AuthGate from "../ui/AuthGate";
 import listingsService from "../../api/services/listings";
 import type { Listing } from "../../api/types";
 import gsap from "gsap";
@@ -122,13 +123,12 @@ const VideoListings = () => {
               verified agents before you visit in person.
             </p>
           </div>
-          <a
+          <AuthGate
             href="/video-tours"
-            data-vl-viewall
             className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
           >
-            View all
-          </a>
+            <span data-vl-viewall>View all</span>
+          </AuthGate>
         </div>
 
         {/* Cards grid — 3 per row */}

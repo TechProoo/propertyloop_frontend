@@ -120,13 +120,12 @@ const FeaturedHomes = () => {
               history and transparent pricing.
             </p>
           </div>
-          <a
+          <AuthGate
             href="/buy"
-            data-fh-viewall
             className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
           >
-            View all
-          </a>
+            <span data-fh-viewall>View all</span>
+          </AuthGate>
         </div>
 
         {/* Cards grid — 3 per row */}

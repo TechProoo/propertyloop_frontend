@@ -3,6 +3,7 @@ import {
   CalendarDays,
   MapPin,
 } from "lucide-react";
+import AuthGate from "../ui/AuthGate";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -135,13 +136,12 @@ const ShortletSpotlight = () => {
               pricing and direct contact with the host.
             </p>
           </div>
-          <a
-            data-ss-viewall
+          <AuthGate
             href="/shortlet"
             className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
           >
-            View all shortlets
-          </a>
+            <span data-ss-viewall>View all shortlets</span>
+          </AuthGate>
         </div>
 
         {/* Date picker bar */}
