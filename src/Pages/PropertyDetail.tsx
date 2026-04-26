@@ -142,20 +142,30 @@ const PropertyDetail = () => {
     );
 
   const buildOfferMessage = () => {
+    const isShortlet = listing.type === "SHORTLET";
     const cleanAmount = offerAmount.replace(/[^\d]/g, "");
+    const periodSuffix = listing.period
+      ? `/${listing.period.replace(/^\//, "")}`
+      : "";
     const formattedAmount = cleanAmount
-      ? `₦${Number(cleanAmount).toLocaleString()}`
+      ? `₦${Number(cleanAmount).toLocaleString()}${periodSuffix}`
       : "(amount not specified)";
-    const buyerName = user?.name || "A prospective buyer";
+    const askingDisplay = `${listing.priceLabel}${periodSuffix}`;
+    const buyerName = user?.name || "A prospective guest";
+    const intro = isShortlet
+      ? `I'd like to make an offer on the shortlet listed below.`
+      : `I'd like to make an offer on the property listed below.`;
+    const askingLabel = isShortlet ? "Asking rate" : "Asking";
+    const offerLabel = isShortlet ? "My rate offer" : "My offer";
     const lines = [
       `Hello ${agent?.name || "there"},`,
       "",
-      `I'd like to make an offer on the property listed below.`,
+      intro,
       "",
       `Property:    ${listing.title}`,
       `Location:    ${listing.address}`,
-      `Asking:      ${listing.priceLabel}`,
-      `My offer:    ${formattedAmount}`,
+      `${askingLabel}: ${askingDisplay}`,
+      `${offerLabel}: ${formattedAmount}`,
     ];
     if (offerNote.trim()) {
       lines.push("", "Additional notes:", offerNote.trim());
@@ -748,16 +758,19 @@ const PropertyDetail = () => {
                     </a>
                   </div>
 
-                  {/* Make an Offer button */}
-                  {listing.type === "SALE" && offerStatus === "idle" && (
-                    <button
-                      onClick={() => setOfferStatus("form")}
-                      className="mt-2 h-11 w-full rounded-full bg-primary-dark text-white text-sm font-bold hover:bg-primary transition-colors inline-flex items-center justify-center gap-2"
-                    >
-                      <Handshake className="w-4 h-4" />
-                      Make an Offer
-                    </button>
-                  )}
+                  {/* Make an Offer button — sales + shortlets */}
+                  {(listing.type === "SALE" || listing.type === "SHORTLET") &&
+                    offerStatus === "idle" && (
+                      <button
+                        onClick={() => setOfferStatus("form")}
+                        className="mt-2 h-11 w-full rounded-full bg-primary-dark text-white text-sm font-bold hover:bg-primary transition-colors inline-flex items-center justify-center gap-2"
+                      >
+                        <Handshake className="w-4 h-4" />
+                        {listing.type === "SHORTLET"
+                          ? "Make an Offer"
+                          : "Make an Offer"}
+                      </button>
+                    )}
 
                   <Link
                     to={`/agent/${agent.id}`}
@@ -796,12 +809,22 @@ const PropertyDetail = () => {
                                 type="text"
                                 value={offerAmount}
                                 onChange={(e) => setOfferAmount(e.target.value)}
-                                placeholder="e.g. 60,000,000"
+                                placeholder={
+                                  listing.type === "SHORTLET"
+                                    ? "e.g. 70,000"
+                                    : "e.g. 60,000,000"
+                                }
                                 className="w-full h-11 pl-10 pr-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
                               />
                             </div>
                             <p className="text-text-subtle text-[11px] mt-1">
-                              Asking price: {listing.priceLabel}
+                              {listing.type === "SHORTLET"
+                                ? "Asking rate"
+                                : "Asking price"}
+                              : {listing.priceLabel}
+                              {listing.period && (
+                                <span>/{listing.period.replace(/^\//, "")}</span>
+                              )}
                             </p>
                           </div>
                           <div>
