@@ -42,9 +42,10 @@ const ServiceLoop = () => {
           limit: 100,
           sort: "top_rated",
         });
-        // Filter for verified vendors and take top 3
-        const verifiedVendors = result.items.filter((v) => v.verified && v.availableForHire);
-        setVendors(verifiedVendors.slice(0, 3));
+        // Show available vendors (regardless of KYC verified flag —
+        // verified just controls the trust badge on each card).
+        const available = result.items.filter((v) => v.availableForHire);
+        setVendors(available.slice(0, 3));
       } catch (error) {
         console.error("Failed to load vendors:", error);
         setVendors([]);
