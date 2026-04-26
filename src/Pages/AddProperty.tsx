@@ -491,8 +491,8 @@ const AddProperty = () => {
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
       {submitting && (
-        <div className="fixed inset-0 z-100 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl px-10 py-8 flex flex-col items-center gap-5">
+        <div className="fixed inset-0 z-100 bg-black/40 backdrop-blur-sm flex items-center justify-center px-6">
+          <div className="bg-white rounded-3xl shadow-2xl px-8 sm:px-10 py-8 flex flex-col items-center gap-5 max-w-sm">
             <div className="flex gap-2">
               {[0, 1, 2].map((i) => (
                 <span
@@ -508,6 +508,13 @@ const AddProperty = () => {
             <p className="text-primary-dark font-heading font-semibold text-sm">
               Submitting...
             </p>
+            {pendingVideoFile && (
+              <p className="text-text-secondary text-xs text-center leading-relaxed">
+                Uploading your video — this can take a few minutes.
+                <br />
+                Please don't close this tab.
+              </p>
+            )}
           </div>
           <style>{`
             @keyframes ap-bounce {
