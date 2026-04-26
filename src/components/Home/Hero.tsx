@@ -341,7 +341,7 @@ const Hero = () => {
       </div>
 
       {/* ─── DESKTOP LAYOUT (absolute positioned, original) ─── */}
-      <div className="relative z-10 h-full hidden lg:flex flex-col justify-between px-6 md:px-12 lg:px-20 pb-8 pt-8 pointer-events-none">
+      <div className="relative z-10 h-full hidden lg:flex flex-col justify-between px-6 md:px-12 lg:px-20 pb-8 pointer-events-none">
         {/* Top content */}
         <div className="pointer-events-auto mt-16">
           {/* Heading */}

@@ -144,7 +144,9 @@ const AddProperty = () => {
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [pendingPhotoFiles, setPendingPhotoFiles] = useState<File[]>([]);
-  const [uploadingPhotoIndex, setUploadingPhotoIndex] = useState<number | null>(null);
+  const [uploadingPhotoIndex, setUploadingPhotoIndex] = useState<number | null>(
+    null,
+  );
   const [pendingDocFiles, setPendingDocFiles] = useState<File[]>([]);
   const [photoUploadError, setPhotoUploadError] = useState("");
   const [docUploadError, setDocUploadError] = useState("");
@@ -214,7 +216,24 @@ const AddProperty = () => {
         }
 
         const uploadedUrls = await uploadPendingPhotos();
-        const uploadedVideoUrl = await uploadPendingVideo();
+
+        let uploadedVideoUrl: string | undefined;
+        if (pendingVideoFile) {
+          try {
+            uploadedVideoUrl = await uploadPendingVideo();
+          } catch (videoErr: any) {
+            // Don't abandon the whole submit if the video upload fails —
+            // tell the user, drop the video, and continue with the listing.
+            const serverMsg = videoErr?.response?.data?.message;
+            const msg =
+              serverMsg ||
+              (videoErr instanceof Error
+                ? videoErr.message
+                : "Video upload failed");
+            console.error("Video upload failed:", videoErr?.response?.data || videoErr);
+            setVideoUploadError(`${msg} — listing was saved without the video.`);
+          }
+        }
 
         const created = await listingsService.create({
           title: form.title,
@@ -299,11 +318,9 @@ const AddProperty = () => {
       const formData = new FormData();
       formData.append("file", file);
       const { fileUrl } = await api
-        .post<{ fileUrl: string }>(
-          "/listings/upload/photo",
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } },
-        )
+        .post<{
+          fileUrl: string;
+        }>("/listings/upload/photo", formData, { headers: { "Content-Type": "multipart/form-data" } })
         .then((res) => res.data);
       urls.push(fileUrl);
     }
@@ -400,11 +417,9 @@ const AddProperty = () => {
       const formData = new FormData();
       formData.append("file", file);
       const { fileUrl } = await api
-        .post<{ fileUrl: string }>(
-          "/listings/upload/photo",
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } },
-        )
+        .post<{
+          fileUrl: string;
+        }>("/listings/upload/photo", formData, { headers: { "Content-Type": "multipart/form-data" } })
         .then((res) => res.data);
       await listingsService.addDocument(listingId, {
         name: file.name,
@@ -421,14 +436,10 @@ const AddProperty = () => {
       const formData = new FormData();
       formData.append("file", pendingVideoFile);
       const { fileUrl } = await api
-        .post<{ fileUrl: string }>(
-          "/listings/upload/video",
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-            timeout: 5 * 60 * 1000, // 5 min — videos take time
-          },
-        )
+        .post<{ fileUrl: string }>("/listings/upload/video", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+          timeout: 5 * 60 * 1000, // 5 min — videos take time
+        })
         .then((res) => res.data);
       return fileUrl;
     } finally {
@@ -480,7 +491,7 @@ const AddProperty = () => {
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
       {submitting && (
-        <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center">
+        <div className="fixed inset-0 z-100 bg-black/40 backdrop-blur-sm flex items-center justify-center">
           <div className="bg-white rounded-3xl shadow-2xl px-10 py-8 flex flex-col items-center gap-5">
             <div className="flex gap-2">
               {[0, 1, 2].map((i) => (
@@ -775,8 +786,8 @@ const AddProperty = () => {
                               useCustomLocation
                                 ? "__OTHER__"
                                 : locations.includes(form.location)
-                                ? form.location
-                                : ""
+                                  ? form.location
+                                  : ""
                             }
                             onChange={(e) => {
                               const val = e.target.value;
@@ -798,7 +809,9 @@ const AddProperty = () => {
                                 {loc}
                               </option>
                             ))}
-                            <option value="__OTHER__">Other (enter manually)</option>
+                            <option value="__OTHER__">
+                              Other (enter manually)
+                            </option>
                           </select>
                           {useCustomLocation && (
                             <input
@@ -929,9 +942,7 @@ const AddProperty = () => {
                                   onClick={() =>
                                     updateForm({
                                       features: selected
-                                        ? form.features.filter(
-                                            (x) => x !== f,
-                                          )
+                                        ? form.features.filter((x) => x !== f)
                                         : [...form.features, f],
                                     })
                                   }
@@ -974,9 +985,7 @@ const AddProperty = () => {
                               type="text"
                               placeholder="Add custom feature (e.g. Boys' Quarters)"
                               value={customFeature}
-                              onChange={(e) =>
-                                setCustomFeature(e.target.value)
-                              }
+                              onChange={(e) => setCustomFeature(e.target.value)}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                   e.preventDefault();
@@ -1039,7 +1048,10 @@ const AddProperty = () => {
                           <button
                             type="button"
                             onClick={triggerPhotoUpload}
-                            disabled={uploadingPhotoIndex !== null || pendingPhotoFiles.length >= 10}
+                            disabled={
+                              uploadingPhotoIndex !== null ||
+                              pendingPhotoFiles.length >= 10
+                            }
                             className="w-full border-2 border-dashed border-white/40 rounded-2xl p-8 flex flex-col items-center gap-3 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <div className="w-14 h-14 rounded-full bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center shadow-[0_4px_16px_rgba(31,111,67,0.06)]">
@@ -1210,12 +1222,15 @@ const AddProperty = () => {
                             Property Video (Optional)
                           </label>
                           <p className="text-text-subtle text-xs mb-3">
-                            Add a video walkthrough or showcase. You can upload a file or paste a video URL.
+                            Add a video walkthrough or showcase. You can upload
+                            a file or paste a video URL.
                           </p>
 
                           {videoUploadError && (
                             <div className="mb-3 p-3 bg-red-50/80 backdrop-blur-sm border border-red-200 rounded-lg">
-                              <p className="text-xs text-red-700">{videoUploadError}</p>
+                              <p className="text-xs text-red-700">
+                                {videoUploadError}
+                              </p>
                             </div>
                           )}
 
@@ -1225,7 +1240,9 @@ const AddProperty = () => {
                                 <div className="flex items-center gap-3">
                                   <Video className="w-5 h-5 text-primary shrink-0" />
                                   <p className="text-sm text-primary-dark font-medium truncate">
-                                    {form.videoUrl.includes("youtu") ? "YouTube Video" : "Video Uploaded"}
+                                    {form.videoUrl.includes("youtu")
+                                      ? "YouTube Video"
+                                      : "Video Uploaded"}
                                   </p>
                                 </div>
                                 <button
@@ -1247,7 +1264,12 @@ const AddProperty = () => {
                                       {pendingVideoFile.name}
                                     </p>
                                     <p className="text-[11px] text-text-subtle">
-                                      {(pendingVideoFile.size / 1024 / 1024).toFixed(2)} MB · uploads when you submit
+                                      {(
+                                        pendingVideoFile.size /
+                                        1024 /
+                                        1024
+                                      ).toFixed(2)}{" "}
+                                      MB · uploads when you submit
                                     </p>
                                   </div>
                                 </div>
@@ -1264,7 +1286,9 @@ const AddProperty = () => {
                             <div className="flex flex-col gap-3">
                               <div className="flex items-center gap-2">
                                 <div className="flex-1 h-px bg-white/30" />
-                                <span className="text-xs text-text-subtle">OR</span>
+                                <span className="text-xs text-text-subtle">
+                                  OR
+                                </span>
                                 <div className="flex-1 h-px bg-white/30" />
                               </div>
 
@@ -1291,10 +1315,19 @@ const AddProperty = () => {
                                   <input
                                     type="url"
                                     placeholder="Paste video URL..."
-                                    value={videoInputType === "url" && !form.videoUrl ? "" : form.videoUrl}
+                                    value={
+                                      videoInputType === "url" && !form.videoUrl
+                                        ? ""
+                                        : form.videoUrl
+                                    }
                                     onChange={(e) => {
-                                      if (e.target.value.includes("youtu") || e.target.value.includes("vimeo")) {
-                                        updateForm({ videoUrl: e.target.value });
+                                      if (
+                                        e.target.value.includes("youtu") ||
+                                        e.target.value.includes("vimeo")
+                                      ) {
+                                        updateForm({
+                                          videoUrl: e.target.value,
+                                        });
                                       } else if (e.target.value === "") {
                                         updateForm({ videoUrl: "" });
                                       }
