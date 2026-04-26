@@ -282,6 +282,9 @@ const ShortletSpotlight = () => {
                   <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
                     Shortlet
                   </span>
+                  <div className="absolute top-3 right-3 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                    <ArrowUpRight className="w-4 h-4 text-white" />
+                  </div>
                 </div>
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-2 mb-1">
@@ -320,11 +323,7 @@ const ShortletSpotlight = () => {
                       )}
                     </span>
                   </div>
-                </div>
-                <div className="w-10 h-10 bg-[#1a1a1a] rounded-full absolute -right-2 -bottom-2 z-10 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                  <ArrowUpRight className="w-4 h-4 text-white" />
-                </div>
-              </AuthGate>
+                </div>              </AuthGate>
             ))}
           </div>
         )}

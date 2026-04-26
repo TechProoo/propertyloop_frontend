@@ -208,16 +208,18 @@ const VideoListings = () => {
                           className="w-full h-full"
                         />
                       )}
-                      {/* Close button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPlayingIdx(null);
-                        }}
-                        className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
+                      {/* Close button and arrow container */}
+                      <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPlayingIdx(null);
+                          }}
+                          className="w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     </>
                   ) : (
                     <>
@@ -226,8 +228,13 @@ const VideoListings = () => {
                         alt={home.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-                      {/* Dark overlay */}
+                      {/* Dark overlay and arrow */}
                       <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
+                      {!playingIdx || playingIdx !== i && (
+                        <div className="absolute top-3 right-3 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300 z-10">
+                          <ArrowUpRight className="w-4 h-4 text-white" />
+                        </div>
+                      )}
 
                       {/* Play button */}
                       <button
@@ -289,11 +296,6 @@ const VideoListings = () => {
                     </span>
                   </div>
                 </a>
-
-                {/* Arrow — clipped circle at bottom-right corner */}
-                <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                  <ArrowUpRight className="w-5 h-5 text-white" />
-                </div>
               </div>
             );
             })}

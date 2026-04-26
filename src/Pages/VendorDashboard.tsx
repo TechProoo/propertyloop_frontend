@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -32,6 +32,7 @@ import { useAuth } from "../context/AuthContext";
 import vendorsService from "../api/services/vendors";
 import vendorJobsService from "../api/services/vendorJobs";
 import vendorEarningsService from "../api/services/vendorEarnings";
+import messagesService from "../api/services/messages";
 import uploadService from "../api/services/upload";
 import type { VendorStats } from "../api/types";
 import { useConversations } from "../api/hooks";
@@ -336,6 +337,22 @@ const VendorDashboard = () => {
     }
   };
 
+  const handleOpenJobChat = async (job: any) => {
+    if (!job?.buyerUserId) return;
+    try {
+      const { conversationId } = await messagesService.createOrFind({
+        recipientId: job.buyerUserId,
+        recipientRole: "BUYER",
+        senderRole: "VENDOR",
+      });
+      setSelectedConvo(conversationId);
+      setActiveNav("messages");
+      setMobileChat(true);
+    } catch (err) {
+      console.error("Failed to open job conversation:", err);
+    }
+  };
+
   /* Job filtering */
   const pendingJobs = vendorJobs.filter((j: any) => j.status === "pending");
   const activeJobs = vendorJobs.filter(
@@ -387,15 +404,17 @@ const VendorDashboard = () => {
         >
           <AnimatePresence mode="wait">
             {sidebarOpen && (
-              <motion.img
-                key="logo"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                src={Logo}
-                alt="PropertyLoop"
-                className="w-28"
-              />
+              <Link to="/" key="logo-link">
+                <motion.img
+                  key="logo"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  src={Logo}
+                  alt="PropertyLoop — back to home"
+                  className="w-28 cursor-pointer"
+                />
+              </Link>
             )}
           </AnimatePresence>
           <button
@@ -502,7 +521,13 @@ const VendorDashboard = () => {
                 className="flex items-center justify-between px-4 py-5 border-b"
                 style={{ borderColor: "hsl(160, 20%, 22%)" }}
               >
-                <img src={Logo} alt="PropertyLoop" className="w-28" />
+                <Link to="/" onClick={() => setMobileMenuOpen(false)}>
+                  <img
+                    src={Logo}
+                    alt="PropertyLoop — back to home"
+                    className="w-28 cursor-pointer"
+                  />
+                </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-colors"
@@ -958,7 +983,8 @@ const VendorDashboard = () => {
                   {filteredJobs.map((job) => (
                     <div
                       key={job.id}
-                      className="flex flex-col sm:flex-row gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-5 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all"
+                      onClick={() => handleOpenJobChat(job)}
+                      className="flex flex-col sm:flex-row gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-5 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:border-primary/40 transition-all cursor-pointer"
                     >
                       <div className="flex items-start gap-4 flex-1 min-w-0">
                         <img
@@ -1010,13 +1036,19 @@ const VendorDashboard = () => {
                           job.status === "pending" && (
                             <>
                               <button
-                                onClick={() => handleAcceptJob(job.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAcceptJob(job.id);
+                                }}
                                 className="h-8 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-1.5"
                               >
                                 <CheckCircle className="w-3.5 h-3.5" /> Accept
                               </button>
                               <button
-                                onClick={() => handleDeclineJob(job.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeclineJob(job.id);
+                                }}
                                 className="h-8 px-4 rounded-full border border-red-200 bg-red-50 text-red-600 text-xs font-medium hover:bg-red-100 transition-colors flex items-center gap-1.5"
                               >
                                 <XCircle className="w-3.5 h-3.5" /> Decline
@@ -1027,7 +1059,10 @@ const VendorDashboard = () => {
                           (job.status === "accepted" ||
                             job.status === "in-progress") && (
                             <button
-                              onClick={() => handleCompleteJob(job.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCompleteJob(job.id);
+                              }}
                               className="h-8 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-1.5"
                             >
                               <CheckCircle className="w-3.5 h-3.5" /> Mark
@@ -1048,8 +1083,20 @@ const VendorDashboard = () => {
                               received
                             </span>
                           )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenJobChat(job);
+                          }}
+                          title="Open conversation with client"
+                          className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                        </button>
                         <a
                           href={`tel:+${job.clientPhone}`}
+                          onClick={(e) => e.stopPropagation()}
                           className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                         >
                           <Phone className="w-3.5 h-3.5" />

@@ -381,10 +381,15 @@ const NewDevelopments = () => {
                       >
                         {dev.status}
                       </span>
-                      {/* Units badge */}
-                      <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
-                        {dev.totalUnits} Units
-                      </span>
+                      {/* Status badge and arrow */}
+                      <div className="absolute top-3 right-3 flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
+                          {dev.totalUnits} Units
+                        </span>
+                        <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                          <ArrowUpRight className="w-4 h-4 text-white" />
+                        </div>
+                      </div>
                     </div>
 
                     {/* Glass content */}
@@ -434,11 +439,6 @@ const NewDevelopments = () => {
                           />
                         </div>
                       </div>
-                    </div>
-
-                    {/* Arrow */}
-                    <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                      <ArrowUpRight className="w-5 h-5 text-white" />
                     </div>
 
                     {/* Contact overlay */}

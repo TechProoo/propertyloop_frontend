@@ -213,11 +213,18 @@ const VideoTours = () => {
                         </div>
                       </button>
 
-                      {/* Views */}
-                      <span className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
-                        <Eye className="w-3 h-3" />
-                        {(tour.viewsCount / 1000).toFixed(1)}k views
-                      </span>
+                      <div className="absolute top-3 right-3 flex items-center gap-2">
+                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
+                          <Eye className="w-3 h-3" />
+                          {(tour.viewsCount / 1000).toFixed(1)}k views
+                        </span>
+                        <Link
+                          to={`/video-tour/${tour.id}`}
+                          className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300"
+                        >
+                          <ArrowUpRight className="w-4 h-4 text-white" />
+                        </Link>
+                      </div>
 
                       {/* Rating */}
                       <span className="absolute bottom-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
@@ -265,14 +272,6 @@ const VideoTours = () => {
                       {tour.sqft}m²
                     </span>
                   </div>
-                </Link>
-
-                {/* Arrow */}
-                <Link
-                  to={`/video-tour/${tour.id}`}
-                  className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center"
-                >
-                  <ArrowUpRight className="w-5 h-5 text-white" />
                 </Link>
               </div>
               );

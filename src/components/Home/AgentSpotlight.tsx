@@ -174,12 +174,22 @@ const AgentSpotlight = () => {
                   alt={agent.name}
                   className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                 />
-                {/* Verified badge */}
+                {/* Verified badge and arrow */}
                 {agent.verified && (
-                  <span className="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary text-xs font-medium">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    KYC Verified
-                  </span>
+                  <div className="absolute top-3 right-3 flex items-center gap-2">
+                    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary text-xs font-medium">
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      KYC Verified
+                    </span>
+                    <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                      <ArrowUpRight className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                )}
+                {!agent.verified && (
+                  <div className="absolute top-3 right-3 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                    <ArrowUpRight className="w-4 h-4 text-white" />
+                  </div>
                 )}
               </div>
 
@@ -210,11 +220,6 @@ const AgentSpotlight = () => {
                     <span>{agent.soldRentedCount} closed</span>
                   </div>
                 </div>
-              </div>
-
-              {/* Arrow — clipped circle bottom-right */}
-              <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                <ArrowUpRight className="w-5 h-5 text-white" />
               </div>
             </AuthGate>
           ))}

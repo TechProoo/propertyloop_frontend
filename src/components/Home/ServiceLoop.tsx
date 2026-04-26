@@ -286,10 +286,15 @@ const ServiceLoop = () => {
                       <Wrench className="w-12 h-12 text-text-subtle" />
                     </div>
                   )}
-                  {/* Category badge */}
-                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium z-10">
-                    {vendor.category || "Service"}
-                  </span>
+                  {/* Category badge and arrow */}
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
+                    <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
+                      {vendor.category || "Service"}
+                    </span>
+                    <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                      <ArrowUpRight className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Glass content panel */}
@@ -339,11 +344,6 @@ const ServiceLoop = () => {
                       {vendor.priceLabel || "From ₦15,000"}
                     </span>
                   </div>
-                </div>
-
-                {/* Arrow — clipped circle at bottom-right corner */}
-                <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                  <ArrowUpRight className="w-5 h-5 text-white" />
                 </div>
               </AuthGate>
             ))}

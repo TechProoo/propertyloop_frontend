@@ -73,7 +73,11 @@ const Services = () => {
       ? undefined
       : parseFloat(activeRating.replace("+", ""));
 
-  const { items: apiVendors, loading, updateParams } = useVendors({
+  const {
+    items: apiVendors,
+    loading,
+    updateParams,
+  } = useVendors({
     category: activeCategory === "All Services" ? undefined : activeCategory,
     location: activeLocation === "All Locations" ? undefined : activeLocation,
     search: searchQuery || undefined,
@@ -103,7 +107,9 @@ const Services = () => {
           count: stats.total || 0,
         },
         ...Object.entries(stats.byCategory || {}).map(([category, count]) => ({
-          icon: categoryIcons[category as keyof typeof categoryIcons] || <Wrench className="w-5 h-5" />,
+          icon: categoryIcons[category as keyof typeof categoryIcons] || (
+            <Wrench className="w-5 h-5" />
+          ),
           label: category,
           count: count as number,
         })),
@@ -183,8 +189,8 @@ const Services = () => {
                 The Service <span className="text-white/70">Loop</span>
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
-                Browse verified plumbers, electricians, builders, cleaners,
-                and more — all KYC-verified and rated by real customers.
+                Browse verified plumbers, electricians, builders, cleaners, and
+                more — all KYC-verified and rated by real customers.
               </p>
               <div className="flex flex-wrap gap-3 mt-6">
                 {[
@@ -446,12 +452,15 @@ const Services = () => {
                             <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
                               {vendor.category}
                             </span>
-                            <div className="absolute top-3 right-3">
+                            <div className="absolute top-3 right-3 flex items-center gap-2">
                               <BookmarkButton
                                 id={vendor.id}
                                 type="service"
                                 size="sm"
                               />
+                              <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                                <ArrowUpRight className="w-4 h-4 text-white" />
+                              </div>
                             </div>
                           </div>
 
@@ -472,7 +481,8 @@ const Services = () => {
                                   )}
                                 </div>
                                 <p className="text-text-secondary text-xs flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" /> {vendor.location}
+                                  <MapPin className="w-3 h-3" />{" "}
+                                  {vendor.location}
                                 </p>
                               </div>
                             </div>
@@ -492,10 +502,6 @@ const Services = () => {
                             <p className="font-heading font-bold text-primary-dark text-sm mt-2.5">
                               {vendor.price}
                             </p>
-                          </div>
-
-                          <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                            <ArrowUpRight className="w-5 h-5 text-white" />
                           </div>
                         </Link>
 
@@ -556,8 +562,8 @@ const Services = () => {
                 Every vendor is KYC-verified
               </h3>
               <p className="text-text-secondary text-sm mt-1">
-                Identity-checked, rated, and reviewed. Browse profiles,
-                message vendors directly, and book with confidence.
+                Identity-checked, rated, and reviewed. Browse profiles, message
+                vendors directly, and book with confidence.
               </p>
             </div>
             <Link

@@ -554,6 +554,9 @@ const Shortlet = () => {
                               /{listing.period}
                             </span>
                           </span>
+                          <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                            <ArrowUpRight className="w-4 h-4 text-white" />
+                          </div>
                         </div>
                       </div>
 
@@ -602,11 +605,6 @@ const Shortlet = () => {
                             </span>
                           )}
                         </div>
-                      </div>
-
-                      {/* Arrow */}
-                      <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                        <ArrowUpRight className="w-5 h-5 text-white" />
                       </div>
 
                       {/* Contact overlay */}

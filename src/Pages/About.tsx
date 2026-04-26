@@ -346,12 +346,15 @@ const About = () => {
                   className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
                 >
                   {/* Image */}
-                  <div className="h-48 overflow-hidden rounded-t-[20px]">
+                  <div className="h-48 overflow-hidden rounded-t-[20px] relative">
                     <img
                       src={item.image}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
+                    <div className="absolute top-3 right-3 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                      <ArrowUpRight className="w-4 h-4 text-white" />
+                    </div>
                   </div>
 
                   {/* Glass content */}
@@ -367,11 +370,6 @@ const About = () => {
                     <p className="text-text-secondary text-sm leading-relaxed">
                       {item.description}
                     </p>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="w-12 h-12 bg-[#1a1a1a] rounded-full absolute -right-3 -bottom-3 z-20 group-hover:bg-primary transition-colors duration-300 flex items-center justify-center">
-                    <ArrowUpRight className="w-5 h-5 text-white" />
                   </div>
                 </div>
               ))}
