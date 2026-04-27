@@ -198,9 +198,7 @@ const ReviewDisputeSection = ({
                 <button
                   onClick={handleReviewSubmit}
                   disabled={
-                    reviewRating === 0 ||
-                    !reviewText.trim() ||
-                    reviewSubmitting
+                    reviewRating === 0 || !reviewText.trim() || reviewSubmitting
                   }
                   className="mt-3 h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
@@ -255,7 +253,8 @@ const ReviewDisputeSection = ({
                   disabled={!disputeText.trim() || disputeSubmitting}
                   className="mt-3 h-10 px-6 rounded-full bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  <Flag className="w-3.5 h-3.5" /> {disputeSubmitting ? "Submitting…" : "Submit Report"}
+                  <Flag className="w-3.5 h-3.5" />{" "}
+                  {disputeSubmitting ? "Submitting…" : "Submit Report"}
                 </button>
                 {disputeError && (
                   <p className="text-xs text-red-500 mt-2">{disputeError}</p>
@@ -721,13 +720,13 @@ const AgentProfile = () => {
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                              {(review.reviewerName ||
+                              {(
+                                review.reviewerName ||
                                 review.clientName ||
-                                review.name)
+                                review.name
+                              )
                                 ?.charAt(0)
-                                ?.toUpperCase() || (
-                                <User className="w-4 h-4" />
-                              )}
+                                ?.toUpperCase() || <User className="w-4 h-4" />}
                             </div>
                             <div>
                               {(review.reviewerName ||
@@ -741,18 +740,22 @@ const AgentProfile = () => {
                               )}
                               <p className="text-text-subtle text-[11px]">
                                 {review.createdAt
-                                  ? new Date(review.createdAt).toLocaleDateString()
+                                  ? new Date(
+                                      review.createdAt,
+                                    ).toLocaleDateString()
                                   : review.date}
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-0.5">
-                            {Array.from({ length: review.rating }).map((_, j) => (
-                              <Star
-                                key={j}
-                                className="w-3 h-3 text-[#F5A623] fill-[#F5A623]"
-                              />
-                            ))}
+                            {Array.from({ length: review.rating }).map(
+                              (_, j) => (
+                                <Star
+                                  key={j}
+                                  className="w-3 h-3 text-[#F5A623] fill-[#F5A623]"
+                                />
+                              ),
+                            )}
                           </div>
                         </div>
                         <p className="text-text-secondary text-sm leading-relaxed">
@@ -849,7 +852,9 @@ const AgentProfile = () => {
                 </div>
                 <div className="px-4 pb-4">
                   <button
-                    onClick={() => navigate(`/buy?search=${encodeURIComponent(agent.name)}`)}
+                    onClick={() =>
+                      navigate(`/buy?search=${encodeURIComponent(agent.name)}`)
+                    }
                     className="w-full h-10 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
                   >
                     View all {agent.listings} listings

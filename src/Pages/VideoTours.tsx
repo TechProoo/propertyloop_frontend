@@ -219,7 +219,7 @@ const VideoTours = () => {
                           {(tour.viewsCount / 1000).toFixed(1)}k views
                         </span>
                         <Link
-                          to={`/video-tour/${tour.id}`}
+                          to={`/property/${tour.id}`}
                           className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300"
                         >
                           <ArrowUpRight className="w-4 h-4 text-white" />
@@ -237,7 +237,7 @@ const VideoTours = () => {
 
                 {/* Glass content */}
                 <Link
-                  to={`/video-tour/${tour.id}`}
+                  to={`/property/${tour.id}`}
                   className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] block"
                 >
                   <p className="font-heading font-bold text-primary-dark text-[18px]">

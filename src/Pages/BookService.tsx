@@ -48,7 +48,10 @@ const getConversation = (id: string): Conversation | null => {
 };
 
 const saveConversation = (conversation: Conversation) => {
-  localStorage.setItem(`conversation-${conversation.id}`, JSON.stringify(conversation));
+  localStorage.setItem(
+    `conversation-${conversation.id}`,
+    JSON.stringify(conversation),
+  );
 };
 
 const addMessage = (convoId: string, message: ChatMessage) => {
@@ -60,7 +63,6 @@ const addMessage = (convoId: string, message: ChatMessage) => {
 };
 
 const ease = [0.23, 1, 0.32, 1] as const;
-
 
 /* ─── Review / Report Vendor ─── */
 const VendorReviewSection = ({ vendorName }: { vendorName: string }) => {
@@ -278,7 +280,9 @@ const BookService = () => {
 
         // Load existing messages
         try {
-          const messages = await messagesService.getMessages(result.conversationId);
+          const messages = await messagesService.getMessages(
+            result.conversationId,
+          );
           console.log("Messages loaded:", messages);
           if (messages && messages.length > 0) {
             const formattedMessages: ChatMessage[] = messages.map((msg) => ({
@@ -308,7 +312,12 @@ const BookService = () => {
 
   const handleSendNegotiationRequest = async () => {
     if (!jobDescription.trim() || !vendor || !convoId || !user) {
-      console.log("Negotiation blocked:", { hasDescription: !!jobDescription.trim(), hasVendor: !!vendor, hasConvoId: !!convoId, hasUser: !!user });
+      console.log("Negotiation blocked:", {
+        hasDescription: !!jobDescription.trim(),
+        hasVendor: !!vendor,
+        hasConvoId: !!convoId,
+        hasUser: !!user,
+      });
       return;
     }
 
@@ -323,7 +332,9 @@ const BookService = () => {
         address: propertyAddress || "Not specified",
         category: vendor.category || "Service",
         vendorFee: Math.max(vendor.priceNum ?? 0, 15000),
-        scheduledFor: preferredDate ? new Date(`${preferredDate}T${preferredTime}`).toISOString() : new Date().toISOString(),
+        scheduledFor: preferredDate
+          ? new Date(`${preferredDate}T${preferredTime}`).toISOString()
+          : new Date().toISOString(),
         clientName: (user as any).name || "Client",
         clientPhone: (user as any).phone,
         clientEmail: (user as any).email,
@@ -359,7 +370,11 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
 
   const handleChatSend = async () => {
     if (!chatInput.trim() || !vendor || !convoId) {
-      console.log("Chat send blocked:", { hasInput: !!chatInput.trim(), hasVendor: !!vendor, hasConvoId: !!convoId });
+      console.log("Chat send blocked:", {
+        hasInput: !!chatInput.trim(),
+        hasVendor: !!vendor,
+        hasConvoId: !!convoId,
+      });
       return;
     }
 
@@ -420,7 +435,6 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
     );
   }
 
-
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
       <Navbar />
@@ -443,355 +457,355 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
             </span>
           </div>
 
-
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
             {/* Left — step content */}
             <div className="flex-1">
               <div>
                 <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
-                      <h2 className="font-heading font-bold text-primary-dark text-lg mb-5">
-                        Describe Your Job
-                      </h2>
+                  <h2 className="font-heading font-bold text-primary-dark text-lg mb-5">
+                    Describe Your Job
+                  </h2>
 
-                      {/* Vendor mini card */}
-                      <Link
-                        to={`/vendor/${vendor.id}`}
-                        className="flex items-center gap-4 bg-white/60 border border-border-light rounded-2xl p-4 mb-6 hover:shadow-md hover:border-primary/30 transition-all"
-                      >
-                        <img
-                          src={vendor.avatarUrl ?? ""}
-                          alt={vendor.name}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <p className="font-heading font-bold text-primary-dark text-sm hover:text-primary transition-colors">
-                              {vendor.name}
-                            </p>
-                            {vendor.verified && (
-                              <CheckCircle className="w-3.5 h-3.5 text-primary" />
-                            )}
-                          </div>
-                          <p className="text-text-secondary text-xs">
-                            {vendor.category} · {vendor.location}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1 text-xs text-text-secondary">
-                          <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
-                          {vendor.rating}
-                        </div>
-                      </Link>
+                  {/* Vendor mini card */}
+                  <Link
+                    to={`/vendor/${vendor.id}`}
+                    className="flex items-center gap-4 bg-white/60 border border-border-light rounded-2xl p-4 mb-6 hover:shadow-md hover:border-primary/30 transition-all"
+                  >
+                    <img
+                      src={vendor.avatarUrl ?? ""}
+                      alt={vendor.name}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="font-heading font-bold text-primary-dark text-sm hover:text-primary transition-colors">
+                          {vendor.name}
+                        </p>
+                        {vendor.verified && (
+                          <CheckCircle className="w-3.5 h-3.5 text-primary" />
+                        )}
+                      </div>
+                      <p className="text-text-secondary text-xs">
+                        {vendor.category} · {vendor.location}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-text-secondary">
+                      <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
+                      {vendor.rating}
+                    </div>
+                  </Link>
 
-                      <div className="flex flex-col gap-4">
-                        <div>
-                          <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                            What do you need done?
-                          </label>
-                          <textarea
-                            value={jobDescription}
-                            onChange={(e) => setJobDescription(e.target.value)}
-                            placeholder="Describe the job in detail — what needs to be fixed, installed, or repaired..."
-                            className="w-full h-28 px-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                        What do you need done?
+                      </label>
+                      <textarea
+                        value={jobDescription}
+                        onChange={(e) => setJobDescription(e.target.value)}
+                        placeholder="Describe the job in detail — what needs to be fixed, installed, or repaired..."
+                        className="w-full h-28 px-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                          Preferred Date
+                        </label>
+                        <div className="relative">
+                          <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-subtle" />
+                          <input
+                            type="date"
+                            value={preferredDate}
+                            onChange={(e) => setPreferredDate(e.target.value)}
+                            className="w-full h-11 pl-11 pr-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                              Preferred Date
-                            </label>
-                            <div className="relative">
-                              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-subtle" />
-                              <input
-                                type="date"
-                                value={preferredDate}
-                                onChange={(e) =>
-                                  setPreferredDate(e.target.value)
-                                }
-                                className="w-full h-11 pl-11 pr-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                              Preferred Time
-                            </label>
-                            <select
-                              value={preferredTime}
-                              onChange={(e) => setPreferredTime(e.target.value)}
-                              className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none"
-                            >
-                              <option>08:00</option>
-                              <option>09:00</option>
-                              <option>10:00</option>
-                              <option>11:00</option>
-                              <option>12:00</option>
-                              <option>13:00</option>
-                              <option>14:00</option>
-                              <option>15:00</option>
-                              <option>16:00</option>
-                              <option>17:00</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                            Negotiation Notes
-                          </label>
-                          <div className="relative">
-                            <MessageCircle className="absolute left-4 top-3.5 w-4 h-4 text-text-subtle" />
-                            <textarea
-                              value={propertyAddress}
-                              onChange={(e) =>
-                                setPropertyAddress(e.target.value)
-                              }
-                              placeholder="State your negotiation — chat with vendor to agree on scope and pricing before confirming."
-                              className="w-full h-20 pl-11 pr-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
-                            />
-                          </div>
-                          <p className="text-[11px] text-text-subtle mt-1 ml-1">
-                            Property address will be shared after negotiation is
-                            concluded.
-                          </p>
-                        </div>
                       </div>
-
-                      <div className="flex justify-end mt-6">
-                        <button
-                          onClick={handleSendNegotiationRequest}
-                          disabled={!jobDescription.trim() || sending}
-                          className="flex items-center gap-2 px-8 py-2.5 rounded-full bg-primary text-white font-heading font-semibold text-sm shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      <div>
+                        <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                          Preferred Time
+                        </label>
+                        <select
+                          value={preferredTime}
+                          onChange={(e) => setPreferredTime(e.target.value)}
+                          className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none"
                         >
-                          {sending ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                              Sending...
-                            </>
-                          ) : (
-                            <>
-                              Continue Negotiation <ArrowRight className="w-4 h-4" />
-                            </>
-                          )}
-                        </button>
+                          <option>08:00</option>
+                          <option>09:00</option>
+                          <option>10:00</option>
+                          <option>11:00</option>
+                          <option>12:00</option>
+                          <option>13:00</option>
+                          <option>14:00</option>
+                          <option>15:00</option>
+                          <option>16:00</option>
+                          <option>17:00</option>
+                        </select>
                       </div>
                     </div>
+                    <div>
+                      <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                        Negotiation Notes
+                      </label>
+                      <div className="relative">
+                        <MessageCircle className="absolute left-4 top-3.5 w-4 h-4 text-text-subtle" />
+                        <textarea
+                          value={propertyAddress}
+                          onChange={(e) => setPropertyAddress(e.target.value)}
+                          placeholder="State your negotiation — chat with vendor to agree on scope and pricing before confirming."
+                          className="w-full h-20 pl-11 pr-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+                        />
+                      </div>
+                      <p className="text-[11px] text-text-subtle mt-1 ml-1">
+                        Property address will be shared after negotiation is
+                        concluded.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end mt-6">
+                    <button
+                      onClick={handleSendNegotiationRequest}
+                      disabled={!jobDescription.trim() || sending}
+                      className="flex items-center gap-2 px-8 py-2.5 rounded-full bg-primary text-white font-heading font-semibold text-sm shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sending ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          Continue Negotiation{" "}
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
 
                 {/* Success Message Overlay */}
-                  <AnimatePresence>
-                    {sent && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ duration: 0.3 }}
-                        className="fixed inset-0 flex items-center justify-center z-50 p-4"
-                      >
-                        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-                        <div className="relative bg-white/95 backdrop-blur-md border border-white/40 rounded-[20px] shadow-2xl p-8 sm:p-10 text-center max-w-sm">
-                          <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{
-                              type: "spring",
-                              stiffness: 300,
-                              damping: 20,
-                            }}
-                            className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-5 shadow-lg shadow-glow/40"
-                          >
-                            <MessageCircle className="w-8 h-8 text-white" />
-                          </motion.div>
-                          <h2 className="font-heading font-bold text-primary-dark text-xl">
-                            Request Sent!
-                          </h2>
-                          <p className="text-text-secondary text-sm mt-2">
-                            Your service request has been sent to {vendor.name}. Continue negotiating details on your dashboard.
-                          </p>
-                          <div className="mt-6 flex items-center justify-center gap-2 text-xs text-text-secondary">
-                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                            Redirecting to dashboard...
-                          </div>
+                <AnimatePresence>
+                  {sent && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.3 }}
+                      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+                    >
+                      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+                      <div className="relative bg-white/95 backdrop-blur-md border border-white/40 rounded-[20px] shadow-2xl p-8 sm:p-10 text-center max-w-sm">
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 20,
+                          }}
+                          className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-5 shadow-lg shadow-glow/40"
+                        >
+                          <MessageCircle className="w-8 h-8 text-white" />
+                        </motion.div>
+                        <h2 className="font-heading font-bold text-primary-dark text-xl">
+                          Request Sent!
+                        </h2>
+                        <p className="text-text-secondary text-sm mt-2">
+                          Your service request has been sent to {vendor.name}.
+                          Continue negotiating details on your dashboard.
+                        </p>
+                        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-text-secondary">
+                          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                          Redirecting to dashboard...
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
             {/* Right — Vendor summary */}
             <div className="lg:w-85 shrink-0">
-                <div className="sticky top-8 flex flex-col gap-4">
-                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                    <Link to={`/vendor/${vendor.id}`}>
+              <div className="sticky top-8 flex flex-col gap-4">
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                  <Link to={`/vendor/${vendor.id}`}>
+                    <img
+                      src={vendor.bannerImage ?? vendor.avatarUrl ?? ""}
+                      alt={vendor.name}
+                      className="w-full h-40 object-cover hover:opacity-90 transition-opacity"
+                    />
+                  </Link>
+                  <div className="p-5">
+                    <Link
+                      to={`/vendor/${vendor.id}`}
+                      className="group flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity"
+                    >
                       <img
-                        src={vendor.bannerImage ?? vendor.avatarUrl ?? ""}
+                        src={vendor.avatarUrl ?? ""}
                         alt={vendor.name}
-                        className="w-full h-40 object-cover hover:opacity-90 transition-opacity"
+                        className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
                       />
-                    </Link>
-                    <div className="p-5">
-                      <Link to={`/vendor/${vendor.id}`} className="group flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity">
-                        <img
-                          src={vendor.avatarUrl ?? ""}
-                          alt={vendor.name}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <p className="font-heading font-bold text-primary-dark text-sm truncate group-hover:text-primary transition-colors">
-                              {vendor.name}
-                            </p>
-                            {vendor.verified && (
-                              <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
-                            )}
-                          </div>
-                          <p className="text-text-secondary text-xs">
-                            {vendor.category}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-heading font-bold text-primary-dark text-sm truncate group-hover:text-primary transition-colors">
+                            {vendor.name}
                           </p>
+                          {vendor.verified && (
+                            <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
+                          )}
                         </div>
-                      </Link>
-                      <div className="flex items-center gap-3 text-xs text-text-secondary mb-3">
-                        <span className="flex items-center gap-1">
-                          <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
-                          {vendor.rating}
-                        </span>
-                        <span>{vendor.jobsCount} jobs</span>
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3 h-3" /> {vendor.location}
-                        </span>
+                        <p className="text-text-secondary text-xs">
+                          {vendor.category}
+                        </p>
                       </div>
-                      <div className="h-px bg-border-light mb-3" />
-                      <p className="font-heading font-bold text-primary-dark text-lg">
-                        {vendor.priceLabel ??
-                          `From ₦${Math.max(vendor.priceNum ?? 0, 15000).toLocaleString()}`}
-                      </p>
-                      <p className="text-text-secondary text-xs mt-2 leading-relaxed">
-                        {vendor.bio}
-                      </p>
-                      <div className="h-px bg-border-light my-3" />
-                      <div className="flex flex-col gap-2 text-xs text-text-secondary">
-                        <div className="flex items-center gap-2">
-                          <ShieldCheck className="w-4 h-4 text-primary" /> KYC
-                          verified vendor
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <ClipboardList className="w-4 h-4 text-primary" />{" "}
-                          Auto-logged to Property Logbook
-                        </div>
+                    </Link>
+                    <div className="flex items-center gap-3 text-xs text-text-secondary mb-3">
+                      <span className="flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
+                        {vendor.rating}
+                      </span>
+                      <span>{vendor.jobsCount} jobs</span>
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3" /> {vendor.location}
+                      </span>
+                    </div>
+                    <div className="h-px bg-border-light mb-3" />
+                    <p className="font-heading font-bold text-primary-dark text-lg">
+                      {vendor.priceLabel ??
+                        `From ₦${Math.max(vendor.priceNum ?? 0, 15000).toLocaleString()}`}
+                    </p>
+                    <p className="text-text-secondary text-xs mt-2 leading-relaxed">
+                      {vendor.bio}
+                    </p>
+                    <div className="h-px bg-border-light my-3" />
+                    <div className="flex flex-col gap-2 text-xs text-text-secondary">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-primary" /> KYC
+                        verified vendor
                       </div>
-                      <div className="h-px bg-border-light my-3" />
-                      <div className="flex gap-2">
-                        <a
-                          href={`tel:+${vendor.phone ?? ""}`}
-                          className="flex-1 h-9 rounded-full bg-white/80 border border-white/40 text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-1"
-                        >
-                          <Phone className="w-3 h-3" /> Call
-                        </a>
+                      <div className="flex items-center gap-2">
+                        <ClipboardList className="w-4 h-4 text-primary" />{" "}
+                        Auto-logged to Property Logbook
                       </div>
                     </div>
-                  </div>
-
-                  {/* ─── Review / Report Vendor ─── */}
-                  <VendorReviewSection vendorName={vendor.name} />
-
-                  {/* ─── Mini Chat Widget ─── */}
-                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                    {/* Chat Header — Toggle */}
-                    <button
-                      onClick={() => setChatOpen(!chatOpen)}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/30 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                          <MessageCircle className="w-4 h-4" />
-                        </div>
-                        <div className="text-left">
-                          <p className="font-heading font-bold text-primary-dark text-sm">
-                            Chat with {vendor.name.split(" ")[0]}
-                          </p>
-                          <p className="text-text-subtle text-[10px]">
-                            Ask questions before booking
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {chatMessages.length > 1 && (
-                          <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[9px] font-bold">
-                            {chatMessages.length}
-                          </span>
-                        )}
-                        {chatOpen ? (
-                          <ChevronDown className="w-4 h-4 text-text-subtle" />
-                        ) : (
-                          <ChevronUp className="w-4 h-4 text-text-subtle" />
-                        )}
-                      </div>
-                    </button>
-
-                    {/* Chat Body */}
-                    <AnimatePresence>
-                      {chatOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.25, ease }}
-                          className="overflow-hidden"
-                        >
-                          <div className="border-t border-white/30">
-                            {/* Messages */}
-                            <div className="h-64 overflow-y-auto p-3 flex flex-col gap-2 bg-white/20">
-                              {chatMessages.map((msg, i) => (
-                                <div
-                                  key={i}
-                                  className={`flex ${msg.sender === "you" ? "justify-end" : "justify-start"}`}
-                                >
-                                  <div
-                                    className={`max-w-[85%] px-3 py-2 rounded-2xl text-xs leading-relaxed ${
-                                      msg.sender === "you"
-                                        ? "bg-primary text-white rounded-br-md"
-                                        : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md"
-                                    }`}
-                                  >
-                                    {msg.text}
-                                    <p
-                                      className={`text-[9px] mt-0.5 ${msg.sender === "you" ? "text-white/50" : "text-text-subtle"}`}
-                                    >
-                                      {msg.time}
-                                    </p>
-                                  </div>
-                                </div>
-                              ))}
-                              <div ref={chatEndRef} />
-                            </div>
-
-                            {/* Input */}
-                            <div className="p-2 border-t border-white/30 bg-white/20">
-                              <div className="flex items-center gap-1.5">
-                                <input
-                                  type="text"
-                                  value={chatInput}
-                                  onChange={(e) => setChatInput(e.target.value)}
-                                  onKeyDown={(e) =>
-                                    e.key === "Enter" && handleChatSend()
-                                  }
-                                  placeholder="Type a message..."
-                                  className="flex-1 h-8 px-3 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-xs text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
-                                />
-                                <button
-                                  onClick={handleChatSend}
-                                  disabled={!chatInput.trim()}
-                                  className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-40 shrink-0"
-                                >
-                                  <Send className="w-3.5 h-3.5" />
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <div className="h-px bg-border-light my-3" />
+                    <div className="flex gap-2">
+                      <a
+                        href={`tel:+${vendor.phone ?? ""}`}
+                        className="flex-1 h-9 rounded-full bg-white/80 border border-white/40 text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-1"
+                      >
+                        <Phone className="w-3 h-3" /> Call
+                      </a>
+                    </div>
                   </div>
                 </div>
+
+                {/* ─── Review / Report Vendor ─── */}
+                <VendorReviewSection vendorName={vendor.name} />
+
+                {/* ─── Mini Chat Widget ─── */}
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                  {/* Chat Header — Toggle */}
+                  <button
+                    onClick={() => setChatOpen(!chatOpen)}
+                    className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <MessageCircle className="w-4 h-4" />
+                      </div>
+                      <div className="text-left">
+                        <p className="font-heading font-bold text-primary-dark text-sm">
+                          Chat with {vendor.name.split(" ")[0]}
+                        </p>
+                        <p className="text-text-subtle text-[10px]">
+                          Ask questions before booking
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {chatMessages.length > 1 && (
+                        <span className="px-1.5 py-0.5 rounded-full bg-primary text-white text-[9px] font-bold">
+                          {chatMessages.length}
+                        </span>
+                      )}
+                      {chatOpen ? (
+                        <ChevronDown className="w-4 h-4 text-text-subtle" />
+                      ) : (
+                        <ChevronUp className="w-4 h-4 text-text-subtle" />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Chat Body */}
+                  <AnimatePresence>
+                    {chatOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease }}
+                        className="overflow-hidden"
+                      >
+                        <div className="border-t border-white/30">
+                          {/* Messages */}
+                          <div className="h-64 overflow-y-auto p-3 flex flex-col gap-2 bg-white/20">
+                            {chatMessages.map((msg, i) => (
+                              <div
+                                key={i}
+                                className={`flex ${msg.sender === "you" ? "justify-end" : "justify-start"}`}
+                              >
+                                <div
+                                  className={`max-w-[85%] px-3 py-2 rounded-2xl text-xs leading-relaxed ${
+                                    msg.sender === "you"
+                                      ? "bg-primary text-white rounded-br-md"
+                                      : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md"
+                                  }`}
+                                >
+                                  {msg.text}
+                                  <p
+                                    className={`text-[9px] mt-0.5 ${msg.sender === "you" ? "text-white/50" : "text-text-subtle"}`}
+                                  >
+                                    {msg.time}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                            <div ref={chatEndRef} />
+                          </div>
+
+                          {/* Input */}
+                          <div className="p-2 border-t border-white/30 bg-white/20">
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="text"
+                                value={chatInput}
+                                onChange={(e) => setChatInput(e.target.value)}
+                                onKeyDown={(e) =>
+                                  e.key === "Enter" && handleChatSend()
+                                }
+                                placeholder="Type a message..."
+                                className="flex-1 h-8 px-3 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-xs text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
+                              />
+                              <button
+                                onClick={handleChatSend}
+                                disabled={!chatInput.trim()}
+                                className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-40 shrink-0"
+                              >
+                                <Send className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
+            </div>
           </div>
         </div>
       </main>

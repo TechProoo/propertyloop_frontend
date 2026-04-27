@@ -254,7 +254,7 @@ const VideoListings = () => {
 
                 {/* Content — glass morphism panel */}
                 <a
-                  href={`/property/${home.slug}`}
+                  href={`/property/${home.id}`}
                   className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] block"
                 >
                   {/* Price */}

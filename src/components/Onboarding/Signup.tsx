@@ -17,6 +17,7 @@ interface Props {
   updateData: (updates: Partial<OnboardingData>) => void;
   onBack: () => void;
   onContinue: () => void;
+  fromWaitlist?: boolean;
 }
 
 const roleLabels = {
@@ -25,7 +26,7 @@ const roleLabels = {
   vendor: "Service Vendor",
 };
 
-const Signup = ({ data, updateData, onBack, onContinue }: Props) => {
+const Signup = ({ data, updateData, onBack, onContinue, fromWaitlist = false }: Props) => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -76,6 +77,17 @@ const Signup = ({ data, updateData, onBack, onContinue }: Props) => {
         </p>
       </div>
 
+      {fromWaitlist && (
+        <div className="mb-5 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-center">
+          <p className="text-xs font-heading font-semibold text-primary mb-0.5">
+            Welcome from the waitlist
+          </p>
+          <p className="text-[11px] text-text-secondary">
+            We've pre-filled your details. Set a password to finish setting up your account.
+          </p>
+        </div>
+      )}
+
       {/* Form Card */}
       <div className="backdrop-blur-md bg-white/60 rounded-[28px] border border-border-light shadow-[0_8px_32px_rgba(0,0,0,0.06)] p-6 sm:p-8">
         <div className="flex flex-col gap-4">
@@ -107,19 +119,26 @@ const Signup = ({ data, updateData, onBack, onContinue }: Props) => {
             <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
               Email Address
             </label>
-            <div className={wrapperClass("email")}>
+            <div className={`${wrapperClass("email")} ${fromWaitlist ? "opacity-70" : ""}`}>
               <Mail className="absolute left-3.5 w-4 h-4 text-text-subtle" />
               <input
                 type="email"
                 placeholder="you@example.com"
                 value={data.email}
+                readOnly={fromWaitlist}
                 onChange={(e) => {
+                  if (fromWaitlist) return;
                   updateData({ email: e.target.value });
                   if (errors.email) setErrors((p) => ({ ...p, email: "" }));
                 }}
-                className={inputClass("email")}
+                className={`${inputClass("email")} ${fromWaitlist ? "cursor-not-allowed" : ""}`}
               />
             </div>
+            {fromWaitlist && (
+              <p className="text-[11px] text-text-subtle mt-1 ml-1">
+                This is the email you used to join the waitlist.
+              </p>
+            )}
             {errors.email && (
               <p className="text-red-500 text-xs mt-1 ml-1">{errors.email}</p>
             )}

@@ -109,7 +109,14 @@ function AppContent() {
           <Route path="/sell" element={<Sell />} />
           <Route path="/shortlet" element={<Shortlet />} />
           <Route path="/new-developments" element={<NewDevelopments />} />
-          <Route path="/onboarding" element={<PublicOnlyRoute><Onboarding /></PublicOnlyRoute>} />
+          <Route
+            path="/onboarding"
+            element={
+              <PublicOnlyRoute>
+                <Onboarding />
+              </PublicOnlyRoute>
+            }
+          />
           <Route path="/find-agent" element={<FindAgent />} />
           <Route path="/agent/:id" element={<AgentProfile />} />
           <Route path="/vendor/:id" element={<VendorProfile />} />
@@ -126,7 +133,10 @@ function AppContent() {
           <Route path="/property/:id" element={<PropertyDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/verify-email-required" element={<VerifyEmailRequired />} />
+          <Route
+            path="/verify-email-required"
+            element={<VerifyEmailRequired />}
+          />
           <Route
             path="/dashboard"
             element={
@@ -225,7 +235,7 @@ function App() {
       <ScrollToTop />
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:rounded-lg focus:bg-primary focus:text-white focus:text-sm focus:font-medium"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-9999 focus:px-4 focus:py-2 focus:rounded-lg focus:bg-primary focus:text-white focus:text-sm focus:font-medium"
       >
         Skip to content
       </a>

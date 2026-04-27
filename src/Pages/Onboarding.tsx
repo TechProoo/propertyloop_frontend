@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import RoleSelection from "../components/Onboarding/RoleSelection";
 import Signup from "../components/Onboarding/Signup";
@@ -8,6 +9,7 @@ import Logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
 import uploadService from "../api/services/upload";
 import usersService from "../api/services/users";
+import waitlistService from "../api/services/waitlist";
 
 export type UserRole = "buyer" | "agent" | "vendor";
 
@@ -40,9 +42,12 @@ const roleMap = { buyer: "BUYER", agent: "AGENT", vendor: "VENDOR" } as const;
 
 const Onboarding = () => {
   const { signup, refreshUser } = useAuth();
+  const [searchParams] = useSearchParams();
   const [currentStep, setCurrentStep] = useState<Step>("role");
   const [signupError, setSignupError] = useState("");
   const [isSigningUp, setIsSigningUp] = useState(false);
+  const [wlId, setWlId] = useState<string | null>(null);
+  const [fromWaitlist, setFromWaitlist] = useState(false);
   const [data, setData] = useState<OnboardingData>({
     role: null,
     fullName: "",
@@ -50,6 +55,25 @@ const Onboarding = () => {
     phone: "",
     password: "",
   });
+
+  useEffect(() => {
+    const token = searchParams.get("wl");
+    if (!token) return;
+    waitlistService.prefill(token).then((prefill) => {
+      setData((prev) => ({
+        ...prev,
+        role: prefill.role as UserRole,
+        fullName: prefill.name,
+        email: prefill.email,
+        phone: prefill.phone,
+      }));
+      setWlId(prefill.wlId);
+      setFromWaitlist(true);
+      setCurrentStep("signup");
+    }).catch(() => {
+      // Invalid token — fall through to normal flow
+    });
+  }, []);
 
   const updateData = (updates: Partial<OnboardingData>) => {
     setData((prev) => ({ ...prev, ...updates }));
@@ -99,6 +123,14 @@ const Onboarding = () => {
           await refreshUser();
         } catch (uploadErr) {
           console.error("Profile photo upload failed:", uploadErr);
+        }
+      }
+
+      if (wlId) {
+        try {
+          await waitlistService.activate(wlId);
+        } catch (activateErr) {
+          console.error("Waitlist activation failed:", activateErr);
         }
       }
 
@@ -208,6 +240,7 @@ const Onboarding = () => {
                 updateData={updateData}
                 onBack={() => goTo("role")}
                 onContinue={() => goTo("setup")}
+                fromWaitlist={fromWaitlist}
               />
             )}
             {currentStep === "setup" && (

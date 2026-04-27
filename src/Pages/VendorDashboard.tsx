@@ -261,6 +261,18 @@ const VendorDashboard = () => {
     }
   };
 
+  // ─── Handle banner image upload ─────────────────────────────────────────
+  const handleBannerUpload = async (file: File): Promise<string> => {
+    try {
+      const { url } = await uploadService.uploadProfilePicture(file);
+      await vendorsService.updateMe({ bannerImage: url });
+      setTimeout(() => window.location.reload(), 800);
+      return url;
+    } catch (error) {
+      throw new Error(error instanceof Error ? error.message : "Failed to upload banner image");
+    }
+  };
+
   // ─── Save profile handler ────────────────────────────────────────────────
   const handleSaveProfile = async () => {
     if (!profileName.trim()) {
@@ -374,6 +386,9 @@ const VendorDashboard = () => {
       : jobTab === "active"
         ? activeJobs
         : completedJobs;
+
+  /* Unread messages */
+  const totalUnread = vendorConversations.reduce((sum, c) => sum + (c.unread || 0), 0);
 
   /* Earnings summary */
   const totalEarnings = apiStats?.earnings.total ?? 0;
@@ -622,11 +637,15 @@ const VendorDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="relative w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-text-secondary hover:bg-white transition-all shadow-sm">
+            <button
+              onClick={() => setActiveNav("messages")}
+              className="relative w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-text-secondary hover:bg-white transition-all shadow-sm">
               <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
-                2
-              </span>
+              {totalUnread > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                  {totalUnread > 99 ? "99+" : totalUnread}
+                </span>
+              )}
             </button>
             <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold border-2 border-white shadow-sm hidden sm:flex">
               {vendorName.charAt(0)}
@@ -1580,6 +1599,13 @@ const VendorDashboard = () => {
                 currentImage={user?.avatarUrl || null}
                 onUpload={handleProfilePictureUpload}
                 label="Profile Picture"
+              />
+
+              {/* Banner Image Upload */}
+              <ProfilePictureUpload
+                currentImage={(user?.vendorProfile as any)?.bannerImage || null}
+                onUpload={handleBannerUpload}
+                label="Profile Banner"
               />
 
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
