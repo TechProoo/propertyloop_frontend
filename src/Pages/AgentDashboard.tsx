@@ -32,6 +32,8 @@ import {
   ChevronDown,
   CalendarDays,
   MessageSquare,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/logo.png";
@@ -112,6 +114,13 @@ const AgentDashboard = () => {
     {},
   );
   const [openStatusMenu, setOpenStatusMenu] = useState<string | null>(null);
+  const [editingListing, setEditingListing] = useState<Listing | null>(null);
+  const [editForm, setEditForm] = useState<{
+    title: string; priceNaira: string; description: string;
+    beds: string; baths: string; sqft: string; yearBuilt: string;
+    address: string; location: string;
+  }>({ title: "", priceNaira: "", description: "", beds: "", baths: "", sqft: "", yearBuilt: "", address: "", location: "" });
+  const [editSaving, setEditSaving] = useState(false);
 
   // ─── Viewings state ──────────────────────────────────────────────────────
   const [viewings, setViewings] = useState<Viewing[]>([]);
@@ -308,6 +317,48 @@ const AgentDashboard = () => {
       /* ignore */
     }
     setStatusUpdating((prev) => ({ ...prev, [listingId]: false }));
+  };
+
+  const openEdit = (listing: Listing) => {
+    setEditingListing(listing);
+    setEditForm({
+      title: listing.title,
+      priceNaira: String(listing.priceNaira),
+      description: listing.description ?? "",
+      beds: String(listing.beds),
+      baths: String(listing.baths),
+      sqft: listing.sqft ?? "",
+      yearBuilt: listing.yearBuilt ?? "",
+      address: listing.address ?? "",
+      location: listing.location ?? "",
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editingListing) return;
+    setEditSaving(true);
+    try {
+      const updated = await listingsService.update(editingListing.id, {
+        title: editForm.title,
+        priceNaira: Number(editForm.priceNaira),
+        description: editForm.description,
+        beds: Number(editForm.beds),
+        baths: Number(editForm.baths),
+        sqft: editForm.sqft,
+        yearBuilt: editForm.yearBuilt,
+        address: editForm.address,
+        location: editForm.location,
+      });
+      setAgentListings((prev) => prev.map((l) => l.id === updated.id ? updated : l));
+      setEditingListing(null);
+    } catch { /* keep modal open */ }
+    finally { setEditSaving(false); }
+  };
+
+  const deleteListing = async (id: string) => {
+    if (!confirm("Delete this listing? This cannot be undone.")) return;
+    await listingsService.remove(id);
+    setAgentListings((prev) => prev.filter((l) => l.id !== id));
   };
 
   const stats = [
@@ -1058,7 +1109,7 @@ const AgentDashboard = () => {
                               </div>
                             </div>
                           </Link>
-                          <div className="px-3 pb-3 border-t border-white/20 pt-2 relative">
+                          <div className="px-3 pb-3 border-t border-white/20 pt-2 relative flex gap-2">
                             <button
                               onClick={() =>
                                 setOpenStatusMenu(
@@ -1068,7 +1119,7 @@ const AgentDashboard = () => {
                                 )
                               }
                               disabled={statusUpdating[listing.id]}
-                              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border transition-all disabled:opacity-50 disabled:cursor-not-allowed w-full justify-center"
+                              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border transition-all disabled:opacity-50 disabled:cursor-not-allowed flex-1 justify-center"
                               style={{
                                 background:
                                   listing.status === "ACTIVE"
@@ -1117,6 +1168,18 @@ const AgentDashboard = () => {
                                 ))}
                               </div>
                             )}
+                            <button
+                              onClick={() => openEdit(listing)}
+                              className="flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border border-border-light bg-white text-text-secondary hover:text-primary hover:border-primary transition-all"
+                            >
+                              <Pencil className="w-3 h-3" />Edit
+                            </button>
+                            <button
+                              onClick={() => deleteListing(listing.id)}
+                              className="flex items-center justify-center px-2 py-1 rounded-lg text-[10px] font-medium border border-border-light bg-white text-red-400 hover:text-red-600 hover:border-red-300 transition-all"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
                           </div>
                         </div>
                       );
@@ -1974,6 +2037,86 @@ const AgentDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* ─── Edit Listing Modal ─── */}
+      <AnimatePresence>
+        {editingListing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(0,0,0,0.5)" }}
+            onClick={() => setEditingListing(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease }}
+              className="bg-white rounded-[24px] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-6 border-b border-border-light">
+                <h2 className="font-heading font-bold text-primary-dark text-lg">Edit Listing</h2>
+                <button onClick={() => setEditingListing(null)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-text-secondary hover:text-primary transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-6 flex flex-col gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Title</label>
+                  <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Price (₦)</label>
+                  <input type="number" value={editForm.priceNaira} onChange={e => setEditForm(f => ({ ...f, priceNaira: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-text-secondary mb-1">Bedrooms</label>
+                    <input type="number" value={editForm.beds} onChange={e => setEditForm(f => ({ ...f, beds: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-text-secondary mb-1">Bathrooms</label>
+                    <input type="number" value={editForm.baths} onChange={e => setEditForm(f => ({ ...f, baths: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-text-secondary mb-1">Sqft</label>
+                    <input value={editForm.sqft} onChange={e => setEditForm(f => ({ ...f, sqft: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-text-secondary mb-1">Year Built</label>
+                    <input value={editForm.yearBuilt} onChange={e => setEditForm(f => ({ ...f, yearBuilt: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Address</label>
+                  <input value={editForm.address} onChange={e => setEditForm(f => ({ ...f, address: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Location / City</label>
+                  <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Description</label>
+                  <textarea rows={4} value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary resize-none" />
+                </div>
+                <div className="flex gap-3 pt-1">
+                  <button onClick={() => setEditingListing(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-text-secondary text-sm font-medium hover:bg-gray-50 transition-colors">
+                    Cancel
+                  </button>
+                  <button onClick={saveEdit} disabled={editSaving} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-60">
+                    {editSaving ? "Saving…" : "Save Changes"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
