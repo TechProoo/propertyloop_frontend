@@ -39,6 +39,9 @@ import uploadService from "../api/services/upload";
 import type { AgentStats, Listing, ListingStatus } from "../api/types";
 import { useConversations } from "../api/hooks";
 import { StatSkeleton } from "../components/ui/Skeleton";
+import MessagesSkeleton, {
+  ConversationsSkeleton,
+} from "../components/Messages/MessagesSkeleton";
 import ProfilePictureUpload from "../components/Settings/ProfilePictureUpload";
 
 const ease = [0.23, 1, 0.32, 1] as const;
@@ -80,6 +83,8 @@ const AgentDashboard = () => {
   const {
     conversations: agentConversations,
     activeMessages: localMessages,
+    loading: convoListLoading,
+    messagesLoadingId,
     loadMessages: loadConvoMessages,
     sendMessage: sendConvoMessage,
   } = useConversations();
@@ -1155,7 +1160,9 @@ const AgentDashboard = () => {
                           </p>
                         </div>
                         <div className="flex-1 overflow-y-auto">
-                          {agentConversations.length === 0 ? (
+                          {convoListLoading ? (
+                            <ConversationsSkeleton />
+                          ) : agentConversations.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full text-center px-6 py-16">
                               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                                 <MessageCircle className="w-6 h-6 text-primary" />
@@ -1257,26 +1264,33 @@ const AgentDashboard = () => {
                                 </a>
                               </div>
                             </div>
-                            <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-3">
-                              {activeMessages.map((msg, i) => (
-                                <div
-                                  key={i}
-                                  className={`flex ${msg.sender === "you" ? "justify-end" : "justify-start"}`}
-                                >
-                                  <div
-                                    className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.sender === "you" ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
-                                  >
-                                    <p className="text-sm leading-relaxed">
-                                      {msg.text}
-                                    </p>
-                                    <p
-                                      className={`text-[10px] mt-1 ${msg.sender === "you" ? "text-white/60" : "text-text-subtle"}`}
+                            <div className="flex-1 overflow-y-auto">
+                              {messagesLoadingId === convoId &&
+                              activeMessages.length === 0 ? (
+                                <MessagesSkeleton />
+                              ) : (
+                                <div className="p-5 flex flex-col gap-3">
+                                  {activeMessages.map((msg, i) => (
+                                    <div
+                                      key={i}
+                                      className={`flex ${msg.sender === "you" ? "justify-end" : "justify-start"}`}
                                     >
-                                      {msg.time}
-                                    </p>
-                                  </div>
+                                      <div
+                                        className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.sender === "you" ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
+                                      >
+                                        <p className="text-sm leading-relaxed">
+                                          {msg.text}
+                                        </p>
+                                        <p
+                                          className={`text-[10px] mt-1 ${msg.sender === "you" ? "text-white/60" : "text-text-subtle"}`}
+                                        >
+                                          {msg.time}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
+                              )}
                             </div>
                             <div className="px-4 py-3 border-t border-white/30 bg-white/20 backdrop-blur-sm">
                               <div className="flex items-center gap-2">

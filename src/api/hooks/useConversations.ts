@@ -19,6 +19,7 @@ export function useConversations() {
     Record<string, { sender: "you" | "them"; text: string; time: string }[]>
   >({});
   const [loading, setLoading] = useState(true);
+  const [messagesLoadingId, setMessagesLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +62,7 @@ export function useConversations() {
   const loadMessages = useCallback(
     async (convoId: string) => {
       if (activeMessages[convoId]?.length) return; // already loaded
+      setMessagesLoadingId(convoId);
       try {
         const msgs = await messagesService.getMessages(convoId, { limit: 100 });
         setActiveMessages((prev) => ({
@@ -77,6 +79,8 @@ export function useConversations() {
         messagesService.markRead(convoId).catch(() => {});
       } catch {
         /* ignore */
+      } finally {
+        setMessagesLoadingId((curr) => (curr === convoId ? null : curr));
       }
     },
     [activeMessages],
@@ -103,5 +107,12 @@ export function useConversations() {
     }
   }, []);
 
-  return { conversations, activeMessages, loading, loadMessages, sendMessage };
+  return {
+    conversations,
+    activeMessages,
+    loading,
+    messagesLoadingId,
+    loadMessages,
+    sendMessage,
+  };
 }
