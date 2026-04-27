@@ -59,6 +59,8 @@ const FindAgent = () => {
   const [activeLocation, setActiveLocation] = useState("All Locations");
   const [activeRating, setActiveRating] = useState("Any Rating");
   const [contactCard, setContactCard] = useState<number | null>(null);
+  const [activeSort, setActiveSort] = useState("Top rated");
+  const [visibleCount, setVisibleCount] = useState(12);
 
   const minRating =
     activeRating === "Any Rating"
@@ -80,6 +82,7 @@ const FindAgent = () => {
       minRating,
       limit: 50,
     });
+    setVisibleCount(12);
   }, [
     searchQuery,
     activeSpecialty,
@@ -109,7 +112,15 @@ const FindAgent = () => {
     email: a.email,
   }));
 
-  const filteredAgents = agents;
+  const sortedAgents = [...agents].sort((a, b) => {
+    if (activeSort === "Most listings") return b.listings - a.listings;
+    if (activeSort === "Most deals closed") return b.soldRented - a.soldRented;
+    if (activeSort === "Top rated") return b.rating - a.rating;
+    return 0; // Newest — keep API order
+  });
+
+  const filteredAgents = sortedAgents;
+  const visibleAgents = sortedAgents.slice(0, visibleCount);
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
@@ -372,7 +383,11 @@ const FindAgent = () => {
                       : activeLocation}
                   </span>
                 </p>
-                <select className="h-9 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-xs focus:outline-none focus:border-primary transition-colors appearance-none pr-8">
+                <select
+                  value={activeSort}
+                  onChange={(e) => { setActiveSort(e.target.value); setVisibleCount(12); }}
+                  className="h-9 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-xs focus:outline-none focus:border-primary transition-colors appearance-none pr-8"
+                >
                   <option>Top rated</option>
                   <option>Most listings</option>
                   <option>Most deals closed</option>
@@ -382,7 +397,7 @@ const FindAgent = () => {
 
               {/* Agent grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
-                {filteredAgents.map((agent, i) => (
+                {visibleAgents.map((agent, i) => (
                   <div
                     key={i}
                     onClick={() => setContactCard(contactCard === i ? null : i)}
@@ -566,10 +581,13 @@ const FindAgent = () => {
               )}
 
               {/* Load more */}
-              {filteredAgents.length > 0 && (
+              {visibleCount < filteredAgents.length && (
                 <div className="mt-10 text-center">
-                  <button className="h-11 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
-                    Load more agents
+                  <button
+                    onClick={() => setVisibleCount((c) => c + 12)}
+                    className="h-11 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+                  >
+                    Load more agents ({filteredAgents.length - visibleCount} remaining)
                   </button>
                 </div>
               )}
