@@ -104,6 +104,16 @@ const listingsService = {
     const { data } = await api.delete<SuccessResponse>(`/listings/${listingId}/documents/${docId}`);
     return data;
   },
+
+  async getPriceHistory(listingId: string): Promise<{ id: string; oldPrice: number; newPrice: number; changedAt: string }[]> {
+    const { data } = await api.get(`/listings/${listingId}/price-history`);
+    return data;
+  },
+
+  async getLogbook(listingId: string): Promise<{ id: string; category: string; title: string; description?: string; vendorName: string; vendorId?: string; cost: number; completedAt: string; verified: boolean }[]> {
+    const { data } = await api.get(`/listings/${listingId}/logbook`);
+    return data;
+  },
 };
 
 export default listingsService;

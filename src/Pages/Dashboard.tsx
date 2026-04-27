@@ -28,6 +28,9 @@ import {
   ClipboardList,
   Calendar,
   ShieldCheck,
+  Building2,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import listingsService from "../api/services/listings";
@@ -78,6 +81,12 @@ const navItems = [
     label: "Logbook",
     id: "logbook",
   },
+  {
+    icon: <Building2 className="w-5 h-5" />,
+    label: "My Listings",
+    id: "my-listings",
+    agentOnly: true,
+  },
   { icon: <Settings className="w-5 h-5" />, label: "Settings", id: "settings" },
 ];
 
@@ -108,6 +117,17 @@ const Dashboard = () => {
   const [jobsLoading, setJobsLoading] = useState(true);
   const [dashboardLoading, setDashboardLoading] = useState(true);
 
+  // ─── Agent: my listings ───────────────────────────────────────────────
+  const [myListings, setMyListings] = useState<ApiListing[]>([]);
+  const [myListingsLoading, setMyListingsLoading] = useState(false);
+  const [editingListing, setEditingListing] = useState<ApiListing | null>(null);
+  const [editForm, setEditForm] = useState<{
+    title: string; priceNaira: string; description: string;
+    beds: string; baths: string; sqft: string; yearBuilt: string;
+    address: string; location: string; status: string;
+  }>({ title: "", priceNaira: "", description: "", beds: "", baths: "", sqft: "", yearBuilt: "", address: "", location: "", status: "" });
+  const [editSaving, setEditSaving] = useState(false);
+
   useEffect(() => {
     Promise.all([
       listingsService
@@ -134,6 +154,15 @@ const Dashboard = () => {
 
   const getProductById = (id: string) =>
     products.find((p) => p.id === id) || null;
+
+  useEffect(() => {
+    if (authUser?.role !== "AGENT") return;
+    setMyListingsLoading(true);
+    listingsService.listMine({ limit: 50 }).then((r) => {
+      setMyListings(r.items);
+      setMyListingsLoading(false);
+    }).catch(() => setMyListingsLoading(false));
+  }, [authUser?.role]);
 
   // Auto-select first conversation when available
   useEffect(() => {
@@ -179,6 +208,53 @@ const Dashboard = () => {
       vendorCategory === "All Categories" || vendor.category === vendorCategory;
     return matchesQuery && matchesCategory;
   });
+
+  const openEdit = (listing: ApiListing) => {
+    setEditingListing(listing);
+    setEditForm({
+      title: listing.title,
+      priceNaira: String(listing.priceNaira),
+      description: listing.description ?? "",
+      beds: String(listing.beds),
+      baths: String(listing.baths),
+      sqft: listing.sqft ?? "",
+      yearBuilt: listing.yearBuilt ?? "",
+      address: listing.address ?? "",
+      location: listing.location ?? "",
+      status: listing.status ?? "",
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editingListing) return;
+    setEditSaving(true);
+    try {
+      const updated = await listingsService.update(editingListing.id, {
+        title: editForm.title,
+        priceNaira: Number(editForm.priceNaira),
+        description: editForm.description,
+        beds: Number(editForm.beds),
+        baths: Number(editForm.baths),
+        sqft: editForm.sqft,
+        yearBuilt: editForm.yearBuilt,
+        address: editForm.address,
+        location: editForm.location,
+        status: editForm.status as ApiListing["status"],
+      });
+      setMyListings((prev) => prev.map((l) => l.id === updated.id ? updated : l));
+      setEditingListing(null);
+    } catch {
+      // keep modal open on error
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
+  const deleteListing = async (id: string) => {
+    if (!confirm("Delete this listing? This cannot be undone.")) return;
+    await listingsService.remove(id);
+    setMyListings((prev) => prev.filter((l) => l.id !== id));
+  };
 
   const stats = [
     {
@@ -239,7 +315,7 @@ const Dashboard = () => {
         </div>
 
         <nav className="flex-1 py-4 px-2 flex flex-col gap-1 overflow-y-auto">
-          {navItems.map((item) => (
+          {navItems.filter(item => !item.agentOnly || authUser?.role === "AGENT").map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveNav(item.id)}
@@ -336,7 +412,7 @@ const Dashboard = () => {
                 </button>
               </div>
               <nav className="flex-1 py-4 px-2 flex flex-col gap-1 overflow-y-auto">
-                {navItems.map((item) => (
+                {navItems.filter(item => !item.agentOnly || authUser?.role === "AGENT").map((item) => (
                   <button
                     key={item.id}
                     onClick={() => {
@@ -1784,6 +1860,84 @@ const Dashboard = () => {
                 </motion.div>
               )}
 
+              {/* ─── My Listings Panel (agent only) ─── */}
+              {activeNav === "my-listings" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease }}
+                  className="flex flex-col gap-6"
+                >
+                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
+                    <div className="flex items-center gap-3 mb-1">
+                      <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                        <Building2 className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h2 className="font-heading font-bold text-primary-dark text-lg">My Listings</h2>
+                        <p className="text-text-secondary text-xs">Manage and update your property listings</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {myListingsLoading ? (
+                    <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] py-14 px-6 text-center">
+                      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                    </div>
+                  ) : myListings.length === 0 ? (
+                    <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] py-14 px-6 text-center">
+                      <Building2 className="w-10 h-10 text-text-subtle mx-auto mb-3" />
+                      <p className="text-text-secondary text-sm font-medium">No listings yet</p>
+                      <p className="text-text-subtle text-xs mt-1">Listings you create will appear here</p>
+                    </div>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                      {myListings.map((listing) => (
+                        <div key={listing.id} className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col">
+                          <div className="relative h-40 bg-border-light shrink-0">
+                            {listing.coverImage ? (
+                              <img src={listing.coverImage} alt={listing.title} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-text-subtle">
+                                <Building2 className="w-8 h-8" />
+                              </div>
+                            )}
+                            <span className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-medium ${listing.status === "ACTIVE" ? "bg-green-100 text-green-700" : listing.status === "SOLD" ? "bg-blue-100 text-blue-700" : listing.status === "RENTED" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600"}`}>
+                              {listing.status}
+                            </span>
+                          </div>
+                          <div className="p-4 flex flex-col gap-2 flex-1">
+                            <p className="font-heading font-bold text-primary-dark text-sm leading-snug line-clamp-2">{listing.title}</p>
+                            <p className="text-text-subtle text-xs flex items-center gap-1">
+                              <MapPin className="w-3 h-3 shrink-0" />{listing.location ?? listing.address}
+                            </p>
+                            <div className="flex items-center gap-3 text-text-secondary text-xs">
+                              <span className="flex items-center gap-1"><Bed className="w-3 h-3" />{listing.beds} bd</span>
+                              <span className="flex items-center gap-1"><Bath className="w-3 h-3" />{listing.baths} ba</span>
+                            </div>
+                            <p className="font-heading font-bold text-primary text-base mt-auto">{listing.priceLabel}</p>
+                            <div className="flex gap-2 mt-1">
+                              <button
+                                onClick={() => openEdit(listing)}
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />Edit
+                              </button>
+                              <button
+                                onClick={() => deleteListing(listing.id)}
+                                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-red-50 text-red-500 text-xs font-medium hover:bg-red-100 transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
               {/* ─── Settings Panel ─── */}
               {activeNav === "settings" && (
                 <motion.div
@@ -1912,6 +2066,103 @@ const Dashboard = () => {
           )}
         </div>
       </div>
+
+      {/* ─── Edit Listing Modal ─── */}
+      <AnimatePresence>
+        {editingListing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(0,0,0,0.5)" }}
+            onClick={() => setEditingListing(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease }}
+              className="bg-white rounded-[24px] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-6 border-b border-border-light">
+                <h2 className="font-heading font-bold text-primary-dark text-lg">Edit Listing</h2>
+                <button onClick={() => setEditingListing(null)} className="w-8 h-8 rounded-full bg-border-light flex items-center justify-center text-text-secondary hover:text-primary transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-6 flex flex-col gap-4">
+                {/* Title */}
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Title</label>
+                  <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                </div>
+                {/* Price */}
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Price (₦)</label>
+                  <input type="number" value={editForm.priceNaira} onChange={e => setEditForm(f => ({ ...f, priceNaira: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                </div>
+                {/* Status */}
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Status</label>
+                  <select value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary bg-white">
+                    <option value="ACTIVE">Active</option>
+                    <option value="SOLD">Sold</option>
+                    <option value="RENTED">Rented</option>
+                    <option value="INACTIVE">Inactive</option>
+                  </select>
+                </div>
+                {/* Beds / Baths */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-text-secondary mb-1">Bedrooms</label>
+                    <input type="number" value={editForm.beds} onChange={e => setEditForm(f => ({ ...f, beds: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-text-secondary mb-1">Bathrooms</label>
+                    <input type="number" value={editForm.baths} onChange={e => setEditForm(f => ({ ...f, baths: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  </div>
+                </div>
+                {/* Sqft / Year */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-text-secondary mb-1">Sqft</label>
+                    <input value={editForm.sqft} onChange={e => setEditForm(f => ({ ...f, sqft: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-text-secondary mb-1">Year Built</label>
+                    <input value={editForm.yearBuilt} onChange={e => setEditForm(f => ({ ...f, yearBuilt: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  </div>
+                </div>
+                {/* Address / Location */}
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Address</label>
+                  <input value={editForm.address} onChange={e => setEditForm(f => ({ ...f, address: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Location / City</label>
+                  <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                </div>
+                {/* Description */}
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Description</label>
+                  <textarea rows={4} value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary resize-none" />
+                </div>
+                {/* Actions */}
+                <div className="flex gap-3 pt-1">
+                  <button onClick={() => setEditingListing(null)} className="flex-1 py-2.5 rounded-xl border border-border-light text-text-secondary text-sm font-medium hover:bg-border-light transition-colors">
+                    Cancel
+                  </button>
+                  <button onClick={saveEdit} disabled={editSaving} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-60">
+                    {editSaving ? "Saving…" : "Save Changes"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

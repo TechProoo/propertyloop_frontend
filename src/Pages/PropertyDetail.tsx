@@ -68,6 +68,10 @@ const PropertyDetail = () => {
   const [viewingNotes, setViewingNotes] = useState("");
   const [viewingError, setViewingError] = useState("");
 
+  // Price history + logbook
+  const [priceHistory, setPriceHistory] = useState<{ id: string; oldPrice: number; newPrice: number; changedAt: string }[]>([]);
+  const [logbookEntries, setLogbookEntries] = useState<{ id: string; category: string; title: string; description?: string; vendorName: string; cost: number; completedAt: string; verified: boolean }[]>([]);
+
   useEffect(() => {
     if (!id) return;
     setLoadingPage(true);
@@ -82,6 +86,9 @@ const PropertyDetail = () => {
             setSimilar(res.items.filter((l) => l.id !== data.id).slice(0, 3)),
           )
           .catch(() => {});
+        // Fetch price history and logbook in parallel
+        listingsService.getPriceHistory(data.id).then(setPriceHistory).catch(() => {});
+        listingsService.getLogbook(data.id).then(setLogbookEntries).catch(() => {});
       })
       .catch(() => setListing(null))
       .finally(() => setLoadingPage(false));
@@ -553,15 +560,42 @@ const PropertyDetail = () => {
                 <h2 className="font-heading font-bold text-primary-dark text-lg mb-5">
                   Price History
                 </h2>
-                <div className="text-center py-6">
-                  <Clock className="w-8 h-8 text-text-subtle mx-auto mb-2" />
-                  <p className="text-text-secondary text-sm">
-                    No price history available yet.
-                  </p>
-                  <p className="text-text-subtle text-xs mt-1">
-                    Price changes will appear here once tracked.
-                  </p>
-                </div>
+                {priceHistory.length === 0 ? (
+                  <div className="text-center py-6">
+                    <Clock className="w-8 h-8 text-text-subtle mx-auto mb-2" />
+                    <p className="text-text-secondary text-sm">
+                      No price history available yet.
+                    </p>
+                    <p className="text-text-subtle text-xs mt-1">
+                      Price changes will appear here once tracked.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {priceHistory.map((entry) => {
+                      const increased = entry.newPrice > entry.oldPrice;
+                      const pct = Math.abs(Math.round(((entry.newPrice - entry.oldPrice) / entry.oldPrice) * 100));
+                      return (
+                        <div key={entry.id} className="flex items-center gap-4 bg-white/60 border border-border-light rounded-2xl p-4">
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${increased ? "bg-red-50 text-red-500" : "bg-green-50 text-green-600"}`}>
+                            {increased ? "↑" : "↓"}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-primary-dark font-heading font-semibold">
+                              ₦{entry.newPrice.toLocaleString("en-NG")}
+                            </p>
+                            <p className="text-text-secondary text-xs mt-0.5">
+                              from ₦{entry.oldPrice.toLocaleString("en-NG")} · {increased ? "+" : "-"}{pct}%
+                            </p>
+                          </div>
+                          <span className="text-text-subtle text-xs shrink-0">
+                            {new Date(entry.changedAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </motion.div>
 
               {/* Neighbourhood Intelligence */}
@@ -689,7 +723,7 @@ const PropertyDetail = () => {
                     </div>
                   </div>
                   <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium shrink-0">
-                    <ShieldCheck className="w-3.5 h-3.5" />0 records
+                    <ShieldCheck className="w-3.5 h-3.5" />{logbookEntries.length} record{logbookEntries.length !== 1 ? "s" : ""}
                   </span>
                 </div>
                 <p className="text-text-secondary text-xs mb-5 leading-relaxed">
@@ -697,15 +731,46 @@ const PropertyDetail = () => {
                   property is permanently recorded with verified vendor details.
                 </p>
 
-                <div className="text-center py-6">
-                  <ClipboardList className="w-8 h-8 text-text-subtle mx-auto mb-2" />
-                  <p className="text-text-secondary text-sm">
-                    No logbook entries yet.
-                  </p>
-                  <p className="text-text-subtle text-xs mt-1">
-                    Service records will appear here once vendors complete jobs.
-                  </p>
-                </div>
+                {logbookEntries.length === 0 ? (
+                  <div className="text-center py-6">
+                    <ClipboardList className="w-8 h-8 text-text-subtle mx-auto mb-2" />
+                    <p className="text-text-secondary text-sm">
+                      No logbook entries yet.
+                    </p>
+                    <p className="text-text-subtle text-xs mt-1">
+                      Service records will appear here once vendors complete jobs.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {logbookEntries.map((entry) => (
+                      <div key={entry.id} className="flex items-start gap-4 bg-white/60 border border-border-light rounded-2xl p-4">
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                          <ClipboardList className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-sm text-primary-dark font-heading font-semibold">{entry.title}</p>
+                            {entry.verified && (
+                              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 text-green-600 text-[10px] font-medium">
+                                <ShieldCheck className="w-3 h-3" />Verified
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-text-subtle text-xs mt-0.5">{entry.category} · by {entry.vendorName}</p>
+                          {entry.description && (
+                            <p className="text-text-secondary text-xs mt-1 leading-relaxed">{entry.description}</p>
+                          )}
+                          <p className="text-text-subtle text-xs mt-1.5">
+                            Cost: <span className="font-medium text-primary-dark">₦{entry.cost.toLocaleString("en-NG")}</span>
+                            {" · "}
+                            {new Date(entry.completedAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             </div>
 
