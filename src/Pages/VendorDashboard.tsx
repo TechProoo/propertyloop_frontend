@@ -708,10 +708,9 @@ const VendorDashboard = () => {
                               key={job.id}
                               className="px-6 py-4 flex items-center gap-4 hover:bg-white/50 transition-colors"
                             >
-                              <img
-                                src={job.clientAvatar}
-                                alt={job.client}
-                                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                              <ConversationAvatar
+                                name={job.client}
+                                size="sm"
                               />
                               <div className="flex-1 min-w-0">
                                 <p className="font-heading font-semibold text-primary-dark text-sm">
@@ -993,10 +992,9 @@ const VendorDashboard = () => {
                       className="flex flex-col sm:flex-row gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-5 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:border-primary/40 transition-all cursor-pointer"
                     >
                       <div className="flex items-start gap-4 flex-1 min-w-0">
-                        <img
-                          src={job.clientAvatar}
-                          alt={job.client}
-                          className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                        <ConversationAvatar
+                          name={job.client}
+                          size="md"
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
