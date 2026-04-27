@@ -457,9 +457,9 @@ const VendorDashboard = () => {
                   {item.label}
                 </span>
               )}
-              {sidebarOpen && item.id === "messages" && vendorConversations.length > 0 && (
+              {sidebarOpen && item.id === "messages" && vendorConversations.reduce((sum, convo) => sum + (convo.unread || 0), 0) > 0 && (
                 <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-[hsl(142,71%,45%)] text-white">
-                  {vendorConversations.length}
+                  {vendorConversations.reduce((sum, convo) => sum + (convo.unread || 0), 0)}
                 </span>
               )}
               {sidebarOpen && item.id === "jobs" && pendingJobs.length > 0 && (
