@@ -989,7 +989,7 @@ const Dashboard = () => {
                           />
                         </div>
                         <p className="font-heading font-bold text-primary-dark text-sm mt-3">
-                          {vendor.priceLabel}
+                          {vendor.priceLabel || "From ₦15,000"}
                         </p>
                       </Link>
                     ))}
@@ -1187,7 +1187,7 @@ const Dashboard = () => {
                       </div>
 
                       <p className="font-heading font-bold text-primary-dark text-base mt-4">
-                        {vendor.priceLabel}
+                        {vendor.priceLabel || "From ₦15,000"}
                       </p>
                       <p className="text-text-secondary text-xs mt-1 line-clamp-2">
                         {vendor.bio}

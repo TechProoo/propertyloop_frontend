@@ -322,7 +322,7 @@ const BookService = () => {
         description: jobDescription,
         address: propertyAddress || "Not specified",
         category: vendor.category || "Service",
-        vendorFee: vendor.priceNum ?? 0,
+        vendorFee: Math.max(vendor.priceNum ?? 0, 15000),
         scheduledFor: preferredDate ? new Date(`${preferredDate}T${preferredTime}`).toISOString() : new Date().toISOString(),
         clientName: (user as any).name || "Client",
         clientPhone: (user as any).phone,
@@ -661,7 +661,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                       <div className="h-px bg-border-light mb-3" />
                       <p className="font-heading font-bold text-primary-dark text-lg">
                         {vendor.priceLabel ??
-                          `From ₦${(vendor.priceNum ?? 0).toLocaleString()}`}
+                          `From ₦${Math.max(vendor.priceNum ?? 0, 15000).toLocaleString()}`}
                       </p>
                       <p className="text-text-secondary text-xs mt-2 leading-relaxed">
                         {vendor.bio}
