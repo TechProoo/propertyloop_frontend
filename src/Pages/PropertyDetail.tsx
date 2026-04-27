@@ -29,11 +29,13 @@ import {
   Handshake,
   Send,
   DollarSign,
+  CalendarDays,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import listingsService from "../api/services/listings";
 import messagesService from "../api/services/messages";
+import viewingsService from "../api/services/viewings";
 import type { Listing as ApiListing } from "../api/types";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import { DetailSkeleton } from "../components/ui/Skeleton";
@@ -56,6 +58,15 @@ const PropertyDetail = () => {
   const [offerAmount, setOfferAmount] = useState("");
   const [offerNote, setOfferNote] = useState("");
   const [offerError, setOfferError] = useState("");
+
+  // Viewing state
+  type ViewingStatus = "idle" | "form" | "submitting" | "done";
+  const [viewingStatus, setViewingStatus] = useState<ViewingStatus>("idle");
+  const [viewingName, setViewingName] = useState(user?.name || "");
+  const [viewingPhone, setViewingPhone] = useState(user?.phone || "");
+  const [viewingDate, setViewingDate] = useState("");
+  const [viewingNotes, setViewingNotes] = useState("");
+  const [viewingError, setViewingError] = useState("");
 
   useEffect(() => {
     if (!id) return;
@@ -772,6 +783,17 @@ const PropertyDetail = () => {
                       </button>
                     )}
 
+                  {/* Schedule a Viewing — rentals + sales */}
+                  {listing.type !== "SHORTLET" && viewingStatus === "idle" && (
+                    <button
+                      onClick={() => setViewingStatus("form")}
+                      className="mt-2 h-11 w-full rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-2"
+                    >
+                      <CalendarDays className="w-4 h-4" />
+                      Schedule a Viewing
+                    </button>
+                  )}
+
                   <Link
                     to={`/agent/${agent.id}`}
                     className="block text-center text-primary text-xs font-medium mt-3 hover:underline"
@@ -903,6 +925,136 @@ const PropertyDetail = () => {
                           inbox. Opening the conversation…
                         </p>
                       </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* ─── Viewing Panel ─── */}
+              <AnimatePresence>
+                {viewingStatus !== "idle" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.4, ease }}
+                    className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 mb-6"
+                  >
+                    {viewingStatus === "done" ? (
+                      <div className="text-center py-4">
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                          className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mx-auto mb-3"
+                        >
+                          <CalendarDays className="w-6 h-6 text-white" />
+                        </motion.div>
+                        <p className="font-heading font-bold text-primary-dark text-sm">
+                          Viewing requested!
+                        </p>
+                        <p className="text-text-secondary text-xs mt-1 max-w-xs mx-auto">
+                          The agent will confirm your viewing time shortly.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <h3 className="font-heading font-bold text-primary-dark text-sm mb-4 flex items-center gap-2">
+                          <CalendarDays className="w-4 h-4 text-primary" />
+                          Schedule a Viewing
+                        </h3>
+                        <div className="flex flex-col gap-3">
+                          <div>
+                            <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                              Your Name
+                            </label>
+                            <input
+                              type="text"
+                              value={viewingName}
+                              onChange={(e) => setViewingName(e.target.value)}
+                              placeholder="Enter your name"
+                              className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                              Phone Number
+                            </label>
+                            <input
+                              type="tel"
+                              value={viewingPhone}
+                              onChange={(e) => setViewingPhone(e.target.value)}
+                              placeholder="e.g. 08012345678"
+                              className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                              Preferred Date & Time
+                            </label>
+                            <input
+                              type="datetime-local"
+                              value={viewingDate}
+                              onChange={(e) => setViewingDate(e.target.value)}
+                              min={new Date().toISOString().slice(0, 16)}
+                              className="w-full h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                              Notes (optional)
+                            </label>
+                            <textarea
+                              value={viewingNotes}
+                              onChange={(e) => setViewingNotes(e.target.value)}
+                              placeholder="Anything the agent should know..."
+                              rows={2}
+                              className="w-full px-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+                            />
+                          </div>
+
+                          {viewingError && (
+                            <p className="text-xs text-red-500">{viewingError}</p>
+                          )}
+
+                          <div className="flex gap-2 pt-1">
+                            <button
+                              onClick={() => { setViewingStatus("idle"); setViewingError(""); }}
+                              className="flex-1 h-11 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:bg-bg-accent transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              disabled={viewingStatus === "submitting"}
+                              onClick={async () => {
+                                if (!viewingName.trim()) return setViewingError("Please enter your name.");
+                                if (!viewingPhone.trim()) return setViewingError("Please enter your phone number.");
+                                if (!viewingDate) return setViewingError("Please select a date and time.");
+                                if (!listing?.id) return;
+                                setViewingError("");
+                                setViewingStatus("submitting");
+                                try {
+                                  await viewingsService.create({
+                                    listingId: listing.id,
+                                    clientName: viewingName.trim(),
+                                    clientPhone: viewingPhone.trim(),
+                                    scheduledFor: new Date(viewingDate).toISOString(),
+                                    notes: viewingNotes.trim() || undefined,
+                                  });
+                                  setViewingStatus("done");
+                                } catch {
+                                  setViewingError("Failed to submit. Please try again.");
+                                  setViewingStatus("form");
+                                }
+                              }}
+                              className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                            >
+                              <CalendarDays className="w-4 h-4" />
+                              {viewingStatus === "submitting" ? "Submitting…" : "Request Viewing"}
+                            </button>
+                          </div>
+                        </div>
+                      </>
                     )}
                   </motion.div>
                 )}

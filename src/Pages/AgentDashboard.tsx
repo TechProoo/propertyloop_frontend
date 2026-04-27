@@ -30,13 +30,17 @@ import {
   ArrowLeft,
   Send,
   ChevronDown,
+  CalendarDays,
+  MessageSquare,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/logo.png";
 import agentsService from "../api/services/agents";
 import listingsService from "../api/services/listings";
+import viewingsService from "../api/services/viewings";
+import messagesService from "../api/services/messages";
 import uploadService from "../api/services/upload";
-import type { AgentStats, Listing, ListingStatus } from "../api/types";
+import type { AgentStats, Listing, ListingStatus, Viewing, ViewingStatus } from "../api/types";
 import { useConversations } from "../api/hooks";
 import { StatSkeleton } from "../components/ui/Skeleton";
 import MessagesSkeleton, {
@@ -61,6 +65,11 @@ const navItems = [
     icon: <BarChart3 className="w-5 h-5" />,
     label: "Analytics",
     id: "analytics",
+  },
+  {
+    icon: <CalendarDays className="w-5 h-5" />,
+    label: "Viewings",
+    id: "viewings",
   },
   {
     icon: <MessageCircle className="w-5 h-5" />,
@@ -104,6 +113,13 @@ const AgentDashboard = () => {
   );
   const [openStatusMenu, setOpenStatusMenu] = useState<string | null>(null);
 
+  // ─── Viewings state ──────────────────────────────────────────────────────
+  const [viewings, setViewings] = useState<Viewing[]>([]);
+  const [viewingsLoading, setViewingsLoading] = useState(false);
+  const [viewingFilter, setViewingFilter] = useState<"ALL" | ViewingStatus>("ALL");
+  const [viewingUpdating, setViewingUpdating] = useState<Record<string, boolean>>({});
+  const [startingConvoFor, setStartingConvoFor] = useState<string | null>(null);
+
   // ─── Profile form state ──────────────────────────────────────────────────
   const [profileName, setProfileName] = useState("");
   const [profilePhone, setProfilePhone] = useState("");
@@ -130,7 +146,8 @@ const AgentDashboard = () => {
   const defaultNotifOn = ["New Lead Alerts", "Viewing Reminders"];
   const toggleNotif = (label: string) => {
     setNotifPrefs((prev) => {
-      const current = label in prev ? prev[label] : defaultNotifOn.includes(label);
+      const current =
+        label in prev ? prev[label] : defaultNotifOn.includes(label);
       const next = { ...prev, [label]: !current };
       localStorage.setItem(NOTIF_KEY, JSON.stringify(next));
       return next;
@@ -153,6 +170,16 @@ const AgentDashboard = () => {
     };
     load();
   }, []);
+
+  // Load viewings when tab is opened
+  useEffect(() => {
+    if (activeNav !== "viewings") return;
+    setViewingsLoading(true);
+    viewingsService.list({ limit: 100 })
+      .then((res) => setViewings(res.items))
+      .catch(() => {})
+      .finally(() => setViewingsLoading(false));
+  }, [activeNav]);
 
   // ─── Populate profile form from user data ────────────────────────────────
   useEffect(() => {
@@ -372,6 +399,13 @@ const AgentDashboard = () => {
                 unreadMessagesCount > 0 && (
                   <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-[hsl(142,71%,45%)] text-white">
                     {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
+                  </span>
+                )}
+              {sidebarOpen &&
+                item.id === "viewings" &&
+                viewings.filter((v) => v.status === "PENDING").length > 0 && (
+                  <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-yellow-500 text-white">
+                    {viewings.filter((v) => v.status === "PENDING").length}
                   </span>
                 )}
             </button>
@@ -1260,6 +1294,203 @@ const AgentDashboard = () => {
             </motion.div>
           )}
 
+          {/* ─── Viewings Panel ─── */}
+          {activeNav === "viewings" && (
+            <motion.div
+              key="viewings"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.35, ease }}
+              className="flex-1 min-w-0"
+            >
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                {/* Header */}
+                <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
+                  <div>
+                    <h2 className="font-heading font-bold text-primary-dark text-lg">Viewings</h2>
+                    <p className="text-text-secondary text-xs mt-0.5">Property inspection requests from buyers</p>
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
+                    {viewings.length} total
+                  </span>
+                </div>
+
+                {/* Filter tabs */}
+                <div className="flex gap-2 px-6 pt-4 pb-2 overflow-x-auto">
+                  {(["ALL", "PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"] as const).map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => setViewingFilter(f)}
+                      className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                        viewingFilter === f
+                          ? "bg-primary text-white border-primary"
+                          : "bg-white/80 text-primary-dark border-border-light hover:border-primary"
+                      }`}
+                    >
+                      {f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
+                      <span className="ml-1.5 opacity-70">
+                        ({f === "ALL" ? viewings.length : viewings.filter((v) => v.status === f).length})
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* List */}
+                {viewingsLoading ? (
+                  <div className="px-6 py-12 text-center text-text-secondary text-sm">Loading viewings…</div>
+                ) : (() => {
+                  const filtered = viewingFilter === "ALL" ? viewings : viewings.filter((v) => v.status === viewingFilter);
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="px-6 py-16 text-center">
+                        <div className="w-14 h-14 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-3">
+                          <CalendarDays className="w-6 h-6 text-text-subtle" />
+                        </div>
+                        <p className="font-heading font-bold text-primary-dark text-sm">No viewings yet</p>
+                        <p className="text-text-secondary text-xs mt-1">Buyers who schedule a viewing on your listings will appear here.</p>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="divide-y divide-border-light">
+                      {filtered.map((v) => {
+                        const statusColors: Record<string, string> = {
+                          PENDING: "bg-yellow-50 text-yellow-700 border-yellow-200",
+                          CONFIRMED: "bg-blue-50 text-blue-700 border-blue-200",
+                          COMPLETED: "bg-green-50 text-green-700 border-green-200",
+                          CANCELLED: "bg-red-50 text-red-500 border-red-200",
+                          NO_SHOW: "bg-gray-100 text-gray-500 border-gray-200",
+                        };
+                        const scheduled = new Date(v.scheduledFor);
+                        return (
+                          <div key={v.id} className="px-6 py-5 flex flex-col sm:flex-row sm:items-start gap-4">
+                            {/* Left: client info */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                  <span className="font-heading font-bold text-primary text-sm">
+                                    {v.clientName.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                                <div>
+                                  <p className="font-heading font-bold text-primary-dark text-sm">{v.clientName}</p>
+                                  <p className="text-text-secondary text-xs">{v.clientPhone}</p>
+                                </div>
+                                <span className={`ml-auto sm:ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${statusColors[v.status]}`}>
+                                  {v.status.charAt(0) + v.status.slice(1).toLowerCase()}
+                                </span>
+                              </div>
+                              {v.listing && (
+                                <p className="text-text-secondary text-xs mt-2 flex items-center gap-1">
+                                  <Home className="w-3.5 h-3.5 shrink-0" />
+                                  {v.listing.title} · {v.listing.location}
+                                </p>
+                              )}
+                              <p className="text-text-secondary text-xs mt-1 flex items-center gap-1">
+                                <CalendarDays className="w-3.5 h-3.5 shrink-0" />
+                                {scheduled.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+                                {" at "}
+                                {scheduled.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                              </p>
+                              {v.notes && (
+                                <p className="text-text-secondary text-xs mt-1 italic">"{v.notes}"</p>
+                              )}
+                            </div>
+
+                            {/* Right: actions */}
+                            <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end shrink-0">
+                              {/* Message client */}
+                              {v.buyerUserId && (
+                                <button
+                                  disabled={startingConvoFor === v.id}
+                                  onClick={async () => {
+                                    setStartingConvoFor(v.id);
+                                    try {
+                                      const { conversationId } = await messagesService.createOrFind({
+                                        recipientId: v.buyerUserId!,
+                                        recipientRole: "BUYER",
+                                        senderRole: "AGENT",
+                                        listingId: v.listingId,
+                                      });
+                                      setSelectedConvo(conversationId);
+                                      setActiveNav("messages");
+                                    } catch { /* ignore */ }
+                                    setStartingConvoFor(null);
+                                  }}
+                                  className="h-8 px-3 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary hover:text-white transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
+                                >
+                                  <MessageSquare className="w-3.5 h-3.5" />
+                                  {startingConvoFor === v.id ? "Opening…" : "Message"}
+                                </button>
+                              )}
+                              <a
+                                href={`tel:${v.clientPhone}`}
+                                className="h-8 px-3 rounded-full bg-white/80 border border-border-light text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-colors inline-flex items-center gap-1.5"
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                                Call
+                              </a>
+                              {/* Status actions */}
+                              {v.status === "PENDING" && (
+                                <button
+                                  disabled={!!viewingUpdating[v.id]}
+                                  onClick={async () => {
+                                    setViewingUpdating((p) => ({ ...p, [v.id]: true }));
+                                    try {
+                                      const updated = await viewingsService.update(v.id, { status: "CONFIRMED" });
+                                      setViewings((prev) => prev.map((x) => x.id === v.id ? updated : x));
+                                    } catch { /* ignore */ }
+                                    setViewingUpdating((p) => ({ ...p, [v.id]: false }));
+                                  }}
+                                  className="h-8 px-3 rounded-full bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                >
+                                  {viewingUpdating[v.id] ? "…" : "Confirm"}
+                                </button>
+                              )}
+                              {v.status === "CONFIRMED" && (
+                                <button
+                                  disabled={!!viewingUpdating[v.id]}
+                                  onClick={async () => {
+                                    setViewingUpdating((p) => ({ ...p, [v.id]: true }));
+                                    try {
+                                      const updated = await viewingsService.update(v.id, { status: "COMPLETED" });
+                                      setViewings((prev) => prev.map((x) => x.id === v.id ? updated : x));
+                                    } catch { /* ignore */ }
+                                    setViewingUpdating((p) => ({ ...p, [v.id]: false }));
+                                  }}
+                                  className="h-8 px-3 rounded-full bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+                                >
+                                  {viewingUpdating[v.id] ? "…" : "Mark Complete"}
+                                </button>
+                              )}
+                              {(v.status === "PENDING" || v.status === "CONFIRMED") && (
+                                <button
+                                  disabled={!!viewingUpdating[v.id]}
+                                  onClick={async () => {
+                                    setViewingUpdating((p) => ({ ...p, [v.id]: true }));
+                                    try {
+                                      const updated = await viewingsService.cancel(v.id);
+                                      setViewings((prev) => prev.map((x) => x.id === v.id ? updated : x));
+                                    } catch { /* ignore */ }
+                                    setViewingUpdating((p) => ({ ...p, [v.id]: false }));
+                                  }}
+                                  className="h-8 px-3 rounded-full bg-white/80 border border-red-200 text-red-500 text-xs font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
+                                >
+                                  Cancel
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+            </motion.div>
+          )}
+
           {/* ─── Messages Panel ─── */}
           {activeNav === "messages" &&
             (() => {
@@ -1691,27 +1922,30 @@ const AgentDashboard = () => {
                       desc: "Receive a summary of your analytics each month",
                     },
                   ].map((pref) => {
-                    const checked = pref.label in notifPrefs ? notifPrefs[pref.label] : defaultNotifOn.includes(pref.label);
+                    const checked =
+                      pref.label in notifPrefs
+                        ? notifPrefs[pref.label]
+                        : defaultNotifOn.includes(pref.label);
                     return (
-                    <label
-                      key={pref.label}
-                      className="flex items-center justify-between py-3 border-b border-border-light last:border-0 cursor-pointer"
-                    >
-                      <div>
-                        <p className="text-sm font-medium text-primary-dark">
-                          {pref.label}
-                        </p>
-                        <p className="text-xs text-text-secondary mt-0.5">
-                          {pref.desc}
-                        </p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleNotif(pref.label)}
-                        className="w-5 h-5 rounded border-border-light text-primary focus:ring-primary/20 cursor-pointer"
-                      />
-                    </label>
+                      <label
+                        key={pref.label}
+                        className="flex items-center justify-between py-3 border-b border-border-light last:border-0 cursor-pointer"
+                      >
+                        <div>
+                          <p className="text-sm font-medium text-primary-dark">
+                            {pref.label}
+                          </p>
+                          <p className="text-xs text-text-secondary mt-0.5">
+                            {pref.desc}
+                          </p>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleNotif(pref.label)}
+                          className="w-5 h-5 rounded border-border-light text-primary focus:ring-primary/20 cursor-pointer"
+                        />
+                      </label>
                     );
                   })}
                 </div>
