@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import messagesService from "../services/messages";
 
 export interface DashboardConvo {
@@ -20,6 +20,15 @@ export function useConversations() {
   >({});
   const [loading, setLoading] = useState(true);
   const [messagesLoadingId, setMessagesLoadingId] = useState<string | null>(null);
+
+  // Mirror activeMessages into a ref so loadMessages doesn't need to
+  // declare it as a dep and rebuild on every state change.
+  const activeMessagesRef = useRef(activeMessages);
+  activeMessagesRef.current = activeMessages;
+  // In-flight guard so that callers (e.g. dashboards calling
+  // loadMessages from inside render) can't trigger duplicate fetches
+  // before the first one resolves — a single fetch per conversation.
+  const inFlightRef = useRef(new Set<string>());
 
   useEffect(() => {
     let cancelled = false;
@@ -59,32 +68,33 @@ export function useConversations() {
     };
   }, []);
 
-  const loadMessages = useCallback(
-    async (convoId: string) => {
-      if (activeMessages[convoId]?.length) return; // already loaded
-      setMessagesLoadingId(convoId);
-      try {
-        const msgs = await messagesService.getMessages(convoId, { limit: 100 });
-        setActiveMessages((prev) => ({
-          ...prev,
-          [convoId]: msgs.map((m) => ({
-            sender: m.isYou ? ("you" as const) : ("them" as const),
-            text: m.text,
-            time: new Date(m.createdAt).toLocaleTimeString("en-NG", {
-              hour: "numeric",
-              minute: "2-digit",
-            }),
-          })),
-        }));
-        messagesService.markRead(convoId).catch(() => {});
-      } catch {
-        /* ignore */
-      } finally {
-        setMessagesLoadingId((curr) => (curr === convoId ? null : curr));
-      }
-    },
-    [activeMessages],
-  );
+  const loadMessages = useCallback(async (convoId: string) => {
+    if (!convoId) return;
+    if (activeMessagesRef.current[convoId]?.length) return; // already loaded
+    if (inFlightRef.current.has(convoId)) return; // already fetching
+    inFlightRef.current.add(convoId);
+    setMessagesLoadingId(convoId);
+    try {
+      const msgs = await messagesService.getMessages(convoId, { limit: 100 });
+      setActiveMessages((prev) => ({
+        ...prev,
+        [convoId]: msgs.map((m) => ({
+          sender: m.isYou ? ("you" as const) : ("them" as const),
+          text: m.text,
+          time: new Date(m.createdAt).toLocaleTimeString("en-NG", {
+            hour: "numeric",
+            minute: "2-digit",
+          }),
+        })),
+      }));
+      messagesService.markRead(convoId).catch(() => {});
+    } catch {
+      /* ignore */
+    } finally {
+      inFlightRef.current.delete(convoId);
+      setMessagesLoadingId((curr) => (curr === convoId ? null : curr));
+    }
+  }, []);
 
   const sendMessage = useCallback(async (convoId: string, text: string) => {
     const msg = {
