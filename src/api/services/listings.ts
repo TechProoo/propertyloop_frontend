@@ -54,6 +54,28 @@ export interface AddDocumentPayload {
   date?: string;
 }
 
+export interface AddLogbookEntryPayload {
+  category: string;
+  title: string;
+  description?: string;
+  vendorName: string;
+  vendorId?: string;
+  cost: number;
+  completedAt?: string;
+}
+
+export interface LogbookEntry {
+  id: string;
+  category: string;
+  title: string;
+  description?: string;
+  vendorName: string;
+  vendorId?: string;
+  cost: number;
+  completedAt: string;
+  verified: boolean;
+}
+
 const listingsService = {
   async list(params?: ListListingsParams): Promise<Paginated<Listing>> {
     const { data } = await api.get<Paginated<Listing>>("/listings", { params });
@@ -110,8 +132,29 @@ const listingsService = {
     return data;
   },
 
-  async getLogbook(listingId: string): Promise<{ id: string; category: string; title: string; description?: string; vendorName: string; vendorId?: string; cost: number; completedAt: string; verified: boolean }[]> {
+  async getLogbook(listingId: string): Promise<LogbookEntry[]> {
     const { data } = await api.get(`/listings/${listingId}/logbook`);
+    return data;
+  },
+
+  async addLogbookEntry(
+    listingId: string,
+    payload: AddLogbookEntryPayload,
+  ): Promise<LogbookEntry> {
+    const { data } = await api.post<LogbookEntry>(
+      `/listings/${listingId}/logbook`,
+      payload,
+    );
+    return data;
+  },
+
+  async removeLogbookEntry(
+    listingId: string,
+    entryId: string,
+  ): Promise<SuccessResponse> {
+    const { data } = await api.delete<SuccessResponse>(
+      `/listings/${listingId}/logbook/${entryId}`,
+    );
     return data;
   },
 };

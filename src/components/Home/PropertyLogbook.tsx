@@ -17,43 +17,61 @@ const PropertyLogbook = () => {
   const [logbookListings, setLogbookListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch sold/rented properties for logbook display
+  // Fetch sold/rented/recently-updated listings for logbook display.
+  // We blend three sources so the section reflects all meaningful activity:
+  //   1. Closed sales (SOLD)
+  //   2. Closed rentals (RENTED)
+  //   3. Active listings that have been edited since posting
   useEffect(() => {
     const fetchLogbookData = async () => {
       try {
-        const HOME_LIMIT = 5;
-        const result = await listingsService.list({
-          status: "SOLD",
-          limit: HOME_LIMIT,
-          sort: "newest",
+        const HOME_LIMIT = 8;
+        const PER_BUCKET = 12;
+        const [sold, rented, active] = await Promise.all([
+          listingsService
+            .list({ status: "SOLD", limit: PER_BUCKET, sort: "newest" })
+            .catch(() => ({ items: [] as Listing[] })),
+          listingsService
+            .list({ status: "RENTED", limit: PER_BUCKET, sort: "newest" })
+            .catch(() => ({ items: [] as Listing[] })),
+          listingsService
+            .list({ limit: PER_BUCKET, sort: "newest" })
+            .catch(() => ({ items: [] as Listing[] })),
+        ]);
+
+        // Filter active listings to only those that have been edited
+        // (updatedAt drifts noticeably past createdAt).
+        const editedActive = (active.items || []).filter((l) => {
+          if (!l.updatedAt) return false;
+          const created = new Date(l.createdAt).getTime();
+          const updated = new Date(l.updatedAt).getTime();
+          // 60 second buffer so freshly created listings aren't flagged as "updated"
+          return updated - created > 60_000;
         });
 
-        if (result.items && result.items.length > 0) {
-          setLogbookListings(result.items);
-          setLoading(false);
-          return;
+        // Merge and dedupe by id (later sources lose to earlier ones).
+        const merged: Listing[] = [];
+        const seen = new Set<string>();
+        for (const l of [
+          ...(sold.items || []),
+          ...(rented.items || []),
+          ...editedActive,
+        ]) {
+          if (seen.has(l.id)) continue;
+          seen.add(l.id);
+          merged.push(l);
         }
 
-        // If no SOLD properties, try RENTED
-        const rentedResult = await listingsService.list({
-          status: "RENTED",
-          limit: HOME_LIMIT,
-          sort: "newest",
+        // Sort by most recent activity (updatedAt falling back to createdAt).
+        merged.sort((a, b) => {
+          const aT = new Date(a.updatedAt ?? a.createdAt).getTime();
+          const bT = new Date(b.updatedAt ?? b.createdAt).getTime();
+          return bT - aT;
         });
 
-        if (rentedResult.items && rentedResult.items.length > 0) {
-          setLogbookListings(rentedResult.items);
-          setLoading(false);
-          return;
-        }
-
-        // If no SOLD or RENTED, fetch any listings as fallback so the
-        // section never appears empty on a fresh deployment.
-        const allResult = await listingsService.list({
-          limit: HOME_LIMIT,
-          sort: "newest",
-        });
-        setLogbookListings(allResult.items || []);
+        // If nothing matched (fresh deployment), fall back to any listings.
+        const final = merged.length > 0 ? merged : active.items || [];
+        setLogbookListings(final.slice(0, HOME_LIMIT));
       } catch (error) {
         console.error("Error fetching logbook data:", error);
         setLogbookListings([]);
@@ -265,55 +283,77 @@ const PropertyLogbook = () => {
                   className="absolute left-8 top-0 bottom-0 w-1 bg-linear-to-b from-primary to-primary/20 rounded-full"
                 />
                 <div className="space-y-6 pl-20">
-                  {logbookListings.map((property) => (
-                    <div
-                      key={property.id}
-                      data-pl-entry
-                      className="relative"
-                    >
-                      {/* Timeline dot */}
-                      <div className="absolute -left-14 top-1.5 w-6 h-6 rounded-full bg-primary border-4 border-white shadow-lg flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-white" />
-                      </div>
+                  {logbookListings.map((property) => {
+                    // Determine entry label/badge from status + edit history
+                    const created = new Date(property.createdAt).getTime();
+                    const updated = property.updatedAt
+                      ? new Date(property.updatedAt).getTime()
+                      : created;
+                    const wasEdited = updated - created > 60_000;
+                    let label: "Sold" | "Rented" | "Updated" | "Listed";
+                    let badgeClass: string;
+                    if (property.status === "SOLD") {
+                      label = "Sold";
+                      badgeClass = "bg-green-50 text-green-600";
+                    } else if (property.status === "RENTED") {
+                      label = "Rented";
+                      badgeClass = "bg-blue-50 text-blue-600";
+                    } else if (wasEdited) {
+                      label = "Updated";
+                      badgeClass = "bg-amber-50 text-amber-600";
+                    } else {
+                      label = "Listed";
+                      badgeClass = "bg-primary/10 text-primary";
+                    }
+                    const eventDate = new Date(
+                      property.updatedAt ?? property.createdAt,
+                    ).toLocaleDateString();
+                    return (
+                      <div
+                        key={property.id}
+                        data-pl-entry
+                        className="relative"
+                      >
+                        {/* Timeline dot */}
+                        <div className="absolute -left-14 top-1.5 w-6 h-6 rounded-full bg-primary border-4 border-white shadow-lg flex items-center justify-center">
+                          <div className="w-2 h-2 rounded-full bg-white" />
+                        </div>
 
-                      {/* Card */}
-                      <div className="bg-white/80 backdrop-blur-sm border border-border-light rounded-2xl p-4 hover:shadow-[0_8px_24px_rgba(31,111,67,0.15)] transition-shadow">
-                        <div className="flex items-start gap-3 mb-3">
-                          <img
-                            src={property.coverImage || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=100&h=100&fit=crop"}
-                            alt={property.title}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-heading font-bold text-primary-dark text-sm truncate">
-                              {property.title}
-                            </h4>
-                            <p className="text-text-secondary text-xs">
-                              {property.location}
-                            </p>
+                        {/* Card */}
+                        <div className="bg-white/80 backdrop-blur-sm border border-border-light rounded-2xl p-4 hover:shadow-[0_8px_24px_rgba(31,111,67,0.15)] transition-shadow">
+                          <div className="flex items-start gap-3 mb-3">
+                            <img
+                              src={property.coverImage || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=100&h=100&fit=crop"}
+                              alt={property.title}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-heading font-bold text-primary-dark text-sm truncate">
+                                {property.title}
+                              </h4>
+                              <p className="text-text-secondary text-xs">
+                                {property.location}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-text-secondary mb-2">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>
+                              {label} • {eventDate}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-primary-dark">
+                              {property.beds} bed{property.beds !== 1 ? "s" : ""} • {property.baths} bath{property.baths !== 1 ? "s" : ""}
+                            </span>
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}>
+                              {label}
+                            </span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-text-secondary mb-2">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>
-                            {property.status === "SOLD" ? "Sold" : "Rented"} • {new Date(property.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-primary-dark">
-                            {property.beds} bed{property.beds !== 1 ? "s" : ""} • {property.baths} bath{property.baths !== 1 ? "s" : ""}
-                          </span>
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                            property.status === "SOLD"
-                              ? "bg-green-50 text-green-600"
-                              : "bg-blue-50 text-blue-600"
-                          }`}>
-                            {property.status === "SOLD" ? "Sold" : "Rented"}
-                          </span>
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
             ) : (

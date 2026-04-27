@@ -27,6 +27,16 @@ const viewingsService = {
     return data;
   },
 
+  async listMine(params?: { status?: ViewingStatus; upcoming?: boolean; page?: number; limit?: number }): Promise<Paginated<Viewing>> {
+    const { data } = await api.get<Paginated<Viewing>>("/viewings/me", { params });
+    return data;
+  },
+
+  async cancelMine(id: string): Promise<Viewing> {
+    const { data } = await api.post<Viewing>(`/viewings/me/${id}/cancel`);
+    return data;
+  },
+
   async update(id: string, payload: UpdateViewingPayload): Promise<Viewing> {
     const { data } = await api.patch<Viewing>(`/viewings/${id}`, payload);
     return data;

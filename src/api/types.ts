@@ -254,6 +254,7 @@ export interface Listing {
   status: ListingStatus;
   viewsCount: number;
   createdAt: string;
+  updatedAt?: string;
   documents?: ListingDocument[];
   agent?: AgentPublic | null;
 }
@@ -370,7 +371,8 @@ export interface Viewing {
   status: ViewingStatus;
   notes?: string | null;
   createdAt: string;
-  listing?: { id: string; title: string; coverImage: string; location: string };
+  listing?: { id: string; title: string; coverImage: string; location: string; slug?: string };
+  agent?: { id: string; name: string; phone?: string | null; avatarUrl?: string | null };
 }
 
 // ─── Vendor Jobs (bookings + escrow) ────────────────────────────────────────

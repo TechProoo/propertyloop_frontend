@@ -69,8 +69,21 @@ const PropertyDetail = () => {
   const [viewingError, setViewingError] = useState("");
 
   // Price history + logbook
-  const [priceHistory, setPriceHistory] = useState<{ id: string; oldPrice: number; newPrice: number; changedAt: string }[]>([]);
-  const [logbookEntries, setLogbookEntries] = useState<{ id: string; category: string; title: string; description?: string; vendorName: string; cost: number; completedAt: string; verified: boolean }[]>([]);
+  const [priceHistory, setPriceHistory] = useState<
+    { id: string; oldPrice: number; newPrice: number; changedAt: string }[]
+  >([]);
+  const [logbookEntries, setLogbookEntries] = useState<
+    {
+      id: string;
+      category: string;
+      title: string;
+      description?: string;
+      vendorName: string;
+      cost: number;
+      completedAt: string;
+      verified: boolean;
+    }[]
+  >([]);
 
   useEffect(() => {
     if (!id) return;
@@ -87,8 +100,14 @@ const PropertyDetail = () => {
           )
           .catch(() => {});
         // Fetch price history and logbook in parallel
-        listingsService.getPriceHistory(data.id).then(setPriceHistory).catch(() => {});
-        listingsService.getLogbook(data.id).then(setLogbookEntries).catch(() => {});
+        listingsService
+          .getPriceHistory(data.id)
+          .then(setPriceHistory)
+          .catch(() => {});
+        listingsService
+          .getLogbook(data.id)
+          .then(setLogbookEntries)
+          .catch(() => {});
       })
       .catch(() => setListing(null))
       .finally(() => setLoadingPage(false));
@@ -574,10 +593,20 @@ const PropertyDetail = () => {
                   <div className="flex flex-col gap-3">
                     {priceHistory.map((entry) => {
                       const increased = entry.newPrice > entry.oldPrice;
-                      const pct = Math.abs(Math.round(((entry.newPrice - entry.oldPrice) / entry.oldPrice) * 100));
+                      const pct = Math.abs(
+                        Math.round(
+                          ((entry.newPrice - entry.oldPrice) / entry.oldPrice) *
+                            100,
+                        ),
+                      );
                       return (
-                        <div key={entry.id} className="flex items-center gap-4 bg-white/60 border border-border-light rounded-2xl p-4">
-                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${increased ? "bg-red-50 text-red-500" : "bg-green-50 text-green-600"}`}>
+                        <div
+                          key={entry.id}
+                          className="flex items-center gap-4 bg-white/60 border border-border-light rounded-2xl p-4"
+                        >
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${increased ? "bg-red-50 text-red-500" : "bg-green-50 text-green-600"}`}
+                          >
                             {increased ? "↑" : "↓"}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -585,11 +614,20 @@ const PropertyDetail = () => {
                               ₦{entry.newPrice.toLocaleString("en-NG")}
                             </p>
                             <p className="text-text-secondary text-xs mt-0.5">
-                              from ₦{entry.oldPrice.toLocaleString("en-NG")} · {increased ? "+" : "-"}{pct}%
+                              from ₦{entry.oldPrice.toLocaleString("en-NG")} ·{" "}
+                              {increased ? "+" : "-"}
+                              {pct}%
                             </p>
                           </div>
                           <span className="text-text-subtle text-xs shrink-0">
-                            {new Date(entry.changedAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                            {new Date(entry.changedAt).toLocaleDateString(
+                              "en-NG",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              },
+                            )}
                           </span>
                         </div>
                       );
@@ -723,7 +761,9 @@ const PropertyDetail = () => {
                     </div>
                   </div>
                   <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium shrink-0">
-                    <ShieldCheck className="w-3.5 h-3.5" />{logbookEntries.length} record{logbookEntries.length !== 1 ? "s" : ""}
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    {logbookEntries.length} record
+                    {logbookEntries.length !== 1 ? "s" : ""}
                   </span>
                 </div>
                 <p className="text-text-secondary text-xs mb-5 leading-relaxed">
@@ -738,33 +778,54 @@ const PropertyDetail = () => {
                       No logbook entries yet.
                     </p>
                     <p className="text-text-subtle text-xs mt-1">
-                      Service records will appear here once vendors complete jobs.
+                      Service records will appear here once vendors complete
+                      jobs.
                     </p>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3">
                     {logbookEntries.map((entry) => (
-                      <div key={entry.id} className="flex items-start gap-4 bg-white/60 border border-border-light rounded-2xl p-4">
+                      <div
+                        key={entry.id}
+                        className="flex items-start gap-4 bg-white/60 border border-border-light rounded-2xl p-4"
+                      >
                         <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                           <ClipboardList className="w-4 h-4 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className="text-sm text-primary-dark font-heading font-semibold">{entry.title}</p>
+                            <p className="text-sm text-primary-dark font-heading font-semibold">
+                              {entry.title}
+                            </p>
                             {entry.verified && (
                               <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 text-green-600 text-[10px] font-medium">
-                                <ShieldCheck className="w-3 h-3" />Verified
+                                <ShieldCheck className="w-3 h-3" />
+                                Verified
                               </span>
                             )}
                           </div>
-                          <p className="text-text-subtle text-xs mt-0.5">{entry.category} · by {entry.vendorName}</p>
+                          <p className="text-text-subtle text-xs mt-0.5">
+                            {entry.category} · by {entry.vendorName}
+                          </p>
                           {entry.description && (
-                            <p className="text-text-secondary text-xs mt-1 leading-relaxed">{entry.description}</p>
+                            <p className="text-text-secondary text-xs mt-1 leading-relaxed">
+                              {entry.description}
+                            </p>
                           )}
                           <p className="text-text-subtle text-xs mt-1.5">
-                            Cost: <span className="font-medium text-primary-dark">₦{entry.cost.toLocaleString("en-NG")}</span>
+                            Cost:{" "}
+                            <span className="font-medium text-primary-dark">
+                              ₦{entry.cost.toLocaleString("en-NG")}
+                            </span>
                             {" · "}
-                            {new Date(entry.completedAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                            {new Date(entry.completedAt).toLocaleDateString(
+                              "en-NG",
+                              {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              },
+                            )}
                           </p>
                         </div>
                       </div>
@@ -910,7 +971,9 @@ const PropertyDetail = () => {
                                 : "Asking price"}
                               : {listing.priceLabel}
                               {listing.period && (
-                                <span>/{listing.period.replace(/^\//, "")}</span>
+                                <span>
+                                  /{listing.period.replace(/^\//, "")}
+                                </span>
                               )}
                             </p>
                           </div>
@@ -1010,7 +1073,11 @@ const PropertyDetail = () => {
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 20,
+                          }}
                           className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mx-auto mb-3"
                         >
                           <CalendarDays className="w-6 h-6 text-white" />
@@ -1079,12 +1146,17 @@ const PropertyDetail = () => {
                           </div>
 
                           {viewingError && (
-                            <p className="text-xs text-red-500">{viewingError}</p>
+                            <p className="text-xs text-red-500">
+                              {viewingError}
+                            </p>
                           )}
 
                           <div className="flex gap-2 pt-1">
                             <button
-                              onClick={() => { setViewingStatus("idle"); setViewingError(""); }}
+                              onClick={() => {
+                                setViewingStatus("idle");
+                                setViewingError("");
+                              }}
                               className="flex-1 h-11 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:bg-bg-accent transition-colors"
                             >
                               Cancel
@@ -1092,9 +1164,18 @@ const PropertyDetail = () => {
                             <button
                               disabled={viewingStatus === "submitting"}
                               onClick={async () => {
-                                if (!viewingName.trim()) return setViewingError("Please enter your name.");
-                                if (!viewingPhone.trim()) return setViewingError("Please enter your phone number.");
-                                if (!viewingDate) return setViewingError("Please select a date and time.");
+                                if (!viewingName.trim())
+                                  return setViewingError(
+                                    "Please enter your name.",
+                                  );
+                                if (!viewingPhone.trim())
+                                  return setViewingError(
+                                    "Please enter your phone number.",
+                                  );
+                                if (!viewingDate)
+                                  return setViewingError(
+                                    "Please select a date and time.",
+                                  );
                                 if (!listing?.id) return;
                                 setViewingError("");
                                 setViewingStatus("submitting");
@@ -1103,19 +1184,25 @@ const PropertyDetail = () => {
                                     listingId: listing.id,
                                     clientName: viewingName.trim(),
                                     clientPhone: viewingPhone.trim(),
-                                    scheduledFor: new Date(viewingDate).toISOString(),
+                                    scheduledFor: new Date(
+                                      viewingDate,
+                                    ).toISOString(),
                                     notes: viewingNotes.trim() || undefined,
                                   });
                                   setViewingStatus("done");
                                 } catch {
-                                  setViewingError("Failed to submit. Please try again.");
+                                  setViewingError(
+                                    "Failed to submit. Please try again.",
+                                  );
                                   setViewingStatus("form");
                                 }
                               }}
                               className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
                             >
                               <CalendarDays className="w-4 h-4" />
-                              {viewingStatus === "submitting" ? "Submitting…" : "Request Viewing"}
+                              {viewingStatus === "submitting"
+                                ? "Submitting…"
+                                : "Request Viewing"}
                             </button>
                           </div>
                         </div>

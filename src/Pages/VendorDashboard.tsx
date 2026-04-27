@@ -1606,6 +1606,7 @@ const VendorDashboard = () => {
                 currentImage={(user?.vendorProfile as any)?.bannerImage || null}
                 onUpload={handleBannerUpload}
                 label="Profile Banner"
+                variant="banner"
               />
 
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">

@@ -27,6 +27,7 @@ import {
   ArrowLeft,
   ClipboardList,
   Calendar,
+  CalendarDays,
   ShieldCheck,
   Building2,
   Pencil,
@@ -37,11 +38,13 @@ import listingsService from "../api/services/listings";
 import vendorsService from "../api/services/vendors";
 import productsService from "../api/services/products";
 import vendorJobsService from "../api/services/vendorJobs";
+import viewingsService from "../api/services/viewings";
 import type {
   Listing as ApiListing,
   VendorPublic,
   Product as ApiProduct,
   VendorJob,
+  Viewing,
 } from "../api/types";
 import { useAuth } from "../context/AuthContext";
 import { useBookmarks } from "../context/BookmarkContext";
@@ -75,6 +78,11 @@ const navItems = [
     icon: <MessageCircle className="w-5 h-5" />,
     label: "Messages",
     id: "messages",
+  },
+  {
+    icon: <CalendarDays className="w-5 h-5" />,
+    label: "Viewings",
+    id: "viewings",
   },
   {
     icon: <ClipboardList className="w-5 h-5" />,
@@ -122,11 +130,36 @@ const Dashboard = () => {
   const [myListingsLoading, setMyListingsLoading] = useState(false);
   const [editingListing, setEditingListing] = useState<ApiListing | null>(null);
   const [editForm, setEditForm] = useState<{
-    title: string; priceNaira: string; description: string;
-    beds: string; baths: string; sqft: string; yearBuilt: string;
-    address: string; location: string; status: string;
-  }>({ title: "", priceNaira: "", description: "", beds: "", baths: "", sqft: "", yearBuilt: "", address: "", location: "", status: "" });
+    title: string;
+    priceNaira: string;
+    description: string;
+    beds: string;
+    baths: string;
+    sqft: string;
+    yearBuilt: string;
+    address: string;
+    location: string;
+    status: string;
+  }>({
+    title: "",
+    priceNaira: "",
+    description: "",
+    beds: "",
+    baths: "",
+    sqft: "",
+    yearBuilt: "",
+    address: "",
+    location: "",
+    status: "",
+  });
   const [editSaving, setEditSaving] = useState(false);
+
+  // ─── Buyer: my viewings ───────────────────────────────────────────────
+  const [myViewings, setMyViewings] = useState<Viewing[]>([]);
+  const [viewingsLoading, setViewingsLoading] = useState(false);
+  const [viewingCancelling, setViewingCancelling] = useState<
+    Record<string, boolean>
+  >({});
 
   useEffect(() => {
     Promise.all([
@@ -158,10 +191,13 @@ const Dashboard = () => {
   useEffect(() => {
     if (authUser?.role !== "AGENT") return;
     setMyListingsLoading(true);
-    listingsService.listMine({ limit: 50 }).then((r) => {
-      setMyListings(r.items);
-      setMyListingsLoading(false);
-    }).catch(() => setMyListingsLoading(false));
+    listingsService
+      .listMine({ limit: 50 })
+      .then((r) => {
+        setMyListings(r.items);
+        setMyListingsLoading(false);
+      })
+      .catch(() => setMyListingsLoading(false));
   }, [authUser?.role]);
 
   // Auto-select first conversation when available
@@ -170,6 +206,30 @@ const Dashboard = () => {
       chat.openConversation(chat.conversations[0].id);
     }
   }, [chat.conversations]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load buyer's viewings when the Viewings tab is opened
+  useEffect(() => {
+    if (activeNav !== "viewings") return;
+    setViewingsLoading(true);
+    viewingsService
+      .listMine({ limit: 100 })
+      .then((r) => setMyViewings(r.items))
+      .catch(() => setMyViewings([]))
+      .finally(() => setViewingsLoading(false));
+  }, [activeNav]);
+
+  const cancelMyViewing = async (id: string) => {
+    if (!confirm("Cancel this viewing?")) return;
+    setViewingCancelling((p) => ({ ...p, [id]: true }));
+    try {
+      const updated = await viewingsService.cancelMine(id);
+      setMyViewings((prev) => prev.map((v) => (v.id === id ? updated : v)));
+    } catch {
+      /* ignore */
+    } finally {
+      setViewingCancelling((p) => ({ ...p, [id]: false }));
+    }
+  };
 
   const { getByType, count: bookmarkCount } = useBookmarks();
   const displayName = authUser?.name || "Olumide Adeyemi";
@@ -241,7 +301,9 @@ const Dashboard = () => {
         location: editForm.location,
         status: editForm.status as ApiListing["status"],
       });
-      setMyListings((prev) => prev.map((l) => l.id === updated.id ? updated : l));
+      setMyListings((prev) =>
+        prev.map((l) => (l.id === updated.id ? updated : l)),
+      );
       setEditingListing(null);
     } catch {
       // keep modal open on error
@@ -315,36 +377,38 @@ const Dashboard = () => {
         </div>
 
         <nav className="flex-1 py-4 px-2 flex flex-col gap-1 overflow-y-auto">
-          {navItems.filter(item => !item.agentOnly || authUser?.role === "AGENT").map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveNav(item.id)}
-              className={`flex items-center gap-3 w-full rounded-xl transition-all duration-200 ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"} ${activeNav === item.id ? "text-white" : "text-white/50 hover:text-white/80 hover:bg-white/5"}`}
-              style={
-                activeNav === item.id
-                  ? { background: "hsl(160, 25%, 20%)" }
-                  : {}
-              }
-            >
-              <div
-                className={`shrink-0 ${activeNav === item.id ? "text-[hsl(142,71%,45%)]" : ""}`}
+          {navItems
+            .filter((item) => !item.agentOnly || authUser?.role === "AGENT")
+            .map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveNav(item.id)}
+                className={`flex items-center gap-3 w-full rounded-xl transition-all duration-200 ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"} ${activeNav === item.id ? "text-white" : "text-white/50 hover:text-white/80 hover:bg-white/5"}`}
+                style={
+                  activeNav === item.id
+                    ? { background: "hsl(160, 25%, 20%)" }
+                    : {}
+                }
               >
-                {item.icon}
-              </div>
-              {sidebarOpen && (
-                <span className="text-sm font-medium whitespace-nowrap">
-                  {item.label}
-                </span>
-              )}
-              {sidebarOpen &&
-                item.id === "messages" &&
-                chat.unreadCount > 0 && (
-                  <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-[hsl(142,71%,45%)] text-white">
-                    {chat.unreadCount}
+                <div
+                  className={`shrink-0 ${activeNav === item.id ? "text-[hsl(142,71%,45%)]" : ""}`}
+                >
+                  {item.icon}
+                </div>
+                {sidebarOpen && (
+                  <span className="text-sm font-medium whitespace-nowrap">
+                    {item.label}
                   </span>
                 )}
-            </button>
-          ))}
+                {sidebarOpen &&
+                  item.id === "messages" &&
+                  chat.unreadCount > 0 && (
+                    <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-[hsl(142,71%,45%)] text-white">
+                      {chat.unreadCount}
+                    </span>
+                  )}
+              </button>
+            ))}
         </nav>
 
         <div
@@ -412,30 +476,34 @@ const Dashboard = () => {
                 </button>
               </div>
               <nav className="flex-1 py-4 px-2 flex flex-col gap-1 overflow-y-auto">
-                {navItems.filter(item => !item.agentOnly || authUser?.role === "AGENT").map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveNav(item.id);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`flex items-center gap-3 px-3 py-2.5 w-full rounded-xl transition-all duration-200 ${activeNav === item.id ? "text-white" : "text-white/50 hover:text-white/80 hover:bg-white/5"}`}
-                    style={
-                      activeNav === item.id
-                        ? { background: "hsl(160, 25%, 20%)" }
-                        : {}
-                    }
-                  >
-                    <div
-                      className={
-                        activeNav === item.id ? "text-[hsl(142,71%,45%)]" : ""
+                {navItems
+                  .filter(
+                    (item) => !item.agentOnly || authUser?.role === "AGENT",
+                  )
+                  .map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveNav(item.id);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`flex items-center gap-3 px-3 py-2.5 w-full rounded-xl transition-all duration-200 ${activeNav === item.id ? "text-white" : "text-white/50 hover:text-white/80 hover:bg-white/5"}`}
+                      style={
+                        activeNav === item.id
+                          ? { background: "hsl(160, 25%, 20%)" }
+                          : {}
                       }
                     >
-                      {item.icon}
-                    </div>
-                    <span className="text-sm font-medium">{item.label}</span>
-                  </button>
-                ))}
+                      <div
+                        className={
+                          activeNav === item.id ? "text-[hsl(142,71%,45%)]" : ""
+                        }
+                      >
+                        {item.icon}
+                      </div>
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </button>
+                  ))}
               </nav>
               <div
                 className="px-3 py-4 border-t"
@@ -1677,7 +1745,9 @@ const Dashboard = () => {
                 activeNav !== "saved" &&
                 activeNav !== "vendors" &&
                 activeNav !== "messages" &&
+                activeNav !== "viewings" &&
                 activeNav !== "logbook" &&
+                activeNav !== "my-listings" &&
                 activeNav !== "settings" && (
                   <motion.div
                     initial={{ opacity: 0, y: 15 }}
@@ -1703,6 +1773,164 @@ const Dashboard = () => {
                     </div>
                   </motion.div>
                 )}
+
+              {/* ─── Viewings Panel ─── */}
+              {activeNav === "viewings" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease }}
+                  className="flex flex-col gap-6"
+                >
+                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                        <CalendarDays className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h2 className="font-heading font-bold text-primary-dark text-lg">
+                          My Viewings
+                        </h2>
+                        <p className="text-text-secondary text-xs">
+                          Property inspections you've requested
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {viewingsLoading ? (
+                    <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] py-14 px-6 text-center">
+                      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                    </div>
+                  ) : myViewings.length === 0 ? (
+                    <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] py-14 px-6 text-center">
+                      <div className="w-14 h-14 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-3">
+                        <CalendarDays className="w-6 h-6 text-text-subtle" />
+                      </div>
+                      <p className="font-heading font-bold text-primary-dark text-sm">
+                        No viewings yet
+                      </p>
+                      <p className="text-text-secondary text-xs mt-1 max-w-xs mx-auto">
+                        Request a viewing from any property page and it will appear here.
+                      </p>
+                      <Link
+                        to="/buy"
+                        className="mt-4 inline-flex items-center gap-2 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors"
+                      >
+                        Browse properties
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden divide-y divide-border-light">
+                      {myViewings.map((v) => {
+                        const statusColors: Record<string, string> = {
+                          PENDING: "bg-yellow-50 text-yellow-700 border-yellow-200",
+                          CONFIRMED: "bg-blue-50 text-blue-700 border-blue-200",
+                          COMPLETED: "bg-green-50 text-green-700 border-green-200",
+                          CANCELLED: "bg-red-50 text-red-500 border-red-200",
+                          NO_SHOW: "bg-gray-100 text-gray-500 border-gray-200",
+                        };
+                        const scheduled = new Date(v.scheduledFor);
+                        const canCancel =
+                          v.status === "PENDING" || v.status === "CONFIRMED";
+                        return (
+                          <div
+                            key={v.id}
+                            className="p-5 flex flex-col sm:flex-row sm:items-start gap-4"
+                          >
+                            {/* Cover image */}
+                            {v.listing?.coverImage && (
+                              <Link
+                                to={`/property/${v.listingId}`}
+                                className="block w-full sm:w-28 h-28 rounded-xl overflow-hidden shrink-0"
+                              >
+                                <img
+                                  src={v.listing.coverImage}
+                                  alt={v.listing.title}
+                                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                                />
+                              </Link>
+                            )}
+                            {/* Details */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start gap-2 flex-wrap">
+                                {v.listing ? (
+                                  <Link
+                                    to={`/property/${v.listingId}`}
+                                    className="font-heading font-bold text-primary-dark text-sm hover:text-primary transition-colors"
+                                  >
+                                    {v.listing.title}
+                                  </Link>
+                                ) : (
+                                  <p className="font-heading font-bold text-primary-dark text-sm">
+                                    Property
+                                  </p>
+                                )}
+                                <span
+                                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${statusColors[v.status]}`}
+                                >
+                                  {v.status.charAt(0) + v.status.slice(1).toLowerCase()}
+                                </span>
+                              </div>
+                              {v.listing?.location && (
+                                <p className="text-text-secondary text-xs mt-1 flex items-center gap-1">
+                                  <MapPin className="w-3.5 h-3.5 shrink-0" />
+                                  {v.listing.location}
+                                </p>
+                              )}
+                              <p className="text-text-secondary text-xs mt-1 flex items-center gap-1">
+                                <CalendarDays className="w-3.5 h-3.5 shrink-0" />
+                                {scheduled.toLocaleDateString("en-GB", {
+                                  weekday: "short",
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                                {" at "}
+                                {scheduled.toLocaleTimeString("en-GB", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </p>
+                              {v.agent?.name && (
+                                <p className="text-text-secondary text-xs mt-1">
+                                  Agent: {v.agent.name}
+                                </p>
+                              )}
+                              {v.notes && (
+                                <p className="text-text-secondary text-xs mt-1 italic">
+                                  "{v.notes}"
+                                </p>
+                              )}
+                            </div>
+                            {/* Actions */}
+                            <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end shrink-0">
+                              {v.agent?.phone && (
+                                <a
+                                  href={`tel:${v.agent.phone}`}
+                                  className="h-8 px-3 rounded-full bg-white/80 border border-border-light text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-colors inline-flex items-center gap-1.5"
+                                >
+                                  <Phone className="w-3.5 h-3.5" />
+                                  Call agent
+                                </a>
+                              )}
+                              {canCancel && (
+                                <button
+                                  disabled={!!viewingCancelling[v.id]}
+                                  onClick={() => cancelMyViewing(v.id)}
+                                  className="h-8 px-3 rounded-full bg-white/80 border border-red-200 text-red-500 text-xs font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
+                                >
+                                  {viewingCancelling[v.id] ? "…" : "Cancel"}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </motion.div>
+              )}
 
               {/* ─── Logbook Panel ─── */}
               {activeNav === "logbook" && (
@@ -1874,8 +2102,12 @@ const Dashboard = () => {
                         <Building2 className="w-5 h-5" />
                       </div>
                       <div>
-                        <h2 className="font-heading font-bold text-primary-dark text-lg">My Listings</h2>
-                        <p className="text-text-secondary text-xs">Manage and update your property listings</p>
+                        <h2 className="font-heading font-bold text-primary-dark text-lg">
+                          My Listings
+                        </h2>
+                        <p className="text-text-secondary text-xs">
+                          Manage and update your property listings
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1887,41 +2119,66 @@ const Dashboard = () => {
                   ) : myListings.length === 0 ? (
                     <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] py-14 px-6 text-center">
                       <Building2 className="w-10 h-10 text-text-subtle mx-auto mb-3" />
-                      <p className="text-text-secondary text-sm font-medium">No listings yet</p>
-                      <p className="text-text-subtle text-xs mt-1">Listings you create will appear here</p>
+                      <p className="text-text-secondary text-sm font-medium">
+                        No listings yet
+                      </p>
+                      <p className="text-text-subtle text-xs mt-1">
+                        Listings you create will appear here
+                      </p>
                     </div>
                   ) : (
                     <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
                       {myListings.map((listing) => (
-                        <div key={listing.id} className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col">
+                        <div
+                          key={listing.id}
+                          className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col"
+                        >
                           <div className="relative h-40 bg-border-light shrink-0">
                             {listing.coverImage ? (
-                              <img src={listing.coverImage} alt={listing.title} className="w-full h-full object-cover" />
+                              <img
+                                src={listing.coverImage}
+                                alt={listing.title}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-text-subtle">
                                 <Building2 className="w-8 h-8" />
                               </div>
                             )}
-                            <span className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-medium ${listing.status === "ACTIVE" ? "bg-green-100 text-green-700" : listing.status === "SOLD" ? "bg-blue-100 text-blue-700" : listing.status === "RENTED" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600"}`}>
+                            <span
+                              className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-medium ${listing.status === "ACTIVE" ? "bg-green-100 text-green-700" : listing.status === "SOLD" ? "bg-blue-100 text-blue-700" : listing.status === "RENTED" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-600"}`}
+                            >
                               {listing.status}
                             </span>
                           </div>
                           <div className="p-4 flex flex-col gap-2 flex-1">
-                            <p className="font-heading font-bold text-primary-dark text-sm leading-snug line-clamp-2">{listing.title}</p>
+                            <p className="font-heading font-bold text-primary-dark text-sm leading-snug line-clamp-2">
+                              {listing.title}
+                            </p>
                             <p className="text-text-subtle text-xs flex items-center gap-1">
-                              <MapPin className="w-3 h-3 shrink-0" />{listing.location ?? listing.address}
+                              <MapPin className="w-3 h-3 shrink-0" />
+                              {listing.location ?? listing.address}
                             </p>
                             <div className="flex items-center gap-3 text-text-secondary text-xs">
-                              <span className="flex items-center gap-1"><Bed className="w-3 h-3" />{listing.beds} bd</span>
-                              <span className="flex items-center gap-1"><Bath className="w-3 h-3" />{listing.baths} ba</span>
+                              <span className="flex items-center gap-1">
+                                <Bed className="w-3 h-3" />
+                                {listing.beds} bd
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Bath className="w-3 h-3" />
+                                {listing.baths} ba
+                              </span>
                             </div>
-                            <p className="font-heading font-bold text-primary text-base mt-auto">{listing.priceLabel}</p>
+                            <p className="font-heading font-bold text-primary text-base mt-auto">
+                              {listing.priceLabel}
+                            </p>
                             <div className="flex gap-2 mt-1">
                               <button
                                 onClick={() => openEdit(listing)}
                                 className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
                               >
-                                <Pencil className="w-3.5 h-3.5" />Edit
+                                <Pencil className="w-3.5 h-3.5" />
+                                Edit
                               </button>
                               <button
                                 onClick={() => deleteListing(listing.id)}
@@ -2087,26 +2344,56 @@ const Dashboard = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-6 border-b border-border-light">
-                <h2 className="font-heading font-bold text-primary-dark text-lg">Edit Listing</h2>
-                <button onClick={() => setEditingListing(null)} className="w-8 h-8 rounded-full bg-border-light flex items-center justify-center text-text-secondary hover:text-primary transition-colors">
+                <h2 className="font-heading font-bold text-primary-dark text-lg">
+                  Edit Listing
+                </h2>
+                <button
+                  onClick={() => setEditingListing(null)}
+                  className="w-8 h-8 rounded-full bg-border-light flex items-center justify-center text-text-secondary hover:text-primary transition-colors"
+                >
                   <X className="w-4 h-4" />
                 </button>
               </div>
               <div className="p-6 flex flex-col gap-4">
                 {/* Title */}
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Title</label>
-                  <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Title
+                  </label>
+                  <input
+                    value={editForm.title}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, title: e.target.value }))
+                    }
+                    className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                  />
                 </div>
                 {/* Price */}
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Price (₦)</label>
-                  <input type="number" value={editForm.priceNaira} onChange={e => setEditForm(f => ({ ...f, priceNaira: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Price (₦)
+                  </label>
+                  <input
+                    type="number"
+                    value={editForm.priceNaira}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, priceNaira: e.target.value }))
+                    }
+                    className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                  />
                 </div>
                 {/* Status */}
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Status</label>
-                  <select value={editForm.status} onChange={e => setEditForm(f => ({ ...f, status: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary bg-white">
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Status
+                  </label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, status: e.target.value }))
+                    }
+                    className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary bg-white"
+                  >
                     <option value="ACTIVE">Active</option>
                     <option value="SOLD">Sold</option>
                     <option value="RENTED">Rented</option>
@@ -2116,45 +2403,117 @@ const Dashboard = () => {
                 {/* Beds / Baths */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-text-secondary mb-1">Bedrooms</label>
-                    <input type="number" value={editForm.beds} onChange={e => setEditForm(f => ({ ...f, beds: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Bedrooms
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.beds}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, beds: e.target.value }))
+                      }
+                      className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-text-secondary mb-1">Bathrooms</label>
-                    <input type="number" value={editForm.baths} onChange={e => setEditForm(f => ({ ...f, baths: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Bathrooms
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.baths}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, baths: e.target.value }))
+                      }
+                      className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                    />
                   </div>
                 </div>
                 {/* Sqft / Year */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-text-secondary mb-1">Sqft</label>
-                    <input value={editForm.sqft} onChange={e => setEditForm(f => ({ ...f, sqft: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Sqft
+                    </label>
+                    <input
+                      value={editForm.sqft}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, sqft: e.target.value }))
+                      }
+                      className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-text-secondary mb-1">Year Built</label>
-                    <input value={editForm.yearBuilt} onChange={e => setEditForm(f => ({ ...f, yearBuilt: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Year Built
+                    </label>
+                    <input
+                      value={editForm.yearBuilt}
+                      onChange={(e) =>
+                        setEditForm((f) => ({
+                          ...f,
+                          yearBuilt: e.target.value,
+                        }))
+                      }
+                      className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                    />
                   </div>
                 </div>
                 {/* Address / Location */}
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Address</label>
-                  <input value={editForm.address} onChange={e => setEditForm(f => ({ ...f, address: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Address
+                  </label>
+                  <input
+                    value={editForm.address}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, address: e.target.value }))
+                    }
+                    className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Location / City</label>
-                  <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Location / City
+                  </label>
+                  <input
+                    value={editForm.location}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, location: e.target.value }))
+                    }
+                    className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                  />
                 </div>
                 {/* Description */}
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Description</label>
-                  <textarea rows={4} value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary resize-none" />
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={editForm.description}
+                    onChange={(e) =>
+                      setEditForm((f) => ({
+                        ...f,
+                        description: e.target.value,
+                      }))
+                    }
+                    className="w-full border border-border-light rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary resize-none"
+                  />
                 </div>
                 {/* Actions */}
                 <div className="flex gap-3 pt-1">
-                  <button onClick={() => setEditingListing(null)} className="flex-1 py-2.5 rounded-xl border border-border-light text-text-secondary text-sm font-medium hover:bg-border-light transition-colors">
+                  <button
+                    onClick={() => setEditingListing(null)}
+                    className="flex-1 py-2.5 rounded-xl border border-border-light text-text-secondary text-sm font-medium hover:bg-border-light transition-colors"
+                  >
                     Cancel
                   </button>
-                  <button onClick={saveEdit} disabled={editSaving} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-60">
+                  <button
+                    onClick={saveEdit}
+                    disabled={editSaving}
+                    className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-60"
+                  >
                     {editSaving ? "Saving…" : "Save Changes"}
                   </button>
                 </div>

@@ -6,6 +6,7 @@ interface ProfilePictureUploadProps {
   onUpload: (file: File) => Promise<string>;
   disabled?: boolean;
   label?: string;
+  variant?: "avatar" | "banner";
 }
 
 const ProfilePictureUpload = ({
@@ -13,6 +14,7 @@ const ProfilePictureUpload = ({
   onUpload,
   disabled = false,
   label = "Profile Picture",
+  variant = "avatar",
 }: ProfilePictureUploadProps) => {
   const [preview, setPreview] = useState<string | null>(currentImage || null);
   const [uploading, setUploading] = useState(false);
@@ -61,14 +63,28 @@ const ProfilePictureUpload = ({
         {label}
       </h3>
 
-      <div className="flex flex-col sm:flex-row gap-6 items-start">
+      <div
+        className={`flex gap-6 items-start ${
+          variant === "banner" ? "flex-col" : "flex-col sm:flex-row"
+        }`}
+      >
         {/* Current/Preview Image */}
-        <div className="flex flex-col items-center">
-          <div className="w-32 h-32 rounded-2xl overflow-hidden border-2 border-white/40 flex items-center justify-center bg-white/50 mb-3">
+        <div
+          className={`flex flex-col items-center ${
+            variant === "banner" ? "w-full" : ""
+          }`}
+        >
+          <div
+            className={`overflow-hidden border-2 border-white/40 flex items-center justify-center bg-white/50 mb-3 ${
+              variant === "banner"
+                ? "w-full aspect-3/1 rounded-2xl"
+                : "w-32 h-32 rounded-2xl"
+            }`}
+          >
             {preview ? (
               <img
                 src={preview}
-                alt="Profile preview"
+                alt={variant === "banner" ? "Banner preview" : "Profile preview"}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -91,11 +107,12 @@ const ProfilePictureUpload = ({
           </div>
           <p className="text-xs text-text-secondary text-center">
             {preview ? "Preview" : "No image"}
+            {variant === "banner" && !preview && " · Recommended size 1500×500"}
           </p>
         </div>
 
         {/* Upload Section */}
-        <div className="flex-1">
+        <div className={variant === "banner" ? "w-full" : "flex-1"}>
           <label className="block">
             <input
               type="file"
