@@ -34,6 +34,9 @@ import {
   MessageSquare,
   Pencil,
   Trash2,
+  Wrench,
+  ClipboardList,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/logo.png";
@@ -42,7 +45,13 @@ import listingsService from "../api/services/listings";
 import viewingsService from "../api/services/viewings";
 import messagesService from "../api/services/messages";
 import uploadService from "../api/services/upload";
-import type { AgentStats, Listing, ListingStatus, Viewing, ViewingStatus } from "../api/types";
+import type {
+  AgentStats,
+  Listing,
+  ListingStatus,
+  Viewing,
+  ViewingStatus,
+} from "../api/types";
 import { useConversations } from "../api/hooks";
 import { StatSkeleton } from "../components/ui/Skeleton";
 import MessagesSkeleton, {
@@ -116,17 +125,55 @@ const AgentDashboard = () => {
   const [openStatusMenu, setOpenStatusMenu] = useState<string | null>(null);
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
   const [editForm, setEditForm] = useState<{
-    title: string; priceNaira: string; description: string;
-    beds: string; baths: string; sqft: string; yearBuilt: string;
-    address: string; location: string;
-  }>({ title: "", priceNaira: "", description: "", beds: "", baths: "", sqft: "", yearBuilt: "", address: "", location: "" });
+    title: string;
+    priceNaira: string;
+    description: string;
+    beds: string;
+    baths: string;
+    sqft: string;
+    yearBuilt: string;
+    address: string;
+    location: string;
+  }>({
+    title: "",
+    priceNaira: "",
+    description: "",
+    beds: "",
+    baths: "",
+    sqft: "",
+    yearBuilt: "",
+    address: "",
+    location: "",
+  });
   const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  // ─── Logbook modal state ────────────────────────────────────────────────
+  const [logbookListing, setLogbookListing] = useState<Listing | null>(null);
+  const [logbookEntries, setLogbookEntries] = useState<
+    import("../api/services/listings").LogbookEntry[]
+  >([]);
+  const [logbookLoading, setLogbookLoading] = useState(false);
+  const [logbookSaving, setLogbookSaving] = useState(false);
+  const [logbookError, setLogbookError] = useState<string | null>(null);
+  const [logbookForm, setLogbookForm] = useState({
+    category: "",
+    title: "",
+    description: "",
+    vendorName: "",
+    cost: "",
+    completedAt: new Date().toISOString().split("T")[0],
+  });
 
   // ─── Viewings state ──────────────────────────────────────────────────────
   const [viewings, setViewings] = useState<Viewing[]>([]);
   const [viewingsLoading, setViewingsLoading] = useState(false);
-  const [viewingFilter, setViewingFilter] = useState<"ALL" | ViewingStatus>("ALL");
-  const [viewingUpdating, setViewingUpdating] = useState<Record<string, boolean>>({});
+  const [viewingFilter, setViewingFilter] = useState<"ALL" | ViewingStatus>(
+    "ALL",
+  );
+  const [viewingUpdating, setViewingUpdating] = useState<
+    Record<string, boolean>
+  >({});
   const [startingConvoFor, setStartingConvoFor] = useState<string | null>(null);
 
   // ─── Profile form state ──────────────────────────────────────────────────
@@ -184,7 +231,8 @@ const AgentDashboard = () => {
   useEffect(() => {
     if (activeNav !== "viewings") return;
     setViewingsLoading(true);
-    viewingsService.list({ limit: 100 })
+    viewingsService
+      .list({ limit: 100 })
       .then((res) => setViewings(res.items))
       .catch(() => {})
       .finally(() => setViewingsLoading(false));
@@ -321,6 +369,7 @@ const AgentDashboard = () => {
 
   const openEdit = (listing: Listing) => {
     setEditingListing(listing);
+    setEditError(null);
     setEditForm({
       title: listing.title,
       priceNaira: String(listing.priceNaira),
@@ -337,28 +386,105 @@ const AgentDashboard = () => {
   const saveEdit = async () => {
     if (!editingListing) return;
     setEditSaving(true);
+    setEditError(null);
     try {
       const updated = await listingsService.update(editingListing.id, {
         title: editForm.title,
-        priceNaira: Number(editForm.priceNaira),
+        priceNaira: Math.round(Number(editForm.priceNaira)),
         description: editForm.description,
-        beds: Number(editForm.beds),
-        baths: Number(editForm.baths),
-        sqft: editForm.sqft,
-        yearBuilt: editForm.yearBuilt,
+        beds: Math.round(Number(editForm.beds)),
+        baths: Math.round(Number(editForm.baths)),
+        sqft: editForm.sqft || undefined,
+        yearBuilt: editForm.yearBuilt || undefined,
         address: editForm.address,
         location: editForm.location,
       });
-      setAgentListings((prev) => prev.map((l) => l.id === updated.id ? updated : l));
+      setAgentListings((prev) =>
+        prev.map((l) => (l.id === updated.id ? updated : l)),
+      );
       setEditingListing(null);
-    } catch { /* keep modal open */ }
-    finally { setEditSaving(false); }
+    } catch (err: any) {
+      setEditError(err?.response?.data?.message ?? "Failed to save. Please try again.");
+    } finally {
+      setEditSaving(false);
+    }
   };
 
   const deleteListing = async (id: string) => {
     if (!confirm("Delete this listing? This cannot be undone.")) return;
     await listingsService.remove(id);
     setAgentListings((prev) => prev.filter((l) => l.id !== id));
+  };
+
+  const openLogbook = async (listing: Listing) => {
+    setLogbookListing(listing);
+    setLogbookError(null);
+    setLogbookForm({
+      category: "",
+      title: "",
+      description: "",
+      vendorName: "",
+      cost: "",
+      completedAt: new Date().toISOString().split("T")[0],
+    });
+    setLogbookLoading(true);
+    try {
+      const entries = await listingsService.getLogbook(listing.id);
+      setLogbookEntries(entries);
+    } catch {
+      setLogbookEntries([]);
+    } finally {
+      setLogbookLoading(false);
+    }
+  };
+
+  const saveLogbookEntry = async () => {
+    if (!logbookListing) return;
+    if (!logbookForm.category.trim() || !logbookForm.title.trim() || !logbookForm.vendorName.trim()) {
+      setLogbookError("Category, title, and vendor name are required");
+      return;
+    }
+    const cost = Math.max(0, Math.round(Number(logbookForm.cost) || 0));
+    setLogbookSaving(true);
+    setLogbookError(null);
+    try {
+      const entry = await listingsService.addLogbookEntry(logbookListing.id, {
+        category: logbookForm.category.trim(),
+        title: logbookForm.title.trim(),
+        description: logbookForm.description.trim() || undefined,
+        vendorName: logbookForm.vendorName.trim(),
+        cost,
+        completedAt: logbookForm.completedAt
+          ? new Date(logbookForm.completedAt).toISOString()
+          : undefined,
+      });
+      setLogbookEntries((prev) => [entry, ...prev]);
+      setLogbookForm({
+        category: "",
+        title: "",
+        description: "",
+        vendorName: "",
+        cost: "",
+        completedAt: new Date().toISOString().split("T")[0],
+      });
+    } catch (err: any) {
+      setLogbookError(
+        err?.response?.data?.message ?? "Failed to save entry. Please try again.",
+      );
+    } finally {
+      setLogbookSaving(false);
+    }
+  };
+
+  const deleteLogbookEntry = async (entryId: string) => {
+    if (!logbookListing) return;
+    if (!confirm("Delete this logbook entry?")) return;
+    try {
+      await listingsService.removeLogbookEntry(logbookListing.id, entryId);
+      setLogbookEntries((prev) => prev.filter((e) => e.id !== entryId));
+    } catch {
+      /* ignore */
+    }
   };
 
   const stats = [
@@ -635,11 +761,16 @@ const AgentDashboard = () => {
               <PlusCircle className="w-3.5 h-3.5" />
               Add Listing
             </Link>
-            <button className="relative w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-text-secondary hover:bg-white transition-all shadow-sm">
+            <button
+              onClick={() => setActiveNav("messages")}
+              className="relative w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-text-secondary hover:bg-white transition-all shadow-sm"
+            >
               <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
-                3
-              </span>
+              {unreadMessagesCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                  {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
+                </span>
+              )}
             </button>
             <img
               src={agent.photo}
@@ -1172,7 +1303,15 @@ const AgentDashboard = () => {
                               onClick={() => openEdit(listing)}
                               className="flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border border-border-light bg-white text-text-secondary hover:text-primary hover:border-primary transition-all"
                             >
-                              <Pencil className="w-3 h-3" />Edit
+                              <Pencil className="w-3 h-3" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => openLogbook(listing)}
+                              title="Logbook"
+                              className="flex items-center justify-center px-2 py-1 rounded-lg text-[10px] font-medium border border-border-light bg-white text-text-secondary hover:text-primary hover:border-primary transition-all"
+                            >
+                              <Wrench className="w-3 h-3" />
                             </button>
                             <button
                               onClick={() => deleteListing(listing.id)}
@@ -1371,8 +1510,12 @@ const AgentDashboard = () => {
                 {/* Header */}
                 <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
                   <div>
-                    <h2 className="font-heading font-bold text-primary-dark text-lg">Viewings</h2>
-                    <p className="text-text-secondary text-xs mt-0.5">Property inspection requests from buyers</p>
+                    <h2 className="font-heading font-bold text-primary-dark text-lg">
+                      Viewings
+                    </h2>
+                    <p className="text-text-secondary text-xs mt-0.5">
+                      Property inspection requests from buyers
+                    </p>
                   </div>
                   <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
                     {viewings.length} total
@@ -1381,7 +1524,15 @@ const AgentDashboard = () => {
 
                 {/* Filter tabs */}
                 <div className="flex gap-2 px-6 pt-4 pb-2 overflow-x-auto">
-                  {(["ALL", "PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"] as const).map((f) => (
+                  {(
+                    [
+                      "ALL",
+                      "PENDING",
+                      "CONFIRMED",
+                      "COMPLETED",
+                      "CANCELLED",
+                    ] as const
+                  ).map((f) => (
                     <button
                       key={f}
                       onClick={() => setViewingFilter(f)}
@@ -1391,9 +1542,15 @@ const AgentDashboard = () => {
                           : "bg-white/80 text-primary-dark border-border-light hover:border-primary"
                       }`}
                     >
-                      {f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
+                      {f === "ALL"
+                        ? "All"
+                        : f.charAt(0) + f.slice(1).toLowerCase()}
                       <span className="ml-1.5 opacity-70">
-                        ({f === "ALL" ? viewings.length : viewings.filter((v) => v.status === f).length})
+                        (
+                        {f === "ALL"
+                          ? viewings.length
+                          : viewings.filter((v) => v.status === f).length}
+                        )
                       </span>
                     </button>
                   ))}
@@ -1401,155 +1558,242 @@ const AgentDashboard = () => {
 
                 {/* List */}
                 {viewingsLoading ? (
-                  <div className="px-6 py-12 text-center text-text-secondary text-sm">Loading viewings…</div>
-                ) : (() => {
-                  const filtered = viewingFilter === "ALL" ? viewings : viewings.filter((v) => v.status === viewingFilter);
-                  if (filtered.length === 0) {
-                    return (
-                      <div className="px-6 py-16 text-center">
-                        <div className="w-14 h-14 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-3">
-                          <CalendarDays className="w-6 h-6 text-text-subtle" />
+                  <div className="px-6 py-12 text-center text-text-secondary text-sm">
+                    Loading viewings…
+                  </div>
+                ) : (
+                  (() => {
+                    const filtered =
+                      viewingFilter === "ALL"
+                        ? viewings
+                        : viewings.filter((v) => v.status === viewingFilter);
+                    if (filtered.length === 0) {
+                      return (
+                        <div className="px-6 py-16 text-center">
+                          <div className="w-14 h-14 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-3">
+                            <CalendarDays className="w-6 h-6 text-text-subtle" />
+                          </div>
+                          <p className="font-heading font-bold text-primary-dark text-sm">
+                            No viewings yet
+                          </p>
+                          <p className="text-text-secondary text-xs mt-1">
+                            Buyers who schedule a viewing on your listings will
+                            appear here.
+                          </p>
                         </div>
-                        <p className="font-heading font-bold text-primary-dark text-sm">No viewings yet</p>
-                        <p className="text-text-secondary text-xs mt-1">Buyers who schedule a viewing on your listings will appear here.</p>
-                      </div>
-                    );
-                  }
-                  return (
-                    <div className="divide-y divide-border-light">
-                      {filtered.map((v) => {
-                        const statusColors: Record<string, string> = {
-                          PENDING: "bg-yellow-50 text-yellow-700 border-yellow-200",
-                          CONFIRMED: "bg-blue-50 text-blue-700 border-blue-200",
-                          COMPLETED: "bg-green-50 text-green-700 border-green-200",
-                          CANCELLED: "bg-red-50 text-red-500 border-red-200",
-                          NO_SHOW: "bg-gray-100 text-gray-500 border-gray-200",
-                        };
-                        const scheduled = new Date(v.scheduledFor);
-                        return (
-                          <div key={v.id} className="px-6 py-5 flex flex-col sm:flex-row sm:items-start gap-4">
-                            {/* Left: client info */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                  <span className="font-heading font-bold text-primary text-sm">
-                                    {v.clientName.charAt(0).toUpperCase()}
+                      );
+                    }
+                    return (
+                      <div className="divide-y divide-border-light">
+                        {filtered.map((v) => {
+                          const statusColors: Record<string, string> = {
+                            PENDING:
+                              "bg-yellow-50 text-yellow-700 border-yellow-200",
+                            CONFIRMED:
+                              "bg-blue-50 text-blue-700 border-blue-200",
+                            COMPLETED:
+                              "bg-green-50 text-green-700 border-green-200",
+                            CANCELLED: "bg-red-50 text-red-500 border-red-200",
+                            NO_SHOW:
+                              "bg-gray-100 text-gray-500 border-gray-200",
+                          };
+                          const scheduled = new Date(v.scheduledFor);
+                          return (
+                            <div
+                              key={v.id}
+                              className="px-6 py-5 flex flex-col sm:flex-row sm:items-start gap-4"
+                            >
+                              {/* Left: client info */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                    <span className="font-heading font-bold text-primary text-sm">
+                                      {v.clientName.charAt(0).toUpperCase()}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <p className="font-heading font-bold text-primary-dark text-sm">
+                                      {v.clientName}
+                                    </p>
+                                    <p className="text-text-secondary text-xs">
+                                      {v.clientPhone}
+                                    </p>
+                                  </div>
+                                  <span
+                                    className={`ml-auto sm:ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${statusColors[v.status]}`}
+                                  >
+                                    {v.status.charAt(0) +
+                                      v.status.slice(1).toLowerCase()}
                                   </span>
                                 </div>
-                                <div>
-                                  <p className="font-heading font-bold text-primary-dark text-sm">{v.clientName}</p>
-                                  <p className="text-text-secondary text-xs">{v.clientPhone}</p>
-                                </div>
-                                <span className={`ml-auto sm:ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${statusColors[v.status]}`}>
-                                  {v.status.charAt(0) + v.status.slice(1).toLowerCase()}
-                                </span>
-                              </div>
-                              {v.listing && (
-                                <p className="text-text-secondary text-xs mt-2 flex items-center gap-1">
-                                  <Home className="w-3.5 h-3.5 shrink-0" />
-                                  {v.listing.title} · {v.listing.location}
+                                {v.listing && (
+                                  <p className="text-text-secondary text-xs mt-2 flex items-center gap-1">
+                                    <Home className="w-3.5 h-3.5 shrink-0" />
+                                    {v.listing.title} · {v.listing.location}
+                                  </p>
+                                )}
+                                <p className="text-text-secondary text-xs mt-1 flex items-center gap-1">
+                                  <CalendarDays className="w-3.5 h-3.5 shrink-0" />
+                                  {scheduled.toLocaleDateString("en-GB", {
+                                    weekday: "short",
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric",
+                                  })}
+                                  {" at "}
+                                  {scheduled.toLocaleTimeString("en-GB", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
                                 </p>
-                              )}
-                              <p className="text-text-secondary text-xs mt-1 flex items-center gap-1">
-                                <CalendarDays className="w-3.5 h-3.5 shrink-0" />
-                                {scheduled.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
-                                {" at "}
-                                {scheduled.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-                              </p>
-                              {v.notes && (
-                                <p className="text-text-secondary text-xs mt-1 italic">"{v.notes}"</p>
-                              )}
-                            </div>
+                                {v.notes && (
+                                  <p className="text-text-secondary text-xs mt-1 italic">
+                                    "{v.notes}"
+                                  </p>
+                                )}
+                              </div>
 
-                            {/* Right: actions */}
-                            <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end shrink-0">
-                              {/* Message client */}
-                              {v.buyerUserId && (
-                                <button
-                                  disabled={startingConvoFor === v.id}
-                                  onClick={async () => {
-                                    setStartingConvoFor(v.id);
-                                    try {
-                                      const { conversationId } = await messagesService.createOrFind({
-                                        recipientId: v.buyerUserId!,
-                                        recipientRole: "BUYER",
-                                        senderRole: "AGENT",
-                                        listingId: v.listingId,
-                                      });
-                                      setSelectedConvo(conversationId);
-                                      setActiveNav("messages");
-                                    } catch { /* ignore */ }
-                                    setStartingConvoFor(null);
-                                  }}
-                                  className="h-8 px-3 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary hover:text-white transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
+                              {/* Right: actions */}
+                              <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end shrink-0">
+                                {/* Message client */}
+                                {v.buyerUserId && (
+                                  <button
+                                    disabled={startingConvoFor === v.id}
+                                    onClick={async () => {
+                                      setStartingConvoFor(v.id);
+                                      try {
+                                        const { conversationId } =
+                                          await messagesService.createOrFind({
+                                            recipientId: v.buyerUserId!,
+                                            recipientRole: "BUYER",
+                                            senderRole: "AGENT",
+                                            listingId: v.listingId,
+                                          });
+                                        setSelectedConvo(conversationId);
+                                        setActiveNav("messages");
+                                      } catch {
+                                        /* ignore */
+                                      }
+                                      setStartingConvoFor(null);
+                                    }}
+                                    className="h-8 px-3 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary hover:text-white transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
+                                  >
+                                    <MessageSquare className="w-3.5 h-3.5" />
+                                    {startingConvoFor === v.id
+                                      ? "Opening…"
+                                      : "Message"}
+                                  </button>
+                                )}
+                                <a
+                                  href={`tel:${v.clientPhone}`}
+                                  className="h-8 px-3 rounded-full bg-white/80 border border-border-light text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-colors inline-flex items-center gap-1.5"
                                 >
-                                  <MessageSquare className="w-3.5 h-3.5" />
-                                  {startingConvoFor === v.id ? "Opening…" : "Message"}
-                                </button>
-                              )}
-                              <a
-                                href={`tel:${v.clientPhone}`}
-                                className="h-8 px-3 rounded-full bg-white/80 border border-border-light text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-colors inline-flex items-center gap-1.5"
-                              >
-                                <Phone className="w-3.5 h-3.5" />
-                                Call
-                              </a>
-                              {/* Status actions */}
-                              {v.status === "PENDING" && (
-                                <button
-                                  disabled={!!viewingUpdating[v.id]}
-                                  onClick={async () => {
-                                    setViewingUpdating((p) => ({ ...p, [v.id]: true }));
-                                    try {
-                                      const updated = await viewingsService.update(v.id, { status: "CONFIRMED" });
-                                      setViewings((prev) => prev.map((x) => x.id === v.id ? updated : x));
-                                    } catch { /* ignore */ }
-                                    setViewingUpdating((p) => ({ ...p, [v.id]: false }));
-                                  }}
-                                  className="h-8 px-3 rounded-full bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
-                                >
-                                  {viewingUpdating[v.id] ? "…" : "Confirm"}
-                                </button>
-                              )}
-                              {v.status === "CONFIRMED" && (
-                                <button
-                                  disabled={!!viewingUpdating[v.id]}
-                                  onClick={async () => {
-                                    setViewingUpdating((p) => ({ ...p, [v.id]: true }));
-                                    try {
-                                      const updated = await viewingsService.update(v.id, { status: "COMPLETED" });
-                                      setViewings((prev) => prev.map((x) => x.id === v.id ? updated : x));
-                                    } catch { /* ignore */ }
-                                    setViewingUpdating((p) => ({ ...p, [v.id]: false }));
-                                  }}
-                                  className="h-8 px-3 rounded-full bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
-                                >
-                                  {viewingUpdating[v.id] ? "…" : "Mark Complete"}
-                                </button>
-                              )}
-                              {(v.status === "PENDING" || v.status === "CONFIRMED") && (
-                                <button
-                                  disabled={!!viewingUpdating[v.id]}
-                                  onClick={async () => {
-                                    setViewingUpdating((p) => ({ ...p, [v.id]: true }));
-                                    try {
-                                      const updated = await viewingsService.cancel(v.id);
-                                      setViewings((prev) => prev.map((x) => x.id === v.id ? updated : x));
-                                    } catch { /* ignore */ }
-                                    setViewingUpdating((p) => ({ ...p, [v.id]: false }));
-                                  }}
-                                  className="h-8 px-3 rounded-full bg-white/80 border border-red-200 text-red-500 text-xs font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
-                                >
-                                  Cancel
-                                </button>
-                              )}
+                                  <Phone className="w-3.5 h-3.5" />
+                                  Call
+                                </a>
+                                {/* Status actions */}
+                                {v.status === "PENDING" && (
+                                  <button
+                                    disabled={!!viewingUpdating[v.id]}
+                                    onClick={async () => {
+                                      setViewingUpdating((p) => ({
+                                        ...p,
+                                        [v.id]: true,
+                                      }));
+                                      try {
+                                        const updated =
+                                          await viewingsService.update(v.id, {
+                                            status: "CONFIRMED",
+                                          });
+                                        setViewings((prev) =>
+                                          prev.map((x) =>
+                                            x.id === v.id ? updated : x,
+                                          ),
+                                        );
+                                      } catch {
+                                        /* ignore */
+                                      }
+                                      setViewingUpdating((p) => ({
+                                        ...p,
+                                        [v.id]: false,
+                                      }));
+                                    }}
+                                    className="h-8 px-3 rounded-full bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                                  >
+                                    {viewingUpdating[v.id] ? "…" : "Confirm"}
+                                  </button>
+                                )}
+                                {v.status === "CONFIRMED" && (
+                                  <button
+                                    disabled={!!viewingUpdating[v.id]}
+                                    onClick={async () => {
+                                      setViewingUpdating((p) => ({
+                                        ...p,
+                                        [v.id]: true,
+                                      }));
+                                      try {
+                                        const updated =
+                                          await viewingsService.update(v.id, {
+                                            status: "COMPLETED",
+                                          });
+                                        setViewings((prev) =>
+                                          prev.map((x) =>
+                                            x.id === v.id ? updated : x,
+                                          ),
+                                        );
+                                      } catch {
+                                        /* ignore */
+                                      }
+                                      setViewingUpdating((p) => ({
+                                        ...p,
+                                        [v.id]: false,
+                                      }));
+                                    }}
+                                    className="h-8 px-3 rounded-full bg-green-600 text-white text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
+                                  >
+                                    {viewingUpdating[v.id]
+                                      ? "…"
+                                      : "Mark Complete"}
+                                  </button>
+                                )}
+                                {(v.status === "PENDING" ||
+                                  v.status === "CONFIRMED") && (
+                                  <button
+                                    disabled={!!viewingUpdating[v.id]}
+                                    onClick={async () => {
+                                      setViewingUpdating((p) => ({
+                                        ...p,
+                                        [v.id]: true,
+                                      }));
+                                      try {
+                                        const updated =
+                                          await viewingsService.cancel(v.id);
+                                        setViewings((prev) =>
+                                          prev.map((x) =>
+                                            x.id === v.id ? updated : x,
+                                          ),
+                                        );
+                                      } catch {
+                                        /* ignore */
+                                      }
+                                      setViewingUpdating((p) => ({
+                                        ...p,
+                                        [v.id]: false,
+                                      }));
+                                    }}
+                                    className="h-8 px-3 rounded-full bg-white/80 border border-red-200 text-red-500 text-xs font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
+                                  >
+                                    Cancel
+                                  </button>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })()}
+                          );
+                        })}
+                      </div>
+                    );
+                  })()
+                )}
               </div>
             </motion.div>
           )}
@@ -2054,63 +2298,395 @@ const AgentDashboard = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.25, ease }}
-              className="bg-white rounded-[24px] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-6 border-b border-border-light">
-                <h2 className="font-heading font-bold text-primary-dark text-lg">Edit Listing</h2>
-                <button onClick={() => setEditingListing(null)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-text-secondary hover:text-primary transition-colors">
+                <h2 className="font-heading font-bold text-primary-dark text-lg">
+                  Edit Listing
+                </h2>
+                <button
+                  onClick={() => setEditingListing(null)}
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-text-secondary hover:text-primary transition-colors"
+                >
                   <X className="w-4 h-4" />
                 </button>
               </div>
               <div className="p-6 flex flex-col gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Title</label>
-                  <input value={editForm.title} onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Title
+                  </label>
+                  <input
+                    value={editForm.title}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, title: e.target.value }))
+                    }
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Price (₦)</label>
-                  <input type="number" value={editForm.priceNaira} onChange={e => setEditForm(f => ({ ...f, priceNaira: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Price (₦)
+                  </label>
+                  <input
+                    type="number"
+                    value={editForm.priceNaira}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, priceNaira: e.target.value }))
+                    }
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-text-secondary mb-1">Bedrooms</label>
-                    <input type="number" value={editForm.beds} onChange={e => setEditForm(f => ({ ...f, beds: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Bedrooms
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.beds}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, beds: e.target.value }))
+                      }
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-text-secondary mb-1">Bathrooms</label>
-                    <input type="number" value={editForm.baths} onChange={e => setEditForm(f => ({ ...f, baths: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Bathrooms
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.baths}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, baths: e.target.value }))
+                      }
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                    />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-text-secondary mb-1">Sqft</label>
-                    <input value={editForm.sqft} onChange={e => setEditForm(f => ({ ...f, sqft: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Sqft
+                    </label>
+                    <input
+                      value={editForm.sqft}
+                      onChange={(e) =>
+                        setEditForm((f) => ({ ...f, sqft: e.target.value }))
+                      }
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-text-secondary mb-1">Year Built</label>
-                    <input value={editForm.yearBuilt} onChange={e => setEditForm(f => ({ ...f, yearBuilt: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Year Built
+                    </label>
+                    <input
+                      value={editForm.yearBuilt}
+                      onChange={(e) =>
+                        setEditForm((f) => ({
+                          ...f,
+                          yearBuilt: e.target.value,
+                        }))
+                      }
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                    />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Address</label>
-                  <input value={editForm.address} onChange={e => setEditForm(f => ({ ...f, address: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Address
+                  </label>
+                  <input
+                    value={editForm.address}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, address: e.target.value }))
+                    }
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Location / City</label>
-                  <input value={editForm.location} onChange={e => setEditForm(f => ({ ...f, location: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary" />
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Location / City
+                  </label>
+                  <input
+                    value={editForm.location}
+                    onChange={(e) =>
+                      setEditForm((f) => ({ ...f, location: e.target.value }))
+                    }
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Description</label>
-                  <textarea rows={4} value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary resize-none" />
+                  <label className="block text-xs font-medium text-text-secondary mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={editForm.description}
+                    onChange={(e) =>
+                      setEditForm((f) => ({
+                        ...f,
+                        description: e.target.value,
+                      }))
+                    }
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary resize-none"
+                  />
                 </div>
+                {editError && (
+                  <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-xl px-3 py-2">{editError}</p>
+                )}
                 <div className="flex gap-3 pt-1">
-                  <button onClick={() => setEditingListing(null)} className="flex-1 py-2.5 rounded-xl border border-gray-200 text-text-secondary text-sm font-medium hover:bg-gray-50 transition-colors">
+                  <button
+                    onClick={() => setEditingListing(null)}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-200 text-text-secondary text-sm font-medium hover:bg-gray-50 transition-colors"
+                  >
                     Cancel
                   </button>
-                  <button onClick={saveEdit} disabled={editSaving} className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-60">
+                  <button
+                    onClick={saveEdit}
+                    disabled={editSaving}
+                    className="flex-1 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-60"
+                  >
                     {editSaving ? "Saving…" : "Save Changes"}
                   </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Logbook Modal ─── */}
+      <AnimatePresence>
+        {logbookListing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(0,0,0,0.5)" }}
+            onClick={() => setLogbookListing(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-6 border-b border-border-light">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <ClipboardList className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="font-heading font-bold text-primary-dark text-base truncate">
+                      Property Logbook
+                    </h2>
+                    <p className="text-text-subtle text-xs truncate">
+                      {logbookListing.title}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setLogbookListing(null)}
+                  className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-text-secondary hover:text-primary transition-colors shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="p-6 flex flex-col gap-5">
+                {/* Add entry form */}
+                <div className="bg-bg-accent/40 border border-border-light rounded-2xl p-4">
+                  <h3 className="font-heading font-semibold text-primary-dark text-sm mb-3">
+                    Add maintenance record
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-text-secondary mb-1">
+                        Category
+                      </label>
+                      <input
+                        value={logbookForm.category}
+                        onChange={(e) =>
+                          setLogbookForm((f) => ({
+                            ...f,
+                            category: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g. Plumbing"
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-text-secondary mb-1">
+                        Vendor name
+                      </label>
+                      <input
+                        value={logbookForm.vendorName}
+                        onChange={(e) =>
+                          setLogbookForm((f) => ({
+                            ...f,
+                            vendorName: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g. ABC Plumbing"
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Title
+                    </label>
+                    <input
+                      value={logbookForm.title}
+                      onChange={(e) =>
+                        setLogbookForm((f) => ({ ...f, title: e.target.value }))
+                      }
+                      placeholder="e.g. Replaced kitchen sink valve"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                    />
+                  </div>
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-text-secondary mb-1">
+                        Cost (₦)
+                      </label>
+                      <input
+                        type="number"
+                        value={logbookForm.cost}
+                        onChange={(e) =>
+                          setLogbookForm((f) => ({
+                            ...f,
+                            cost: e.target.value,
+                          }))
+                        }
+                        placeholder="0"
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-text-secondary mb-1">
+                        Completed on
+                      </label>
+                      <input
+                        type="date"
+                        value={logbookForm.completedAt}
+                        onChange={(e) =>
+                          setLogbookForm((f) => ({
+                            ...f,
+                            completedAt: e.target.value,
+                          }))
+                        }
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <label className="block text-xs font-medium text-text-secondary mb-1">
+                      Notes (optional)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={logbookForm.description}
+                      onChange={(e) =>
+                        setLogbookForm((f) => ({
+                          ...f,
+                          description: e.target.value,
+                        }))
+                      }
+                      placeholder="Anything worth remembering about the work…"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-primary-dark outline-none focus:border-primary resize-none"
+                    />
+                  </div>
+                  {logbookError && (
+                    <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-xl px-3 py-2 mt-3">
+                      {logbookError}
+                    </p>
+                  )}
+                  <button
+                    onClick={saveLogbookEntry}
+                    disabled={logbookSaving}
+                    className="mt-3 w-full py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    {logbookSaving ? "Saving…" : "Add entry"}
+                  </button>
+                </div>
+
+                {/* Existing entries */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-heading font-semibold text-primary-dark text-sm">
+                      History
+                    </h3>
+                    <span className="text-text-subtle text-xs">
+                      {logbookEntries.length} record
+                      {logbookEntries.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  {logbookLoading ? (
+                    <p className="text-text-secondary text-sm text-center py-6">
+                      Loading…
+                    </p>
+                  ) : logbookEntries.length === 0 ? (
+                    <p className="text-text-secondary text-sm text-center py-6">
+                      No records yet. Add the first one above.
+                    </p>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {logbookEntries.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="flex items-start gap-3 bg-white border border-border-light rounded-2xl p-3"
+                        >
+                          <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                            <ClipboardList className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-sm text-primary-dark font-heading font-semibold truncate">
+                                {entry.title}
+                              </p>
+                              {entry.verified && (
+                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 text-green-600 text-[10px] font-medium">
+                                  <ShieldCheck className="w-3 h-3" />
+                                  Verified
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-text-subtle text-xs mt-0.5">
+                              {entry.category} · by {entry.vendorName}
+                            </p>
+                            <p className="text-text-subtle text-xs mt-1">
+                              ₦{entry.cost.toLocaleString("en-NG")} ·{" "}
+                              {new Date(entry.completedAt).toLocaleDateString(
+                                "en-NG",
+                                {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => deleteLogbookEntry(entry.id)}
+                            className="text-red-400 hover:text-red-600 transition-colors p-1"
+                            title="Delete entry"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
