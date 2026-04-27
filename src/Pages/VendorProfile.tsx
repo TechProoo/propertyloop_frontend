@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -25,9 +25,11 @@ const ease = [0.23, 1, 0.32, 1] as const;
 const ReviewDisputeSection = ({
   targetName,
   vendorId,
+  onReviewCreated,
 }: {
   targetName: string;
   vendorId: string;
+  onReviewCreated?: () => Promise<void> | void;
 }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showDisputeForm, setShowDisputeForm] = useState(false);
@@ -40,26 +42,33 @@ const ReviewDisputeSection = ({
   const [disputeSubmitted, setDisputeSubmitted] = useState(false);
 
   const handleReviewSubmit = async () => {
-    if (reviewRating > 0 && reviewText.trim()) {
-      setReviewLoading(true);
-      setReviewError("");
-      try {
-        await vendorsService.createReview(vendorId, {
-          rating: reviewRating,
-          comment: reviewText.trim(),
-        });
-        setReviewSubmitted(true);
-        setTimeout(() => {
-          setShowReviewForm(false);
-          setReviewSubmitted(false);
-          setReviewRating(0);
-          setReviewText("");
-        }, 2000);
-      } catch (error) {
-        setReviewError(error instanceof Error ? error.message : "Failed to submit review");
-      } finally {
-        setReviewLoading(false);
-      }
+    if (!(reviewRating > 0 && reviewText.trim())) return;
+    setReviewLoading(true);
+    setReviewError("");
+    try {
+      await vendorsService.createReview(vendorId, {
+        rating: reviewRating,
+        comment: reviewText.trim(),
+      });
+      await onReviewCreated?.();
+      setReviewSubmitted(true);
+      setTimeout(() => {
+        setShowReviewForm(false);
+        setReviewSubmitted(false);
+        setReviewRating(0);
+        setReviewText("");
+      }, 1500);
+    } catch (error: any) {
+      const serverMsg = error?.response?.data?.message;
+      const text = Array.isArray(serverMsg)
+        ? serverMsg.join(", ")
+        : serverMsg ||
+          (error instanceof Error
+            ? error.message
+            : "Failed to submit review");
+      setReviewError(text);
+    } finally {
+      setReviewLoading(false);
     }
   };
 
@@ -225,43 +234,48 @@ const VendorProfile = () => {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loadingVendor, setLoadingVendor] = useState(true);
 
+  const loadVendor = useCallback(async () => {
+    if (!id) return;
+    const [vendorData, reviewsData] = await Promise.all([
+      vendorsService.getById(id).catch(() => null),
+      vendorsService.listReviews(id).catch(() => [] as any[]),
+    ]);
+    if (vendorData) {
+      setVendor({
+        id: vendorData.id,
+        photo:
+          vendorData.avatarUrl ||
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+        banner:
+          vendorData.bannerImage ||
+          "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=400&fit=crop",
+        name: vendorData.name,
+        category: vendorData.category || "Service Provider",
+        location: vendorData.location || "",
+        rating: vendorData.rating,
+        jobsCount: vendorData.jobsCount,
+        verified: vendorData.verified,
+        phone: vendorData.phone || "",
+        website: vendorData.website,
+        bio: vendorData.bio || "",
+        yearsExperience: vendorData.yearsExperience || "0",
+        email: vendorData.email,
+        portfolioImages: vendorData.portfolioImages || [],
+        serviceArea: vendorData.serviceArea || "",
+        availableForHire: vendorData.availableForHire,
+      });
+    }
+    setReviews(reviewsData || []);
+  }, [id]);
+
   useEffect(() => {
     if (!id) {
       setLoadingVendor(false);
       return;
     }
     setLoadingVendor(true);
-    Promise.all([
-      vendorsService.getById(id).catch(() => null),
-      vendorsService.listReviews(id).catch(() => []),
-    ]).then(([vendorData, reviewsData]) => {
-      if (vendorData) {
-        setVendor({
-          id: vendorData.id,
-          photo:
-            vendorData.avatarUrl ||
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-          banner: vendorData.bannerImage || "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=400&fit=crop",
-          name: vendorData.name,
-          category: vendorData.category || "Service Provider",
-          location: vendorData.location || "",
-          rating: vendorData.rating,
-          jobsCount: vendorData.jobsCount,
-          verified: vendorData.verified,
-          phone: vendorData.phone || "",
-          website: vendorData.website,
-          bio: vendorData.bio || "",
-          yearsExperience: vendorData.yearsExperience || "0",
-          email: vendorData.email,
-          portfolioImages: vendorData.portfolioImages || [],
-          serviceArea: vendorData.serviceArea || "",
-          availableForHire: vendorData.availableForHire,
-        });
-      }
-      setReviews(reviewsData || []);
-      setLoadingVendor(false);
-    });
-  }, [id]);
+    loadVendor().finally(() => setLoadingVendor(false));
+  }, [id, loadVendor]);
 
   if (loadingVendor) {
     return (
@@ -674,7 +688,11 @@ const VendorProfile = () => {
                 </div>
 
                 {/* Review section */}
-                <ReviewDisputeSection targetName={vendor.name.split(" ")[0]} vendorId={vendor.id} />
+                <ReviewDisputeSection
+                  targetName={vendor.name.split(" ")[0]}
+                  vendorId={vendor.id}
+                  onReviewCreated={loadVendor}
+                />
               </div>
             </div>
           </div>

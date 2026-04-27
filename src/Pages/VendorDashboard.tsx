@@ -40,6 +40,7 @@ import { StatSkeleton } from "../components/ui/Skeleton";
 import MessagesSkeleton, {
   ConversationsSkeleton,
 } from "../components/Messages/MessagesSkeleton";
+import ConversationAvatar from "../components/Messages/ConversationAvatar";
 import ProfilePictureUpload from "../components/Settings/ProfilePictureUpload";
 
 const ease = [0.23, 1, 0.32, 1] as const;
@@ -1319,10 +1320,9 @@ const VendorDashboard = () => {
                               className={`w-full flex items-start gap-3 px-4 py-3.5 text-left transition-all hover:bg-white/40 ${selectedConvo === convo.id ? "bg-white/50 backdrop-blur-sm border-l-2 border-primary" : "border-l-2 border-transparent"}`}
                             >
                               <div className="relative shrink-0">
-                                <img
+                                <ConversationAvatar
+                                  name={convo.name}
                                   src={convo.avatar}
-                                  alt={convo.name}
-                                  className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm"
                                 />
                                 {convo.unread > 0 && (
                                   <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
@@ -1371,10 +1371,10 @@ const VendorDashboard = () => {
                               >
                                 <ArrowLeft className="w-4 h-4" />
                               </button>
-                              <img
-                                src={activeConvo.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"}
-                                alt={activeConvo.name || "User"}
-                                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                              <ConversationAvatar
+                                name={activeConvo.name || "User"}
+                                src={activeConvo.avatar}
+                                size="sm"
                               />
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-1.5">
