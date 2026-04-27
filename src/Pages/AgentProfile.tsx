@@ -28,6 +28,7 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import agentsService from "../api/services/agents";
 import messagesService from "../api/services/messages";
+import api from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
 const ease = [0.23, 1, 0.32, 1] as const;
@@ -53,6 +54,8 @@ const ReviewDisputeSection = ({
   const [disputeSubmitted, setDisputeSubmitted] = useState(false);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewError, setReviewError] = useState("");
+  const [disputeSubmitting, setDisputeSubmitting] = useState(false);
+  const [disputeError, setDisputeError] = useState("");
 
   const handleReviewSubmit = async () => {
     if (!(reviewRating > 0 && reviewText.trim())) return;
@@ -85,14 +88,26 @@ const ReviewDisputeSection = ({
     }
   };
 
-  const handleDisputeSubmit = () => {
-    if (disputeText.trim()) {
+  const handleDisputeSubmit = async () => {
+    if (!disputeText.trim() || !agentId) return;
+    setDisputeSubmitting(true);
+    setDisputeError("");
+    try {
+      await api.post("/reports", {
+        targetType: "agent",
+        targetId: agentId,
+        reason: disputeText.trim(),
+      });
       setDisputeSubmitted(true);
       setTimeout(() => {
         setShowDisputeForm(false);
         setDisputeSubmitted(false);
         setDisputeText("");
-      }, 2000);
+      }, 3000);
+    } catch {
+      setDisputeError("Could not submit report. Please try again.");
+    } finally {
+      setDisputeSubmitting(false);
     }
   };
 
@@ -237,11 +252,14 @@ const ReviewDisputeSection = ({
                 />
                 <button
                   onClick={handleDisputeSubmit}
-                  disabled={!disputeText.trim()}
+                  disabled={!disputeText.trim() || disputeSubmitting}
                   className="mt-3 h-10 px-6 rounded-full bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  <Flag className="w-3.5 h-3.5" /> Submit Report
+                  <Flag className="w-3.5 h-3.5" /> {disputeSubmitting ? "Submitting…" : "Submit Report"}
                 </button>
+                {disputeError && (
+                  <p className="text-xs text-red-500 mt-2">{disputeError}</p>
+                )}
               </>
             )}
           </motion.div>
@@ -830,7 +848,10 @@ const AgentProfile = () => {
                   )}
                 </div>
                 <div className="px-4 pb-4">
-                  <button className="w-full h-10 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
+                  <button
+                    onClick={() => navigate(`/buy?search=${encodeURIComponent(agent.name)}`)}
+                    className="w-full h-10 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+                  >
                     View all {agent.listings} listings
                   </button>
                 </div>
