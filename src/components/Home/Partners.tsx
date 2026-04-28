@@ -312,7 +312,7 @@ const Partners = () => {
         <div className="mt-14 lg:mt-16">
           <div
             data-pt-cta
-            className="bg-gradient-to-br from-primary-dark via-primary-dark to-primary rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.15)] overflow-hidden relative"
+            className="bg-linear-to-br from-primary-dark via-primary-dark to-primary rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.15)] overflow-hidden relative"
           >
             {/* Decorative circles */}
             <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/20 blur-3xl" />
@@ -345,16 +345,16 @@ const Partners = () => {
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                   <a
-                    href="mailto:oyindamola@propertyloop.ng"
+                    href="mailto:support@propertyloop.ng"
                     className="h-11 px-7 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white/20 transition-colors inline-flex items-center gap-2"
                   >
-                    oyindamola@propertyloop.ng
+                    support@propertyloop.ng
                   </a>
                 </div>
               </div>
 
               {/* Right side — partner types */}
-              <div className="w-full lg:w-auto lg:min-w-[280px]">
+              <div className="w-full lg:w-auto lg:min-w-70">
                 <p className="text-white/50 text-xs font-medium uppercase tracking-wide mb-4">
                   We work with
                 </p>

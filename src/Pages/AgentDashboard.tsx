@@ -39,6 +39,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useFirstLoginTour } from "../lib/tour/useFirstLoginTour";
 import Logo from "../assets/logo.png";
 import agentsService from "../api/services/agents";
 import listingsService from "../api/services/listings";
@@ -99,6 +100,13 @@ const AgentDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
+
+  // First-login walkthrough for agents
+  useFirstLoginTour({
+    role: "agent",
+    userId: user?.id ?? null,
+    enabled: !!user,
+  });
   const [chatInput, setChatInput] = useState("");
   const [mobileChat, setMobileChat] = useState(false);
   const {
@@ -545,6 +553,7 @@ const AgentDashboard = () => {
           {navItems.map((item) => (
             <button
               key={item.id}
+              data-tour={`nav-${item.id}`}
               onClick={() => setActiveNav(item.id)}
               className={`flex items-center gap-3 w-full rounded-xl transition-all duration-200 ${
                 sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"
@@ -756,6 +765,7 @@ const AgentDashboard = () => {
           <div className="flex items-center gap-3">
             <Link
               to="/add-property"
+              data-tour="add-listing"
               className="hidden sm:inline-flex items-center gap-2 h-9 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-glow/30"
             >
               <PlusCircle className="w-3.5 h-3.5" />

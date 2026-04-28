@@ -47,6 +47,7 @@ import type {
   Viewing,
 } from "../api/types";
 import { useAuth } from "../context/AuthContext";
+import { useFirstLoginTour } from "../lib/tour/useFirstLoginTour";
 import { useBookmarks } from "../context/BookmarkContext";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import { useChat } from "../api/hooks";
@@ -106,6 +107,13 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
+
+  // First-login walkthrough for buyers
+  useFirstLoginTour({
+    role: "buyer",
+    userId: authUser?.id ?? null,
+    enabled: !!authUser,
+  });
   const [vendorSearch, setVendorSearch] = useState("");
   const [vendorCategory, setVendorCategory] = useState("All Categories");
   const [msgFilter, setMsgFilter] = useState<"all" | "agents" | "vendors">(
@@ -382,6 +390,7 @@ const Dashboard = () => {
             .map((item) => (
               <button
                 key={item.id}
+                data-tour={`nav-${item.id}`}
                 onClick={() => setActiveNav(item.id)}
                 className={`flex items-center gap-3 w-full rounded-xl transition-all duration-200 ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"} ${activeNav === item.id ? "text-white" : "text-white/50 hover:text-white/80 hover:bg-white/5"}`}
                 style={
@@ -2340,7 +2349,7 @@ const Dashboard = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.25, ease }}
-              className="bg-white rounded-[24px] shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-6 border-b border-border-light">

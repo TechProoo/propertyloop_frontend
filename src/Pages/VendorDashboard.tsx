@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
+import { useFirstLoginTour } from "../lib/tour/useFirstLoginTour";
 import vendorsService from "../api/services/vendors";
 import vendorJobsService from "../api/services/vendorJobs";
 import vendorEarningsService from "../api/services/vendorEarnings";
@@ -116,6 +117,13 @@ const VendorDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
+
+  // First-login walkthrough for vendors
+  useFirstLoginTour({
+    role: "vendor",
+    userId: user?.id ?? null,
+    enabled: !!user,
+  });
   const [jobTab, setJobTab] = useState<"pending" | "active" | "completed">(
     "pending",
   );
@@ -454,6 +462,7 @@ const VendorDashboard = () => {
           {navItems.map((item) => (
             <button
               key={item.id}
+              data-tour={`nav-${item.id}`}
               onClick={() => setActiveNav(item.id)}
               className={`flex items-center gap-3 w-full rounded-xl transition-all duration-200 ${sidebarOpen ? "px-3 py-2.5" : "px-0 py-2.5 justify-center"} ${activeNav === item.id ? "text-white" : "text-white/50 hover:text-white/80 hover:bg-white/5"}`}
               style={
@@ -1060,7 +1069,7 @@ const VendorDashboard = () => {
                                           preload="metadata"
                                         />
                                         <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                          <div className="w-0 h-0 border-l-[8px] border-l-white border-y-[5px] border-y-transparent ml-0.5" />
+                                          <div className="w-0 h-0 border-l-8 border-l-white border-y-[5px] border-y-transparent ml-0.5" />
                                         </div>
                                       </>
                                     ) : (
