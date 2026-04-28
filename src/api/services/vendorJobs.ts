@@ -13,6 +13,7 @@ export interface CreateBookingPayload {
   clientPhone: string;
   clientEmail?: string;
   paymentMethod?: string;
+  attachments?: string[];
 }
 
 export interface CompleteJobPayload {

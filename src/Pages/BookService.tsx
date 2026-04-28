@@ -18,12 +18,16 @@ import {
   ChevronUp,
   Flag,
   X,
+  Paperclip,
+  Image as ImageIcon,
+  Film,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import vendorsService from "../api/services/vendors";
 import messagesService from "../api/services/messages";
 import vendorJobsService from "../api/services/vendorJobs";
+import uploadService from "../api/services/upload";
 import { useAuth } from "../context/AuthContext";
 import type { VendorPublic } from "../api/types";
 // Chat and booking data now handled via API services
@@ -251,6 +255,66 @@ const BookService = () => {
   const [preferredTime, setPreferredTime] = useState("10:00");
   const [propertyAddress, setPropertyAddress] = useState("");
 
+  type Attachment = {
+    id: string;
+    file: File;
+    previewUrl: string;
+    kind: "image" | "video";
+  };
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [attachmentError, setAttachmentError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const MAX_ATTACHMENTS = 6;
+  const MAX_ATTACHMENT_BYTES = 50 * 1024 * 1024; // 50MB
+
+  const handlePickAttachments = (filesList: FileList | null) => {
+    if (!filesList) return;
+    const files = Array.from(filesList);
+    const next: Attachment[] = [...attachments];
+    setAttachmentError(null);
+    for (const file of files) {
+      if (next.length >= MAX_ATTACHMENTS) {
+        setAttachmentError(`You can attach up to ${MAX_ATTACHMENTS} files.`);
+        break;
+      }
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+      if (!isImage && !isVideo) {
+        setAttachmentError(`${file.name} isn't an image or video.`);
+        continue;
+      }
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        setAttachmentError(`${file.name} is larger than 50MB.`);
+        continue;
+      }
+      next.push({
+        id: `${file.name}-${file.size}-${Date.now()}-${Math.random()}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+        kind: isImage ? "image" : "video",
+      });
+    }
+    setAttachments(next);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeAttachment = (id: string) => {
+    setAttachments((prev) => {
+      const target = prev.find((a) => a.id === id);
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((a) => a.id !== id);
+    });
+  };
+
+  // Clean up object URLs on unmount
+  useEffect(() => {
+    return () => {
+      attachments.forEach((a) => URL.revokeObjectURL(a.previewUrl));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Mini chat state
   const [chatOpen, setChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
@@ -322,8 +386,27 @@ const BookService = () => {
     }
 
     setSending(true);
+    setAttachmentError(null);
 
     try {
+      // Upload any attached images/videos first so we can pass URLs to the booking
+      let uploadedUrls: string[] = [];
+      if (attachments.length > 0) {
+        try {
+          const results = await Promise.all(
+            attachments.map((a) => uploadService.uploadJobAttachment(a.file)),
+          );
+          uploadedUrls = results.map((r) => r.url);
+        } catch (uploadErr) {
+          console.error("Attachment upload failed:", uploadErr);
+          setAttachmentError(
+            "We couldn't upload one of your files. Try again or remove it.",
+          );
+          setSending(false);
+          return;
+        }
+      }
+
       // Create the VendorJob booking record
       await vendorJobsService.createBooking({
         vendorId: vendor.id,
@@ -338,10 +421,16 @@ const BookService = () => {
         clientName: (user as any).name || "Client",
         clientPhone: (user as any).phone,
         clientEmail: (user as any).email,
+        attachments: uploadedUrls.length > 0 ? uploadedUrls : undefined,
       });
       console.log("Vendor job booking created successfully");
 
       // Format the booking details as a nicely formatted message
+      const attachmentLine =
+        uploadedUrls.length > 0
+          ? `\n📎 ${uploadedUrls.length} attachment${uploadedUrls.length === 1 ? "" : "s"} included with this request.`
+          : "";
+
       const messageText = `📋 SERVICE REQUEST
 
 📝 What I need:
@@ -350,7 +439,7 @@ ${jobDescription}
 ${preferredDate ? `📅 Preferred Date: ${new Date(preferredDate).toLocaleDateString("en-NG", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}` : ""}
 ${preferredDate ? `⏰ Preferred Time: ${preferredTime}` : ""}
 
-${propertyAddress ? `📌 Notes: ${propertyAddress}` : ""}
+${propertyAddress ? `📌 Notes: ${propertyAddress}` : ""}${attachmentLine}
 
 Let's negotiate the scope and pricing. Looking forward to your response!`;
 
@@ -561,6 +650,95 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                         Property address will be shared after negotiation is
                         concluded.
                       </p>
+                    </div>
+
+                    {/* Attachments — let the buyer share photos/videos of the job */}
+                    <div>
+                      <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                        Photos / Videos{" "}
+                        <span className="text-text-subtle font-normal">
+                          (optional)
+                        </span>
+                      </label>
+
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*,video/*"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => handlePickAttachments(e.target.files)}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={attachments.length >= MAX_ATTACHMENTS}
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-border-light bg-white/50 text-primary-dark text-sm font-medium hover:border-primary hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Paperclip className="w-4 h-4" />
+                        {attachments.length === 0
+                          ? "Add photos or a video"
+                          : `Add more (${attachments.length}/${MAX_ATTACHMENTS})`}
+                      </button>
+
+                      <p className="text-[11px] text-text-subtle mt-1 ml-1">
+                        Up to {MAX_ATTACHMENTS} files. Images or videos, max
+                        50MB each.
+                      </p>
+
+                      {attachmentError && (
+                        <p className="text-[11px] text-red-600 mt-1 ml-1">
+                          {attachmentError}
+                        </p>
+                      )}
+
+                      {attachments.length > 0 && (
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-3">
+                          {attachments.map((a) => (
+                            <div
+                              key={a.id}
+                              className="relative aspect-square rounded-xl overflow-hidden border border-border-light bg-black/5"
+                            >
+                              {a.kind === "image" ? (
+                                <img
+                                  src={a.previewUrl}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <>
+                                  <video
+                                    src={a.previewUrl}
+                                    className="w-full h-full object-cover"
+                                    muted
+                                    playsInline
+                                  />
+                                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 pointer-events-none">
+                                    <Film className="w-6 h-6 text-white drop-shadow" />
+                                  </div>
+                                </>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => removeAttachment(a.id)}
+                                aria-label="Remove attachment"
+                                className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                              <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-black/60 text-white text-[9px] font-medium flex items-center gap-1">
+                                {a.kind === "image" ? (
+                                  <ImageIcon className="w-2.5 h-2.5" />
+                                ) : (
+                                  <Film className="w-2.5 h-2.5" />
+                                )}
+                                {a.kind === "image" ? "Photo" : "Video"}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 

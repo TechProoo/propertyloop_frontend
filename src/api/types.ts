@@ -399,6 +399,7 @@ export interface VendorJob {
   paymentMethod?: string | null;
   completionNotes?: string | null;
   completionProofImages: string[];
+  attachments?: string[];
   completedAt?: string | null;
   confirmedAt?: string | null;
   disputeReason?: string | null;

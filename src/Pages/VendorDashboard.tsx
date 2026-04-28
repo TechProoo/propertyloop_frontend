@@ -1036,6 +1036,45 @@ const VendorDashboard = () => {
                           <p className="text-text-subtle text-xs mt-1.5">
                             {job.description}
                           </p>
+                          {Array.isArray(job.attachments) && job.attachments.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2.5">
+                              {job.attachments.map((url: string, idx: number) => {
+                                const isVideo = /\.(mp4|webm|mov|m4v|ogg)(\?|$)/i.test(url);
+                                return (
+                                  <a
+                                    key={`${url}-${idx}`}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="relative w-14 h-14 rounded-lg overflow-hidden border border-border-light bg-black/5 hover:ring-2 hover:ring-primary transition-all"
+                                    title={isVideo ? "Open video" : "Open photo"}
+                                  >
+                                    {isVideo ? (
+                                      <>
+                                        <video
+                                          src={url}
+                                          className="w-full h-full object-cover"
+                                          muted
+                                          playsInline
+                                          preload="metadata"
+                                        />
+                                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                          <div className="w-0 h-0 border-l-[8px] border-l-white border-y-[5px] border-y-transparent ml-0.5" />
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <img
+                                        src={url}
+                                        alt=""
+                                        className="w-full h-full object-cover"
+                                      />
+                                    )}
+                                  </a>
+                                );
+                              })}
+                            </div>
+                          )}
                           <div className="flex items-center gap-4 mt-2">
                             <span className="font-heading font-bold text-primary text-sm">
                               {formatCurrency(job.amount)}
