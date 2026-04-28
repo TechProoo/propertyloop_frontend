@@ -1,5 +1,10 @@
 import { useEffect } from "react";
-import Shepherd from "shepherd.js";
+import Shepherd, {
+  type Step,
+  type StepOptions,
+  type StepOptionsButton,
+  type Tour,
+} from "shepherd.js";
 import "shepherd.js/dist/css/shepherd.css";
 import "./tour.css";
 import { stepsByRole, type TourRole } from "./steps";
@@ -67,7 +72,7 @@ export function useFirstLoginTour({
     if (!steps?.length) return;
 
     let cancelled = false;
-    let tour: Shepherd.Tour | null = null;
+    let tour: Tour | null = null;
 
     const run = async () => {
       // Give React a tick so refs/data-tour attrs are mounted
@@ -85,14 +90,14 @@ export function useFirstLoginTour({
           classes: "shepherd-step",
           when: {
             show() {
-              const step = this as Shepherd.Step;
+              const step = this as unknown as Step;
               const target = step.getTarget?.();
               if (target instanceof HTMLElement) {
                 target.classList.add("shepherd-target-highlight");
               }
             },
             hide() {
-              const step = this as Shepherd.Step;
+              const step = this as unknown as Step;
               const target = step.getTarget?.();
               if (target instanceof HTMLElement) {
                 target.classList.remove("shepherd-target-highlight");
@@ -110,7 +115,7 @@ export function useFirstLoginTour({
 
         const text = `<div class="shepherd-step-counter">Step ${idx + 1} of ${total}</div>${s.body}`;
 
-        const buttons: Shepherd.Step.StepOptionsButton[] = [];
+        const buttons: StepOptionsButton[] = [];
 
         if (!isFirst) {
           buttons.push({
@@ -139,7 +144,7 @@ export function useFirstLoginTour({
           },
         });
 
-        const stepOptions: Shepherd.Step.StepOptions = {
+        const stepOptions: StepOptions = {
           id: s.id,
           title: s.title,
           text,

@@ -1,4 +1,4 @@
-import type Shepherd from "shepherd.js";
+import type { PopperPlacement } from "shepherd.js";
 
 export type TourRole = "buyer" | "agent" | "vendor";
 
@@ -6,7 +6,7 @@ type StepInput = {
   id: string;
   title: string;
   body: string;
-  attachTo?: { element: string; on: Shepherd.Step.PopperPlacement };
+  attachTo?: { element: string; on: PopperPlacement };
   /** Wait for selector to appear before showing this step */
   waitFor?: string;
   /** Run an action before the step shows (e.g. expand a tab) */
