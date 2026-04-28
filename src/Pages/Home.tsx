@@ -8,8 +8,8 @@ import ServiceLoop from "../components/Home/ServiceLoop";
 import PropertyLogbook from "../components/Home/PropertyLogbook";
 import AgentSpotlight from "../components/Home/AgentSpotlight";
 import ShortletSpotlight from "../components/Home/ShortletSpotlight";
-import Partners from "../components/Home/Partners";
-import VideoTestimonials from "../components/Home/VideoTestimonials";
+// import Partners from "../components/Home/Partners";
+// import VideoTestimonials from "../components/Home/VideoTestimonials";
 import CtaBanner from "../components/Home/CtaBanner";
 import Footer from "../components/Home/Footer";
 

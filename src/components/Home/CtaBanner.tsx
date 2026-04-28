@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import type { FormEvent } from "react";
 import {
   ArrowRight,
   Home,
@@ -8,9 +9,11 @@ import {
   Smartphone,
   X,
   Bell,
+  CheckCircle,
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import appWaitlistService from "../../api/services/appWaitlist";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -35,6 +38,50 @@ const stats = [
 
 const CtaBanner = () => {
   const [showModal, setShowModal] = useState(false);
+
+  // ─── App-waitlist signup state ───────────────────────────────────────
+  const [appEmail, setAppEmail] = useState("");
+  const [appSubmitting, setAppSubmitting] = useState(false);
+  const [appError, setAppError] = useState<string | null>(null);
+  const [appSent, setAppSent] = useState(false);
+  const [appAlready, setAppAlready] = useState(false);
+
+  const handleAppWaitlistSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setAppError(null);
+    const email = appEmail.trim();
+    if (!email) {
+      setAppError("Please enter your email.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setAppError("That email doesn't look right.");
+      return;
+    }
+    setAppSubmitting(true);
+    try {
+      const res = await appWaitlistService.subscribe(email, "homepage_cta");
+      setAppSent(true);
+      setAppAlready(!!res.alreadySubscribed);
+    } catch (err: any) {
+      setAppError(
+        err?.response?.data?.message ?? "Something went wrong. Try again.",
+      );
+    } finally {
+      setAppSubmitting(false);
+    }
+  };
+
+  // Reset the form whenever the modal closes
+  useEffect(() => {
+    if (!showModal) {
+      setAppEmail("");
+      setAppSubmitting(false);
+      setAppError(null);
+      setAppSent(false);
+      setAppAlready(false);
+    }
+  }, [showModal]);
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -283,18 +330,54 @@ const CtaBanner = () => {
                 your email to get notified when it launches on iOS and Android.
               </p>
 
-              {/* Email input */}
-              <div className="w-full mt-6 flex gap-2">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
-                />
-                <button className="shrink-0 h-11 px-5 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-1.5">
-                  <Bell className="w-4 h-4" />
-                  Notify me
-                </button>
-              </div>
+              {appSent ? (
+                /* Success state */
+                <div className="w-full mt-6 flex flex-col items-center gap-2 px-4 py-5 rounded-2xl bg-primary/5 border border-primary/15">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <CheckCircle className="w-5 h-5" />
+                  </div>
+                  <p className="font-heading font-semibold text-primary-dark text-sm">
+                    {appAlready ? "You're already on the list" : "You're on the list!"}
+                  </p>
+                  <p className="text-text-secondary text-xs">
+                    We'll email you the moment the app drops.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Email input — stacks on mobile, row on sm+ so the
+                      button isn't squeezed against the input */}
+                  <form
+                    onSubmit={handleAppWaitlistSubmit}
+                    className="w-full mt-6 flex flex-col sm:flex-row gap-2"
+                  >
+                    <input
+                      type="email"
+                      value={appEmail}
+                      onChange={(e) => {
+                        setAppEmail(e.target.value);
+                        if (appError) setAppError(null);
+                      }}
+                      disabled={appSubmitting}
+                      placeholder="Enter your email"
+                      autoComplete="email"
+                      className="flex-1 min-w-0 h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors disabled:opacity-60"
+                    />
+                    <button
+                      type="submit"
+                      disabled={appSubmitting}
+                      className="shrink-0 h-11 px-5 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center justify-center gap-1.5 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      <Bell className="w-4 h-4" />
+                      {appSubmitting ? "Submitting…" : "Notify me"}
+                    </button>
+                  </form>
+
+                  {appError && (
+                    <p className="text-xs text-red-500 mt-2">{appError}</p>
+                  )}
+                </>
+              )}
 
               {/* Store badges placeholder */}
               <div className="flex gap-3 mt-6">
