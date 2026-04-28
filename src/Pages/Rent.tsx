@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useListings } from "../api/hooks";
 import listingsService from "../api/services/listings";
+import Seo from "../components/Seo";
 import {
   ArrowUpRight,
   Bed,
@@ -169,6 +170,12 @@ const Rent = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
+      <Seo
+        title="Properties for Rent in Nigeria"
+        description="Find apartments, duplexes and houses for rent across Nigeria. Filter by location, budget and bedrooms — book viewings directly from PropertyLoop."
+        path="/rent"
+        keywords="rent property Nigeria, apartments for rent Lagos, houses for rent Nigeria, rent in Lekki, PropertyLoop rentals"
+      />
       <Navbar />
 
       <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">

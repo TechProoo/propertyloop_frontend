@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
+import Seo from "../components/Seo";
 import agentsService from "../api/services/agents";
 import messagesService from "../api/services/messages";
 import api from "../api/client";
@@ -396,6 +397,26 @@ const AgentProfile = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
+      <Seo
+        title={`${agent.name}${agent.agency ? ` · ${agent.agency}` : ""}`}
+        description={`${agent.name} is a verified real estate agent on PropertyLoop${agent.location ? ` operating in ${agent.location}` : ""}. View listings, ratings, and contact directly.`}
+        path={`/agent/${agent.id}`}
+        type="profile"
+        image={agent.photo || undefined}
+        keywords={`${agent.name}, real estate agent Nigeria, ${agent.agency || ""}, PropertyLoop agents`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "RealEstateAgent",
+          name: agent.name,
+          url: `https://www.propertyloop.ng/agent/${agent.id}`,
+          image: agent.photo,
+          telephone: agent.phone,
+          email: agent.email,
+          worksFor: agent.agency
+            ? { "@type": "Organization", name: agent.agency }
+            : undefined,
+        }}
+      />
       <Navbar />
 
       <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import agentsService from "../api/services/agents";
 import type { AgentPublic } from "../api/types";
+import Seo from "../components/Seo";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -185,6 +186,12 @@ const Sell = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
+      <Seo
+        title="Sell Your Property in Nigeria"
+        description="List your property on PropertyLoop and reach thousands of buyers. Pair with a verified agent or list it yourself — secure escrow on every deal."
+        path="/sell"
+        keywords="sell property Nigeria, list property Lagos, real estate listing, find an agent Nigeria, PropertyLoop sell"
+      />
       <Navbar />
 
       <main className="w-full px-4 sm:px-6 md:px-12 lg:px-20 pt-5 pb-0">

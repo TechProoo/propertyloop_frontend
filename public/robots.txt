@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /agent-dashboard
+Disallow: /vendor-dashboard
+Disallow: /admin
+Disallow: /onboarding
+Disallow: /login
+Disallow: /signup
+Disallow: /reset-password
+Disallow: /add-property
+
+Sitemap: https://www.propertyloop.ng/sitemap.xml

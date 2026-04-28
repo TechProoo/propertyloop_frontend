@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
+import Seo from "../components/Seo";
 import listingsService from "../api/services/listings";
 import messagesService from "../api/services/messages";
 import viewingsService from "../api/services/viewings";
@@ -254,6 +255,42 @@ const PropertyDetail = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
+      <Seo
+        title={`${listing.title} · ${listing.location}`}
+        description={
+          listing.description?.slice(0, 160) ||
+          `${listing.beds}-bed ${listing.propertyType.toLowerCase()} ${listing.type === "RENT" ? "for rent" : listing.type === "SHORTLET" ? "for shortlet stay" : "for sale"} in ${listing.location}, Nigeria. ${listing.priceLabel} on PropertyLoop.`
+        }
+        path={`/property/${listing.id}`}
+        type="article"
+        image={listing.coverImage || undefined}
+        keywords={`${listing.propertyType}, ${listing.location}, ${listing.type === "RENT" ? "rent" : "buy"} property Nigeria, PropertyLoop`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "RealEstateListing",
+          name: listing.title,
+          url: `https://www.propertyloop.ng/property/${listing.id}`,
+          image: listing.coverImage,
+          description: listing.description,
+          numberOfBedrooms: listing.beds,
+          numberOfBathroomsTotal: listing.baths,
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: listing.address,
+            addressLocality: listing.location,
+            addressCountry: "NG",
+          },
+          offers: {
+            "@type": "Offer",
+            price: listing.priceNaira,
+            priceCurrency: "NGN",
+            availability:
+              listing.status === "ACTIVE"
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+          },
+        }}
+      />
       <Navbar />
 
       <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">

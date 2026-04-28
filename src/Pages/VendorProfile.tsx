@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
+import Seo from "../components/Seo";
 import vendorsService from "../api/services/vendors";
 
 const ease = [0.23, 1, 0.32, 1] as const;
@@ -318,6 +319,24 @@ const VendorProfile = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
+      <Seo
+        title={`${vendor.name} · ${vendor.category || "Service Vendor"}`}
+        description={`${vendor.name} — verified ${vendor.category || "service"} vendor on PropertyLoop. View portfolio, reviews, and book directly with secure escrow.`}
+        path={`/vendor/${vendor.id}`}
+        type="profile"
+        image={vendor.avatarUrl || vendor.bannerImage || undefined}
+        keywords={`${vendor.name}, ${vendor.category || ""}, service vendor Nigeria, PropertyLoop vendors`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          name: vendor.name,
+          url: `https://www.propertyloop.ng/vendor/${vendor.id}`,
+          image: vendor.avatarUrl || vendor.bannerImage,
+          description: vendor.bio,
+          telephone: vendor.phone,
+          email: vendor.email,
+        }}
+      />
       <Navbar />
 
       <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">

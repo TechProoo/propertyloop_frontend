@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useListings } from "../api/hooks";
 import listingsService from "../api/services/listings";
+import Seo from "../components/Seo";
 import {
   ArrowUpRight,
   Bed,
@@ -165,6 +166,12 @@ const Buy = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
+      <Seo
+        title="Properties for Sale in Nigeria"
+        description="Browse verified properties for sale across Nigeria. Filter by location, price, bedrooms and more. Buy your next home with confidence on PropertyLoop."
+        path="/buy"
+        keywords="property for sale Nigeria, houses for sale Lagos, buy property, real estate listings Nigeria, verified properties"
+      />
       <Navbar />
 
       <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">

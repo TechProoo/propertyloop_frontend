@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Seo from "../components/Seo";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -155,6 +156,12 @@ const stats = [
 const About = () => {
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
+      <Seo
+        title="About PropertyLoop"
+        description="PropertyLoop is Nigeria's modern real estate platform — built for buyers, agents, and service vendors. Verified listings, secure escrow, and a property logbook on every home."
+        path="/about"
+        keywords="about PropertyLoop, real estate platform Nigeria, proptech Nigeria"
+      />
       <Navbar />
 
       <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">
