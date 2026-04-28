@@ -32,8 +32,8 @@ const Home = () => {
       <VideoListings />
       <AgentSpotlight />
       <PropertyLogbook />
-      <VideoTestimonials />
-      <Partners />
+      {/* <VideoTestimonials /> */}
+      {/* <Partners /> */}
       <CtaBanner />
       <Footer />
     </div>
