@@ -206,27 +206,59 @@ const AddProperty = () => {
   const describeUploadError = (err: any): string => {
     if (!err) return "Upload failed. Please try again.";
 
+    // Always log full details for desktop debugging; the toast is short.
+    console.error("Upload error:", {
+      code: err?.code,
+      message: err?.message,
+      url: err?.config?.url,
+      method: err?.config?.method,
+      status: err?.response?.status,
+      data: err?.response?.data,
+    });
+
+    // Endpoint hint so the toast tells us which call failed
+    const url: string | undefined = err?.config?.url;
+    const where = (() => {
+      if (!url) return "";
+      if (url.includes("/listings/upload/video/presign"))
+        return " (video presign)";
+      if (url.includes("amazonaws.com") || url.includes("r2.cloudflarestorage"))
+        return " (R2 upload)";
+      if (url.includes("/listings/upload/video")) return " (video upload)";
+      if (url.includes("/listings/upload/photo")) return " (photo upload)";
+      if (url.endsWith("/listings") || url.includes("/listings?"))
+        return " (create listing)";
+      if (url.includes("/listings/") && url.includes("/documents"))
+        return " (attach document)";
+      return ` (${url.split("?")[0].split("/").slice(-2).join("/")})`;
+    })();
+
     // Axios-style network failure (no HTTP response received)
     const code = err?.code as string | undefined;
     if (code === "ERR_NETWORK" || err?.message === "Network Error") {
       if (typeof navigator !== "undefined" && navigator.onLine === false) {
         return "You're offline. Reconnect and try again.";
       }
-      return "Network was reset before the upload finished. On mobile this often means the connection dropped or your browser sent the page to the background. Stay on the tab and retry.";
+      return `Network was reset before the request finished${where}. On mobile this often means the connection dropped or your browser sent the page to the background. Stay on the tab and retry.`;
     }
     if (code === "ECONNABORTED") {
-      return "Upload timed out. Try a smaller file or a stronger connection.";
+      return `Request timed out${where}. Try a smaller file or a stronger connection.`;
     }
 
     const status = err?.response?.status as number | undefined;
     if (status === 401)
-      return "Your session expired. Sign in again and retry.";
+      return `Your session expired${where}. Sign in again and retry.`;
     if (status === 403)
-      return "Upload was rejected (forbidden). The file type may not be allowed.";
+      return `Request was rejected (forbidden)${where}. The file type may not be allowed.`;
     if (status === 413)
-      return "File is too large for the server.";
+      return `File is too large for the server${where}.`;
+    if (status === 400) {
+      const msg =
+        err?.response?.data?.message || "Bad request — check your form fields.";
+      return `${msg}${where}`;
+    }
     if (status && status >= 500)
-      return `Server error ${status}. Please try again in a minute.`;
+      return `Server error ${status}${where}. Please try again in a minute.`;
 
     // R2 sometimes returns plain XML — the body shows up as a string
     const data = err?.response?.data;
@@ -234,14 +266,14 @@ const AddProperty = () => {
       const codeMatch = data.match(/<Code>([^<]+)<\/Code>/);
       const msgMatch = data.match(/<Message>([^<]+)<\/Message>/);
       if (codeMatch || msgMatch) {
-        return `Storage error (${codeMatch?.[1] ?? "Unknown"}): ${msgMatch?.[1] ?? "rejected by R2"}`;
+        return `Storage error (${codeMatch?.[1] ?? "Unknown"}): ${msgMatch?.[1] ?? "rejected by R2"}${where}`;
       }
     }
 
     return (
       err?.response?.data?.message ||
       err?.message ||
-      "Upload failed. Please try again."
+      `Upload failed${where}. Please try again.`
     );
   };
 
