@@ -386,25 +386,52 @@ const AddProperty = () => {
 
   const uploadPendingPhotos = async (): Promise<string[]> => {
     const urls: string[] = [];
-    for (let i = 0; i < pendingPhotoFiles.length; i++) {
-      const file = pendingPhotoFiles[i];
-      setUploadingPhotoIndex(i);
-      const formData = new FormData();
-      formData.append("file", file);
-      const { fileUrl } = await api
-        .post<{
-          fileUrl: string;
-        }>("/listings/upload/photo", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          // Photos can be ~10MB and Render free-tier cold-starts can take
-          // 30-60s. The global 30s timeout aborts uploads before the
-          // backend even responds. Allow up to 5 min.
-          timeout: 5 * 60 * 1000,
-        })
-        .then((res) => res.data);
-      urls.push(fileUrl);
-    }
+    // Direct-to-R2 via presigned URLs (same pattern as the video upload).
+    // Bytes never touch our Render server, so the proxy's request timeout
+    // can't kill long photo uploads on slow mobile networks.
+    const uploadOne = async (file: File, index: number) => {
+      const { data: presign } = await api.post<{
+        uploadUrl: string;
+        fileUrl: string;
+        key: string;
+      }>("/listings/upload/photo/presign", {
+        filename: file.name,
+        contentType: file.type || "image/jpeg",
+        size: file.size,
+        folder: "listings",
+      });
+      await axios.put(presign.uploadUrl, file, {
+        headers: { "Content-Type": file.type || "image/jpeg" },
+        timeout: 10 * 60 * 1000,
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
+        onUploadProgress: () => {
+          // surface "uploading photo N/M" as a coarse hint
+          setUploadingPhotoIndex(index);
+        },
+      });
+      return presign.fileUrl;
+    };
+
+    // Run uploads in parallel with a small concurrency cap so phone radios
+    // don't get overwhelmed. Preserve original ordering for cover-image use.
+    const CONCURRENCY = 3;
+    const indexed = pendingPhotoFiles.map((file, i) => ({ file, i }));
+    const results = new Array<string>(indexed.length);
+    const queue = [...indexed];
+    const workers = Array.from(
+      { length: Math.min(CONCURRENCY, queue.length) },
+      async () => {
+        while (queue.length) {
+          const next = queue.shift();
+          if (!next) break;
+          results[next.i] = await uploadOne(next.file, next.i);
+        }
+      },
+    );
+    await Promise.all(workers);
     setUploadingPhotoIndex(null);
+    urls.push(...results);
     return urls;
   };
 
@@ -494,20 +521,29 @@ const AddProperty = () => {
 
   const uploadAndAttachDocs = async (listingId: string) => {
     for (const file of pendingDocFiles) {
-      const formData = new FormData();
-      formData.append("file", file);
-      const { fileUrl } = await api
-        .post<{
-          fileUrl: string;
-        }>("/listings/upload/photo", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          timeout: 5 * 60 * 1000, // see uploadPendingPhotos for rationale
-        })
-        .then((res) => res.data);
+      // Presign → direct PUT to R2, same pattern as photos.
+      const { data: presign } = await api.post<{
+        uploadUrl: string;
+        fileUrl: string;
+        key: string;
+      }>("/listings/upload/photo/presign", {
+        filename: file.name,
+        contentType: file.type || "application/octet-stream",
+        size: file.size,
+        folder: "listing-docs",
+      });
+      await axios.put(presign.uploadUrl, file, {
+        headers: {
+          "Content-Type": file.type || "application/octet-stream",
+        },
+        timeout: 10 * 60 * 1000,
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
+      });
       await listingsService.addDocument(listingId, {
         name: file.name,
         type: inferDocType(file.name),
-        url: fileUrl,
+        url: presign.fileUrl,
       });
     }
   };
