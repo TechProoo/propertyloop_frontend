@@ -52,6 +52,7 @@ import LogbookInfo from "./Pages/LogbookInfo";
 import LogbookList from "./Pages/LogbookList";
 import NotFound from "./Pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
+import { Toaster } from "./lib/toast";
 
 const roleDashboard: Record<string, string> = {
   BUYER: "/dashboard",
@@ -242,6 +243,7 @@ function App() {
       <AuthProvider>
         <BookmarkProvider>
           <AppContent />
+          <Toaster />
         </BookmarkProvider>
       </AuthProvider>
     </BrowserRouter>

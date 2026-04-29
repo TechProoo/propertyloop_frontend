@@ -5,6 +5,7 @@ import type { ListingType } from "../api/types";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import api from "../api/client";
+import { toast } from "../lib/toast";
 import {
   ArrowRight,
   ArrowLeft,
@@ -200,6 +201,50 @@ const AddProperty = () => {
   const [, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Turn an axios/network error into a sentence the user can act on.
+  // Especially important on mobile where the only visible error is a toast.
+  const describeUploadError = (err: any): string => {
+    if (!err) return "Upload failed. Please try again.";
+
+    // Axios-style network failure (no HTTP response received)
+    const code = err?.code as string | undefined;
+    if (code === "ERR_NETWORK" || err?.message === "Network Error") {
+      if (typeof navigator !== "undefined" && navigator.onLine === false) {
+        return "You're offline. Reconnect and try again.";
+      }
+      return "Network was reset before the upload finished. On mobile this often means the connection dropped or your browser sent the page to the background. Stay on the tab and retry.";
+    }
+    if (code === "ECONNABORTED") {
+      return "Upload timed out. Try a smaller file or a stronger connection.";
+    }
+
+    const status = err?.response?.status as number | undefined;
+    if (status === 401)
+      return "Your session expired. Sign in again and retry.";
+    if (status === 403)
+      return "Upload was rejected (forbidden). The file type may not be allowed.";
+    if (status === 413)
+      return "File is too large for the server.";
+    if (status && status >= 500)
+      return `Server error ${status}. Please try again in a minute.`;
+
+    // R2 sometimes returns plain XML — the body shows up as a string
+    const data = err?.response?.data;
+    if (typeof data === "string" && data.includes("<Error>")) {
+      const codeMatch = data.match(/<Code>([^<]+)<\/Code>/);
+      const msgMatch = data.match(/<Message>([^<]+)<\/Message>/);
+      if (codeMatch || msgMatch) {
+        return `Storage error (${codeMatch?.[1] ?? "Unknown"}): ${msgMatch?.[1] ?? "rejected by R2"}`;
+      }
+    }
+
+    return (
+      err?.response?.data?.message ||
+      err?.message ||
+      "Upload failed. Please try again."
+    );
+  };
+
   const goNext = async () => {
     if (currentStep === "details" && !validateStep1()) return;
     if (currentStep === "review") {
@@ -226,14 +271,10 @@ const AddProperty = () => {
           } catch (videoErr: any) {
             // Don't abandon the whole submit if the video upload fails —
             // tell the user, drop the video, and continue with the listing.
-            const serverMsg = videoErr?.response?.data?.message;
-            const msg =
-              serverMsg ||
-              (videoErr instanceof Error
-                ? videoErr.message
-                : "Video upload failed");
+            const reason = describeUploadError(videoErr);
             console.error("Video upload failed:", videoErr?.response?.data || videoErr);
-            setVideoUploadError(`${msg} — listing was saved without the video.`);
+            setVideoUploadError(`${reason} — listing was saved without the video.`);
+            toast.error(`Video upload failed: ${reason}`);
           }
         }
 
@@ -268,10 +309,9 @@ const AddProperty = () => {
 
         setSubmitted(true);
       } catch (err: any) {
-        setSubmitError(
-          err?.response?.data?.message ||
-            "Failed to submit listing. Please try again.",
-        );
+        const reason = describeUploadError(err);
+        setSubmitError(reason);
+        toast.error(reason);
       } finally {
         setSubmitting(false);
       }
