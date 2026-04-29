@@ -252,14 +252,14 @@ const PropertyLogbook = () => {
               <Link
                 to="/logbook/about"
                 data-pl-learn
-                className="inline-flex h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+                className="inline-flex items-center justify-center h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium leading-none hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
               >
                 Learn about logbooks
               </Link>
               {logbookListings.length >= 5 && (
                 <Link
                   to="/logbook"
-                  className="inline-flex h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-primary/25"
+                  className="inline-flex items-center justify-center h-10 px-6 rounded-full bg-primary text-white text-sm font-bold leading-none hover:bg-primary-dark transition-colors shadow-lg shadow-primary/25"
                 >
                   View more
                 </Link>
