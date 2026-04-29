@@ -326,7 +326,7 @@ const AddProperty = () => {
           beds: parseInt(form.beds) || 0,
           baths: parseInt(form.baths) || 0,
           sqft: form.size,
-          yearBuilt: form.yearBuilt,
+          yearBuilt: form.yearBuilt.trim() || undefined,
           description: form.description,
           features: form.features,
           coverImage: uploadedUrls[0],
@@ -389,49 +389,53 @@ const AddProperty = () => {
     // Direct-to-R2 via presigned URLs (same pattern as the video upload).
     // Bytes never touch our Render server, so the proxy's request timeout
     // can't kill long photo uploads on slow mobile networks.
-    const uploadOne = async (file: File, index: number) => {
-      const { data: presign } = await api.post<{
-        uploadUrl: string;
-        fileUrl: string;
-        key: string;
-      }>("/listings/upload/photo/presign", {
-        filename: file.name,
-        contentType: file.type || "image/jpeg",
-        size: file.size,
-        folder: "listings",
-      });
-      await axios.put(presign.uploadUrl, file, {
-        headers: { "Content-Type": file.type || "image/jpeg" },
-        timeout: 10 * 60 * 1000,
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
-        onUploadProgress: () => {
-          // surface "uploading photo N/M" as a coarse hint
-          setUploadingPhotoIndex(index);
-        },
-      });
-      return presign.fileUrl;
+    //
+    // Sequential (not parallel): 3 simultaneous uploads on cellular caused
+    // intermittent ERR_CONNECTION_RESET / "Network was reset" failures —
+    // mobile radios don't like multiple concurrent long PUT streams. One
+    // at a time is slower but vastly more reliable.
+    //
+    // Plus retry-once on transient network errors: a single packet drop
+    // shouldn't cost the user the entire batch.
+    const uploadOne = async (file: File, index: number, attempt = 0): Promise<string> => {
+      try {
+        setUploadingPhotoIndex(index);
+        const { data: presign } = await api.post<{
+          uploadUrl: string;
+          fileUrl: string;
+          key: string;
+        }>("/listings/upload/photo/presign", {
+          filename: file.name,
+          contentType: file.type || "image/jpeg",
+          size: file.size,
+          folder: "listings",
+        });
+        await axios.put(presign.uploadUrl, file, {
+          headers: { "Content-Type": file.type || "image/jpeg" },
+          timeout: 10 * 60 * 1000,
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity,
+        });
+        return presign.fileUrl;
+      } catch (err: any) {
+        const code = err?.code as string | undefined;
+        const transient =
+          code === "ERR_NETWORK" ||
+          code === "ECONNABORTED" ||
+          err?.message === "Network Error";
+        if (transient && attempt === 0) {
+          // 1.5s backoff so the radio has a moment to recover
+          await new Promise((r) => setTimeout(r, 1500));
+          return uploadOne(file, index, 1);
+        }
+        throw err;
+      }
     };
 
-    // Run uploads in parallel with a small concurrency cap so phone radios
-    // don't get overwhelmed. Preserve original ordering for cover-image use.
-    const CONCURRENCY = 3;
-    const indexed = pendingPhotoFiles.map((file, i) => ({ file, i }));
-    const results = new Array<string>(indexed.length);
-    const queue = [...indexed];
-    const workers = Array.from(
-      { length: Math.min(CONCURRENCY, queue.length) },
-      async () => {
-        while (queue.length) {
-          const next = queue.shift();
-          if (!next) break;
-          results[next.i] = await uploadOne(next.file, next.i);
-        }
-      },
-    );
-    await Promise.all(workers);
+    for (let i = 0; i < pendingPhotoFiles.length; i++) {
+      urls.push(await uploadOne(pendingPhotoFiles[i], i));
+    }
     setUploadingPhotoIndex(null);
-    urls.push(...results);
     return urls;
   };
 
@@ -520,30 +524,47 @@ const AddProperty = () => {
   };
 
   const uploadAndAttachDocs = async (listingId: string) => {
+    const uploadDocOnce = async (file: File, attempt = 0): Promise<string> => {
+      try {
+        const { data: presign } = await api.post<{
+          uploadUrl: string;
+          fileUrl: string;
+          key: string;
+        }>("/listings/upload/photo/presign", {
+          filename: file.name,
+          contentType: file.type || "application/octet-stream",
+          size: file.size,
+          folder: "listing-docs",
+        });
+        await axios.put(presign.uploadUrl, file, {
+          headers: {
+            "Content-Type": file.type || "application/octet-stream",
+          },
+          timeout: 10 * 60 * 1000,
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity,
+        });
+        return presign.fileUrl;
+      } catch (err: any) {
+        const code = err?.code as string | undefined;
+        const transient =
+          code === "ERR_NETWORK" ||
+          code === "ECONNABORTED" ||
+          err?.message === "Network Error";
+        if (transient && attempt === 0) {
+          await new Promise((r) => setTimeout(r, 1500));
+          return uploadDocOnce(file, 1);
+        }
+        throw err;
+      }
+    };
+
     for (const file of pendingDocFiles) {
-      // Presign → direct PUT to R2, same pattern as photos.
-      const { data: presign } = await api.post<{
-        uploadUrl: string;
-        fileUrl: string;
-        key: string;
-      }>("/listings/upload/photo/presign", {
-        filename: file.name,
-        contentType: file.type || "application/octet-stream",
-        size: file.size,
-        folder: "listing-docs",
-      });
-      await axios.put(presign.uploadUrl, file, {
-        headers: {
-          "Content-Type": file.type || "application/octet-stream",
-        },
-        timeout: 10 * 60 * 1000,
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
-      });
+      const fileUrl = await uploadDocOnce(file);
       await listingsService.addDocument(listingId, {
         name: file.name,
         type: inferDocType(file.name),
-        url: presign.fileUrl,
+        url: fileUrl,
       });
     }
   };
@@ -553,40 +574,54 @@ const AddProperty = () => {
     setUploadingVideo(true);
     setVideoUploadPct(0);
     try {
-      // 1. Ask the backend for a presigned PUT URL. Tiny JSON request,
-      //    finishes in ms — Render's request timeout doesn't matter here.
-      const { data: presign } = await api.post<{
-        uploadUrl: string;
-        fileUrl: string;
-        key: string;
-      }>("/listings/upload/video/presign", {
-        filename: pendingVideoFile.name,
-        contentType: pendingVideoFile.type || "video/mp4",
-        size: pendingVideoFile.size,
-      });
+      const tryOnce = async (attempt: number): Promise<string> => {
+        // 1. Ask the backend for a presigned PUT URL. Tiny JSON request,
+        //    finishes in ms — Render's request timeout doesn't matter here.
+        const { data: presign } = await api.post<{
+          uploadUrl: string;
+          fileUrl: string;
+          key: string;
+        }>("/listings/upload/video/presign", {
+          filename: pendingVideoFile.name,
+          contentType: pendingVideoFile.type || "video/mp4",
+          size: pendingVideoFile.size,
+        });
 
-      // 2. Upload the file BYTES directly to R2. Bytes never touch our
-      //    Render server, so its request timeout / proxy limits don't
-      //    apply. Use a raw axios instance (no auth interceptor) so the
-      //    Bearer header isn't sent — R2 rejects requests with extra
-      //    auth headers when the URL is already signed.
-      await axios.put(presign.uploadUrl, pendingVideoFile, {
-        headers: {
-          "Content-Type": pendingVideoFile.type || "video/mp4",
-        },
-        // Big files on slow connections — give plenty of room.
-        timeout: 30 * 60 * 1000,
-        // Let the server / browser stream the body without buffering.
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
-        onUploadProgress: (e) => {
-          if (e.total) {
-            setVideoUploadPct(Math.round((e.loaded / e.total) * 100));
+        // 2. Upload BYTES directly to R2. Bytes never touch our Render
+        //    server, so its request timeout / proxy limits don't apply.
+        //    Raw axios (no shared client) so the Bearer header isn't
+        //    sent — R2 rejects extra auth headers on signed URLs.
+        try {
+          setVideoUploadPct(0);
+          await axios.put(presign.uploadUrl, pendingVideoFile, {
+            headers: {
+              "Content-Type": pendingVideoFile.type || "video/mp4",
+            },
+            timeout: 30 * 60 * 1000,
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity,
+            onUploadProgress: (e) => {
+              if (e.total) {
+                setVideoUploadPct(Math.round((e.loaded / e.total) * 100));
+              }
+            },
+          });
+          return presign.fileUrl;
+        } catch (err: any) {
+          const code = err?.code as string | undefined;
+          const transient =
+            code === "ERR_NETWORK" ||
+            code === "ECONNABORTED" ||
+            err?.message === "Network Error";
+          if (transient && attempt === 0) {
+            await new Promise((r) => setTimeout(r, 1500));
+            return tryOnce(1);
           }
-        },
-      });
+          throw err;
+        }
+      };
 
-      return presign.fileUrl;
+      return await tryOnce(0);
     } finally {
       setUploadingVideo(false);
       setVideoUploadPct(null);
@@ -1040,7 +1075,12 @@ const AddProperty = () => {
                             />
                           </div>
                           <div>
-                            <label className={labelClass}>Year Built</label>
+                            <label className={labelClass}>
+                              Year Built{" "}
+                              <span className="text-text-subtle font-normal">
+                                (optional)
+                              </span>
+                            </label>
                             <input
                               type="text"
                               placeholder="e.g. 2022"
