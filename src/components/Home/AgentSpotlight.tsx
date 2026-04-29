@@ -18,7 +18,9 @@ const AgentSpotlight = () => {
       try {
         const result = await agentsService.list({
           limit: 100,
-          sort: "top_rated",
+          // Rank by closed deals first, then active listings (with a stable
+          // tiebreaker on createdAt) — see backend top_performers branch.
+          sort: "top_performers",
         });
         setAgents(result.items.slice(0, 3));
       } catch (error) {

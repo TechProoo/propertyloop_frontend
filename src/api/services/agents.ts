@@ -6,7 +6,12 @@ export interface ListAgentsParams {
   specialty?: string;
   location?: string;
   minRating?: number;
-  sort?: "top_rated" | "most_listings" | "most_deals" | "newest";
+  sort?:
+    | "top_rated"
+    | "most_listings"
+    | "most_deals"
+    | "top_performers"
+    | "newest";
   page?: number;
   limit?: number;
 }
