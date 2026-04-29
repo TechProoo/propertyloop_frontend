@@ -91,7 +91,17 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
     return Object.keys(newErrors).length === 0;
   };
 
+  // Agents must upload a profile photo — buyers and vendors can skip and
+  // add one later from settings.
+  const photoRequired = data.role === "agent";
+  const photoMissing = photoRequired && !data.profilePhotoFile && !data.profilePhoto;
+
   const handleContinue = () => {
+    if (photoMissing) {
+      setPhotoError("A profile picture is required for agent accounts.");
+      return;
+    }
+    setPhotoError("");
     if (data.role === "buyer" || validate()) onContinue();
   };
 
@@ -127,7 +137,7 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
       {/* Form Card */}
       <div className="backdrop-blur-md bg-white/60 rounded-[28px] border border-border-light shadow-[0_8px_32px_rgba(0,0,0,0.06)] p-6 sm:p-8">
         {/* Profile Photo Upload */}
-        <div className="flex justify-center mb-6">
+        <div className="flex flex-col items-center mb-6">
           <div className="relative">
             <input
               ref={fileInputRef}
@@ -138,7 +148,13 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
             />
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="w-20 h-20 rounded-full bg-bg-accent border-2 border-dashed border-border flex items-center justify-center cursor-pointer overflow-hidden"
+              className={`w-20 h-20 rounded-full bg-bg-accent border-2 border-dashed flex items-center justify-center cursor-pointer overflow-hidden transition-colors ${
+                photoError
+                  ? "border-red-400 bg-red-50/40"
+                  : photoRequired && !data.profilePhoto
+                    ? "border-primary/50"
+                    : "border-border"
+              }`}
             >
               {data.profilePhoto ? (
                 <img
@@ -157,6 +173,16 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
               <Upload className="w-3.5 h-3.5" />
             </button>
           </div>
+          <p className="text-[11px] text-text-subtle mt-2">
+            {photoRequired ? (
+              <>
+                Profile picture <span className="text-red-500">*</span>{" "}
+                <span className="text-text-subtle/80">— required for agents</span>
+              </>
+            ) : (
+              <>Profile picture (optional)</>
+            )}
+          </p>
         </div>
         {photoError && (
           <p className="text-xs text-red-600 text-center mb-4 -mt-2">

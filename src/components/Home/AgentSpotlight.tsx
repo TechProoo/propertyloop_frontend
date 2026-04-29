@@ -3,6 +3,7 @@ import { ArrowUpRight, CheckCircle, Star, Home, Phone } from "lucide-react";
 import AuthGate from "../ui/AuthGate";
 import agentsService from "../../api/services/agents";
 import type { AgentPublic } from "../../api/types";
+import RealIcon from "../../assets/realicon.png";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -170,7 +171,7 @@ const AgentSpotlight = () => {
               {/* Photo */}
               <div className="h-52 overflow-hidden rounded-t-[20px] relative bg-linear-to-br from-primary/20 to-primary-dark/20">
                 <img
-                  src={agent.avatarUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=600&fit=crop"}
+                  src={agent.avatarUrl || RealIcon}
                   alt={agent.name}
                   className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                 />

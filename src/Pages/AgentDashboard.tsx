@@ -41,6 +41,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useFirstLoginTour } from "../lib/tour/useFirstLoginTour";
 import Logo from "../assets/logo.png";
+import RealIcon from "../assets/realicon.png";
 import agentsService from "../api/services/agents";
 import listingsService from "../api/services/listings";
 import viewingsService from "../api/services/viewings";
@@ -100,6 +101,10 @@ const AgentDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
+  const [photoNudgeDismissed, setPhotoNudgeDismissed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("pl_agent_photo_nudge_dismissed") === "1";
+  });
 
   // First-login walkthrough for agents
   useFirstLoginTour({
@@ -347,9 +352,7 @@ const AgentDashboard = () => {
     yearsExperience: apiStats?.profile.yearsExperience ?? 0,
     verified: apiStats?.profile.verified ?? false,
     name: user?.name || "Agent",
-    photo:
-      user?.avatarUrl ||
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
+    photo: user?.avatarUrl || RealIcon,
     agency: (user?.agentProfile as any)?.agencyName || "",
     email: user?.email || "",
     phone: user?.phone || "",
@@ -792,6 +795,51 @@ const AgentDashboard = () => {
 
         {/* Page Content */}
         <div className="p-6 lg:p-8 overflow-x-hidden">
+          {/* Profile-photo nudge — shown only when an agent has no avatar
+              and hasn't dismissed the banner this browser. Buyers leaving
+              their photo blank don't see this. */}
+          {!user?.avatarUrl && !photoNudgeDismissed && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 backdrop-blur-sm px-4 py-3"
+            >
+              <img
+                src={RealIcon}
+                alt=""
+                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="font-heading font-semibold text-amber-900 text-sm">
+                  Add a profile picture
+                </p>
+                <p className="text-amber-800/80 text-xs leading-relaxed">
+                  Agents with photos get more buyer trust and inquiries. It only
+                  takes a few seconds.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => setActiveNav("settings")}
+                  className="h-9 px-4 rounded-full bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition-colors"
+                >
+                  Add photo
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.setItem("pl_agent_photo_nudge_dismissed", "1");
+                    setPhotoNudgeDismissed(true);
+                  }}
+                  aria-label="Dismiss"
+                  className="w-8 h-8 rounded-full text-amber-800/70 hover:text-amber-900 hover:bg-amber-100 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+
           {/* ─── Overview Panel ─── */}
           {activeNav === "overview" && (
             <motion.div

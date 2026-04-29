@@ -27,6 +27,7 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
+import RealIcon from "../assets/realicon.png";
 import agentsService from "../api/services/agents";
 import messagesService from "../api/services/messages";
 import api from "../api/client";
@@ -287,9 +288,7 @@ const AgentProfile = () => {
       const data = await agentsService.getById(id);
       setAgent({
         id: data.id,
-        photo:
-          data.avatarUrl ||
-          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
+        photo: data.avatarUrl || RealIcon,
         name: data.name,
         agency: data.agency || "",
         location: data.location || "",
