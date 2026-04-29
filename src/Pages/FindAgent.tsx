@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
+import RealIcon from "../assets/realicon.png";
 import { useAgents } from "../api/hooks";
 
 /* ─── Data ─── */
@@ -95,9 +96,7 @@ const FindAgent = () => {
   // Map API shape to what the template uses
   const agents = apiAgents.map((a) => ({
     id: a.id,
-    photo:
-      a.avatarUrl ||
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
+    photo: a.avatarUrl || RealIcon,
     name: a.name,
     agency: a.agency || "",
     location: a.location || "",
