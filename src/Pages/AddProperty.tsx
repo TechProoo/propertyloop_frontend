@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import listingsService from "../api/services/listings";
 import type { ListingType } from "../api/types";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 import api from "../api/client";
 import {
   ArrowRight,
@@ -154,6 +155,7 @@ const AddProperty = () => {
   const docInputRef = useRef<HTMLInputElement>(null);
   const [, setUploadingVideo] = useState(false);
   const [videoUploadError, setVideoUploadError] = useState("");
+  const [videoUploadPct, setVideoUploadPct] = useState<number | null>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [videoInputType, setVideoInputType] = useState<"url" | "file">("url");
   const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
@@ -441,20 +443,45 @@ const AddProperty = () => {
   const uploadPendingVideo = async (): Promise<string | undefined> => {
     if (!pendingVideoFile) return undefined;
     setUploadingVideo(true);
+    setVideoUploadPct(0);
     try {
-      const formData = new FormData();
-      formData.append("file", pendingVideoFile);
-      const { fileUrl } = await api
-        .post<{ fileUrl: string }>("/listings/upload/video", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          // 50MB videos on a poor connection plus a Render cold start can
-          // easily exceed 5 min. 10 min is a safer ceiling.
-          timeout: 10 * 60 * 1000,
-        })
-        .then((res) => res.data);
-      return fileUrl;
+      // 1. Ask the backend for a presigned PUT URL. Tiny JSON request,
+      //    finishes in ms — Render's request timeout doesn't matter here.
+      const { data: presign } = await api.post<{
+        uploadUrl: string;
+        fileUrl: string;
+        key: string;
+      }>("/listings/upload/video/presign", {
+        filename: pendingVideoFile.name,
+        contentType: pendingVideoFile.type || "video/mp4",
+        size: pendingVideoFile.size,
+      });
+
+      // 2. Upload the file BYTES directly to R2. Bytes never touch our
+      //    Render server, so its request timeout / proxy limits don't
+      //    apply. Use a raw axios instance (no auth interceptor) so the
+      //    Bearer header isn't sent — R2 rejects requests with extra
+      //    auth headers when the URL is already signed.
+      await axios.put(presign.uploadUrl, pendingVideoFile, {
+        headers: {
+          "Content-Type": pendingVideoFile.type || "video/mp4",
+        },
+        // Big files on slow connections — give plenty of room.
+        timeout: 30 * 60 * 1000,
+        // Let the server / browser stream the body without buffering.
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
+        onUploadProgress: (e) => {
+          if (e.total) {
+            setVideoUploadPct(Math.round((e.loaded / e.total) * 100));
+          }
+        },
+      });
+
+      return presign.fileUrl;
     } finally {
       setUploadingVideo(false);
+      setVideoUploadPct(null);
     }
   };
 
@@ -517,14 +544,24 @@ const AddProperty = () => {
               ))}
             </div>
             <p className="text-primary-dark font-heading font-semibold text-sm">
-              Submitting...
+              {videoUploadPct !== null
+                ? `Uploading video — ${videoUploadPct}%`
+                : "Submitting..."}
             </p>
-            {pendingVideoFile && (
+            {pendingVideoFile && videoUploadPct === null && (
               <p className="text-text-secondary text-xs text-center leading-relaxed">
-                Uploading your video — this can take a few minutes.
+                Preparing video upload…
                 <br />
                 Please don't close this tab.
               </p>
+            )}
+            {videoUploadPct !== null && (
+              <div className="w-60 h-1.5 rounded-full bg-border-light overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-200"
+                  style={{ width: `${videoUploadPct}%` }}
+                />
+              </div>
             )}
           </div>
           <style>{`
