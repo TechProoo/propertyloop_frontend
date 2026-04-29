@@ -320,7 +320,13 @@ const AddProperty = () => {
       const { fileUrl } = await api
         .post<{
           fileUrl: string;
-        }>("/listings/upload/photo", formData, { headers: { "Content-Type": "multipart/form-data" } })
+        }>("/listings/upload/photo", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+          // Photos can be ~10MB and Render free-tier cold-starts can take
+          // 30-60s. The global 30s timeout aborts uploads before the
+          // backend even responds. Allow up to 5 min.
+          timeout: 5 * 60 * 1000,
+        })
         .then((res) => res.data);
       urls.push(fileUrl);
     }
@@ -419,7 +425,10 @@ const AddProperty = () => {
       const { fileUrl } = await api
         .post<{
           fileUrl: string;
-        }>("/listings/upload/photo", formData, { headers: { "Content-Type": "multipart/form-data" } })
+        }>("/listings/upload/photo", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+          timeout: 5 * 60 * 1000, // see uploadPendingPhotos for rationale
+        })
         .then((res) => res.data);
       await listingsService.addDocument(listingId, {
         name: file.name,
@@ -438,7 +447,9 @@ const AddProperty = () => {
       const { fileUrl } = await api
         .post<{ fileUrl: string }>("/listings/upload/video", formData, {
           headers: { "Content-Type": "multipart/form-data" },
-          timeout: 5 * 60 * 1000, // 5 min — videos take time
+          // 50MB videos on a poor connection plus a Render cold start can
+          // easily exceed 5 min. 10 min is a safer ceiling.
+          timeout: 10 * 60 * 1000,
         })
         .then((res) => res.data);
       return fileUrl;
