@@ -34,7 +34,7 @@ export interface CreateListingPayload {
   beds: number;
   baths: number;
   sqft: string;
-  yearBuilt: string;
+  yearBuilt?: string;
   description: string;
   features: string[];
   coverImage: string;
