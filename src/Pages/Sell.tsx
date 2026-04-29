@@ -165,6 +165,69 @@ const Sell = () => {
   const [agents, setAgents] = useState<AgentPublic[]>([]);
   const [agentsLoading, setAgentsLoading] = useState(true);
 
+  // ─── Free property valuation form ─────────────────────────────────────
+  const [valuation, setValuation] = useState({
+    address: "",
+    propertyType: "",
+    beds: "",
+    baths: "",
+    estimatedValue: "",
+    fullName: "",
+    phone: "",
+    email: "",
+  });
+  const [valError, setValError] = useState<string | null>(null);
+  const [valSubmitting, setValSubmitting] = useState(false);
+
+  const setVal = <K extends keyof typeof valuation>(k: K, v: string) => {
+    setValuation((prev) => ({ ...prev, [k]: v }));
+    if (valError) setValError(null);
+  };
+
+  const submitValuation = async () => {
+    const v = valuation;
+    if (!v.address.trim()) return setValError("Property address is required.");
+    if (!v.fullName.trim()) return setValError("Your name is required.");
+    if (!v.phone.trim()) return setValError("Phone number is required.");
+    if (!v.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email))
+      return setValError("Enter a valid email address.");
+
+    setValError(null);
+    setValSubmitting(true);
+    try {
+      const valuationsService = (await import("../api/services/valuations"))
+        .default;
+      await valuationsService.submit({
+        address: v.address.trim(),
+        propertyType: v.propertyType || undefined,
+        beds: v.beds ? Number(v.beds) : undefined,
+        baths: v.baths ? Number(v.baths) : undefined,
+        estimatedValue: v.estimatedValue.trim() || undefined,
+        fullName: v.fullName.trim(),
+        phone: v.phone.trim(),
+        email: v.email.trim(),
+      });
+      setSubmitted(true);
+      setValuation({
+        address: "",
+        propertyType: "",
+        beds: "",
+        baths: "",
+        estimatedValue: "",
+        fullName: "",
+        phone: "",
+        email: "",
+      });
+    } catch (err: any) {
+      setValError(
+        err?.response?.data?.message ??
+          "We couldn't send your request. Please try again.",
+      );
+    } finally {
+      setValSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     let active = true;
     agentsService
@@ -565,35 +628,60 @@ const Sell = () => {
                         <h3 className="font-heading font-bold text-primary-dark text-base mb-5">
                           Property Details
                         </h3>
-                        <div className="flex flex-col gap-3">
+                        <form
+                          className="flex flex-col gap-3"
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            submitValuation();
+                          }}
+                        >
                           <input
                             type="text"
                             placeholder="Property address"
-                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                            value={valuation.address}
+                            onChange={(e) => setVal("address", e.target.value)}
+                            disabled={valSubmitting}
+                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors disabled:opacity-60"
                           />
-                          <select className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none">
+                          <select
+                            value={valuation.propertyType}
+                            onChange={(e) => setVal("propertyType", e.target.value)}
+                            disabled={valSubmitting}
+                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none disabled:opacity-60"
+                          >
                             <option value="">Property type</option>
-                            <option>Flat / Apartment</option>
-                            <option>House</option>
-                            <option>Land</option>
-                            <option>Commercial</option>
+                            <option value="Flat / Apartment">Flat / Apartment</option>
+                            <option value="House">House</option>
+                            <option value="Land">Land</option>
+                            <option value="Commercial">Commercial</option>
                           </select>
                           <div className="grid grid-cols-2 gap-3">
                             <input
                               type="number"
+                              min={0}
                               placeholder="Bedrooms"
-                              className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                              value={valuation.beds}
+                              onChange={(e) => setVal("beds", e.target.value)}
+                              disabled={valSubmitting}
+                              className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors disabled:opacity-60"
                             />
                             <input
                               type="number"
+                              min={0}
                               placeholder="Bathrooms"
-                              className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                              value={valuation.baths}
+                              onChange={(e) => setVal("baths", e.target.value)}
+                              disabled={valSubmitting}
+                              className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors disabled:opacity-60"
                             />
                           </div>
                           <input
                             type="text"
                             placeholder="Estimated value (optional)"
-                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                            value={valuation.estimatedValue}
+                            onChange={(e) => setVal("estimatedValue", e.target.value)}
+                            disabled={valSubmitting}
+                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors disabled:opacity-60"
                           />
 
                           <div className="h-px bg-border-light my-1" />
@@ -604,27 +692,44 @@ const Sell = () => {
                           <input
                             type="text"
                             placeholder="Full name"
-                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                            value={valuation.fullName}
+                            onChange={(e) => setVal("fullName", e.target.value)}
+                            disabled={valSubmitting}
+                            autoComplete="name"
+                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors disabled:opacity-60"
                           />
                           <input
                             type="tel"
                             placeholder="Phone number"
-                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                            value={valuation.phone}
+                            onChange={(e) => setVal("phone", e.target.value)}
+                            disabled={valSubmitting}
+                            autoComplete="tel"
+                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors disabled:opacity-60"
                           />
                           <input
                             type="email"
                             placeholder="Email address"
-                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                            value={valuation.email}
+                            onChange={(e) => setVal("email", e.target.value)}
+                            disabled={valSubmitting}
+                            autoComplete="email"
+                            className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors disabled:opacity-60"
                           />
 
+                          {valError && (
+                            <p className="text-xs text-red-500 ml-1">{valError}</p>
+                          )}
+
                           <button
-                            onClick={() => setSubmitted(true)}
-                            className="mt-2 w-full h-12 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]"
+                            type="submit"
+                            disabled={valSubmitting}
+                            className="mt-2 w-full h-12 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)] disabled:opacity-60 disabled:cursor-not-allowed"
                           >
-                            Get free valuation
-                            <ArrowRight className="w-4 h-4" />
+                            {valSubmitting ? "Sending…" : "Get free valuation"}
+                            {!valSubmitting && <ArrowRight className="w-4 h-4" />}
                           </button>
-                        </div>
+                        </form>
                       </div>
                     )}
                   </div>
