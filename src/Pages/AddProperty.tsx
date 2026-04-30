@@ -250,8 +250,7 @@ const AddProperty = () => {
       return `Your session expired${where}. Sign in again and retry.`;
     if (status === 403)
       return `Request was rejected (forbidden)${where}. The file type may not be allowed.`;
-    if (status === 413)
-      return `File is too large for the server${where}.`;
+    if (status === 413) return `File is too large for the server${where}.`;
     if (status === 400) {
       const msg =
         err?.response?.data?.message || "Bad request — check your form fields.";
@@ -304,8 +303,13 @@ const AddProperty = () => {
             // Don't abandon the whole submit if the video upload fails —
             // tell the user, drop the video, and continue with the listing.
             const reason = describeUploadError(videoErr);
-            console.error("Video upload failed:", videoErr?.response?.data || videoErr);
-            setVideoUploadError(`${reason} — listing was saved without the video.`);
+            console.error(
+              "Video upload failed:",
+              videoErr?.response?.data || videoErr,
+            );
+            setVideoUploadError(
+              `${reason} — listing was saved without the video.`,
+            );
             toast.error(`Video upload failed: ${reason}`);
           }
         }
@@ -397,7 +401,11 @@ const AddProperty = () => {
     //
     // Plus retry-once on transient network errors: a single packet drop
     // shouldn't cost the user the entire batch.
-    const uploadOne = async (file: File, index: number, attempt = 0): Promise<string> => {
+    const uploadOne = async (
+      file: File,
+      index: number,
+      attempt = 0,
+    ): Promise<string> => {
       try {
         setUploadingPhotoIndex(index);
         const { data: presign } = await api.post<{

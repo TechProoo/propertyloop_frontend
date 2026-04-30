@@ -256,7 +256,7 @@ const Contact = () => {
                     {
                       icon: <MapPin className="w-4 h-4" />,
                       label: "Address",
-                      value: "12 Admiralty Way, Lekki Phase 1, Lagos, Nigeria",
+                      value: "36 lekki epe expressway wing a,2nd floor lekki Swiss mall",
                     },
                     {
                       icon: <Phone className="w-4 h-4" />,
@@ -313,7 +313,7 @@ const Contact = () => {
                     <Popup>
                       <b>PropertyLoop HQ</b>
                       <br />
-                      12 Admiralty Way, Lekki
+                      36 lekki epe expressway wing a,2nd floor lekki Swiss mall
                     </Popup>
                   </Marker>
                 </MapContainer>
