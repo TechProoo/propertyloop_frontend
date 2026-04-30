@@ -73,7 +73,7 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
       if (!data.agencyName?.trim())
         newErrors.agencyName = "Agency name is required";
       if (!data.licenseNumber?.trim())
-        newErrors.licenseNumber = "License number is required";
+        newErrors.licenseNumber = "Company registration number is required";
       if (!data.businessAddress?.trim())
         newErrors.businessAddress = "Business address is required";
     }
@@ -294,16 +294,19 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
               )}
             </div>
 
-            {/* License Number */}
+            {/* Company Registration Number — required */}
             <div>
               <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
-                License / Registration Number
+                Company Registration Number{" "}
+                <span className="text-red-500" aria-hidden="true">*</span>
               </label>
               <div className={wrapperClass("licenseNumber")}>
                 <FileText className="absolute left-3.5 w-4 h-4 text-text-subtle" />
                 <input
                   type="text"
-                  placeholder="e.g. NIESV/2024/001234"
+                  required
+                  aria-required="true"
+                  placeholder="e.g. RC1234567 or NIESV/2024/001234"
                   value={data.licenseNumber || ""}
                   onChange={(e) => {
                     updateData({ licenseNumber: e.target.value });
@@ -313,6 +316,10 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
                   className={inputClass}
                 />
               </div>
+              <p className="text-text-subtle text-[11px] mt-1 ml-1">
+                Your CAC RC number, or an equivalent professional registration
+                (e.g. NIESV, REDAN). Required to activate an agent account.
+              </p>
               {errors.licenseNumber && (
                 <p className="text-red-500 text-xs mt-1 ml-1">
                   {errors.licenseNumber}
