@@ -87,6 +87,14 @@ const authService = {
     return data;
   },
 
+  async resendVerificationPublic(email: string): Promise<SuccessResponse> {
+    const { data } = await api.post<SuccessResponse>(
+      "/auth/resend-verification-public",
+      { email },
+    );
+    return data;
+  },
+
   async listSessions(): Promise<Session[]> {
     const { data } = await api.get<Session[]>("/auth/sessions");
     return data;

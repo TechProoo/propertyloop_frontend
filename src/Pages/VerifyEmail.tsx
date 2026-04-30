@@ -16,6 +16,33 @@ const VerifyEmail = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const token = searchParams.get("token");
 
+  // ─── Resend-link form (shown on expired/invalid states) ───────────────
+  const [resendEmail, setResendEmail] = useState("");
+  const [resending, setResending] = useState(false);
+  const [resendDone, setResendDone] = useState(false);
+  const [resendError, setResendError] = useState("");
+
+  const handleResend = async () => {
+    const email = resendEmail.trim();
+    if (!email) {
+      setResendError("Enter the email you signed up with.");
+      return;
+    }
+    setResending(true);
+    setResendError("");
+    try {
+      await authService.resendVerificationPublic(email);
+      setResendDone(true);
+    } catch (e: any) {
+      setResendError(
+        e?.response?.data?.message ??
+          "Couldn't send a new link right now. Try again in a minute.",
+      );
+    } finally {
+      setResending(false);
+    }
+  };
+
   useEffect(() => {
     if (!token) {
       setStatus("invalid");
@@ -88,48 +115,83 @@ const VerifyEmail = () => {
               </>
             )}
 
-            {status === "error" && (
+            {(status === "error" || status === "invalid") && (
               <>
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.2 }}
-                  className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-6"
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.2 }}
+                  className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${
+                    status === "error" ? "bg-red-50" : "bg-amber-50"
+                  }`}
                 >
-                  <AlertCircle className="w-8 h-8 text-red-600" />
+                  <AlertCircle
+                    className={`w-8 h-8 ${
+                      status === "error" ? "text-red-600" : "text-amber-600"
+                    }`}
+                  />
                 </motion.div>
-                <h1 className="font-heading font-bold text-primary-dark text-2xl mb-2">Verification Failed</h1>
-                <p className="text-text-secondary text-sm mb-2">{errorMessage}</p>
-                <p className="text-text-secondary text-xs mb-8">The verification link may have expired. Please try signing up again.</p>
-                <div className="space-y-2">
-                  <button onClick={() => navigate("/signup")}
-                    className="w-full h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
-                  >
-                    <ArrowRight className="w-4 h-4" /> Sign Up Again
-                  </button>
-                  <button onClick={() => navigate("/")}
-                    className="w-full h-11 px-6 rounded-full border border-border-light text-primary-dark text-sm font-medium hover:border-primary hover:text-primary transition-colors"
-                  >
-                    Go Home
-                  </button>
-                </div>
-              </>
-            )}
+                <h1 className="font-heading font-bold text-primary-dark text-2xl mb-2">
+                  {status === "error" ? "Verification Failed" : "Invalid Link"}
+                </h1>
+                <p className="text-text-secondary text-sm mb-2">
+                  {status === "error"
+                    ? errorMessage
+                    : "The verification link is missing or invalid."}
+                </p>
+                <p className="text-text-secondary text-xs mb-6">
+                  Enter the email you signed up with and we'll send a fresh
+                  verification link.
+                </p>
 
-            {status === "invalid" && (
-              <>
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", delay: 0.2 }}
-                  className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center mx-auto mb-6"
-                >
-                  <AlertCircle className="w-8 h-8 text-amber-600" />
-                </motion.div>
-                <h1 className="font-heading font-bold text-primary-dark text-2xl mb-2">Invalid Link</h1>
-                <p className="text-text-secondary text-sm mb-8">The verification link is missing or invalid. Please check your email again.</p>
+                {resendDone ? (
+                  <div className="p-4 rounded-2xl bg-green-50 border border-green-200 text-left flex items-start gap-2 mb-6">
+                    <CheckCircle className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                    <p className="text-green-700 text-xs leading-relaxed">
+                      If an account with that email exists and isn't verified
+                      yet, a new link is on its way. Check your inbox (and spam
+                      folder).
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 mb-6">
+                    <input
+                      type="email"
+                      value={resendEmail}
+                      onChange={(e) => {
+                        setResendEmail(e.target.value);
+                        if (resendError) setResendError("");
+                      }}
+                      placeholder="you@example.com"
+                      disabled={resending}
+                      className="w-full h-11 px-4 rounded-full bg-white border border-border-light text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary disabled:opacity-60"
+                    />
+                    {resendError && (
+                      <p className="text-red-500 text-xs ml-1 text-left">
+                        {resendError}
+                      </p>
+                    )}
+                    <button
+                      onClick={handleResend}
+                      disabled={resending}
+                      className="w-full h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                      <Mail className="w-4 h-4" />
+                      {resending ? "Sending…" : "Send me a new link"}
+                    </button>
+                  </div>
+                )}
+
                 <div className="space-y-2">
-                  <button onClick={() => navigate("/login")}
-                    className="w-full h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="w-full h-11 px-6 rounded-full border border-border-light text-primary-dark text-sm font-medium hover:border-primary hover:text-primary transition-colors inline-flex items-center justify-center gap-2"
                   >
                     <ArrowRight className="w-4 h-4" /> Go to Login
                   </button>
-                  <button onClick={() => navigate("/")}
-                    className="w-full h-11 px-6 rounded-full border border-border-light text-primary-dark text-sm font-medium hover:border-primary hover:text-primary transition-colors"
+                  <button
+                    onClick={() => navigate("/")}
+                    className="w-full h-11 px-6 rounded-full text-text-secondary text-sm font-medium hover:text-primary transition-colors"
                   >
                     Go Home
                   </button>
