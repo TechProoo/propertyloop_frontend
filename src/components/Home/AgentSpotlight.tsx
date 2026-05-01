@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, CheckCircle, Star, Home, Phone } from "lucide-react";
+import { ArrowUpRight, CheckCircle, Star, Home, Phone, Sparkles } from "lucide-react";
 import AuthGate from "../ui/AuthGate";
 import agentsService from "../../api/services/agents";
 import type { AgentPublic } from "../../api/types";
@@ -8,6 +8,14 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Manually-curated agents that should always appear at the top of the
+// home-page spotlight, in this order. The backend doesn't (yet) have a
+// "featured" flag, so we promote them on the client by email match.
+const FEATURED_EMAILS: string[] = [
+  "paulukbrand@gmail.com",
+  "danielsboluwatife@gmail.com",
+];
 
 const AgentSpotlight = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -22,7 +30,18 @@ const AgentSpotlight = () => {
           // tiebreaker on createdAt) — see backend top_performers branch.
           sort: "top_performers",
         });
-        setAgents(result.items.slice(0, 3));
+
+        // Promote featured agents to the front, preserving the configured order.
+        const featuredOrder = new Map(FEATURED_EMAILS.map((e, i) => [e.toLowerCase(), i]));
+        const featured: AgentPublic[] = [];
+        const rest: AgentPublic[] = [];
+        for (const a of result.items) {
+          const idx = featuredOrder.get((a.email ?? "").toLowerCase());
+          if (idx !== undefined) featured[idx] = a;
+          else rest.push(a);
+        }
+        const ordered = [...featured.filter(Boolean), ...rest];
+        setAgents(ordered.slice(0, 3));
       } catch (error) {
         console.error("Failed to load agents:", error);
         setAgents([]);
@@ -209,20 +228,34 @@ const AgentSpotlight = () => {
                 {/* Divider */}
                 <div className="h-px bg-border-light mt-3 mb-3" />
 
-                {/* Stats */}
-                <div className="flex items-center justify-between text-xs pr-8">
-                  <div className="flex items-center gap-4 text-text-secondary">
-                    <span className="flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                      {agent.rating}
+                {/* Stats — hidden for brand-new agents (0/0/no rating), where
+                    showing "0 active · 0 closed" reads as a negative signal. */}
+                {agent.listingsCount === 0 &&
+                agent.soldRentedCount === 0 &&
+                !agent.rating ? (
+                  <div className="flex items-center text-xs pr-8">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                      <Sparkles className="w-3 h-3" />
+                      New on PropertyLoop
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Home className="w-3.5 h-3.5" />
-                      {agent.listingsCount} active
-                    </span>
-                    <span>{agent.soldRentedCount} closed</span>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-center justify-between text-xs pr-8">
+                    <div className="flex items-center gap-4 text-text-secondary">
+                      {agent.rating > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
+                          {agent.rating}
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1">
+                        <Home className="w-3.5 h-3.5" />
+                        {agent.listingsCount} active
+                      </span>
+                      <span>{agent.soldRentedCount} closed</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </AuthGate>
           ))}
