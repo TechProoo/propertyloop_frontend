@@ -776,7 +776,7 @@ const Buy = () => {
                         </span>
                         <div className="absolute top-3 right-3 flex items-center gap-2">
                           <BookmarkButton
-                            id={`buy-${listing.title.replace(/\s/g, "-").toLowerCase()}`}
+                            id={listing.id}
                             type="property"
                             size="sm"
                           />

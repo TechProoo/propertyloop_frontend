@@ -144,7 +144,7 @@ const SearchResults = () => {
                       </span>
                       <div className="absolute top-3 right-3 flex items-center gap-2">
                         <BookmarkButton
-                          id={`search-${listing.id}`}
+                          id={listing.id}
                           type="property"
                           size="sm"
                         />
