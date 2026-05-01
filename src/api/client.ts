@@ -11,7 +11,10 @@ export const API_BASE =
 
 const api = axios.create({
   baseURL: API_BASE,
-  timeout: 30_000,
+  // 90s default — Render free-tier cold starts can take 40–60s on the first
+  // request after idle; 30s killed presign/create calls before the dyno had
+  // a chance to boot. Per-request overrides (e.g. R2 PUTs at 10min) still apply.
+  timeout: 90_000,
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });
