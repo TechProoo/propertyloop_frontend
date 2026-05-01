@@ -65,6 +65,7 @@ const Services = () => {
   const [activeLocation, setActiveLocation] = useState("All Locations");
   const [activeRating, setActiveRating] = useState("Any Rating");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const [categorySearch, setCategorySearch] = useState("");
   const [stats, setStats] = useState<any>(null);
 
@@ -209,7 +210,10 @@ const Services = () => {
                   </div>
                 ))}
               </div>
-              <div className="mt-8 bg-white/10 backdrop-blur-md border border-white/15 rounded-[18px] p-3 flex flex-col sm:flex-row gap-3">
+              <form
+                onSubmit={(e) => e.preventDefault()}
+                className="mt-8 bg-white/10 backdrop-blur-md border border-white/15 rounded-[18px] p-3 flex flex-col sm:flex-row gap-3"
+              >
                 <div className="flex-1 relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
                   <input
@@ -220,13 +224,81 @@ const Services = () => {
                     className="w-full h-12 pl-11 pr-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-colors"
                   />
                 </div>
-                <button className="shrink-0 h-12 px-6 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm font-medium hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowFilters((prev) => !prev)}
+                  className={`shrink-0 h-12 px-6 rounded-full backdrop-blur-sm border text-sm font-medium transition-all duration-300 inline-flex items-center gap-2 ${
+                    showFilters
+                      ? "bg-white text-primary-dark border-white"
+                      : "bg-white/10 border-white/15 text-white hover:bg-white/20"
+                  }`}
+                >
                   <SlidersHorizontal className="w-4 h-4" /> Filters
                 </button>
-                <button className="shrink-0 h-12 px-8 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors duration-300 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(0,0,0,0.15)]">
+                <button
+                  type="submit"
+                  className="shrink-0 h-12 px-8 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors duration-300 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
+                >
                   <Search className="w-4 h-4" /> Search
                 </button>
-              </div>
+              </form>
+
+              {showFilters && (
+                <div className="mt-4 bg-white/10 backdrop-blur-md border border-white/15 rounded-[18px] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-white/60 text-[11px] font-medium mb-1.5 block">
+                      Category
+                    </label>
+                    <select
+                      value={activeCategory}
+                      onChange={(e) => setActiveCategory(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:border-white/40"
+                    >
+                      {categories.map((cat) => (
+                        <option
+                          key={cat.label}
+                          value={cat.label}
+                          className="text-primary-dark"
+                        >
+                          {cat.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-white/60 text-[11px] font-medium mb-1.5 block">
+                      Location
+                    </label>
+                    <select
+                      value={activeLocation}
+                      onChange={(e) => setActiveLocation(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:border-white/40"
+                    >
+                      {locations.map((loc) => (
+                        <option key={loc} value={loc} className="text-primary-dark">
+                          {loc}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-white/60 text-[11px] font-medium mb-1.5 block">
+                      Rating
+                    </label>
+                    <select
+                      value={activeRating}
+                      onChange={(e) => setActiveRating(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:border-white/40"
+                    >
+                      {ratingFilters.map((rf) => (
+                        <option key={rf} value={rf} className="text-primary-dark">
+                          {rf}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

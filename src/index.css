@@ -62,9 +62,16 @@
   border-color: #1f6f43;
 }
 
-/* ─── Rendered description output (PropertyDetail) ─── */
-.pl-prose { color: #4a7a5c; line-height: 1.7; font-size: 0.875rem; }
-.pl-prose p { margin: 0 0 0.75em; }
+/* ─── Rendered description output (PropertyDetail + AddProperty review) ─── */
+.pl-prose {
+  color: #4a7a5c;
+  line-height: 1.7;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
+}
+.pl-prose p { margin: 0 0 0.75em; max-width: 100%; }
 .pl-prose p:last-child { margin-bottom: 0; }
 .pl-prose strong { color: #1f6f43; font-weight: 600; }
 .pl-prose em { font-style: italic; }

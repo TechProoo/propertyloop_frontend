@@ -33,10 +33,26 @@ const features = [
 ];
 
 const avatars = [
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
+  {
+    src: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
+    alt: "Nigerian client portrait",
+    fallback: "https://ui-avatars.com/api/?name=Adaobi&background=14804A&color=ffffff",
+  },
+  {
+    src: "https://images.pexels.com/photos/3777943/pexels-photo-3777943.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
+    alt: "Nigerian client portrait",
+    fallback: "https://ui-avatars.com/api/?name=Chinedu&background=14804A&color=ffffff",
+  },
+  {
+    src: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
+    alt: "Nigerian client portrait",
+    fallback: "https://ui-avatars.com/api/?name=Temitope&background=14804A&color=ffffff",
+  },
+  {
+    src: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
+    alt: "Nigerian client portrait",
+    fallback: "https://ui-avatars.com/api/?name=Kelechi&background=14804A&color=ffffff",
+  },
 ];
 
 const TrustedSection = () => {
@@ -182,11 +198,17 @@ const TrustedSection = () => {
           <div className="mt-12 lg:mt-auto">
             {/* Avatar stack */}
             <div className="flex -space-x-3 mb-8">
-              {avatars.map((src, i) => (
+              {avatars.map((avatar, i) => (
                 <img
                   key={i}
-                  src={src}
-                  alt="Happy client"
+                  src={avatar.src}
+                  alt={avatar.alt}
+                  onError={(e) => {
+                    const image = e.currentTarget;
+                    if (image.src !== avatar.fallback) {
+                      image.src = avatar.fallback;
+                    }
+                  }}
                   data-trusted-avatar
                   className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-md"
                 />
