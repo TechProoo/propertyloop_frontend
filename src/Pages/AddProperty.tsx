@@ -1,11 +1,13 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import DOMPurify from "dompurify";
 import listingsService from "../api/services/listings";
 import type { ListingType } from "../api/types";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import api from "../api/client";
 import { toast } from "../lib/toast";
+import RichTextEditor from "../components/ui/RichTextEditor";
 import {
   ArrowRight,
   ArrowLeft,
@@ -1125,13 +1127,12 @@ const AddProperty = () => {
                         {/* Description */}
                         <div>
                           <label className={labelClass}>Description</label>
-                          <textarea
-                            placeholder="Describe your property — features, condition, neighbourhood highlights..."
+                          <RichTextEditor
                             value={form.description}
-                            onChange={(e) =>
-                              updateForm({ description: e.target.value })
+                            onChange={(html) =>
+                              updateForm({ description: html })
                             }
-                            className="w-full h-28 px-4 py-3 rounded-2xl bg-white/40 backdrop-blur-md border border-white/50 text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary focus:bg-white/60 focus:shadow-[0_4px_20px_rgba(31,111,67,0.08)] transition-all resize-none"
+                            placeholder="Describe your property — features, condition, neighbourhood highlights…"
                           />
                         </div>
 
@@ -1725,14 +1726,18 @@ const AddProperty = () => {
                             ))}
                         </div>
 
-                        {form.description && (
-                          <>
-                            <div className="h-px bg-border-light my-4" />
-                            <p className="text-text-secondary text-sm leading-relaxed">
-                              {form.description}
-                            </p>
-                          </>
-                        )}
+                        {form.description &&
+                          form.description.replace(/<[^>]*>/g, "").trim() && (
+                            <>
+                              <div className="h-px bg-border-light my-4" />
+                              <div
+                                className="pl-prose"
+                                dangerouslySetInnerHTML={{
+                                  __html: DOMPurify.sanitize(form.description),
+                                }}
+                              />
+                            </>
+                          )}
                       </div>
 
                       {/* Agent notice + Terms */}

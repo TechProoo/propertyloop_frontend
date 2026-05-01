@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import DOMPurify from "dompurify";
 import {
   ArrowLeft,
   ArrowRight,
@@ -257,7 +258,7 @@ const PropertyDetail = () => {
       <Seo
         title={`${listing.title} · ${listing.location}`}
         description={
-          listing.description?.slice(0, 160) ||
+          (listing.description?.replace(/<[^>]*>/g, "").trim().slice(0, 160)) ||
           `${listing.beds}-bed ${listing.propertyType.toLowerCase()} ${listing.type === "RENT" ? "for rent" : listing.type === "SHORTLET" ? "for shortlet stay" : "for sale"} in ${listing.location}, Nigeria. ${listing.priceLabel} on PropertyLoop.`
         }
         path={`/property/${listing.id}`}
@@ -270,7 +271,7 @@ const PropertyDetail = () => {
           name: listing.title,
           url: `https://www.propertyloop.ng/property/${listing.id}`,
           image: listing.coverImage,
-          description: listing.description,
+          description: listing.description?.replace(/<[^>]*>/g, "").trim(),
           numberOfBedrooms: listing.beds,
           numberOfBathroomsTotal: listing.baths,
           address: {
@@ -516,9 +517,18 @@ const PropertyDetail = () => {
                 <h2 className="font-heading font-bold text-primary-dark text-lg mb-4">
                   About This Property
                 </h2>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  {listing.description}
-                </p>
+                {listing.description ? (
+                  <div
+                    className="pl-prose"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(listing.description),
+                    }}
+                  />
+                ) : (
+                  <p className="text-text-subtle text-sm italic">
+                    No description provided.
+                  </p>
+                )}
               </motion.div>
 
               {/* Features */}

@@ -30,3 +30,62 @@
   --color-glow: rgba(31, 111, 67, 0.4);
   --color-glow-strong: rgba(31, 111, 67, 0.5);
 }
+
+
+/* ─── Rich text editor (Quill 2.0 via react-quill-new) ─── */
+/* Wrapper styles so the editor blends into the glass-morphism form fields. */
+.pl-rte .ql-toolbar {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  border-color: rgba(31, 111, 67, 0.15);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+}
+.pl-rte .ql-container {
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  border-color: rgba(31, 111, 67, 0.15);
+  background: rgba(255, 255, 255, 0.4);
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+.pl-rte .ql-editor {
+  min-height: 160px;
+  color: #1f6f43;
+}
+.pl-rte .ql-editor.ql-blank::before {
+  color: rgba(31, 111, 67, 0.5);
+  font-style: normal;
+}
+.pl-rte:focus-within .ql-toolbar,
+.pl-rte:focus-within .ql-container {
+  border-color: #1f6f43;
+}
+
+/* ─── Rendered description output (PropertyDetail) ─── */
+.pl-prose { color: #4a7a5c; line-height: 1.7; font-size: 0.875rem; }
+.pl-prose p { margin: 0 0 0.75em; }
+.pl-prose p:last-child { margin-bottom: 0; }
+.pl-prose strong { color: #1f6f43; font-weight: 600; }
+.pl-prose em { font-style: italic; }
+.pl-prose u { text-decoration: underline; }
+.pl-prose h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a3d2a;
+  margin: 1.25em 0 0.5em;
+}
+.pl-prose h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a3d2a;
+  margin: 1em 0 0.4em;
+}
+.pl-prose ul, .pl-prose ol { margin: 0 0 0.75em 1.25em; padding: 0; }
+.pl-prose li { margin: 0.15em 0; }
+.pl-prose a {
+  color: #1f6f43;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.pl-prose a:hover { color: #1a3d2a; }
