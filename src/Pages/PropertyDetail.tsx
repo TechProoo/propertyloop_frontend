@@ -28,7 +28,6 @@ import {
   FileText,
   Handshake,
   Send,
-  DollarSign,
   CalendarDays,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
@@ -989,7 +988,7 @@ const PropertyDetail = () => {
                               Offer Amount (₦)
                             </label>
                             <div className="relative">
-                              <DollarSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-subtle" />
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-text-subtle">₦</span>
                               <input
                                 type="text"
                                 value={offerAmount}
