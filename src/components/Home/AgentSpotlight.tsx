@@ -13,7 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 // home-page spotlight, in this order. The backend doesn't (yet) have a
 // "featured" flag, so we promote them on the client by email match.
 const FEATURED_EMAILS: string[] = [
-  "paulukbrand@gmail.com",
+  "omodolapookunlola@gmail.com",
   "danielsboluwatife@gmail.com",
 ];
 

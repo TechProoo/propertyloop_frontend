@@ -15,9 +15,17 @@ const FeaturedHomes = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Featured Homes shows a mix of SALE + RENT (not shortlets — those have
+    // their own section). Fetch a small over-sample without a type filter
+    // and trim to 3 SALE/RENT entries client-side.
     listingsService
-      .list({ type: "SALE", limit: 3, sort: "newest" })
-      .then((res) => setHomes(res.items))
+      .list({ limit: 12, sort: "newest" })
+      .then((res) => {
+        const mixed = res.items
+          .filter((l) => l.type === "SALE" || l.type === "RENT")
+          .slice(0, 3);
+        setHomes(mixed);
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -121,7 +129,7 @@ const FeaturedHomes = () => {
             </p>
           </div>
           <AuthGate
-            href="/buy"
+            href="/search"
             className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
           >
             <span data-fh-viewall>View all</span>
@@ -143,7 +151,7 @@ const FeaturedHomes = () => {
               Our agents are curating the best properties for you. Check back soon to discover hand-picked homes.
             </p>
             <a
-              href="/buy"
+              href="/search"
               className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center"
             >
               Browse All Properties
