@@ -26,6 +26,9 @@ import {
   MapPin,
   XCircle,
   AlertCircle,
+  Image as ImageIcon,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
@@ -278,6 +281,56 @@ const VendorDashboard = () => {
       return url;
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : "Failed to upload banner image");
+    }
+  };
+
+  // ─── Portfolio / past work uploads ──────────────────────────────────────
+  const portfolioImages: string[] =
+    ((user?.vendorProfile as any)?.portfolioImages as string[]) ?? [];
+  const [uploadingPortfolio, setUploadingPortfolio] = useState(false);
+  const [portfolioError, setPortfolioError] = useState<string | null>(null);
+  const MAX_PORTFOLIO_IMAGES = 12;
+
+  const handlePortfolioUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setPortfolioError(null);
+
+    const remaining = MAX_PORTFOLIO_IMAGES - portfolioImages.length;
+    if (remaining <= 0) {
+      setPortfolioError(`You've reached the ${MAX_PORTFOLIO_IMAGES}-photo limit. Remove one to add another.`);
+      return;
+    }
+    const toUpload = Array.from(files).slice(0, remaining);
+
+    setUploadingPortfolio(true);
+    try {
+      const newUrls: string[] = [];
+      for (const file of toUpload) {
+        if (file.size > 10 * 1024 * 1024) {
+          throw new Error(`"${file.name}" is over 10MB — please choose a smaller image.`);
+        }
+        const url = await vendorsService.uploadPortfolioImage(file, "portfolio");
+        newUrls.push(url);
+      }
+      const next = [...portfolioImages, ...newUrls];
+      await vendorsService.updateMe({ portfolioImages: next });
+      setTimeout(() => window.location.reload(), 600);
+    } catch (err: any) {
+      setPortfolioError(err?.message ?? "Couldn't upload one of those photos. Try again.");
+    } finally {
+      setUploadingPortfolio(false);
+    }
+  };
+
+  const handlePortfolioRemove = async (url: string) => {
+    if (!confirm("Remove this photo from your portfolio?")) return;
+    setPortfolioError(null);
+    try {
+      const next = portfolioImages.filter((u) => u !== url);
+      await vendorsService.updateMe({ portfolioImages: next });
+      setTimeout(() => window.location.reload(), 400);
+    } catch (err: any) {
+      setPortfolioError(err?.message ?? "Couldn't remove that photo. Try again.");
     }
   };
 
@@ -1656,6 +1709,92 @@ const VendorDashboard = () => {
                 label="Profile Banner"
                 variant="banner"
               />
+
+              {/* Portfolio / Past Work */}
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <div>
+                    <h3 className="font-heading font-bold text-primary-dark text-base flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-primary" />
+                      Portfolio &amp; Past Work
+                    </h3>
+                    <p className="text-text-secondary text-xs mt-1">
+                      Photos of finished projects, products you sell, or sites you've worked on. These appear on your public vendor profile.
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-text-subtle text-[11px]">
+                    {portfolioImages.length}/{MAX_PORTFOLIO_IMAGES}
+                  </span>
+                </div>
+
+                {portfolioError && (
+                  <div className="mt-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                    <span>{portfolioError}</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mt-4">
+                  {portfolioImages.map((url) => (
+                    <div
+                      key={url}
+                      className="group relative aspect-square rounded-xl overflow-hidden border border-border-light bg-bg-card"
+                    >
+                      <img
+                        src={url}
+                        alt="Portfolio sample"
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handlePortfolioRemove(url)}
+                        className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-black/60 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                        aria-label="Remove photo"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {portfolioImages.length < MAX_PORTFOLIO_IMAGES && (
+                    <label
+                      className={`aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors ${
+                        uploadingPortfolio
+                          ? "border-primary/30 bg-primary/5 cursor-wait"
+                          : "border-border-light hover:border-primary hover:bg-primary/5"
+                      }`}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        disabled={uploadingPortfolio}
+                        className="hidden"
+                        onChange={(e) => {
+                          handlePortfolioUpload(e.currentTarget.files);
+                          e.currentTarget.value = "";
+                        }}
+                      />
+                      {uploadingPortfolio ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                          <span className="text-xs text-primary font-medium">Uploading…</span>
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-5 h-5 text-primary" />
+                          <span className="text-xs text-primary font-medium">Add photos</span>
+                        </>
+                      )}
+                    </label>
+                  )}
+                </div>
+
+                <p className="text-text-subtle text-[11px] mt-4">
+                  Up to {MAX_PORTFOLIO_IMAGES} photos · 10MB each · JPG / PNG / WebP. Vendors with portfolios get noticeably more enquiries.
+                </p>
+              </div>
 
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
                 <h3 className="font-heading font-bold text-primary-dark text-base mb-6">

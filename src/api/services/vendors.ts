@@ -1,3 +1,4 @@
+import axios from "axios";
 import api from "../client";
 import type {
   Paginated,
@@ -81,6 +82,34 @@ const vendorsService = {
   async createReview(vendorId: string, payload: CreateVendorReviewPayload): Promise<VendorReview> {
     const { data } = await api.post<VendorReview>(`/vendors/${vendorId}/reviews`, payload);
     return data;
+  },
+
+  /**
+   * Direct-to-R2 upload for a vendor portfolio image (or banner). Asks the
+   * backend for a presigned PUT URL, uploads the bytes straight to R2, and
+   * returns the public file URL the caller can persist.
+   */
+  async uploadPortfolioImage(
+    file: File,
+    kind: "portfolio" | "banner" = "portfolio",
+  ): Promise<string> {
+    const { data: presign } = await api.post<{
+      uploadUrl: string;
+      fileUrl: string;
+      key: string;
+    }>("/vendors/me/portfolio/presign", {
+      filename: file.name,
+      contentType: file.type || "image/jpeg",
+      size: file.size,
+      kind,
+    });
+    await axios.put(presign.uploadUrl, file, {
+      headers: { "Content-Type": file.type || "image/jpeg" },
+      timeout: 10 * 60 * 1000,
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+    });
+    return presign.fileUrl;
   },
 };
 
