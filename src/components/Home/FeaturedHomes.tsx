@@ -173,6 +173,16 @@ const FeaturedHomes = () => {
                     alt={home.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+                  {/* Sale / Rent tag */}
+                  <span
+                    className={`absolute top-3 left-3 px-2.5 py-1 rounded-full backdrop-blur-sm text-white text-xs font-semibold tracking-wide shadow-sm ${
+                      home.type === "SALE"
+                        ? "bg-primary/90"
+                        : "bg-indigo-500/90"
+                    }`}
+                  >
+                    {home.type === "SALE" ? "For Sale" : "For Rent"}
+                  </span>
                   <div className="absolute top-3 right-3 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
                     <ArrowUpRight className="w-4 h-4 text-white" />
                   </div>
