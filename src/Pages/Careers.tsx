@@ -19,12 +19,11 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
+import { jobs } from "../data/jobs";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
 const departments = ["All", "Engineering", "Product", "Marketing", "Operations", "Design"];
-
-const jobs: { id: string; title: string; dept: string; location: string; type: string; posted: string }[] = [];
 
 const deptIcons: Record<string, React.ReactNode> = {
   Engineering: <Code className="w-4 h-4" />,
@@ -67,7 +66,7 @@ const Careers = () => {
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">Help us build the platform that's transforming how Nigerians buy, rent, and manage property.</p>
               <div className="flex flex-wrap gap-3 mt-6">
-                {[{ value: "0", label: "Open Roles" }, { value: "5", label: "Departments" }, { value: "Remote", label: "Friendly" }].map((s) => (
+                {[{ value: String(jobs.length), label: jobs.length === 1 ? "Open Role" : "Open Roles" }, { value: "5", label: "Departments" }, { value: "Remote", label: "Friendly" }].map((s) => (
                   <div key={s.label} className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-sm">
                     <span className="font-heading font-bold text-white">{s.value}</span>
                     <span className="text-white/50">{s.label}</span>
