@@ -36,20 +36,57 @@ const LogbookList = () => {
           if (active) setItems(res.items || []);
           return;
         }
-        // ALL — fetch sold + rented and merge
-        const [sold, rented] = await Promise.all([
+        // ALL — same blend the home-page section uses, so "View more" stays
+        // consistent with what users saw on the home page:
+        //   1. Closed sales (SOLD) and rentals (RENTED)
+        //   2. Active listings that have been edited since posting
+        //   3. Fallback to recent active listings when nothing else matches
+        const [sold, rented, recent] = await Promise.all([
           listingsService
             .list({ status: "SOLD", limit: 60, sort: "newest" })
             .catch(() => ({ items: [] as Listing[] })),
           listingsService
             .list({ status: "RENTED", limit: 60, sort: "newest" })
             .catch(() => ({ items: [] as Listing[] })),
+          listingsService
+            .list({ limit: 60, sort: "newest" })
+            .catch(() => ({ items: [] as Listing[] })),
         ]);
-        const merged = [...sold.items, ...rented.items].sort(
+
+        // Active listings that have been edited (60s buffer for the
+        // immediate-after-create write).
+        const editedActive = (recent.items || []).filter((l) => {
+          if (!l.updatedAt) return false;
+          const created = new Date(l.createdAt).getTime();
+          const updated = new Date(l.updatedAt).getTime();
+          return updated - created > 60_000;
+        });
+
+        // Merge + dedupe by id (sold/rented win over edited-active).
+        const seen = new Set<string>();
+        const merged: Listing[] = [];
+        for (const l of [
+          ...(sold.items || []),
+          ...(rented.items || []),
+          ...editedActive,
+        ]) {
+          if (seen.has(l.id)) continue;
+          seen.add(l.id);
+          merged.push(l);
+        }
+
+        // Sort by most recent activity (updatedAt falling back to createdAt).
+        merged.sort(
           (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            new Date(b.updatedAt ?? b.createdAt).getTime() -
+            new Date(a.updatedAt ?? a.createdAt).getTime(),
         );
-        if (active) setItems(merged);
+
+        // Last-ditch fallback for fresh deployments — if nothing else matched,
+        // surface any active listings so the page isn't a wall of empty.
+        const final =
+          merged.length > 0 ? merged : recent.items || [];
+        if (active) setItems(final);
       } catch {
         if (active) setItems([]);
       } finally {

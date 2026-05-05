@@ -25,7 +25,7 @@ const PropertyLogbook = () => {
   useEffect(() => {
     const fetchLogbookData = async () => {
       try {
-        const HOME_LIMIT = 8;
+        const HOME_LIMIT = 5;
         const PER_BUCKET = 12;
         const [sold, rented, active] = await Promise.all([
           listingsService
