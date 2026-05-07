@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { ImageGallery } from "@/components/ui/carousel-circular-image-gallery";
 import type { ImageGalleryHandle } from "@/components/ui/carousel-circular-image-gallery";
 import gsap from "gsap";
+import listingsService from "../../api/services/listings";
 
 const tabs = ["Buy", "Rent", "Shortlet"] as const;
 
-const properties = [
+const fallbackProperties = [
   {
     title: "Lekki Phase 1 Duplex",
     description:
@@ -38,23 +39,36 @@ const properties = [
     price: "₦75,000,000",
     url: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=600&fit=crop",
   },
-  {
-    title: "Gbagada Semi-Detached",
-    description: "4-bed semi-detached duplex\nwith BQ and ample parking.",
-    price: "₦95,000,000",
-    url: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&h=600&fit=crop",
-  },
 ];
-
-const galleryImages = properties.map((p) => ({ title: p.title, url: p.url }));
 
 const Hero = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Buy");
   const [activeSlide, setActiveSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [properties, setProperties] = useState(fallbackProperties);
   const galleryRef = useRef<ImageGalleryHandle>(null);
   const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    listingsService
+      .list({ limit: 5, status: "ACTIVE" })
+      .then((res) => {
+        const live = res.items
+          .filter((l) => l.coverImage)
+          .slice(0, 5)
+          .map((l) => ({
+            title: l.title,
+            description: l.address || l.location || "",
+            price: l.priceLabel || `₦${l.priceNaira?.toLocaleString() ?? ""}`,
+            url: l.coverImage,
+          }));
+        if (live.length > 0) setProperties(live);
+      })
+      .catch(() => {});
+  }, []);
+
+  const galleryImages = properties.map((p) => ({ title: p.title, url: p.url }));
 
   const handleSlideChange = useCallback((index: number) => {
     setActiveSlide(index);

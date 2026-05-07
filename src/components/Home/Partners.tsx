@@ -10,29 +10,19 @@ import {
 } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import utModern from "../../assets/ut_modern.jpeg";
+import paystack from "../../assets/pt_2.png";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const partners = [
   {
-    name: "Access Bank",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Access_Bank_Plc_logo.svg/2560px-Access_Bank_Plc_logo.svg.png",
+    name: "Ultramodern",
+    logo: utModern,
   },
   {
-    name: "GTBank",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Guaranty_Trust_Holding_Company_logo.svg/2560px-Guaranty_Trust_Holding_Company_logo.svg.png",
-  },
-  {
-    name: "FIRS",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Coat_of_arms_of_Nigeria.svg/200px-Coat_of_arms_of_Nigeria.svg.png",
-  },
-  {
-    name: "Dangote Group",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Dangote-Group-Logo.svg/1200px-Dangote-Group-Logo.svg.png",
-  },
-  {
-    name: "First Bank",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/First_Bank_of_Nigeria_logo.svg/2560px-First_Bank_of_Nigeria_logo.svg.png",
+    name: "Paystack",
+    logo: paystack,
   },
 ];
 
@@ -260,7 +250,7 @@ const Partners = () => {
                   <img
                     src={partner.logo}
                     alt={partner.name}
-                    className="h-8 sm:h-10 w-auto object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+                    className="h-8 sm:h-10 w-auto object-contain transition-all duration-300"
                   />
                 </div>
               ))}
