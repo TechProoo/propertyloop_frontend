@@ -64,9 +64,7 @@ const ReviewDisputeSection = ({
       const text = Array.isArray(serverMsg)
         ? serverMsg.join(", ")
         : serverMsg ||
-          (error instanceof Error
-            ? error.message
-            : "Failed to submit review");
+          (error instanceof Error ? error.message : "Failed to submit review");
       setReviewError(text);
     } finally {
       setReviewLoading(false);
@@ -97,18 +95,22 @@ const ReviewDisputeSection = ({
             setShowReviewForm(!showReviewForm);
             setShowDisputeForm(false);
           }}
-          className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
+          className="flex-1 h-10 sm:h-11 rounded-full bg-primary text-white text-xs sm:text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4"
         >
-          <Star className="w-4 h-4" /> Write a Review
+          <Star className="w-3 h-3 sm:w-4 sm:h-4" />{" "}
+          <span className="hidden xs:inline">Write a Review</span>
+          <span className="xs:hidden">Review</span>
         </button>
         <button
           onClick={() => {
             setShowDisputeForm(!showDisputeForm);
             setShowReviewForm(false);
           }}
-          className="flex-1 h-11 rounded-full bg-white/60 border border-border-light text-text-secondary text-sm font-medium hover:border-red-300 hover:text-red-500 transition-all inline-flex items-center justify-center gap-2"
+          className="flex-1 h-10 sm:h-11 rounded-full bg-white/60 border border-border-light text-text-secondary text-xs sm:text-sm font-medium hover:border-red-300 hover:text-red-500 transition-all inline-flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4"
         >
-          <Flag className="w-4 h-4" /> Report Vendor
+          <Flag className="w-3 h-3 sm:w-4 sm:h-4" />{" "}
+          <span className="hidden xs:inline">Report Vendor</span>
+          <span className="xs:hidden">Report</span>
         </button>
       </div>
 
@@ -167,10 +169,13 @@ const ReviewDisputeSection = ({
               )}
               <button
                 onClick={handleReviewSubmit}
-                disabled={reviewRating === 0 || !reviewText.trim() || reviewLoading}
+                disabled={
+                  reviewRating === 0 || !reviewText.trim() || reviewLoading
+                }
                 className="mt-3 h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Send className="w-3.5 h-3.5" /> {reviewLoading ? "Submitting..." : "Submit Review"}
+                <Send className="w-3.5 h-3.5" />{" "}
+                {reviewLoading ? "Submitting..." : "Submit Review"}
               </button>
             </>
           )}
@@ -453,7 +458,7 @@ const VendorProfile = () => {
                     Book Now
                   </Link>
                   <a
-                    href={`tel:+${vendor.phone}`}
+                    href={`tel:${vendor.phone}`}
                     className="h-11 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all inline-flex items-center gap-2"
                   >
                     <Phone className="w-4 h-4" />
@@ -474,7 +479,7 @@ const VendorProfile = () => {
               Book Now
             </Link>
             <a
-              href={`tel:+${vendor.phone}`}
+              href={`tel:${vendor.phone}`}
               className="flex-1 h-11 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-2"
             >
               <Phone className="w-4 h-4" />
@@ -497,7 +502,8 @@ const VendorProfile = () => {
                   About {vendor.name.split(" ")[0]}
                 </h2>
                 <p className="text-text-secondary text-sm leading-relaxed">
-                  {vendor.bio || "Professional service provider dedicated to delivering quality work."}
+                  {vendor.bio ||
+                    "Professional service provider dedicated to delivering quality work."}
                 </p>
 
                 {/* Details grid */}
@@ -507,7 +513,9 @@ const VendorProfile = () => {
                       <MapPin className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-text-subtle text-[11px]">Service Area</p>
+                      <p className="text-text-subtle text-[11px]">
+                        Service Area
+                      </p>
                       <p className="text-primary-dark text-sm font-medium">
                         {vendor.serviceArea || vendor.location || "Available"}
                       </p>
@@ -622,17 +630,21 @@ const VendorProfile = () => {
                                 {review.clientName}
                               </p>
                               <p className="text-text-subtle text-[11px]">
-                                {new Date(review.createdAt).toLocaleDateString()}
+                                {new Date(
+                                  review.createdAt,
+                                ).toLocaleDateString()}
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-0.5">
-                            {Array.from({ length: review.rating }).map((_, j) => (
-                              <Star
-                                key={j}
-                                className="w-3 h-3 text-[#F5A623] fill-[#F5A623]"
-                              />
-                            ))}
+                            {Array.from({ length: review.rating }).map(
+                              (_, j) => (
+                                <Star
+                                  key={j}
+                                  className="w-3 h-3 text-[#F5A623] fill-[#F5A623]"
+                                />
+                              ),
+                            )}
                           </div>
                         </div>
                         <p className="text-text-secondary text-sm leading-relaxed">
@@ -670,7 +682,7 @@ const VendorProfile = () => {
 
                     <div className="space-y-3 mb-5">
                       <a
-                        href={`tel:+${vendor.phone}`}
+                        href={`tel:${vendor.phone}`}
                         className="w-full h-10 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
                       >
                         <Phone className="w-4 h-4" />
@@ -694,7 +706,9 @@ const VendorProfile = () => {
                       </div>
                       <div className="flex items-center gap-2 text-text-secondary">
                         <Star className="w-3.5 h-3.5 text-[#F5A623]" />
-                        <span>{vendor.rating} rating ({reviews.length} reviews)</span>
+                        <span>
+                          {vendor.rating} rating ({reviews.length} reviews)
+                        </span>
                       </div>
                       {vendor.availableForHire && (
                         <div className="flex items-center gap-2 text-primary">

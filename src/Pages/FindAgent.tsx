@@ -384,7 +384,10 @@ const FindAgent = () => {
                 </p>
                 <select
                   value={activeSort}
-                  onChange={(e) => { setActiveSort(e.target.value); setVisibleCount(12); }}
+                  onChange={(e) => {
+                    setActiveSort(e.target.value);
+                    setVisibleCount(12);
+                  }}
                   className="h-9 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-xs focus:outline-none focus:border-primary transition-colors appearance-none pr-8"
                 >
                   <option>Top rated</option>
@@ -508,7 +511,7 @@ const FindAgent = () => {
                                 duration: 0.4,
                                 ease: [0.23, 1, 0.32, 1],
                               }}
-                              href={`tel:+${agent.phone}`}
+                              href={`tel:${agent.phone}`}
                               className="flex flex-col items-center gap-2"
                             >
                               <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">
@@ -586,7 +589,8 @@ const FindAgent = () => {
                     onClick={() => setVisibleCount((c) => c + 12)}
                     className="h-11 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
                   >
-                    Load more agents ({filteredAgents.length - visibleCount} remaining)
+                    Load more agents ({filteredAgents.length - visibleCount}{" "}
+                    remaining)
                   </button>
                 </div>
               )}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -68,6 +68,22 @@ const Services = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [categorySearch, setCategorySearch] = useState("");
   const [stats, setStats] = useState<any>(null);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  // Debounce search input to avoid an API call on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      if (searchQuery.trim()) {
+        resultsRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
   const minRating =
     activeRating === "Any Rating"
@@ -81,7 +97,7 @@ const Services = () => {
   } = useVendors({
     category: activeCategory === "All Services" ? undefined : activeCategory,
     location: activeLocation === "All Locations" ? undefined : activeLocation,
-    search: searchQuery || undefined,
+    search: debouncedSearch || undefined,
     minRating,
     limit: 50,
   });
@@ -127,14 +143,14 @@ const Services = () => {
     updateParams({
       category: activeCategory === "All Services" ? undefined : activeCategory,
       location: activeLocation === "All Locations" ? undefined : activeLocation,
-      search: searchQuery || undefined,
+      search: debouncedSearch || undefined,
       minRating,
       limit: 50,
     });
   }, [
     activeCategory,
     activeLocation,
-    searchQuery,
+    debouncedSearch,
     activeRating,
     updateParams,
     minRating,
@@ -275,7 +291,11 @@ const Services = () => {
                       className="w-full h-10 px-3 rounded-xl bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:border-white/40"
                     >
                       {locations.map((loc) => (
-                        <option key={loc} value={loc} className="text-primary-dark">
+                        <option
+                          key={loc}
+                          value={loc}
+                          className="text-primary-dark"
+                        >
                           {loc}
                         </option>
                       ))}
@@ -291,7 +311,11 @@ const Services = () => {
                       className="w-full h-10 px-3 rounded-xl bg-white/10 border border-white/20 text-white text-sm focus:outline-none focus:border-white/40"
                     >
                       {ratingFilters.map((rf) => (
-                        <option key={rf} value={rf} className="text-primary-dark">
+                        <option
+                          key={rf}
+                          value={rf}
+                          className="text-primary-dark"
+                        >
                           {rf}
                         </option>
                       ))}
@@ -323,7 +347,10 @@ const Services = () => {
           </div>
 
           {/* ─── Sidebar + Grid ─── */}
-          <div className="flex flex-col lg:flex-row gap-8 mb-10">
+          <div
+            ref={resultsRef}
+            className="flex flex-col lg:flex-row gap-8 mb-10"
+          >
             <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-light">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
@@ -22,11 +22,10 @@ import {
   Star,
   Phone,
   X,
-  Zap,
-  Droplets,
+  TrendingUp,
+  BarChart2,
+  Tag,
   ShieldCheck,
-  GraduationCap,
-  Car,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -64,6 +63,8 @@ const Buy = () => {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [statsLoading, setStatsLoading] = useState(true);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const {
     items: apiListings,
@@ -73,6 +74,20 @@ const Buy = () => {
     pages,
     nextPage,
   } = useListings({ type: "SALE", limit: 50 });
+
+  // Debounce search input to avoid an API call on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      if (searchQuery.trim()) {
+        resultsRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
   // Fetch category stats
   useEffect(() => {
@@ -93,10 +108,13 @@ const Buy = () => {
   const categories = stats
     ? [
         ...Object.entries(stats.byType || {}).map(([type, count]) => ({
-          icon: categoryIcons[type as keyof typeof categoryIcons] || <LayoutGrid className="w-5 h-5" />,
-          label: Object.keys(propertyTypeMap).find(
-            (key) => propertyTypeMap[key] === type
-          ) || type,
+          icon: categoryIcons[type as keyof typeof categoryIcons] || (
+            <LayoutGrid className="w-5 h-5" />
+          ),
+          label:
+            Object.keys(propertyTypeMap).find(
+              (key) => propertyTypeMap[key] === type,
+            ) || type,
           count: count as number,
         })),
         {
@@ -109,22 +127,26 @@ const Buy = () => {
 
   // Push filter changes to the API
   useEffect(() => {
-    const p: Record<string, unknown> = { type: "SALE" as const, limit: 50 };
-    if (activeCategory !== "All Property" && propertyTypeMap[activeCategory]) {
-      p.propertyType = propertyTypeMap[activeCategory];
-    }
-    if (searchQuery.trim()) p.search = searchQuery;
-    if (bedsFilter !== "any") p.minBeds = parseInt(bedsFilter);
-    if (bathsFilter !== "any") p.minBaths = parseInt(bathsFilter);
-    if (priceRange !== "any") {
-      const [min, max] = priceRange.split("-").map(Number);
-      if (min) p.minPrice = min;
-      if (max) p.maxPrice = max;
-    }
-    updateParams(p as any);
+    const [priceMin, priceMax] =
+      priceRange !== "any"
+        ? priceRange.split("-").map(Number)
+        : [undefined, undefined];
+    updateParams({
+      type: "SALE" as const,
+      limit: 50,
+      propertyType:
+        activeCategory !== "All Property" && propertyTypeMap[activeCategory]
+          ? propertyTypeMap[activeCategory]
+          : undefined,
+      search: debouncedSearch.trim() || undefined,
+      minBeds: bedsFilter !== "any" ? parseInt(bedsFilter) : undefined,
+      minBaths: bathsFilter !== "any" ? parseInt(bathsFilter) : undefined,
+      minPrice: priceMin || undefined,
+      maxPrice: priceMax || undefined,
+    } as any);
   }, [
     activeCategory,
-    searchQuery,
+    debouncedSearch,
     priceRange,
     bedsFilter,
     bathsFilter,
@@ -386,7 +408,7 @@ const Buy = () => {
           </div>
 
           {/* ─── Map Section ─── */}
-          <div className="mb-10">
+          <div ref={resultsRef} className="mb-10">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-primary" />
@@ -426,127 +448,119 @@ const Buy = () => {
             </AnimatePresence>
           </div>
 
-          {/* ─── Neighbourhood Intelligence ─── */}
-          <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
-            {/* Header row */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-text-subtle text-[10px] uppercase tracking-widest">
-                    Neighbourhood Intelligence
-                  </p>
-                  <h3 className="font-heading font-bold text-primary-dark text-base">
-                    Lekki Phase 1, Lagos
-                  </h3>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Overall: 8.3/10
-                </span>
-                <button className="h-9 px-4 rounded-full border border-border-light bg-white/80 backdrop-blur-sm text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300">
-                  Change area
-                </button>
-              </div>
-            </div>
-
-            {/* Score cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-              {[
+          {/* ─── Price Insights ─── */}
+          {!listingsLoading &&
+            apiListings.length > 0 &&
+            (() => {
+              const prices = apiListings
+                .map((l) => l.priceNaira)
+                .filter(Boolean);
+              const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+              const min = Math.min(...prices);
+              const max = Math.max(...prices);
+              const verified = apiListings.filter(
+                (l) => l.agent?.verified,
+              ).length;
+              const avgBeds =
+                apiListings.reduce((a, l) => a + (l.beds || 0), 0) /
+                apiListings.length;
+              const fmt = (n: number) =>
+                n >= 1_000_000_000
+                  ? `₦${(n / 1_000_000_000).toFixed(1)}B`
+                  : n >= 1_000_000
+                    ? `₦${(n / 1_000_000).toFixed(1)}M`
+                    : `₦${(n / 1_000).toFixed(0)}K`;
+              const cards = [
                 {
-                  icon: <Zap className="w-4 h-4" />,
-                  label: "Power Supply",
-                  score: 7.8,
-                  max: 10,
-                  color: "#F5A623",
-                  bg: "bg-[#FFF8ED]",
-                  desc: "Moderate — 16-20hrs daily",
+                  icon: <BarChart2 className="w-5 h-5" />,
+                  label: "Avg. Price",
+                  value: fmt(avg),
+                  sub: `across ${prices.length} listings`,
+                  color: "text-primary",
+                  bg: "bg-primary/10",
                 },
                 {
-                  icon: <Droplets className="w-4 h-4" />,
-                  label: "Flood Risk",
-                  score: 2.1,
-                  max: 10,
-                  color: "#1f6f43",
-                  bg: "bg-primary/5",
-                  desc: "Very low — no history",
+                  icon: <Tag className="w-5 h-5" />,
+                  label: "Lowest Price",
+                  value: fmt(min),
+                  sub: "cheapest active listing",
+                  color: "text-green-600",
+                  bg: "bg-green-50",
                 },
                 {
-                  icon: <Car className="w-4 h-4" />,
-                  label: "Road Quality",
-                  score: 8.4,
-                  max: 10,
-                  color: "#1f6f43",
-                  bg: "bg-primary/5",
-                  desc: "Tarred, well-maintained",
+                  icon: <TrendingUp className="w-5 h-5" />,
+                  label: "Highest Price",
+                  value: fmt(max),
+                  sub: "premium listing",
+                  color: "text-amber-600",
+                  bg: "bg-amber-50",
                 },
                 {
-                  icon: <ShieldCheck className="w-4 h-4" />,
-                  label: "Safety Index",
-                  score: 8.0,
-                  max: 10,
-                  color: "#1f6f43",
-                  bg: "bg-primary/5",
-                  desc: "Gated, 24hr security",
+                  icon: <ShieldCheck className="w-5 h-5" />,
+                  label: "Verified",
+                  value: `${verified} / ${apiListings.length}`,
+                  sub: "KYC-checked agents",
+                  color: "text-primary",
+                  bg: "bg-primary/10",
                 },
                 {
-                  icon: <GraduationCap className="w-4 h-4" />,
-                  label: "Schools Nearby",
-                  score: 9.2,
-                  max: 10,
-                  color: "#1f6f43",
-                  bg: "bg-primary/5",
-                  desc: "12 schools within 3km",
+                  icon: <Bed className="w-5 h-5" />,
+                  label: "Avg. Bedrooms",
+                  value: avgBeds.toFixed(1),
+                  sub: "per listing",
+                  color: "text-text-secondary",
+                  bg: "bg-bg-accent",
                 },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="group relative bg-white/80 backdrop-blur-md border border-white/50 rounded-2xl p-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
-                >
-                  {/* Icon + Score row */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div
-                      className={`w-9 h-9 rounded-xl ${item.bg} flex items-center justify-center`}
-                      style={{ color: item.color }}
-                    >
-                      {item.icon}
+              ];
+              return (
+                <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                      <BarChart2 className="w-5 h-5" />
                     </div>
-                    <span
-                      className="font-heading font-bold text-xl"
-                      style={{ color: item.color }}
-                    >
-                      {item.score}
+                    <div>
+                      <p className="text-text-subtle text-[10px] uppercase tracking-widest">
+                        Live Data
+                      </p>
+                      <h3 className="font-heading font-bold text-primary-dark text-base">
+                        Price Insights
+                      </h3>
+                    </div>
+                    <span className="ml-auto text-text-subtle text-xs">
+                      {activeCategory !== "All Property"
+                        ? activeCategory
+                        : "All Properties"}
+                      {debouncedSearch ? ` · "${debouncedSearch}"` : ""}
                     </span>
                   </div>
-
-                  {/* Label */}
-                  <p className="font-heading font-semibold text-primary-dark text-[13px] leading-tight">
-                    {item.label}
-                  </p>
-
-                  {/* Progress bar */}
-                  <div className="w-full h-1 rounded-full bg-border-light overflow-hidden mt-2.5 mb-2">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${(item.score / item.max) * 100}%`,
-                        backgroundColor: item.color,
-                      }}
-                    />
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {cards.map((card) => (
+                      <div
+                        key={card.label}
+                        className="bg-white/80 backdrop-blur-md border border-white/50 rounded-2xl p-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
+                      >
+                        <div
+                          className={`w-9 h-9 rounded-xl ${card.bg} flex items-center justify-center ${card.color} mb-3`}
+                        >
+                          {card.icon}
+                        </div>
+                        <p
+                          className={`font-heading font-bold text-xl ${card.color}`}
+                        >
+                          {card.value}
+                        </p>
+                        <p className="font-heading font-semibold text-primary-dark text-[13px] leading-tight mt-0.5">
+                          {card.label}
+                        </p>
+                        <p className="text-text-subtle text-[11px] leading-snug mt-1.5">
+                          {card.sub}
+                        </p>
+                      </div>
+                    ))}
                   </div>
-
-                  {/* Description */}
-                  <p className="text-text-subtle text-[11px] leading-snug">
-                    {item.desc}
-                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
+              );
+            })()}
 
           {/* ─── Mobile Category Strip ─── */}
           <div className="lg:hidden overflow-x-auto -mx-6 px-6 pb-4 mb-6">

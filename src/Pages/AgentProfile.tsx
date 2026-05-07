@@ -543,7 +543,7 @@ const AgentProfile = () => {
                 {/* Contact buttons — desktop */}
                 <div className="hidden lg:flex flex-col gap-3 shrink-0">
                   <a
-                    href={`tel:+${agent.phone}`}
+                    href={`tel:${agent.phone}`}
                     className="h-11 px-6 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
                   >
                     <Phone className="w-4 h-4" />
@@ -574,7 +574,7 @@ const AgentProfile = () => {
           <div className="lg:hidden flex flex-col gap-3 mb-8 -mt-4">
             <div className="flex gap-3">
               <a
-                href={`tel:+${agent.phone}`}
+                href={`tel:${agent.phone}`}
                 className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
               >
                 <Phone className="w-4 h-4" />
@@ -826,7 +826,10 @@ const AgentProfile = () => {
                       >
                         <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 relative">
                           <img
-                            src={listing.image}
+                            src={
+                              listing.coverImage ||
+                              (listing.images && listing.images[0])
+                            }
                             alt={listing.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
@@ -836,7 +839,7 @@ const AgentProfile = () => {
                         </div>
                         <div className="flex-1 min-w-0 py-0.5">
                           <p className="font-heading font-bold text-primary-dark text-[15px]">
-                            {listing.price}
+                            {listing.priceLabel || listing.price}
                           </p>
                           <p className="font-heading font-semibold text-primary-dark text-sm leading-snug mt-0.5 truncate">
                             {listing.title}
@@ -952,7 +955,7 @@ const AgentProfile = () => {
               </p>
             </div>
             <a
-              href={`tel:+${agent.phone}`}
+              href={`tel:${agent.phone}`}
               className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2"
             >
               <Phone className="w-4 h-4" />

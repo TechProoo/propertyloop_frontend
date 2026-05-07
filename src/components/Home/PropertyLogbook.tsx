@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  ShieldCheck,
-  Home,
-  Clock,
-} from "lucide-react";
+import { ShieldCheck, Home, Clock } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import listingsService from "../../api/services/listings";
@@ -189,7 +185,7 @@ const PropertyLogbook = () => {
   return (
     <section
       ref={sectionRef}
-      className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg"
+      className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg overflow-hidden"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -268,13 +264,15 @@ const PropertyLogbook = () => {
           </div>
 
           {/* Right — timeline */}
-          <div className="flex-1 relative">
+          <div className="flex-1 min-w-0 overflow-hidden relative">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 animate-pulse">
                   <ShieldCheck className="w-8 h-8 text-primary/50" />
                 </div>
-                <p className="text-text-secondary text-sm">Loading logbooks...</p>
+                <p className="text-text-secondary text-sm">
+                  Loading logbooks...
+                </p>
               </div>
             ) : logbookListings.length > 0 ? (
               <>
@@ -309,11 +307,7 @@ const PropertyLogbook = () => {
                       property.updatedAt ?? property.createdAt,
                     ).toLocaleDateString();
                     return (
-                      <div
-                        key={property.id}
-                        data-pl-entry
-                        className="relative"
-                      >
+                      <div key={property.id} data-pl-entry className="relative">
                         {/* Timeline dot */}
                         <div className="absolute -left-14 top-1.5 w-6 h-6 rounded-full bg-primary border-4 border-white shadow-lg flex items-center justify-center">
                           <div className="w-2 h-2 rounded-full bg-white" />
@@ -323,7 +317,10 @@ const PropertyLogbook = () => {
                         <div className="bg-white/80 backdrop-blur-sm border border-border-light rounded-2xl p-4 hover:shadow-[0_8px_24px_rgba(31,111,67,0.15)] transition-shadow">
                           <div className="flex items-start gap-3 mb-3">
                             <img
-                              src={property.coverImage || "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=100&h=100&fit=crop"}
+                              src={
+                                property.coverImage ||
+                                "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=100&h=100&fit=crop"
+                              }
                               alt={property.title}
                               className="w-12 h-12 rounded-lg object-cover"
                             />
@@ -344,9 +341,14 @@ const PropertyLogbook = () => {
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-medium text-primary-dark">
-                              {property.beds} bed{property.beds !== 1 ? "s" : ""} • {property.baths} bath{property.baths !== 1 ? "s" : ""}
+                              {property.beds} bed
+                              {property.beds !== 1 ? "s" : ""} •{" "}
+                              {property.baths} bath
+                              {property.baths !== 1 ? "s" : ""}
                             </span>
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}>
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}
+                            >
                               {label}
                             </span>
                           </div>
@@ -365,10 +367,12 @@ const PropertyLogbook = () => {
                   Property Logbooks Coming Soon
                 </h3>
                 <p className="text-text-secondary text-sm mt-2 max-w-sm">
-                  Mark properties as sold or rented to see them in the logbook. Currently showing properties from your listings.
+                  Mark properties as sold or rented to see them in the logbook.
+                  Currently showing properties from your listings.
                 </p>
                 <p className="text-text-subtle text-xs mt-4 max-w-sm">
-                  Tip: To test, mark a listing as SOLD or RENTED from your agent dashboard.
+                  Tip: To test, mark a listing as SOLD or RENTED from your agent
+                  dashboard.
                 </p>
               </div>
             )}

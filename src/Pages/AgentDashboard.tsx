@@ -415,7 +415,9 @@ const AgentDashboard = () => {
       );
       setEditingListing(null);
     } catch (err: any) {
-      setEditError(err?.response?.data?.message ?? "Failed to save. Please try again.");
+      setEditError(
+        err?.response?.data?.message ?? "Failed to save. Please try again.",
+      );
     } finally {
       setEditSaving(false);
     }
@@ -451,7 +453,11 @@ const AgentDashboard = () => {
 
   const saveLogbookEntry = async () => {
     if (!logbookListing) return;
-    if (!logbookForm.category.trim() || !logbookForm.title.trim() || !logbookForm.vendorName.trim()) {
+    if (
+      !logbookForm.category.trim() ||
+      !logbookForm.title.trim() ||
+      !logbookForm.vendorName.trim()
+    ) {
       setLogbookError("Category, title, and vendor name are required");
       return;
     }
@@ -480,7 +486,8 @@ const AgentDashboard = () => {
       });
     } catch (err: any) {
       setLogbookError(
-        err?.response?.data?.message ?? "Failed to save entry. Please try again.",
+        err?.response?.data?.message ??
+          "Failed to save entry. Please try again.",
       );
     } finally {
       setLogbookSaving(false);
@@ -1994,7 +2001,7 @@ const AgentDashboard = () => {
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
                                 <a
-                                  href={`tel:+${activeConvo.phone}`}
+                                  href={`tel:${activeConvo.phone}`}
                                   className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                                 >
                                   <Phone className="w-3.5 h-3.5" />
@@ -2494,7 +2501,9 @@ const AgentDashboard = () => {
                   />
                 </div>
                 {editError && (
-                  <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-xl px-3 py-2">{editError}</p>
+                  <p className="text-red-500 text-xs bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+                    {editError}
+                  </p>
                 )}
                 <div className="flex gap-3 pt-1">
                   <button

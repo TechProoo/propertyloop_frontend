@@ -169,7 +169,10 @@ const VendorDashboard = () => {
   const [profileWebsite, setProfileWebsite] = useState("");
   const [profileServiceArea, setProfileServiceArea] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
-  const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [profileMessage, setProfileMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -268,7 +271,11 @@ const VendorDashboard = () => {
       setTimeout(() => window.location.reload(), 800);
       return url;
     } catch (error) {
-      throw new Error(error instanceof Error ? error.message : "Failed to upload profile picture");
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to upload profile picture",
+      );
     }
   };
 
@@ -280,7 +287,11 @@ const VendorDashboard = () => {
       setTimeout(() => window.location.reload(), 800);
       return url;
     } catch (error) {
-      throw new Error(error instanceof Error ? error.message : "Failed to upload banner image");
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to upload banner image",
+      );
     }
   };
 
@@ -297,7 +308,9 @@ const VendorDashboard = () => {
 
     const remaining = MAX_PORTFOLIO_IMAGES - portfolioImages.length;
     if (remaining <= 0) {
-      setPortfolioError(`You've reached the ${MAX_PORTFOLIO_IMAGES}-photo limit. Remove one to add another.`);
+      setPortfolioError(
+        `You've reached the ${MAX_PORTFOLIO_IMAGES}-photo limit. Remove one to add another.`,
+      );
       return;
     }
     const toUpload = Array.from(files).slice(0, remaining);
@@ -307,16 +320,23 @@ const VendorDashboard = () => {
       const newUrls: string[] = [];
       for (const file of toUpload) {
         if (file.size > 10 * 1024 * 1024) {
-          throw new Error(`"${file.name}" is over 10MB — please choose a smaller image.`);
+          throw new Error(
+            `"${file.name}" is over 10MB — please choose a smaller image.`,
+          );
         }
-        const url = await vendorsService.uploadPortfolioImage(file, "portfolio");
+        const url = await vendorsService.uploadPortfolioImage(
+          file,
+          "portfolio",
+        );
         newUrls.push(url);
       }
       const next = [...portfolioImages, ...newUrls];
       await vendorsService.updateMe({ portfolioImages: next });
       setTimeout(() => window.location.reload(), 600);
     } catch (err: any) {
-      setPortfolioError(err?.message ?? "Couldn't upload one of those photos. Try again.");
+      setPortfolioError(
+        err?.message ?? "Couldn't upload one of those photos. Try again.",
+      );
     } finally {
       setUploadingPortfolio(false);
     }
@@ -330,7 +350,9 @@ const VendorDashboard = () => {
       await vendorsService.updateMe({ portfolioImages: next });
       setTimeout(() => window.location.reload(), 400);
     } catch (err: any) {
-      setPortfolioError(err?.message ?? "Couldn't remove that photo. Try again.");
+      setPortfolioError(
+        err?.message ?? "Couldn't remove that photo. Try again.",
+      );
     }
   };
 
@@ -349,9 +371,11 @@ const VendorDashboard = () => {
       if (profilePhone.trim()) payload.phone = profilePhone.trim();
       if (profileLocation.trim()) payload.location = profileLocation.trim();
       if (profileBio.trim()) payload.bio = profileBio.trim();
-      if (profileCategory.trim()) payload.serviceCategory = profileCategory.trim();
+      if (profileCategory.trim())
+        payload.serviceCategory = profileCategory.trim();
       if (profileYears.trim()) payload.yearsExperience = profileYears.trim();
-      if (profileServiceArea.trim()) payload.serviceArea = profileServiceArea.trim();
+      if (profileServiceArea.trim())
+        payload.serviceArea = profileServiceArea.trim();
       if (profileWebsite.trim()) {
         let site = profileWebsite.trim();
         if (!/^https?:\/\//i.test(site)) site = `https://${site}`;
@@ -359,7 +383,10 @@ const VendorDashboard = () => {
       }
 
       await vendorsService.updateMe(payload);
-      setProfileMessage({ type: "success", text: "Profile saved successfully!" });
+      setProfileMessage({
+        type: "success",
+        text: "Profile saved successfully!",
+      });
       setTimeout(() => {
         window.location.reload();
       }, 1200);
@@ -449,7 +476,10 @@ const VendorDashboard = () => {
         : completedJobs;
 
   /* Unread messages */
-  const totalUnread = vendorConversations.reduce((sum, c) => sum + (c.unread || 0), 0);
+  const totalUnread = vendorConversations.reduce(
+    (sum, c) => sum + (c.unread || 0),
+    0,
+  );
 
   /* Earnings summary */
   const totalEarnings = apiStats?.earnings.total ?? 0;
@@ -534,11 +564,19 @@ const VendorDashboard = () => {
                   {item.label}
                 </span>
               )}
-              {sidebarOpen && item.id === "messages" && vendorConversations.reduce((sum, convo) => sum + (convo.unread || 0), 0) > 0 && (
-                <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-[hsl(142,71%,45%)] text-white">
-                  {vendorConversations.reduce((sum, convo) => sum + (convo.unread || 0), 0)}
-                </span>
-              )}
+              {sidebarOpen &&
+                item.id === "messages" &&
+                vendorConversations.reduce(
+                  (sum, convo) => sum + (convo.unread || 0),
+                  0,
+                ) > 0 && (
+                  <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-[hsl(142,71%,45%)] text-white">
+                    {vendorConversations.reduce(
+                      (sum, convo) => sum + (convo.unread || 0),
+                      0,
+                    )}
+                  </span>
+                )}
               {sidebarOpen && item.id === "jobs" && pendingJobs.length > 0 && (
                 <span className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F5A623] text-white">
                   {pendingJobs.length}
@@ -701,7 +739,8 @@ const VendorDashboard = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setActiveNav("messages")}
-              className="relative w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-text-secondary hover:bg-white transition-all shadow-sm">
+              className="relative w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-text-secondary hover:bg-white transition-all shadow-sm"
+            >
               <Bell className="w-4 h-4" />
               {totalUnread > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
@@ -789,10 +828,7 @@ const VendorDashboard = () => {
                               key={job.id}
                               className="px-6 py-4 flex items-center gap-4 hover:bg-white/50 transition-colors"
                             >
-                              <ConversationAvatar
-                                name={job.client}
-                                size="sm"
-                              />
+                              <ConversationAvatar name={job.client} size="sm" />
                               <div className="flex-1 min-w-0">
                                 <p className="font-heading font-semibold text-primary-dark text-sm">
                                   {job.title}
@@ -816,7 +852,7 @@ const VendorDashboard = () => {
                                 </span>
                               </div>
                               <a
-                                href={`tel:+${job.clientPhone}`}
+                                href={`tel:${job.clientPhone}`}
                                 className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shrink-0"
                               >
                                 <Phone className="w-3.5 h-3.5" />
@@ -1073,10 +1109,7 @@ const VendorDashboard = () => {
                       className="flex flex-col sm:flex-row gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-5 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:border-primary/40 transition-all cursor-pointer"
                     >
                       <div className="flex items-start gap-4 flex-1 min-w-0">
-                        <ConversationAvatar
-                          name={job.client}
-                          size="md"
-                        />
+                        <ConversationAvatar name={job.client} size="md" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-heading font-bold text-primary-dark text-sm">
@@ -1098,45 +1131,53 @@ const VendorDashboard = () => {
                           <p className="text-text-subtle text-xs mt-1.5">
                             {job.description}
                           </p>
-                          {Array.isArray(job.attachments) && job.attachments.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2.5">
-                              {job.attachments.map((url: string, idx: number) => {
-                                const isVideo = /\.(mp4|webm|mov|m4v|ogg)(\?|$)/i.test(url);
-                                return (
-                                  <a
-                                    key={`${url}-${idx}`}
-                                    href={url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="relative w-14 h-14 rounded-lg overflow-hidden border border-border-light bg-black/5 hover:ring-2 hover:ring-primary transition-all"
-                                    title={isVideo ? "Open video" : "Open photo"}
-                                  >
-                                    {isVideo ? (
-                                      <>
-                                        <video
-                                          src={url}
-                                          className="w-full h-full object-cover"
-                                          muted
-                                          playsInline
-                                          preload="metadata"
-                                        />
-                                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                                          <div className="w-0 h-0 border-l-8 border-l-white border-y-[5px] border-y-transparent ml-0.5" />
-                                        </div>
-                                      </>
-                                    ) : (
-                                      <img
-                                        src={url}
-                                        alt=""
-                                        className="w-full h-full object-cover"
-                                      />
-                                    )}
-                                  </a>
-                                );
-                              })}
-                            </div>
-                          )}
+                          {Array.isArray(job.attachments) &&
+                            job.attachments.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mt-2.5">
+                                {job.attachments.map(
+                                  (url: string, idx: number) => {
+                                    const isVideo =
+                                      /\.(mp4|webm|mov|m4v|ogg)(\?|$)/i.test(
+                                        url,
+                                      );
+                                    return (
+                                      <a
+                                        key={`${url}-${idx}`}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="relative w-14 h-14 rounded-lg overflow-hidden border border-border-light bg-black/5 hover:ring-2 hover:ring-primary transition-all"
+                                        title={
+                                          isVideo ? "Open video" : "Open photo"
+                                        }
+                                      >
+                                        {isVideo ? (
+                                          <>
+                                            <video
+                                              src={url}
+                                              className="w-full h-full object-cover"
+                                              muted
+                                              playsInline
+                                              preload="metadata"
+                                            />
+                                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                              <div className="w-0 h-0 border-l-8 border-l-white border-y-[5px] border-y-transparent ml-0.5" />
+                                            </div>
+                                          </>
+                                        ) : (
+                                          <img
+                                            src={url}
+                                            alt=""
+                                            className="w-full h-full object-cover"
+                                          />
+                                        )}
+                                      </a>
+                                    );
+                                  },
+                                )}
+                              </div>
+                            )}
                           <div className="flex items-center gap-4 mt-2">
                             <span className="font-heading font-bold text-primary text-sm">
                               {formatCurrency(job.amount)}
@@ -1219,7 +1260,7 @@ const VendorDashboard = () => {
                           <MessageCircle className="w-3.5 h-3.5" />
                         </button>
                         <a
-                          href={`tel:+${job.clientPhone}`}
+                          href={`tel:${job.clientPhone}`}
                           onClick={(e) => e.stopPropagation()}
                           className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                         >
@@ -1274,8 +1315,8 @@ const VendorDashboard = () => {
                               Accept &amp; deliver
                             </p>
                             <p className="text-text-secondary text-[11px] mt-0.5 leading-snug">
-                              Action buttons on each card move the job
-                              through its stages.
+                              Action buttons on each card move the job through
+                              its stages.
                             </p>
                           </div>
                         </div>
@@ -1429,49 +1470,49 @@ const VendorDashboard = () => {
                             </div>
                           ) : (
                             vendorConversations.map((convo) => (
-                            <button
-                              key={convo.id}
-                              onClick={() => {
-                                setSelectedConvo(convo.id);
-                                setMobileChat(true);
-                              }}
-                              className={`w-full flex items-start gap-3 px-4 py-3.5 text-left transition-all hover:bg-white/40 ${selectedConvo === convo.id ? "bg-white/50 backdrop-blur-sm border-l-2 border-primary" : "border-l-2 border-transparent"}`}
-                            >
-                              <div className="relative shrink-0">
-                                <ConversationAvatar
-                                  name={convo.name}
-                                  src={convo.avatar}
-                                />
-                                {convo.unread > 0 && (
-                                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
-                                    {convo.unread}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-2">
-                                  <div className="flex items-center gap-1.5 min-w-0">
-                                    <p
-                                      className={`text-sm truncate ${convo.unread > 0 ? "font-bold text-primary-dark" : "font-medium text-primary-dark"}`}
-                                    >
-                                      {convo.name}
-                                    </p>
-                                    <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 bg-primary/10 text-primary">
-                                      {convo.role}
+                              <button
+                                key={convo.id}
+                                onClick={() => {
+                                  setSelectedConvo(convo.id);
+                                  setMobileChat(true);
+                                }}
+                                className={`w-full flex items-start gap-3 px-4 py-3.5 text-left transition-all hover:bg-white/40 ${selectedConvo === convo.id ? "bg-white/50 backdrop-blur-sm border-l-2 border-primary" : "border-l-2 border-transparent"}`}
+                              >
+                                <div className="relative shrink-0">
+                                  <ConversationAvatar
+                                    name={convo.name}
+                                    src={convo.avatar}
+                                  />
+                                  {convo.unread > 0 && (
+                                    <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-white text-[9px] font-bold flex items-center justify-center">
+                                      {convo.unread}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                      <p
+                                        className={`text-sm truncate ${convo.unread > 0 ? "font-bold text-primary-dark" : "font-medium text-primary-dark"}`}
+                                      >
+                                        {convo.name}
+                                      </p>
+                                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold shrink-0 bg-primary/10 text-primary">
+                                        {convo.role}
+                                      </span>
+                                    </div>
+                                    <span className="text-text-subtle text-[10px] shrink-0">
+                                      {convo.time}
                                     </span>
                                   </div>
-                                  <span className="text-text-subtle text-[10px] shrink-0">
-                                    {convo.time}
-                                  </span>
+                                  <p
+                                    className={`text-xs mt-0.5 truncate ${convo.unread > 0 ? "text-primary-dark font-medium" : "text-text-secondary"}`}
+                                  >
+                                    {convo.lastMessage}
+                                  </p>
                                 </div>
-                                <p
-                                  className={`text-xs mt-0.5 truncate ${convo.unread > 0 ? "text-primary-dark font-medium" : "text-text-secondary"}`}
-                                >
-                                  {convo.lastMessage}
-                                </p>
-                              </div>
-                            </button>
-                          ))
+                              </button>
+                            ))
                           )}
                         </div>
                       </div>
@@ -1509,7 +1550,7 @@ const VendorDashboard = () => {
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
                                 <a
-                                  href={`tel:+${activeConvo.phone || ""}`}
+                                  href={`tel:${activeConvo.phone || ""}`}
                                   className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                                 >
                                   <Phone className="w-3.5 h-3.5" />
@@ -1575,7 +1616,8 @@ const VendorDashboard = () => {
                               No messages yet
                             </h3>
                             <p className="text-text-secondary text-sm mt-2 max-w-xs">
-                              Start a conversation with a client to view messages here.
+                              Start a conversation with a client to view
+                              messages here.
                             </p>
                           </div>
                         )}
@@ -1719,7 +1761,9 @@ const VendorDashboard = () => {
                       Portfolio &amp; Past Work
                     </h3>
                     <p className="text-text-secondary text-xs mt-1">
-                      Photos of finished projects, products you sell, or sites you've worked on. These appear on your public vendor profile.
+                      Photos of finished projects, products you sell, or sites
+                      you've worked on. These appear on your public vendor
+                      profile.
                     </p>
                   </div>
                   <span className="shrink-0 text-text-subtle text-[11px]">
@@ -1779,12 +1823,16 @@ const VendorDashboard = () => {
                       {uploadingPortfolio ? (
                         <>
                           <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                          <span className="text-xs text-primary font-medium">Uploading…</span>
+                          <span className="text-xs text-primary font-medium">
+                            Uploading…
+                          </span>
                         </>
                       ) : (
                         <>
                           <Plus className="w-5 h-5 text-primary" />
-                          <span className="text-xs text-primary font-medium">Add photos</span>
+                          <span className="text-xs text-primary font-medium">
+                            Add photos
+                          </span>
                         </>
                       )}
                     </label>
@@ -1792,7 +1840,8 @@ const VendorDashboard = () => {
                 </div>
 
                 <p className="text-text-subtle text-[11px] mt-4">
-                  Up to {MAX_PORTFOLIO_IMAGES} photos · 10MB each · JPG / PNG / WebP. Vendors with portfolios get noticeably more enquiries.
+                  Up to {MAX_PORTFOLIO_IMAGES} photos · 10MB each · JPG / PNG /
+                  WebP. Vendors with portfolios get noticeably more enquiries.
                 </p>
               </div>
 

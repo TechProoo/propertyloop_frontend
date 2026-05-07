@@ -1667,7 +1667,7 @@ const Dashboard = () => {
                               <div className="flex items-center gap-2 shrink-0">
                                 {activeConvo.phone && (
                                   <a
-                                    href={`tel:+${activeConvo.phone}`}
+                                    href={`tel:${activeConvo.phone}`}
                                     className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                                   >
                                     <Phone className="w-3.5 h-3.5" />
@@ -1820,7 +1820,8 @@ const Dashboard = () => {
                         No viewings yet
                       </p>
                       <p className="text-text-secondary text-xs mt-1 max-w-xs mx-auto">
-                        Request a viewing from any property page and it will appear here.
+                        Request a viewing from any property page and it will
+                        appear here.
                       </p>
                       <Link
                         to="/buy"
@@ -1833,9 +1834,11 @@ const Dashboard = () => {
                     <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden divide-y divide-border-light">
                       {myViewings.map((v) => {
                         const statusColors: Record<string, string> = {
-                          PENDING: "bg-yellow-50 text-yellow-700 border-yellow-200",
+                          PENDING:
+                            "bg-yellow-50 text-yellow-700 border-yellow-200",
                           CONFIRMED: "bg-blue-50 text-blue-700 border-blue-200",
-                          COMPLETED: "bg-green-50 text-green-700 border-green-200",
+                          COMPLETED:
+                            "bg-green-50 text-green-700 border-green-200",
                           CANCELLED: "bg-red-50 text-red-500 border-red-200",
                           NO_SHOW: "bg-gray-100 text-gray-500 border-gray-200",
                         };
@@ -1878,7 +1881,8 @@ const Dashboard = () => {
                                 <span
                                   className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${statusColors[v.status]}`}
                                 >
-                                  {v.status.charAt(0) + v.status.slice(1).toLowerCase()}
+                                  {v.status.charAt(0) +
+                                    v.status.slice(1).toLowerCase()}
                                 </span>
                               </div>
                               {v.listing?.location && (

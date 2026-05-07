@@ -872,7 +872,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                     <div className="h-px bg-border-light my-3" />
                     <div className="flex gap-2">
                       <a
-                        href={`tel:+${vendor.phone ?? ""}`}
+                        href={`tel:${vendor.phone ?? ""}`}
                         className="flex-1 h-9 rounded-full bg-white/80 border border-white/40 text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-1"
                       >
                         <Phone className="w-3 h-3" /> Call

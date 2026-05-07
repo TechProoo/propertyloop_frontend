@@ -258,7 +258,10 @@ const PropertyDetail = () => {
       <Seo
         title={`${listing.title} · ${listing.location}`}
         description={
-          (listing.description?.replace(/<[^>]*>/g, "").trim().slice(0, 160)) ||
+          listing.description
+            ?.replace(/<[^>]*>/g, "")
+            .trim()
+            .slice(0, 160) ||
           `${listing.beds}-bed ${listing.propertyType.toLowerCase()} ${listing.type === "RENT" ? "for rent" : listing.type === "SHORTLET" ? "for shortlet stay" : "for sale"} in ${listing.location}, Nigeria. ${listing.priceLabel} on PropertyLoop.`
         }
         path={`/property/${listing.id}`}
@@ -926,7 +929,7 @@ const PropertyDetail = () => {
                   {/* Contact buttons */}
                   <div className="flex flex-col gap-2.5">
                     <a
-                      href={`tel:+${agent.phone}`}
+                      href={`tel:${agent.phone}`}
                       className="h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2 shadow-lg shadow-glow/40"
                     >
                       <Phone className="w-4 h-4" />
@@ -998,7 +1001,9 @@ const PropertyDetail = () => {
                               Offer Amount (₦)
                             </label>
                             <div className="relative">
-                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-text-subtle">₦</span>
+                              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-text-subtle">
+                                ₦
+                              </span>
                               <input
                                 type="text"
                                 value={offerAmount}
