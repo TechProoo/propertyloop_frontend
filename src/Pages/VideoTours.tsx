@@ -9,7 +9,6 @@ import {
   X,
   Search,
   Eye,
-  Star,
   MapPin,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
@@ -216,7 +215,9 @@ const VideoTours = () => {
                       <div className="absolute top-3 right-3 flex items-center gap-2">
                         <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
                           <Eye className="w-3 h-3" />
-                          {(tour.viewsCount / 1000).toFixed(1)}k views
+                          {tour.viewsCount >= 1000
+                            ? `${(tour.viewsCount / 1000).toFixed(1)}k`
+                            : tour.viewsCount}{" views"}
                         </span>
                         <Link
                           to={`/property/${tour.id}`}
@@ -226,11 +227,7 @@ const VideoTours = () => {
                         </Link>
                       </div>
 
-                      {/* Rating */}
-                      <span className="absolute bottom-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
-                        <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />
-                        {tour.rating}
-                      </span>
+
                     </>
                   )}
                 </div>

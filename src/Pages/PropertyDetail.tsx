@@ -462,10 +462,6 @@ const PropertyDetail = () => {
                       {listing.address}, {listing.location}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium shrink-0">
-                    <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                    {listing.rating}
-                  </div>
                 </div>
 
                 {/* Spec pills */}

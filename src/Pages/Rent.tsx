@@ -19,7 +19,6 @@ import {
   Store,
   LayoutGrid,
   ChevronDown,
-  Star,
   Phone,
   X,
   TrendingUp,
@@ -772,10 +771,6 @@ const Rent = () => {
                           alt={listing.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <span className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-medium text-primary-dark">
-                          <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                          {listing.rating}
-                        </span>
                         <div className="absolute top-3 right-3 flex items-center gap-2">
                           <BookmarkButton
                             id={listing.id}
