@@ -724,10 +724,12 @@ const AgentProfile = () => {
                   <h2 className="font-heading font-bold text-primary-dark text-lg">
                     Client Reviews
                   </h2>
+                  {/* Rating hidden until platform has enough reviews
                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
                     <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
                     {agent.rating} / 5.0
                   </div>
+                  */}
                 </div>
 
                 <div className="flex flex-col gap-5">

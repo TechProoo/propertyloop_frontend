@@ -11,7 +11,6 @@ import {
   HardHat,
   Sparkles,
   PipetteIcon,
-  Star,
   Shield,
   CheckCircle,
 } from "lucide-react";
@@ -330,10 +329,12 @@ const ServiceLoop = () => {
                   {/* Stats row */}
                   <div className="flex items-center flex-wrap gap-y-2 justify-between text-xs">
                     <div className="flex items-center gap-2 sm:gap-3 text-text-secondary min-w-0">
+                      {/* Rating hidden until platform has enough reviews
                       <span className="flex items-center gap-1 shrink-0">
                         <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
                         {vendor.rating}
                       </span>
+                      */}
                       <span className="shrink-0">{vendor.jobsCount} jobs</span>
                       <span className="flex items-center gap-1 shrink-0">
                         <Shield className="w-3.5 h-3.5" />

@@ -18,7 +18,6 @@ import {
   BarChart3,
   BookOpen,
   CheckCircle,
-  Star,
   Home,
   Clock,
 } from "lucide-react";
@@ -524,10 +523,12 @@ const Sell = () => {
                       <div className="h-px bg-border-light mt-3 mb-3" />
 
                       <div className="flex items-center gap-4 text-text-secondary text-xs pr-8">
+                        {/* Rating hidden until platform has enough reviews
                         <span className="flex items-center gap-1">
                           <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
                           {agent.rating ? agent.rating.toFixed(1) : "—"}
                         </span>
+                        */}
                         <span className="flex items-center gap-1">
                           <Home className="w-3.5 h-3.5" />
                           {agent.listingsCount} active

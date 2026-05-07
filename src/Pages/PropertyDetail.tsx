@@ -9,7 +9,6 @@ import {
   Bath,
   Maximize,
   MapPin,
-  Star,
   Phone,
   Mail,
   CheckCircle,
@@ -912,10 +911,12 @@ const PropertyDetail = () => {
                         {agent.agency}
                       </p>
                       <div className="flex items-center gap-3 text-text-secondary text-xs mt-1">
+                        {/* Rating hidden until platform has enough reviews
                         <span className="flex items-center gap-1">
                           <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />
                           {agent.rating}
                         </span>
+                        */}
                         <span>{agent.listings} listings</span>
                         <span>{agent.soldRented} closed</span>
                       </div>

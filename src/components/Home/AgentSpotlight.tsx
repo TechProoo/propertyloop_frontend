@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, CheckCircle, Star, Home, Phone, Sparkles } from "lucide-react";
+import { ArrowUpRight, CheckCircle, Home, Phone, Sparkles } from "lucide-react";
 import AuthGate from "../ui/AuthGate";
 import agentsService from "../../api/services/agents";
 import type { AgentPublic } from "../../api/types";
@@ -242,12 +242,14 @@ const AgentSpotlight = () => {
                 ) : (
                   <div className="flex items-center justify-between text-xs pr-8">
                     <div className="flex items-center gap-4 text-text-secondary">
+                      {/* Rating hidden until platform has enough reviews
                       {agent.rating > 0 && (
                         <span className="flex items-center gap-1">
                           <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
                           {agent.rating}
                         </span>
                       )}
+                      */}
                       <span className="flex items-center gap-1">
                         <Home className="w-3.5 h-3.5" />
                         {agent.listingsCount} active

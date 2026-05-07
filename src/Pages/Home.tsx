@@ -12,6 +12,7 @@ import ShortletSpotlight from "../components/Home/ShortletSpotlight";
 // import VideoTestimonials from "../components/Home/VideoTestimonials";
 import CtaBanner from "../components/Home/CtaBanner";
 import Footer from "../components/Home/Footer";
+import Partners from "@/components/Home/Partners";
 
 const Home = () => {
   return (
@@ -33,7 +34,7 @@ const Home = () => {
       <AgentSpotlight />
       <PropertyLogbook />
       {/* <VideoTestimonials /> */}
-      {/* <Partners /> */}
+      <Partners />
       <CtaBanner />
       <Footer />
     </div>

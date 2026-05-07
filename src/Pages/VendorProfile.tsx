@@ -603,10 +603,12 @@ const VendorProfile = () => {
                   <h2 className="font-heading font-bold text-primary-dark text-lg">
                     Client Reviews
                   </h2>
+                  {/* Rating hidden until platform has enough reviews
                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
                     <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
                     {vendor.rating} / 5.0
                   </div>
+                  */}
                 </div>
 
                 {reviews.length === 0 ? (
@@ -704,12 +706,14 @@ const VendorProfile = () => {
                         <Wrench className="w-3.5 h-3.5 text-primary" />
                         <span>{vendor.jobsCount} jobs completed</span>
                       </div>
+                      {/* Rating hidden until platform has enough reviews
                       <div className="flex items-center gap-2 text-text-secondary">
                         <Star className="w-3.5 h-3.5 text-[#F5A623]" />
                         <span>
                           {vendor.rating} rating ({reviews.length} reviews)
                         </span>
                       </div>
+                      */}
                       {vendor.availableForHire && (
                         <div className="flex items-center gap-2 text-primary">
                           <CheckCircle className="w-3.5 h-3.5" />

@@ -588,10 +588,12 @@ const Services = () => {
                             <div className="h-px bg-border-light mb-3" />
                             <div className="flex items-center justify-between text-xs pr-10">
                               <div className="flex items-center gap-4 text-text-secondary">
+                                {/* Rating hidden until platform has enough reviews
                                 <span className="flex items-center gap-1">
                                   <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
                                   {vendor.rating}
                                 </span>
+                                */}
                                 <span>{vendor.jobs} jobs</span>
                                 <span className="flex items-center gap-1 text-primary font-medium">
                                   <Shield className="w-3.5 h-3.5" /> Verified

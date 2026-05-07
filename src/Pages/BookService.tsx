@@ -578,10 +578,12 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                         {vendor.category} · {vendor.location}
                       </p>
                     </div>
+                    {/* Rating hidden until platform has enough reviews
                     <div className="flex items-center gap-1 text-xs text-text-secondary">
                       <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
                       {vendor.rating}
                     </div>
+                    */}
                   </Link>
 
                   <div className="flex flex-col gap-4">
@@ -841,10 +843,12 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                       </div>
                     </Link>
                     <div className="flex items-center gap-3 text-xs text-text-secondary mb-3">
+                      {/* Rating hidden until platform has enough reviews
                       <span className="flex items-center gap-1">
                         <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
                         {vendor.rating}
                       </span>
+                      */}
                       <span>{vendor.jobsCount} jobs</span>
                       <span className="flex items-center gap-1">
                         <MapPin className="w-3 h-3" /> {vendor.location}
