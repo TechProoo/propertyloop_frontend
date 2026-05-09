@@ -156,121 +156,121 @@ const VideoTours = () => {
                     : "bg-amber-500 text-white";
               const period = tour.period && tour.period.replace(/^\//, "");
               return (
-              <div
-                key={tour.id}
-                className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
-              >
-                {/* Video / Thumbnail */}
-                <div className="relative h-56 sm:h-64 overflow-hidden rounded-t-[20px] bg-black">
-                  {/* Category pill */}
-                  <span
-                    className={`absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-sm ${categoryStyles}`}
-                  >
-                    {categoryLabel}
-                  </span>
-                  {playingIdx === i && tour.videoUrl ? (
-                    <>
-                      {tour.videoUrl.includes("youtu") || tour.videoUrl.includes("vimeo") ? (
-                        <iframe
-                          src={`${tour.videoUrl}?autoplay=1`}
-                          title={tour.title}
-                          allow="autoplay; encrypted-media"
-                          allowFullScreen
-                          className="w-full h-full"
-                        />
-                      ) : (
-                        <video
-                          src={tour.videoUrl}
-                          autoPlay
-                          controls
-                          className="w-full h-full"
-                        />
-                      )}
-                      <button
-                        onClick={() => setPlayingIdx(null)}
-                        className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <img
-                        src={tour.coverImage}
-                        alt={tour.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
-
-                      {/* Play button */}
-                      <button
-                        onClick={() => setPlayingIdx(i)}
-                        className="absolute inset-0 flex items-center justify-center"
-                      >
-                        <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:bg-white hover:scale-110 transition-all duration-300">
-                          <Play className="w-7 h-7 text-primary-dark fill-primary-dark ml-0.5" />
-                        </div>
-                      </button>
-
-                      <div className="absolute top-3 right-3 flex items-center gap-2">
-                        <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
-                          <Eye className="w-3 h-3" />
-                          {tour.viewsCount >= 1000
-                            ? `${(tour.viewsCount / 1000).toFixed(1)}k`
-                            : tour.viewsCount}{" views"}
-                        </span>
-                        <Link
-                          to={`/property/${tour.id}`}
-                          className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300"
-                        >
-                          <ArrowUpRight className="w-4 h-4 text-white" />
-                        </Link>
-                      </div>
-
-
-                    </>
-                  )}
-                </div>
-
-                {/* Glass content */}
-                <Link
-                  to={`/property/${tour.id}`}
-                  className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] block"
+                <div
+                  key={tour.id}
+                  className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300"
                 >
-                  <p className="font-heading font-bold text-primary-dark text-[18px]">
-                    {tour.priceLabel}
-                    {period && (
-                      <span className="text-text-subtle text-[13px] font-normal ml-1">
-                        /{period}
-                      </span>
+                  {/* Video / Thumbnail */}
+                  <div className="relative h-56 sm:h-64 overflow-hidden rounded-t-[20px] bg-black">
+                    {/* Category pill */}
+                    <span
+                      className={`absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-sm ${categoryStyles}`}
+                    >
+                      {categoryLabel}
+                    </span>
+                    {playingIdx === i && tour.videoUrl ? (
+                      <>
+                        {tour.videoUrl.includes("youtu") ||
+                        tour.videoUrl.includes("vimeo") ? (
+                          <iframe
+                            src={`${tour.videoUrl}?autoplay=1`}
+                            title={tour.title}
+                            allow="autoplay; encrypted-media"
+                            allowFullScreen
+                            className="w-full h-full"
+                          />
+                        ) : (
+                          <video
+                            src={tour.videoUrl}
+                            autoPlay
+                            controls
+                            className="w-full h-full"
+                          />
+                        )}
+                        <button
+                          onClick={() => setPlayingIdx(null)}
+                          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <img
+                          src={tour.coverImage}
+                          alt={tour.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
+
+                        {/* Play button */}
+                        <button
+                          onClick={() => setPlayingIdx(i)}
+                          className="absolute inset-0 flex items-center justify-center"
+                        >
+                          <div className="w-16 h-16 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:bg-white hover:scale-110 transition-all duration-300">
+                            <Play className="w-7 h-7 text-primary-dark fill-primary-dark ml-0.5" />
+                          </div>
+                        </button>
+
+                        <div className="absolute top-3 right-3 flex items-center gap-2">
+                          <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-xs font-medium">
+                            <Eye className="w-3 h-3" />
+                            {tour.viewsCount >= 1000
+                              ? `${(tour.viewsCount / 1000).toFixed(1)}k`
+                              : tour.viewsCount}
+                            {" views"}
+                          </span>
+                          <Link
+                            to={`/property/${tour.id}`}
+                            className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300"
+                          >
+                            <ArrowUpRight className="w-4 h-4 text-white" />
+                          </Link>
+                        </div>
+                      </>
                     )}
-                  </p>
-                  <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1 truncate">
-                    {tour.title}
-                  </h3>
-                  <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {tour.address}
-                  </p>
-
-                  <div className="h-px bg-border-light mt-3 mb-3" />
-
-                  <div className="flex items-center gap-4 text-text-secondary text-xs pr-10">
-                    <span className="flex items-center gap-1.5">
-                      <Bed className="w-3.5 h-3.5" />
-                      {tour.beds} Beds
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Bath className="w-3.5 h-3.5" />
-                      {tour.baths} Baths
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Maximize className="w-3.5 h-3.5" />
-                      {tour.sqft}m²
-                    </span>
                   </div>
-                </Link>
-              </div>
+
+                  {/* Glass content */}
+                  <Link
+                    to={`/property/${tour.id}`}
+                    className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] block"
+                  >
+                    <p className="font-heading font-bold text-primary-dark text-[18px]">
+                      {tour.priceLabel}
+                      {period && (
+                        <span className="text-text-subtle text-[13px] font-normal ml-1">
+                          /{period}
+                        </span>
+                      )}
+                    </p>
+                    <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1 truncate">
+                      {tour.title}
+                    </h3>
+                    <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      {tour.address}
+                    </p>
+
+                    <div className="h-px bg-border-light mt-3 mb-3" />
+
+                    <div className="flex items-center gap-4 text-text-secondary text-xs pr-10">
+                      <span className="flex items-center gap-1.5">
+                        <Bed className="w-3.5 h-3.5" />
+                        {tour.beds} Beds
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Bath className="w-3.5 h-3.5" />
+                        {tour.baths} Baths
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Maximize className="w-3.5 h-3.5" />
+                        {tour.sqft}m²
+                      </span>
+                    </div>
+                  </Link>
+                </div>
               );
             })}
           </div>

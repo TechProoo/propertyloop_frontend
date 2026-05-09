@@ -27,6 +27,7 @@ import {
   ShieldCheck,
   Image,
   Plus,
+  AlertCircle,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -189,6 +190,17 @@ const AddProperty = () => {
     if (!form.address.trim()) newErrors.address = "Address is required";
     if (!form.location) newErrors.location = "Select a location";
     if (!form.price.trim()) newErrors.price = "Price is required";
+    if (!form.size.trim()) newErrors.size = "Property size is required";
+    const descText = form.description.replace(/<[^>]*>/g, "").trim();
+    if (!descText) newErrors.description = "Please describe your property";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors: Record<string, string> = {};
+    if (pendingPhotoFiles.length === 0)
+      newErrors.photos = "Add at least one property photo to continue";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -280,6 +292,7 @@ const AddProperty = () => {
 
   const goNext = async () => {
     if (currentStep === "details" && !validateStep1()) return;
+    if (currentStep === "photos" && !validateStep2()) return;
     if (currentStep === "review") {
       if (!validateStep3()) return;
       setSubmitting(true);
@@ -452,6 +465,7 @@ const AddProperty = () => {
   const handlePhotoInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.currentTarget.files;
     setPhotoUploadError("");
+    if (errors.photos) setErrors((p) => ({ ...p, photos: "" }));
     if (files) {
       const MAX = 10 * 1024 * 1024; // 10MB — matches backend cap
       const rejected: string[] = [];
@@ -935,9 +949,10 @@ const AddProperty = () => {
                             ))}
                           </div>
                           {errors.propertyType && (
-                            <p className="text-red-500 text-xs mt-1 ml-1">
-                              {errors.propertyType}
-                            </p>
+                            <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                              <p className="text-red-600 text-xs font-medium">{errors.propertyType}</p>
+                            </div>
                           )}
                         </div>
 
@@ -956,9 +971,10 @@ const AddProperty = () => {
                             className={inputClass}
                           />
                           {errors.title && (
-                            <p className="text-red-500 text-xs mt-1 ml-1">
-                              {errors.title}
-                            </p>
+                            <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                              <p className="text-red-600 text-xs font-medium">{errors.title}</p>
+                            </div>
                           )}
                         </div>
 
@@ -980,9 +996,10 @@ const AddProperty = () => {
                             />
                           </div>
                           {errors.address && (
-                            <p className="text-red-500 text-xs mt-1 ml-1">
-                              {errors.address}
-                            </p>
+                            <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                              <p className="text-red-600 text-xs font-medium">{errors.address}</p>
+                            </div>
                           )}
                         </div>
 
@@ -1036,9 +1053,10 @@ const AddProperty = () => {
                             />
                           )}
                           {errors.location && (
-                            <p className="text-red-500 text-xs mt-1 ml-1">
-                              {errors.location}
-                            </p>
+                            <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                              <p className="text-red-600 text-xs font-medium">{errors.location}</p>
+                            </div>
                           )}
                         </div>
 
@@ -1078,11 +1096,19 @@ const AddProperty = () => {
                               type="text"
                               placeholder="e.g. 2,400"
                               value={form.size}
-                              onChange={(e) =>
-                                updateForm({ size: e.target.value })
-                              }
+                              onChange={(e) => {
+                                updateForm({ size: e.target.value });
+                                if (errors.size)
+                                  setErrors((p) => ({ ...p, size: "" }));
+                              }}
                               className={inputClass}
                             />
+                            {errors.size && (
+                              <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                                <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                                <p className="text-red-600 text-xs font-medium">{errors.size}</p>
+                              </div>
+                            )}
                           </div>
                           <div>
                             <label className={labelClass}>
@@ -1118,9 +1144,10 @@ const AddProperty = () => {
                             className={inputClass}
                           />
                           {errors.price && (
-                            <p className="text-red-500 text-xs mt-1 ml-1">
-                              {errors.price}
-                            </p>
+                            <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                              <p className="text-red-600 text-xs font-medium">{errors.price}</p>
+                            </div>
                           )}
                         </div>
 
@@ -1129,11 +1156,20 @@ const AddProperty = () => {
                           <label className={labelClass}>Description</label>
                           <RichTextEditor
                             value={form.description}
-                            onChange={(html) =>
-                              updateForm({ description: html })
-                            }
+                            onChange={(html) => {
+                              updateForm({ description: html });
+                              const text = html.replace(/<[^>]*>/g, "").trim();
+                              if (text && errors.description)
+                                setErrors((p) => ({ ...p, description: "" }));
+                            }}
                             placeholder="Describe your property — features, condition, neighbourhood highlights…"
                           />
+                          {errors.description && (
+                            <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                              <p className="text-red-600 text-xs font-medium">{errors.description}</p>
+                            </div>
+                          )}
                         </div>
 
                         {/* Features & Amenities */}
@@ -1288,9 +1324,16 @@ const AddProperty = () => {
                           </button>
 
                           {photoUploadError && (
-                            <p className="text-xs text-red-600 mt-2 ml-1">
-                              {photoUploadError}
-                            </p>
+                            <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                              <p className="text-red-600 text-xs font-medium">{photoUploadError}</p>
+                            </div>
+                          )}
+                          {errors.photos && (
+                            <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                              <p className="text-red-600 text-xs font-medium">{errors.photos}</p>
+                            </div>
                           )}
 
                           {/* Photo previews */}
@@ -1373,9 +1416,10 @@ const AddProperty = () => {
                           </button>
 
                           {docUploadError && (
-                            <p className="text-xs text-red-600 mt-2 ml-1">
-                              {docUploadError}
-                            </p>
+                            <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                              <p className="text-red-600 text-xs font-medium">{docUploadError}</p>
+                            </div>
                           )}
 
                           {pendingDocFiles.length > 0 && (
@@ -1790,9 +1834,10 @@ const AddProperty = () => {
                         </span>
                       </label>
                       {errors.terms && (
-                        <p className="text-red-500 text-xs -mt-4 ml-7">
-                          {errors.terms}
-                        </p>
+                        <div className="flex items-center gap-2 -mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
+                          <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                          <p className="text-red-600 text-xs font-medium">{errors.terms}</p>
+                        </div>
                       )}
 
                       {/* Navigation */}

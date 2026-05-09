@@ -245,7 +245,6 @@ const Sell = () => {
     };
   }, []);
 
-
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
       <Seo
@@ -380,8 +379,8 @@ const Sell = () => {
                   Why Sell <span className="text-primary">With Us</span>
                 </h2>
                 <p className="text-text-secondary text-sm leading-relaxed mt-3 max-w-lg">
-                  Every tool a seller needs — verified agents, verified
-                  buyers, transparent pricing, and direct messaging.
+                  Every tool a seller needs — verified agents, verified buyers,
+                  transparent pricing, and direct messaging.
                 </p>
               </div>
             </div>
@@ -467,8 +466,8 @@ const Sell = () => {
             ) : agents.length === 0 ? (
               <div className="bg-white/60 border border-border-light rounded-[20px] p-12 text-center">
                 <p className="text-text-secondary text-sm">
-                  No verified agents are listed yet. Check back soon, or
-                  submit a valuation request and we'll match you to one.
+                  No verified agents are listed yet. Check back soon, or submit
+                  a valuation request and we'll match you to one.
                 </p>
               </div>
             ) : (
@@ -646,12 +645,16 @@ const Sell = () => {
                           />
                           <select
                             value={valuation.propertyType}
-                            onChange={(e) => setVal("propertyType", e.target.value)}
+                            onChange={(e) =>
+                              setVal("propertyType", e.target.value)
+                            }
                             disabled={valSubmitting}
                             className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none disabled:opacity-60"
                           >
                             <option value="">Property type</option>
-                            <option value="Flat / Apartment">Flat / Apartment</option>
+                            <option value="Flat / Apartment">
+                              Flat / Apartment
+                            </option>
                             <option value="House">House</option>
                             <option value="Land">Land</option>
                             <option value="Commercial">Commercial</option>
@@ -680,7 +683,9 @@ const Sell = () => {
                             type="text"
                             placeholder="Estimated value (optional)"
                             value={valuation.estimatedValue}
-                            onChange={(e) => setVal("estimatedValue", e.target.value)}
+                            onChange={(e) =>
+                              setVal("estimatedValue", e.target.value)
+                            }
                             disabled={valSubmitting}
                             className="h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors disabled:opacity-60"
                           />
@@ -719,7 +724,9 @@ const Sell = () => {
                           />
 
                           {valError && (
-                            <p className="text-xs text-red-500 ml-1">{valError}</p>
+                            <p className="text-xs text-red-500 ml-1">
+                              {valError}
+                            </p>
                           )}
 
                           <button
@@ -728,7 +735,9 @@ const Sell = () => {
                             className="mt-2 w-full h-12 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)] disabled:opacity-60 disabled:cursor-not-allowed"
                           >
                             {valSubmitting ? "Sending…" : "Get free valuation"}
-                            {!valSubmitting && <ArrowRight className="w-4 h-4" />}
+                            {!valSubmitting && (
+                              <ArrowRight className="w-4 h-4" />
+                            )}
                           </button>
                         </form>
                       </div>

@@ -32,7 +32,9 @@ const AgentSpotlight = () => {
         });
 
         // Promote featured agents to the front, preserving the configured order.
-        const featuredOrder = new Map(FEATURED_EMAILS.map((e, i) => [e.toLowerCase(), i]));
+        const featuredOrder = new Map(
+          FEATURED_EMAILS.map((e, i) => [e.toLowerCase(), i]),
+        );
         const featured: AgentPublic[] = [];
         const rest: AgentPublic[] = [];
         for (const a of result.items) {
