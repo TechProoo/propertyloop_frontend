@@ -951,7 +951,9 @@ const AddProperty = () => {
                           {errors.propertyType && (
                             <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                               <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                              <p className="text-red-600 text-xs font-medium">{errors.propertyType}</p>
+                              <p className="text-red-600 text-xs font-medium">
+                                {errors.propertyType}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -973,7 +975,9 @@ const AddProperty = () => {
                           {errors.title && (
                             <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                               <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                              <p className="text-red-600 text-xs font-medium">{errors.title}</p>
+                              <p className="text-red-600 text-xs font-medium">
+                                {errors.title}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -998,7 +1002,9 @@ const AddProperty = () => {
                           {errors.address && (
                             <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                               <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                              <p className="text-red-600 text-xs font-medium">{errors.address}</p>
+                              <p className="text-red-600 text-xs font-medium">
+                                {errors.address}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -1055,7 +1061,9 @@ const AddProperty = () => {
                           {errors.location && (
                             <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                               <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                              <p className="text-red-600 text-xs font-medium">{errors.location}</p>
+                              <p className="text-red-600 text-xs font-medium">
+                                {errors.location}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -1106,7 +1114,9 @@ const AddProperty = () => {
                             {errors.size && (
                               <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                                 <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                                <p className="text-red-600 text-xs font-medium">{errors.size}</p>
+                                <p className="text-red-600 text-xs font-medium">
+                                  {errors.size}
+                                </p>
                               </div>
                             )}
                           </div>
@@ -1146,7 +1156,9 @@ const AddProperty = () => {
                           {errors.price && (
                             <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                               <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                              <p className="text-red-600 text-xs font-medium">{errors.price}</p>
+                              <p className="text-red-600 text-xs font-medium">
+                                {errors.price}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -1167,7 +1179,9 @@ const AddProperty = () => {
                           {errors.description && (
                             <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                               <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                              <p className="text-red-600 text-xs font-medium">{errors.description}</p>
+                              <p className="text-red-600 text-xs font-medium">
+                                {errors.description}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -1326,13 +1340,17 @@ const AddProperty = () => {
                           {photoUploadError && (
                             <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                               <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                              <p className="text-red-600 text-xs font-medium">{photoUploadError}</p>
+                              <p className="text-red-600 text-xs font-medium">
+                                {photoUploadError}
+                              </p>
                             </div>
                           )}
                           {errors.photos && (
                             <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                               <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                              <p className="text-red-600 text-xs font-medium">{errors.photos}</p>
+                              <p className="text-red-600 text-xs font-medium">
+                                {errors.photos}
+                              </p>
                             </div>
                           )}
 
@@ -1418,7 +1436,9 @@ const AddProperty = () => {
                           {docUploadError && (
                             <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                               <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                              <p className="text-red-600 text-xs font-medium">{docUploadError}</p>
+                              <p className="text-red-600 text-xs font-medium">
+                                {docUploadError}
+                              </p>
                             </div>
                           )}
 
@@ -1836,7 +1856,9 @@ const AddProperty = () => {
                       {errors.terms && (
                         <div className="flex items-center gap-2 -mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
                           <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                          <p className="text-red-600 text-xs font-medium">{errors.terms}</p>
+                          <p className="text-red-600 text-xs font-medium">
+                            {errors.terms}
+                          </p>
                         </div>
                       )}
 
