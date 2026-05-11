@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ImageGallery } from "@/components/ui/carousel-circular-image-gallery";
 import type { ImageGalleryHandle } from "@/components/ui/carousel-circular-image-gallery";
 import gsap from "gsap";
-import listingsService from "../../api/services/listings";
+import featuredPropertiesService from "../../api/services/featuredProperties";
 
 const tabs = ["Buy", "Rent", "Shortlet"] as const;
 
@@ -51,17 +51,17 @@ const Hero = () => {
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    listingsService
-      .list({ limit: 5, status: "ACTIVE" })
+    featuredPropertiesService
+      .listActive()
       .then((res) => {
-        const live = res.items
-          .filter((l) => l.coverImage)
+        const live = res
+          .filter((fp) => fp.imageUrls?.length > 0)
           .slice(0, 5)
-          .map((l) => ({
-            title: l.title,
-            description: l.address || l.location || "",
-            price: l.priceLabel || `₦${l.priceNaira?.toLocaleString() ?? ""}`,
-            url: l.coverImage,
+          .map((fp) => ({
+            title: fp.title,
+            description: fp.location,
+            price: fp.priceLabel,
+            url: fp.imageUrls[0],
           }));
         if (live.length > 0) setProperties(live);
       })
