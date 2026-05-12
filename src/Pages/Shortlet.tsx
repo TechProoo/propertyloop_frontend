@@ -13,11 +13,7 @@ import {
   Star,
   Phone,
   X,
-  Zap,
-  Droplets,
   ShieldCheck,
-  GraduationCap,
-  Car,
   Calendar,
   Wifi,
   ParkingCircle,
@@ -117,8 +113,7 @@ const Shortlet = () => {
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
                 Browse verified short-term apartments by the night with
-                transparent pricing. Every stay is managed by a verified
-                agent.
+                transparent pricing. Every stay is managed by a verified agent.
               </p>
 
               <div className="flex flex-wrap gap-3 mt-6">
@@ -211,7 +206,7 @@ const Shortlet = () => {
           </div>
 
           {/* ─── Neighbourhood Intelligence ─── */}
-          <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
+          {/* <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -321,7 +316,7 @@ const Shortlet = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* ─── Mobile Category Strip ─── */}
           <div className="lg:hidden overflow-x-auto -mx-6 px-6 pb-4 mb-6">
@@ -721,9 +716,9 @@ const Shortlet = () => {
                 Every host is verified
               </h3>
               <p className="text-text-secondary text-sm mt-1">
-                Hosts pass KYC before their listings go live, and ratings
-                from past guests are public. Message a host directly to
-                check availability and confirm your stay.
+                Hosts pass KYC before their listings go live, and ratings from
+                past guests are public. Message a host directly to check
+                availability and confirm your stay.
               </p>
             </div>
             <Link

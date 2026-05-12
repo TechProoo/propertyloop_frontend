@@ -161,7 +161,7 @@ const AddProperty = () => {
   const [videoUploadError, setVideoUploadError] = useState("");
   const [videoUploadPct, setVideoUploadPct] = useState<number | null>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
-  const [videoInputType, setVideoInputType] = useState<"url" | "file">("url");
+  const [, setVideoInputType] = useState<"url" | "file">("url");
   const [pendingVideoFiles, setPendingVideoFiles] = useState<File[]>([]);
   const [useCustomLocation, setUseCustomLocation] = useState(false);
   const [customFeature, setCustomFeature] = useState("");
@@ -390,7 +390,7 @@ const AddProperty = () => {
     setForm(initialForm);
     setPendingPhotoFiles([]);
     setPendingDocFiles([]);
-    setPendingVideoFile(null);
+    setPendingVideoFiles([]);
     photoPreviews.forEach((url) => URL.revokeObjectURL(url));
     setPhotoPreviews([]);
     setSubmitted(false);
@@ -701,7 +701,7 @@ const AddProperty = () => {
                 ? `Uploading video — ${videoUploadPct}%`
                 : "Submitting..."}
             </p>
-            {pendingVideoFile && videoUploadPct === null && (
+            {pendingVideoFiles.length > 0 && videoUploadPct === null && (
               <p className="text-text-secondary text-xs text-center leading-relaxed">
                 Preparing video upload…
                 <br />
@@ -758,8 +758,8 @@ const AddProperty = () => {
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
                 Create a professional listing on PropertyLoop. All listings are
-                managed by KYC-verified agents and include price history,
-                verified documents, and neighbourhood intelligence.
+                managed by KYC-verified agents and include price history, and
+                verified documents.
               </p>
 
               <div className="flex flex-wrap gap-3 mt-6">

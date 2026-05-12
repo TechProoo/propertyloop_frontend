@@ -9,6 +9,7 @@ import {
   Bath,
   Maximize,
   MapPin,
+  Star,
   Phone,
   Mail,
   CheckCircle,
@@ -16,10 +17,6 @@ import {
   Calendar,
   Home,
   Building2,
-  Zap,
-  Droplets,
-  Car,
-  GraduationCap,
   ChevronLeft,
   ChevronRight,
   Share2,
@@ -461,6 +458,10 @@ const PropertyDetail = () => {
                       {listing.address}, {listing.location}
                     </p>
                   </div>
+                  <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium shrink-0">
+                    <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
+                    {listing.rating}
+                  </div>
                 </div>
 
                 {/* Spec pills */}
@@ -680,7 +681,7 @@ const PropertyDetail = () => {
                 )}
               </motion.div>
 
-              {/* Neighbourhood Intelligence */}
+              {/* Neighbourhood Intelligence
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -780,7 +781,7 @@ const PropertyDetail = () => {
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </motion.div> */}
 
               {/* ─── Property Logbook ─── */}
               <motion.div
@@ -911,12 +912,10 @@ const PropertyDetail = () => {
                         {agent.agency}
                       </p>
                       <div className="flex items-center gap-3 text-text-secondary text-xs mt-1">
-                        {/* Rating hidden until platform has enough reviews
                         <span className="flex items-center gap-1">
                           <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />
                           {agent.rating}
                         </span>
-                        */}
                         <span>{agent.listings} listings</span>
                         <span>{agent.soldRented} closed</span>
                       </div>
@@ -926,7 +925,7 @@ const PropertyDetail = () => {
                   {/* Contact buttons */}
                   <div className="flex flex-col gap-2.5">
                     <a
-                      href={`tel:${agent.phone}`}
+                      href={`tel:+${agent.phone}`}
                       className="h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2 shadow-lg shadow-glow/40"
                     >
                       <Phone className="w-4 h-4" />
