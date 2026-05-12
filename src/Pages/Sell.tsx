@@ -311,13 +311,26 @@ const Sell = () => {
                 ))}
               </div>
 
-              <a
-                href="#valuation"
-                className="mt-8 inline-flex items-center gap-2 h-12 px-8 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
-              >
-                Connect with an agent
-                <ArrowRight className="w-4 h-4" />
-              </a>
+              <div className="flex flex-wrap items-center gap-3 mt-8">
+                <a
+                  href="#valuation"
+                  className="inline-flex items-center gap-2 h-12 px-8 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
+                >
+                  Connect with an agent
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+                {isLoggedIn && (
+                  <a
+                    href={`https://wa.me/2347053053040?text=${encodeURIComponent("Hi, I'm a registered buyer on PropertyLoop and I'd like to list a property. Can we discuss?")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 h-12 px-8 rounded-full bg-[#25D366] text-white text-sm font-bold hover:bg-[#1ebe5d] transition-colors duration-300 shadow-[0_4px_16px_rgba(37,211,102,0.3)]"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    List via WhatsApp
+                  </a>
+                )}
+              </div>
             </div>
           </div>
 
