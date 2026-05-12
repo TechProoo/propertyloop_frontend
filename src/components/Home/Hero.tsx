@@ -231,7 +231,7 @@ const Hero = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full lg:h-[calc(100vh-64px)] overflow-hidden"
+      className="relative w-full lg:h-[calc(100vh-64px)] overflow-x-hidden"
     >
       {/* Decorative shape — upper area, green-tinted glass */}
       <div
@@ -256,7 +256,7 @@ const Hero = () => {
           top: "6%",
           left: "42%",
           right: "2%",
-          bottom: "4%",
+          bottom: "16%",
           zIndex: 2,
         }}
       >
@@ -370,7 +370,7 @@ const Hero = () => {
       </div>
 
       {/* ─── DESKTOP LAYOUT (absolute positioned, original) ─── */}
-      <div className="relative z-10 h-full hidden lg:flex flex-col justify-between px-6 md:px-12 lg:px-20 pb-8 pointer-events-none">
+      <div className="relative z-10 h-full hidden lg:flex flex-col justify-between px-6 md:px-12 lg:px-20 pb-5 pointer-events-none">
         {/* Top content */}
         <div className="pointer-events-auto mt-16">
           {/* Heading */}
