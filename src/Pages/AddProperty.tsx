@@ -48,7 +48,7 @@ interface PropertyForm {
   description: string;
   features: string[];
   virtualTourUrl: string;
-  videoUrl: string;
+  videoUrls: string[];
 }
 
 const PRESET_FEATURES = [
@@ -86,7 +86,7 @@ const initialForm: PropertyForm = {
   description: "",
   features: [],
   virtualTourUrl: "",
-  videoUrl: "",
+  videoUrls: [],
 };
 
 /* ─── Data ─── */
@@ -162,7 +162,7 @@ const AddProperty = () => {
   const [videoUploadPct, setVideoUploadPct] = useState<number | null>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const [videoInputType, setVideoInputType] = useState<"url" | "file">("url");
-  const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
+  const [pendingVideoFiles, setPendingVideoFiles] = useState<File[]>([]);
   const [useCustomLocation, setUseCustomLocation] = useState(false);
   const [customFeature, setCustomFeature] = useState("");
 
@@ -310,13 +310,11 @@ const AddProperty = () => {
 
         const uploadedUrls = await uploadPendingPhotos();
 
-        let uploadedVideoUrl: string | undefined;
-        if (pendingVideoFile) {
+        let uploadedVideoUrls: string[] = [];
+        if (pendingVideoFiles.length > 0) {
           try {
-            uploadedVideoUrl = await uploadPendingVideo();
+            uploadedVideoUrls = await uploadPendingVideos();
           } catch (videoErr: any) {
-            // Don't abandon the whole submit if the video upload fails —
-            // tell the user, drop the video, and continue with the listing.
             const reason = describeUploadError(videoErr);
             console.error(
               "Video upload failed:",
@@ -328,6 +326,10 @@ const AddProperty = () => {
             toast.error(`Video upload failed: ${reason}`);
           }
         }
+        const allVideoUrls = [
+          ...uploadedVideoUrls,
+          ...form.videoUrls,
+        ].filter(Boolean);
 
         const created = await listingsService.create({
           title: form.title,
@@ -351,7 +353,8 @@ const AddProperty = () => {
           coverImage: uploadedUrls[0],
           images: uploadedUrls,
           virtualTourUrl: form.virtualTourUrl || undefined,
-          videoUrl: uploadedVideoUrl || form.videoUrl || undefined,
+          videoUrl: allVideoUrls[0] || undefined,
+          videoUrls: allVideoUrls,
         });
 
         if (pendingDocFiles.length > 0) {
@@ -593,59 +596,43 @@ const AddProperty = () => {
     }
   };
 
-  const uploadPendingVideo = async (): Promise<string | undefined> => {
-    if (!pendingVideoFile) return undefined;
+  const uploadSingleVideo = async (file: File, idx: number, total: number): Promise<string> => {
+    const { data: presign } = await api.post<{
+      uploadUrl: string;
+      fileUrl: string;
+      key: string;
+    }>("/listings/upload/video/presign", {
+      filename: file.name,
+      contentType: file.type || "video/mp4",
+      size: file.size,
+    });
+    await axios.put(presign.uploadUrl, file, {
+      headers: { "Content-Type": file.type || "video/mp4" },
+      timeout: 30 * 60 * 1000,
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+      onUploadProgress: (e) => {
+        if (e.total) {
+          const base = (idx / total) * 100;
+          const chunk = (e.loaded / e.total) * (100 / total);
+          setVideoUploadPct(Math.round(base + chunk));
+        }
+      },
+    });
+    return presign.fileUrl;
+  };
+
+  const uploadPendingVideos = async (): Promise<string[]> => {
+    if (!pendingVideoFiles.length) return [];
     setUploadingVideo(true);
     setVideoUploadPct(0);
     try {
-      const tryOnce = async (attempt: number): Promise<string> => {
-        // 1. Ask the backend for a presigned PUT URL. Tiny JSON request,
-        //    finishes in ms — Render's request timeout doesn't matter here.
-        const { data: presign } = await api.post<{
-          uploadUrl: string;
-          fileUrl: string;
-          key: string;
-        }>("/listings/upload/video/presign", {
-          filename: pendingVideoFile.name,
-          contentType: pendingVideoFile.type || "video/mp4",
-          size: pendingVideoFile.size,
-        });
-
-        // 2. Upload BYTES directly to R2. Bytes never touch our Render
-        //    server, so its request timeout / proxy limits don't apply.
-        //    Raw axios (no shared client) so the Bearer header isn't
-        //    sent — R2 rejects extra auth headers on signed URLs.
-        try {
-          setVideoUploadPct(0);
-          await axios.put(presign.uploadUrl, pendingVideoFile, {
-            headers: {
-              "Content-Type": pendingVideoFile.type || "video/mp4",
-            },
-            timeout: 30 * 60 * 1000,
-            maxBodyLength: Infinity,
-            maxContentLength: Infinity,
-            onUploadProgress: (e) => {
-              if (e.total) {
-                setVideoUploadPct(Math.round((e.loaded / e.total) * 100));
-              }
-            },
-          });
-          return presign.fileUrl;
-        } catch (err: any) {
-          const code = err?.code as string | undefined;
-          const transient =
-            code === "ERR_NETWORK" ||
-            code === "ECONNABORTED" ||
-            err?.message === "Network Error";
-          if (transient && attempt === 0) {
-            await new Promise((r) => setTimeout(r, 1500));
-            return tryOnce(1);
-          }
-          throw err;
-        }
-      };
-
-      return await tryOnce(0);
+      const urls: string[] = [];
+      for (let i = 0; i < pendingVideoFiles.length; i++) {
+        const url = await uploadSingleVideo(pendingVideoFiles[i], i, pendingVideoFiles.length);
+        urls.push(url);
+      }
+      return urls;
     } finally {
       setUploadingVideo(false);
       setVideoUploadPct(null);
@@ -653,27 +640,26 @@ const AddProperty = () => {
   };
 
   const handleVideoInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files;
+    const files = Array.from(e.currentTarget.files ?? []);
     setVideoUploadError("");
-    if (files?.length) {
-      const file = files[0];
+    const valid: File[] = [];
+    for (const file of files) {
       if (!file.type.startsWith("video/")) {
-        setVideoUploadError("Please choose a video file");
-        return;
+        setVideoUploadError("Please choose video files only.");
+        continue;
       }
       if (file.size > 50 * 1024 * 1024) {
-        setVideoUploadError(
-          `Video is ${(file.size / 1024 / 1024).toFixed(1)}MB — must be under 50MB`,
-        );
-        return;
+        setVideoUploadError(`${file.name} is too large — max 50MB per video.`);
+        continue;
       }
-      setPendingVideoFile(file);
+      valid.push(file);
     }
+    if (valid.length) setPendingVideoFiles((prev) => [...prev, ...valid]);
     if (videoInputRef.current) videoInputRef.current.value = "";
   };
 
-  const removePendingVideo = () => {
-    setPendingVideoFile(null);
+  const removePendingVideo = (idx: number) => {
+    setPendingVideoFiles((prev) => prev.filter((_, i) => i !== idx));
     setVideoUploadError("");
   };
 
@@ -681,8 +667,8 @@ const AddProperty = () => {
     videoInputRef.current?.click();
   };
 
-  const removeVideo = () => {
-    updateForm({ videoUrl: "" });
+  const removeVideo = (idx: number) => {
+    updateForm({ videoUrls: form.videoUrls.filter((_, i) => i !== idx) });
     setVideoUploadError("");
   };
 
@@ -1510,119 +1496,121 @@ const AddProperty = () => {
                             </div>
                           )}
 
-                          {form.videoUrl ? (
-                            <div className="relative rounded-xl overflow-hidden bg-black/20 backdrop-blur-sm border border-white/20 p-4">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                  <Video className="w-5 h-5 text-primary shrink-0" />
-                                  <p className="text-sm text-primary-dark font-medium truncate">
-                                    {form.videoUrl.includes("youtu")
-                                      ? "YouTube Video"
-                                      : "Video Uploaded"}
-                                  </p>
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={removeVideo}
-                                  className="text-text-subtle hover:text-red-600 transition-colors"
+                          {/* Uploaded / pending videos list */}
+                          {(form.videoUrls.length > 0 || pendingVideoFiles.length > 0) && (
+                            <div className="flex flex-col gap-2 mb-3">
+                              {form.videoUrls.map((url, idx) => (
+                                <div
+                                  key={url}
+                                  className="flex items-center justify-between gap-3 rounded-xl bg-black/20 backdrop-blur-sm border border-white/20 px-4 py-3"
                                 >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                          ) : pendingVideoFile ? (
-                            <div className="rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 p-4">
-                              <div className="flex items-center justify-between gap-3">
-                                <div className="flex items-center gap-3 min-w-0">
-                                  <Video className="w-5 h-5 text-primary shrink-0" />
-                                  <div className="min-w-0">
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    <Video className="w-4 h-4 text-primary shrink-0" />
                                     <p className="text-sm text-primary-dark font-medium truncate">
-                                      {pendingVideoFile.name}
-                                    </p>
-                                    <p className="text-[11px] text-text-subtle">
-                                      {(
-                                        pendingVideoFile.size /
-                                        1024 /
-                                        1024
-                                      ).toFixed(2)}{" "}
-                                      MB · uploads when you submit
+                                      {url.includes("youtu") ? "YouTube Video" : `Video ${idx + 1}`}
                                     </p>
                                   </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeVideo(idx)}
+                                    className="text-text-subtle hover:text-red-600 transition-colors shrink-0"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
                                 </div>
-                                <button
-                                  type="button"
-                                  onClick={removePendingVideo}
-                                  className="text-text-subtle hover:text-red-600 transition-colors shrink-0"
+                              ))}
+                              {pendingVideoFiles.map((file, idx) => (
+                                <div
+                                  key={file.name + idx}
+                                  className="flex items-center justify-between gap-3 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 px-4 py-3"
                                 >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="flex flex-col gap-3">
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 h-px bg-white/30" />
-                                <span className="text-xs text-text-subtle">
-                                  OR
-                                </span>
-                                <div className="flex-1 h-px bg-white/30" />
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-3">
-                                {/* File upload */}
-                                <button
-                                  type="button"
-                                  onClick={triggerVideoUpload}
-                                  className="border-2 border-dashed border-white/40 rounded-xl p-4 flex flex-col items-center gap-2 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 transition-all"
-                                >
-                                  <div className="w-8 h-8 rounded-full bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center">
-                                    <Video className="w-4 h-4 text-primary" />
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    <Video className="w-4 h-4 text-primary shrink-0" />
+                                    <div className="min-w-0">
+                                      <p className="text-sm text-primary-dark font-medium truncate">{file.name}</p>
+                                      <p className="text-[11px] text-text-subtle">
+                                        {(file.size / 1024 / 1024).toFixed(2)} MB · uploads when you submit
+                                      </p>
+                                    </div>
                                   </div>
-                                  <p className="text-xs text-primary-dark font-medium text-center">
-                                    Choose Video
-                                  </p>
-                                  <p className="text-[10px] text-text-subtle text-center">
-                                    MP4, MOV (max 50MB)
-                                  </p>
-                                </button>
-
-                                {/* URL input */}
-                                <div className="relative">
-                                  <input
-                                    type="url"
-                                    placeholder="Paste video URL..."
-                                    value={
-                                      videoInputType === "url" && !form.videoUrl
-                                        ? ""
-                                        : form.videoUrl
-                                    }
-                                    onChange={(e) => {
-                                      if (
-                                        e.target.value.includes("youtu") ||
-                                        e.target.value.includes("vimeo")
-                                      ) {
-                                        updateForm({
-                                          videoUrl: e.target.value,
-                                        });
-                                      } else if (e.target.value === "") {
-                                        updateForm({ videoUrl: "" });
-                                      }
-                                    }}
-                                    onFocus={() => setVideoInputType("url")}
-                                    className={`${inputClass}`}
-                                  />
-                                  <p className="text-[10px] text-text-subtle mt-1">
-                                    YouTube or Vimeo link
-                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => removePendingVideo(idx)}
+                                    className="text-text-subtle hover:text-red-600 transition-colors shrink-0"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
                                 </div>
-                              </div>
+                              ))}
                             </div>
                           )}
+
+                          {/* Add video controls */}
+                          <div className="flex flex-col gap-3">
+                            {(form.videoUrls.length > 0 || pendingVideoFiles.length > 0) && (
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-px bg-white/30" />
+                                <span className="text-xs text-text-subtle">Add more</span>
+                                <div className="flex-1 h-px bg-white/30" />
+                              </div>
+                            )}
+                            {form.videoUrls.length === 0 && pendingVideoFiles.length === 0 && (
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 h-px bg-white/30" />
+                                <span className="text-xs text-text-subtle">OR</span>
+                                <div className="flex-1 h-px bg-white/30" />
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <button
+                                type="button"
+                                onClick={triggerVideoUpload}
+                                className="border-2 border-dashed border-white/40 rounded-xl p-4 flex flex-col items-center gap-2 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 transition-all"
+                              >
+                                <div className="w-8 h-8 rounded-full bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                                  <Video className="w-4 h-4 text-primary" />
+                                </div>
+                                <p className="text-xs text-primary-dark font-medium text-center">
+                                  {pendingVideoFiles.length > 0 ? "Add Another" : "Choose Video"}
+                                </p>
+                                <p className="text-[10px] text-text-subtle text-center">
+                                  MP4, MOV (max 50MB)
+                                </p>
+                              </button>
+
+                              <div className="relative">
+                                <input
+                                  type="url"
+                                  placeholder="Paste YouTube/Vimeo URL..."
+                                  value=""
+                                  onChange={(e) => {
+                                    const val = e.target.value.trim();
+                                    if (
+                                      val &&
+                                      (val.includes("youtu") || val.includes("vimeo"))
+                                    ) {
+                                      updateForm({
+                                        videoUrls: [...form.videoUrls, val],
+                                      });
+                                      e.target.value = "";
+                                    }
+                                  }}
+                                  onFocus={() => setVideoInputType("url")}
+                                  className={`${inputClass}`}
+                                />
+                                <p className="text-[10px] text-text-subtle mt-1">
+                                  YouTube or Vimeo link
+                                </p>
+                              </div>
+                            </div>
+                          </div>
 
                           <input
                             ref={videoInputRef}
                             type="file"
                             accept="video/*"
+                            multiple
                             onChange={handleVideoInput}
                             className="hidden"
                           />
