@@ -217,21 +217,38 @@ export default function FeaturedPropertyDetail() {
                 </div>
               </div>
 
-              {/* Video */}
-              {property.videoUrl && (
-                <div className="bg-white rounded-2xl border border-border-light overflow-hidden">
-                  <div className="flex items-center gap-2 px-5 py-3 border-b border-border-light">
-                    <Play size={14} className="text-primary" />
-                    <span className="text-sm font-semibold text-primary-dark">Property Video</span>
+              {/* Videos */}
+              {(() => {
+                const vids = property.videoUrls?.length
+                  ? property.videoUrls
+                  : property.videoUrl
+                    ? [property.videoUrl]
+                    : [];
+                if (!vids.length) return null;
+                return (
+                  <div className="space-y-4">
+                    {vids.map((url, idx) => (
+                      <div
+                        key={url}
+                        className="bg-white rounded-2xl border border-border-light overflow-hidden"
+                      >
+                        <div className="flex items-center gap-2 px-5 py-3 border-b border-border-light">
+                          <Play size={14} className="text-primary" />
+                          <span className="text-sm font-semibold text-primary-dark">
+                            {vids.length > 1 ? `Property Video ${idx + 1}` : "Property Video"}
+                          </span>
+                        </div>
+                        <video
+                          src={url}
+                          controls
+                          className="w-full max-h-80 bg-black object-contain"
+                          poster={allImages[0]}
+                        />
+                      </div>
+                    ))}
                   </div>
-                  <video
-                    src={property.videoUrl}
-                    controls
-                    className="w-full max-h-80 bg-black object-contain"
-                    poster={allImages[0]}
-                  />
-                </div>
-              )}
+                );
+              })()}
 
               {/* Description */}
               {property.description && (

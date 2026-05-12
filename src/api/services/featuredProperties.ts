@@ -14,6 +14,7 @@ export interface FeaturedProperty {
   description?: string | null;
   imageUrls: string[];
   videoUrl?: string | null;
+  videoUrls: string[];
   displayOrder: number;
   active: boolean;
   createdAt: string;
