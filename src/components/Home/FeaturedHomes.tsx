@@ -118,7 +118,7 @@ const FeaturedHomes = () => {
               data-fh-heading
               className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
             >
-              Featured <span className="text-primary">Homes</span>
+              Featured <span className="text-primary">Properties</span>
             </h2>
             <p
               data-fh-subtitle
@@ -148,7 +148,8 @@ const FeaturedHomes = () => {
               Featured Homes Coming Soon
             </h3>
             <p className="text-text-secondary text-sm mt-2 max-w-sm">
-              Our agents are curating the best properties for you. Check back soon to discover hand-picked homes.
+              Our agents are curating the best properties for you. Check back
+              soon to discover hand-picked homes.
             </p>
             <a
               href="/search"

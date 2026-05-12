@@ -26,6 +26,7 @@ interface ImageGalleryProps {
   className?: string;
   onSlideChange?: (index: number) => void;
   hideNavButtons?: boolean;
+  onImageClick?: () => void;
 }
 
 const defaultImages: ImageData[] = [
@@ -63,6 +64,7 @@ export const ImageGallery = forwardRef<ImageGalleryHandle, ImageGalleryProps>(
       className = "",
       onSlideChange,
       hideNavButtons = false,
+      onImageClick,
     },
     ref,
   ) {
@@ -142,7 +144,10 @@ export const ImageGallery = forwardRef<ImageGalleryHandle, ImageGalleryProps>(
     return (
       <div className={`relative ${className}`}>
         {/* Gallery container */}
-        <div className="relative w-full h-full overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.15)]">
+        <div
+          className={`relative w-full h-full overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.15)] ${onImageClick ? "cursor-pointer" : ""}`}
+          onClick={onImageClick}
+        >
           {gsapReady &&
             images.map((image, i) => (
               <div
@@ -161,7 +166,10 @@ export const ImageGallery = forwardRef<ImageGalleryHandle, ImageGalleryProps>(
                 />
               </div>
             ))}
-          <div className="absolute left-0  z-100 h-full w-full pointer-events-none">
+          <div
+            className="absolute left-0 z-100 h-full w-full pointer-events-none"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Tabs images={images} onSelect={onClick} />
           </div>
         </div>
@@ -342,6 +350,7 @@ function GalleryImage({
           width={width}
           height={height}
           href={url}
+          preserveAspectRatio="xMidYMid slice"
           className="pointer-events-none"
         />
       </g>

@@ -23,8 +23,8 @@ export interface UseChatReturn {
   activeConversationId: string | null;
   /** Select a conversation — loads messages + marks read */
   openConversation: (id: string) => void;
-  /** Send a message to the active conversation */
-  sendMessage: (text: string) => void;
+  /** Send a text message (optionally with attachment URLs) */
+  sendMessage: (text: string, attachmentUrls?: string[]) => void;
   /** Emit typing indicator */
   setTyping: (isTyping: boolean) => void;
   /** Other user's typing state for the active conversation */
@@ -189,16 +189,16 @@ export function useChat(): UseChatReturn {
   // ─── Send a message ────────────────────────────────────────────────────
 
   const sendMessage = useCallback(
-    (text: string) => {
-      if (!text.trim() || !activeConversationId) return;
+    (text: string, attachmentUrls?: string[]) => {
+      if (!text.trim() && !attachmentUrls?.length) return;
+      if (!activeConversationId) return;
 
-      // Send via socket (real-time)
       socketRef.current?.emit("send_message", {
         conversationId: activeConversationId,
         text: text.trim(),
+        ...(attachmentUrls?.length ? { attachmentUrls } : {}),
       });
 
-      // Stop typing indicator
       socketRef.current?.emit("typing", {
         conversationId: activeConversationId,
         isTyping: false,

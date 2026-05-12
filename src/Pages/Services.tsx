@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -68,22 +68,6 @@ const Services = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [categorySearch, setCategorySearch] = useState("");
   const [stats, setStats] = useState<any>(null);
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const resultsRef = useRef<HTMLDivElement>(null);
-
-  // Debounce search input to avoid an API call on every keystroke
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-      if (searchQuery.trim()) {
-        resultsRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    }, 400);
-    return () => clearTimeout(t);
-  }, [searchQuery]);
 
   const minRating =
     activeRating === "Any Rating"
@@ -97,7 +81,7 @@ const Services = () => {
   } = useVendors({
     category: activeCategory === "All Services" ? undefined : activeCategory,
     location: activeLocation === "All Locations" ? undefined : activeLocation,
-    search: debouncedSearch || undefined,
+    search: searchQuery || undefined,
     minRating,
     limit: 50,
   });
@@ -143,14 +127,14 @@ const Services = () => {
     updateParams({
       category: activeCategory === "All Services" ? undefined : activeCategory,
       location: activeLocation === "All Locations" ? undefined : activeLocation,
-      search: debouncedSearch || undefined,
+      search: searchQuery || undefined,
       minRating,
       limit: 50,
     });
   }, [
     activeCategory,
     activeLocation,
-    debouncedSearch,
+    searchQuery,
     activeRating,
     updateParams,
     minRating,
@@ -347,10 +331,7 @@ const Services = () => {
           </div>
 
           {/* ─── Sidebar + Grid ─── */}
-          <div
-            ref={resultsRef}
-            className="flex flex-col lg:flex-row gap-8 mb-10"
-          >
+          <div className="flex flex-col lg:flex-row gap-8 mb-10">
             <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-light">
@@ -588,12 +569,10 @@ const Services = () => {
                             <div className="h-px bg-border-light mb-3" />
                             <div className="flex items-center justify-between text-xs pr-10">
                               <div className="flex items-center gap-4 text-text-secondary">
-                                {/* Rating hidden until platform has enough reviews
                                 <span className="flex items-center gap-1">
                                   <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />{" "}
                                   {vendor.rating}
                                 </span>
-                                */}
                                 <span>{vendor.jobs} jobs</span>
                                 <span className="flex items-center gap-1 text-primary font-medium">
                                   <Shield className="w-3.5 h-3.5" /> Verified

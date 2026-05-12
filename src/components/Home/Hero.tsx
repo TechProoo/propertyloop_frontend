@@ -266,6 +266,7 @@ const Hero = () => {
           autoplayInterval={4500}
           className="w-full h-full"
           onSlideChange={handleSlideChange}
+          onImageClick={currentFull ? goToDetail : undefined}
           hideNavButtons
         />
       </div>
@@ -346,6 +347,7 @@ const Hero = () => {
             autoplayInterval={4500}
             className="w-full h-full"
             onSlideChange={handleSlideChange}
+            onImageClick={currentFull ? goToDetail : undefined}
           />
         </div>
 

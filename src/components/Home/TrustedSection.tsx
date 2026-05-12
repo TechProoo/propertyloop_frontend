@@ -2,10 +2,6 @@ import { useEffect, useRef } from "react";
 import { ArrowRight, Globe, Star, Building } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Image1 from "../../assets/blk-1.jpg";
-import Image2 from "../../assets/blk-2.jpg";
-import Image3 from "../../assets/blk-3.jpg";
-import Image4 from "../../assets/blk-4.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,25 +34,25 @@ const features = [
 
 const avatars = [
   {
-    src: Image1,
+    src: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
     alt: "Nigerian client portrait",
     fallback:
       "https://ui-avatars.com/api/?name=Adaobi&background=14804A&color=ffffff",
   },
   {
-    src: Image2,
+    src: "https://images.pexels.com/photos/3777943/pexels-photo-3777943.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
     alt: "Nigerian client portrait",
     fallback:
       "https://ui-avatars.com/api/?name=Chinedu&background=14804A&color=ffffff",
   },
   {
-    src: Image3,
+    src: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
     alt: "Nigerian client portrait",
     fallback:
       "https://ui-avatars.com/api/?name=Temitope&background=14804A&color=ffffff",
   },
   {
-    src: Image4,
+    src: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
     alt: "Nigerian client portrait",
     fallback:
       "https://ui-avatars.com/api/?name=Kelechi&background=14804A&color=ffffff",

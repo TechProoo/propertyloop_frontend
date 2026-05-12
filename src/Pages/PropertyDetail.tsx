@@ -26,11 +26,13 @@ import {
   Handshake,
   Send,
   CalendarDays,
+  Flag,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
 import listingsService from "../api/services/listings";
+import api from "../api/client";
 import messagesService from "../api/services/messages";
 import viewingsService from "../api/services/viewings";
 import type { Listing as ApiListing } from "../api/types";
@@ -55,6 +57,12 @@ const PropertyDetail = () => {
   const [offerAmount, setOfferAmount] = useState("");
   const [offerNote, setOfferNote] = useState("");
   const [offerError, setOfferError] = useState("");
+
+  // Report listing state
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [reportSubmitted, setReportSubmitted] = useState(false);
 
   // Viewing state
   type ViewingStatus = "idle" | "form" | "submitting" | "done";
@@ -971,6 +979,72 @@ const PropertyDetail = () => {
                   >
                     View full agent profile
                   </Link>
+
+                  {/* Report listing */}
+                  <div className="mt-4 border-t border-border-light pt-4">
+                    {!showReportForm && !reportSubmitted && (
+                      <button
+                        onClick={() => setShowReportForm(true)}
+                        className="flex items-center gap-1.5 text-xs text-text-subtle hover:text-red-500 transition-colors mx-auto"
+                      >
+                        <Flag className="w-3 h-3" />
+                        Report this listing
+                      </button>
+                    )}
+                    {reportSubmitted && (
+                      <p className="text-xs text-center text-green-600 flex items-center justify-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        Report submitted. We'll review it shortly.
+                      </p>
+                    )}
+                    {showReportForm && !reportSubmitted && (
+                      <div>
+                        <p className="text-xs font-semibold text-primary-dark mb-2">
+                          What's wrong with this listing?
+                        </p>
+                        <textarea
+                          rows={3}
+                          value={reportReason}
+                          onChange={(e) => setReportReason(e.target.value)}
+                          placeholder="Describe the issue (e.g. fake listing, wrong details)…"
+                          className="w-full px-3 py-2.5 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-xs placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+                        />
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={() => {
+                              setShowReportForm(false);
+                              setReportReason("");
+                            }}
+                            className="flex-1 h-8 rounded-full border border-border-light text-text-secondary text-xs hover:bg-gray-50 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            disabled={!reportReason.trim() || reportSubmitting}
+                            onClick={async () => {
+                              if (!reportReason.trim() || !listing) return;
+                              setReportSubmitting(true);
+                              try {
+                                await api.post("/reports", {
+                                  targetType: "LISTING",
+                                  targetId: listing.id,
+                                  reason: reportReason.trim(),
+                                });
+                                setReportSubmitted(true);
+                                setShowReportForm(false);
+                              } finally {
+                                setReportSubmitting(false);
+                              }
+                            }}
+                            className="flex-1 h-8 rounded-full bg-red-500 text-white text-xs font-semibold hover:bg-red-600 transition-colors disabled:opacity-40 flex items-center justify-center gap-1"
+                          >
+                            <Flag className="w-3 h-3" />
+                            {reportSubmitting ? "Sending…" : "Submit"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </motion.div>
               )}
 

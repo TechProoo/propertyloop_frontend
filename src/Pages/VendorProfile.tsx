@@ -20,6 +20,7 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
 import vendorsService from "../api/services/vendors";
+import api from "../api/client";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -71,14 +72,22 @@ const ReviewDisputeSection = ({
     }
   };
 
-  const handleDisputeSubmit = () => {
-    if (disputeText.trim()) {
+  const handleDisputeSubmit = async () => {
+    if (!disputeText.trim()) return;
+    try {
+      await api.post("/reports", {
+        targetType: "VENDOR",
+        targetId: vendorId,
+        reason: disputeText.trim(),
+      });
       setDisputeSubmitted(true);
       setTimeout(() => {
         setShowDisputeForm(false);
         setDisputeSubmitted(false);
         setDisputeText("");
       }, 2000);
+    } catch {
+      // silently ignore — the form stays open so user can retry
     }
   };
 

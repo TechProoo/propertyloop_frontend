@@ -96,7 +96,7 @@ const ReviewDisputeSection = ({
     setDisputeError("");
     try {
       await api.post("/reports", {
-        targetType: "agent",
+        targetType: "AGENT",
         targetId: agentId,
         reason: disputeText.trim(),
       });
