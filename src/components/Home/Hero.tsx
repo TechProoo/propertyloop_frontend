@@ -54,6 +54,7 @@ const Hero = () => {
     featuredPropertiesService
       .listActive()
       .then((res) => {
+        console.log("[Hero] featured-properties API response:", res);
         const live = res
           .filter((fp) => fp.imageUrls?.length > 0)
           .slice(0, 5)
@@ -63,9 +64,12 @@ const Hero = () => {
             price: fp.priceLabel,
             url: fp.imageUrls[0],
           }));
+        console.log("[Hero] live properties after filter:", live);
         if (live.length > 0) setProperties(live);
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("[Hero] featured-properties API error:", err);
+      });
   }, []);
 
   const galleryImages = properties.map((p) => ({ title: p.title, url: p.url }));
