@@ -240,7 +240,7 @@ const Partners = () => {
           className="bg-white/60 backdrop-blur-sm border border-border-light rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-3"
         >
           <div className="bg-white/80 backdrop-blur-md border border-white/40 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.04)] px-8 py-10 sm:px-12 sm:py-14">
-            <div className="flex flex-wrap justify-center gap-16 items-center">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-center gap-8 sm:gap-16 items-center">
               {partners.map((partner) => (
                 <div
                   key={partner.name}
@@ -250,7 +250,7 @@ const Partners = () => {
                   <img
                     src={partner.logo}
                     alt={partner.name}
-                    className="h-16 sm:h-20 w-auto object-contain transition-all duration-300"
+                    className="h-12 sm:h-16 md:h-20 w-full sm:w-auto max-w-[140px] sm:max-w-none object-contain transition-all duration-300"
                   />
                 </div>
               ))}
