@@ -10,8 +10,11 @@ export interface FeaturedProperty {
   propertyType: string;
   beds: number;
   baths: number;
-  sqft?: string;
+  sqft?: string | null;
+  description?: string | null;
   imageUrls: string[];
+  videoUrl?: string | null;
+  displayOrder: number;
   active: boolean;
   createdAt: string;
   updatedAt: string;

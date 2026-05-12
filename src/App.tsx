@@ -51,6 +51,7 @@ import VerifyEmailRequired from "./Pages/VerifyEmailRequired";
 import SearchResults from "./Pages/SearchResults";
 import LogbookInfo from "./Pages/LogbookInfo";
 import LogbookList from "./Pages/LogbookList";
+import FeaturedPropertyDetail from "./Pages/FeaturedPropertyDetail";
 import NotFound from "./Pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "./lib/toast";
@@ -133,6 +134,7 @@ function AppContent() {
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
+          <Route path="/featured-property/:id" element={<FeaturedPropertyDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route

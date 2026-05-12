@@ -4,6 +4,7 @@ import { ImageGallery } from "@/components/ui/carousel-circular-image-gallery";
 import type { ImageGalleryHandle } from "@/components/ui/carousel-circular-image-gallery";
 import gsap from "gsap";
 import featuredPropertiesService from "../../api/services/featuredProperties";
+import type { FeaturedProperty } from "../../api/services/featuredProperties";
 
 const tabs = ["Buy", "Rent", "Shortlet"] as const;
 
@@ -47,6 +48,7 @@ const Hero = () => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [properties, setProperties] = useState(fallbackProperties);
+  const [fullProperties, setFullProperties] = useState<FeaturedProperty[]>([]);
   const galleryRef = useRef<ImageGalleryHandle>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -54,16 +56,20 @@ const Hero = () => {
     featuredPropertiesService
       .listActive()
       .then((res) => {
-        const live = res
+        const filtered = res
           .filter((fp) => fp.imageUrls?.length > 0)
-          .slice(0, 5)
-          .map((fp) => ({
-            title: fp.title,
-            description: fp.location,
-            price: fp.priceLabel,
-            url: fp.imageUrls[0],
-          }));
-        if (live.length > 0) setProperties(live);
+          .slice(0, 5);
+        if (filtered.length > 0) {
+          setFullProperties(filtered);
+          setProperties(
+            filtered.map((fp) => ({
+              title: fp.title,
+              description: fp.location,
+              price: fp.priceLabel,
+              url: fp.imageUrls[0],
+            })),
+          );
+        }
       })
       .catch(() => {});
   }, []);
@@ -213,6 +219,14 @@ const Hero = () => {
   }, []);
 
   const current = properties[activeSlide];
+  const currentFull = fullProperties[activeSlide];
+
+  const goToDetail = () => {
+    if (!currentFull) return;
+    navigate(`/featured-property/${currentFull.id}`, {
+      state: { property: currentFull },
+    });
+  };
 
   return (
     <section
@@ -338,7 +352,8 @@ const Hero = () => {
         {/* Mobile property card */}
         <div
           data-hero-mobile-card
-          className="mt-4 backdrop-blur-xl bg-white/65 rounded-xl shadow-lg shadow-glow/10 border border-white/40 px-4 py-3 flex items-center justify-between"
+          onClick={goToDetail}
+          className="mt-4 backdrop-blur-xl bg-white/65 rounded-xl shadow-lg shadow-glow/10 border border-white/40 px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-white/80 transition-colors"
         >
           <div className="flex-1 min-w-0">
             <h3 className="font-heading font-bold text-primary-dark text-[13px] truncate">
@@ -445,7 +460,8 @@ const Hero = () => {
           {/* Property Card — synced with gallery */}
           <div
             data-hero-card
-            className="flex backdrop-blur-xl bg-white/65 rounded-2xl shadow-lg shadow-glow/10 border border-white/40 px-5 py-4 items-center gap-4 ml-auto max-w-95"
+            onClick={goToDetail}
+            className="flex backdrop-blur-xl bg-white/65 rounded-2xl shadow-lg shadow-glow/10 border border-white/40 px-5 py-4 items-center gap-4 ml-auto max-w-95 cursor-pointer hover:bg-white/80 transition-colors"
           >
             <div className="flex-1 min-w-0">
               <h3 className="font-heading font-bold text-primary-dark text-[15px] transition-all duration-300">
@@ -457,6 +473,11 @@ const Hero = () => {
               <div className="mt-2.5 inline-block border border-primary-dark rounded-full px-4 py-1.5 text-xs font-semibold text-primary-dark transition-all duration-300">
                 {current.price}
               </div>
+              {currentFull && (
+                <p className="mt-2 text-[11px] text-primary font-semibold tracking-wide">
+                  View details →
+                </p>
+              )}
             </div>
 
             {/* Navigation Arrows — control the gallery */}
