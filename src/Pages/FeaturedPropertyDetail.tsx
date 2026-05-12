@@ -189,7 +189,7 @@ export default function FeaturedPropertyDetail() {
           <div className="max-w-7xl mx-auto px-4 md:px-10 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             {/* Left column — details + video + description */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6 min-w-0">
 
               {/* Quick stats */}
               <div className="bg-white rounded-2xl border border-border-light p-5 flex flex-wrap gap-x-8 gap-y-3">
@@ -240,7 +240,7 @@ export default function FeaturedPropertyDetail() {
                     About this property
                   </h2>
                   <div
-                    className="prose prose-sm prose-green max-w-none text-text-secondary leading-relaxed"
+                    className="prose prose-sm prose-green max-w-none text-text-secondary leading-relaxed overflow-hidden"
                     dangerouslySetInnerHTML={{ __html: property.description }}
                   />
                 </div>
