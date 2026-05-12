@@ -327,7 +327,7 @@ const Sell = () => {
                     className="inline-flex items-center gap-2 h-12 px-8 rounded-full bg-[#25D366] text-white text-sm font-bold hover:bg-[#1ebe5d] transition-colors duration-300 shadow-[0_4px_16px_rgba(37,211,102,0.3)]"
                   >
                     <MessageSquare className="w-4 h-4" />
-                    List via WhatsApp
+                    Have a property? Chat us on WhatsApp
                   </a>
                 )}
               </div>
