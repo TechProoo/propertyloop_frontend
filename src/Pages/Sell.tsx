@@ -541,7 +541,35 @@ const Sell = () => {
             )}
           </section>
 
-          {/* ─── 5. Valuation Form ─── */}
+          {/* ─── 5. Already a buyer? List via WhatsApp ─── */}
+          {isLoggedIn && (
+            <section className="mb-12">
+              <a
+                href={`https://wa.me/2347053053040?text=${encodeURIComponent("Hi, I'm a registered buyer on PropertyLoop and I'd like to list a property. Can we discuss?")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col sm:flex-row items-center gap-5 bg-white/80 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-6 sm:p-8 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 transition-all duration-300"
+              >
+                <div className="w-14 h-14 shrink-0 rounded-full bg-[#25D366]/10 flex items-center justify-center text-[#25D366]">
+                  <MessageSquare className="w-7 h-7" />
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <p className="font-heading font-bold text-primary-dark text-lg">
+                    Already registered as a buyer?
+                  </p>
+                  <p className="text-text-secondary text-sm mt-1">
+                    If you have a property you'd like to list, chat with us directly on WhatsApp and we'll take it from there.
+                  </p>
+                </div>
+                <span className="shrink-0 h-11 px-6 rounded-full bg-[#25D366] text-white text-sm font-bold flex items-center gap-2 group-hover:bg-[#1ebe5d] transition-colors">
+                  <MessageSquare className="w-4 h-4" />
+                  Chat on WhatsApp
+                </span>
+              </a>
+            </section>
+          )}
+
+          {/* ─── 6. Valuation Form ─── */}
           <section id="valuation" className="mb-20 scroll-mt-8">
             <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-2 sm:p-3">
               <div className="relative overflow-hidden bg-white/80 backdrop-blur-md border border-white/40 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.04)]">

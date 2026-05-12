@@ -8,6 +8,7 @@ import {
   MapPin,
   Star,
   Phone,
+  MessageSquare,
   CheckCircle,
   ArrowRight,
   ArrowUpRight,
@@ -620,6 +621,35 @@ const Dashboard = () => {
                       </motion.div>
                     ))}
                   </div>
+
+                  {/* List Your Property — buyers only */}
+                  {authUser?.role === "BUYER" && (
+                    <motion.a
+                      href={`https://wa.me/2347053053040?text=${encodeURIComponent("Hi, I'm a registered buyer on PropertyLoop and I'd like to list a property. Can we discuss?")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, ease }}
+                      className="mb-8 flex items-center gap-5 bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-5 hover:shadow-[0_8px_32px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 transition-all duration-300 group"
+                    >
+                      <div className="w-12 h-12 shrink-0 rounded-full bg-[#25D366]/10 flex items-center justify-center text-[#25D366]">
+                        <MessageSquare className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-heading font-bold text-primary-dark text-sm">
+                          Have a property to list?
+                        </p>
+                        <p className="text-text-secondary text-xs mt-0.5">
+                          Tap to chat with us on WhatsApp — we'll walk you through getting it listed.
+                        </p>
+                      </div>
+                      <span className="shrink-0 h-9 px-4 rounded-full bg-[#25D366] text-white text-xs font-bold flex items-center gap-1.5 group-hover:bg-[#1ebe5d] transition-colors">
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        Chat on WhatsApp
+                      </span>
+                    </motion.a>
+                  )}
 
                   <div className="flex flex-col xl:flex-row gap-6">
                     {/* Left */}
