@@ -53,8 +53,10 @@ import LogbookInfo from "./Pages/LogbookInfo";
 import LogbookList from "./Pages/LogbookList";
 import FeaturedPropertyDetail from "./Pages/FeaturedPropertyDetail";
 import NotFound from "./Pages/NotFound";
+import NetworkError from "./Pages/NetworkError";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "./lib/toast";
+import { useOnlineStatus } from "./hooks/useOnlineStatus";
 
 const roleDashboard: Record<string, string> = {
   BUYER: "/dashboard",
@@ -95,6 +97,11 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
 function AppContent() {
   const { loading } = useAuth();
+  const online = useOnlineStatus();
+
+  if (!online) {
+    return <NetworkError onRetry={() => window.location.reload()} />;
+  }
 
   return (
     <>

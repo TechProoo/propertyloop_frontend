@@ -3,6 +3,10 @@ import axios, {
   type AxiosRequestConfig,
   type InternalAxiosRequestConfig,
 } from "axios";
+import {
+  reportNetworkError,
+  reportNetworkRecover,
+} from "../hooks/useOnlineStatus";
 
 // ─── Base config ────────────────────────────────────────────────────────────
 
@@ -72,8 +76,18 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 let refreshPromise: Promise<string> | null = null;
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    reportNetworkRecover();
+    return res;
+  },
   async (error: AxiosError) => {
+    // No response means the request never reached the server — offline,
+    // DNS failure, CORS preflight blocked, server down, etc. Notify the
+    // global offline boundary so it can surface the network-error page.
+    if (!error.response) {
+      reportNetworkError();
+    }
+
     const original = error.config as AxiosRequestConfig & { _retry?: boolean };
     if (!original) return Promise.reject(error);
 
