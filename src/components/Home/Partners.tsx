@@ -237,25 +237,21 @@ const Partners = () => {
         {/* Logo grid */}
         <div
           data-pt-logobox
-          className="bg-white/60 backdrop-blur-sm border border-border-light rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-3"
+          className="flex flex-wrap justify-center gap-4 sm:gap-6"
         >
-          <div className="bg-white/80 backdrop-blur-md border border-white/40 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.04)] px-8 py-10 sm:px-12 sm:py-14">
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-center gap-8 sm:gap-16 items-center">
-              {partners.map((partner) => (
-                <div
-                  key={partner.name}
-                  data-pt-logo
-                  className="flex items-center justify-center"
-                >
-                  <img
-                    src={partner.logo}
-                    alt={partner.name}
-                    className="h-12 sm:h-16 md:h-20 w-full sm:w-auto max-w-[140px] sm:max-w-none object-contain transition-all duration-300"
-                  />
-                </div>
-              ))}
+          {partners.map((partner) => (
+            <div
+              key={partner.name}
+              data-pt-logo
+              className="flex items-center justify-center bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.08)] border border-border-light px-8 py-6 w-[160px] sm:w-[180px] h-[100px] sm:h-[110px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-300"
+            >
+              <img
+                src={partner.logo}
+                alt={partner.name}
+                className="max-h-14 sm:max-h-16 w-full object-contain"
+              />
             </div>
-          </div>
+          ))}
         </div>
 
         {/* ─── Why Partner With Us ─── */}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   Star,
@@ -15,6 +15,9 @@ import {
   Flag,
   Send,
   X,
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -251,6 +254,16 @@ const VendorProfile = () => {
   const [vendor, setVendor] = useState<any>(null);
   const [reviews, setReviews] = useState<any[]>([]);
   const [loadingVendor, setLoadingVendor] = useState(true);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+
+  const openLightbox = (images: string[], idx: number) => {
+    setLightboxImages(images);
+    setLightboxIdx(idx);
+  };
+  const closeLightbox = () => setLightboxIdx(null);
+  const lightboxPrev = () => setLightboxIdx((i) => (i !== null && i > 0 ? i - 1 : lightboxImages.length - 1));
+  const lightboxNext = () => setLightboxIdx((i) => (i !== null && i < lightboxImages.length - 1 ? i + 1 : 0));
 
   const loadVendor = useCallback(async () => {
     if (!id) return;
@@ -355,6 +368,63 @@ const VendorProfile = () => {
       />
       <Navbar />
 
+      {/* ── Lightbox ── */}
+      <AnimatePresence>
+        {lightboxIdx !== null && lightboxImages.length > 0 && (
+          <motion.div
+            key="lightbox"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-9999 bg-black/90 flex items-center justify-center"
+            onClick={closeLightbox}
+          >
+            <button
+              onClick={closeLightbox}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {lightboxImages.length > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
+                className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            )}
+
+            <motion.img
+              key={lightboxIdx}
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              src={lightboxImages[lightboxIdx]}
+              alt=""
+              onClick={(e) => e.stopPropagation()}
+              className="max-w-[92vw] max-h-[88vh] object-contain rounded-2xl shadow-2xl"
+            />
+
+            {lightboxImages.length > 1 && (
+              <button
+                onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
+                className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            )}
+
+            {lightboxImages.length > 1 && (
+              <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm">
+                {lightboxIdx + 1} / {lightboxImages.length}
+              </p>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
@@ -395,13 +465,19 @@ const VendorProfile = () => {
               <div className="flex flex-col lg:flex-row gap-8 items-start">
                 {/* Photo + badge */}
                 <div className="relative shrink-0">
-                  <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-3xl overflow-hidden border-4 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+                  <div
+                    className="w-32 h-32 lg:w-40 lg:h-40 rounded-3xl overflow-hidden border-4 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] cursor-zoom-in group/photo"
+                    onClick={() => openLightbox([vendor.photo], 0)}
+                  >
                     <img
                       src={vendor.photo}
                       alt={vendor.name}
                       onError={(e) => { e.currentTarget.src = FallbackImg; }}
-                      className="w-full h-full object-cover object-top"
+                      className="w-full h-full object-cover object-top group-hover/photo:scale-105 transition-transform duration-300"
                     />
+                    <div className="absolute inset-0 bg-black/0 group-hover/photo:bg-black/20 transition-colors duration-300 flex items-center justify-center">
+                      <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover/photo:opacity-100 transition-opacity duration-300" />
+                    </div>
                   </div>
                   {vendor.verified && (
                     <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary text-xs font-medium shadow-lg whitespace-nowrap">
@@ -591,13 +667,17 @@ const VendorProfile = () => {
                     {vendor.portfolioImages.map((img: string, i: number) => (
                       <div
                         key={i}
-                        className="h-32 rounded-xl overflow-hidden border border-border-light shadow-sm hover:shadow-md transition-shadow"
+                        onClick={() => openLightbox(vendor.portfolioImages, i)}
+                        className="relative h-32 rounded-xl overflow-hidden border border-border-light shadow-sm hover:shadow-md transition-shadow cursor-zoom-in group/port"
                       >
                         <img
                           src={img}
                           alt={`Portfolio ${i + 1}`}
-                          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                          className="w-full h-full object-cover group-hover/port:scale-110 transition-transform duration-300"
                         />
+                        <div className="absolute inset-0 bg-black/0 group-hover/port:bg-black/25 transition-colors duration-300 flex items-center justify-center">
+                          <ZoomIn className="w-5 h-5 text-white opacity-0 group-hover/port:opacity-100 transition-opacity duration-300" />
+                        </div>
                       </div>
                     ))}
                   </div>

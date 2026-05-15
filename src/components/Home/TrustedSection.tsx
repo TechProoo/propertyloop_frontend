@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ArrowRight, Globe, Star, Building } from "lucide-react";
+import { Globe, Star, Building } from "lucide-react";
 import FallbackImg from "../../assets/fallback.png";
 import Blk1 from "../../assets/blk-1.jpg";
 import Blk2 from "../../assets/blk-2.jpg";
@@ -254,16 +254,13 @@ const TrustedSection = () => {
                 </h3>
               </div>
 
-              {/* Description bubble + Arrow */}
-              <div className="flex items-end gap-3 mt-1.5 pl-2 pr-1">
-                <div className="bg-bg-accent rounded-[18px] rounded-tl-[5px] px-4 py-3 flex-1">
+              {/* Description bubble */}
+              <div className="mt-1.5 pl-2 pr-1">
+                <div className="bg-bg-accent rounded-[18px] rounded-tl-[5px] px-4 py-3">
                   <p className="text-text-secondary text-[13px] leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
-                <button className="shrink-0 h-9 px-4 rounded-full border border-border-light bg-white/90 backdrop-blur-sm flex items-center justify-center text-text-subtle group-hover:bg-primary group-hover:border-primary group-hover:text-white transition-all duration-300 mb-0.5">
-                  <ArrowRight className="w-4 h-4" />
-                </button>
               </div>
             </div>
           ))}
