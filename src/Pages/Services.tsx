@@ -26,6 +26,7 @@ import Footer from "../components/Home/Footer";
 import { useVendors } from "../api/hooks";
 import vendorsService from "../api/services/vendors";
 import BookmarkButton from "../components/ui/BookmarkButton";
+import FallbackImg from "../assets/fallback.png";
 
 /* ─── Data ─── */
 
@@ -144,10 +145,10 @@ const Services = () => {
     id: v.id,
     image:
       v.bannerImage ||
-      "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
+      FallbackImg,
     avatar:
       v.avatarUrl ||
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop&crop=face",
+      FallbackImg,
     name: v.name,
     category: v.category || "",
     rating: v.rating,
@@ -549,6 +550,7 @@ const Services = () => {
                               <img
                                 src={vendor.avatar}
                                 alt={vendor.name}
+                                onError={(e) => { e.currentTarget.src = FallbackImg; }}
                                 className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
                               />
                               <div className="flex-1 min-w-0">

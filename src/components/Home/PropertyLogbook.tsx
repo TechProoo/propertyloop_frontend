@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import listingsService from "../../api/services/listings";
 import type { Listing } from "../../api/types";
+import { handleBannerError } from "../../lib/bannerFallback";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -322,6 +323,7 @@ const PropertyLogbook = () => {
                                 "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=100&h=100&fit=crop"
                               }
                               alt={property.title}
+                              onError={handleBannerError}
                               className="w-12 h-12 rounded-lg object-cover"
                             />
                             <div className="flex-1 min-w-0">

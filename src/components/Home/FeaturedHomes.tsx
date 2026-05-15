@@ -4,6 +4,7 @@ import AuthGate from "../ui/AuthGate";
 import { CardSkeleton } from "../ui/Skeleton";
 import listingsService from "../../api/services/listings";
 import type { Listing } from "../../api/types";
+import { handleBannerError } from "../../lib/bannerFallback";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -172,6 +173,7 @@ const FeaturedHomes = () => {
                   <img
                     src={home.coverImage}
                     alt={home.title}
+                    onError={handleBannerError}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   {/* Sale / Rent tag */}

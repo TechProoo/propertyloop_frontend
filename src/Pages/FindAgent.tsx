@@ -20,8 +20,9 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-import RealIcon from "../assets/realicon.png";
+import FallbackImg from "../assets/fallback.png";
 import { useAgents } from "../api/hooks";
+import { formatTel } from "../lib/phone";
 
 /* ─── Data ─── */
 
@@ -96,7 +97,7 @@ const FindAgent = () => {
   // Map API shape to what the template uses
   const agents = apiAgents.map((a) => ({
     id: a.id,
-    photo: a.avatarUrl || RealIcon,
+    photo: a.avatarUrl || FallbackImg,
     name: a.name,
     agency: a.agency || "",
     location: a.location || "",
@@ -410,6 +411,7 @@ const FindAgent = () => {
                       <img
                         src={agent.photo}
                         alt={agent.name}
+                        onError={(e) => { e.currentTarget.src = FallbackImg; }}
                         className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                       />
                       {/* Verified badge */}
@@ -513,7 +515,7 @@ const FindAgent = () => {
                                 duration: 0.4,
                                 ease: [0.23, 1, 0.32, 1],
                               }}
-                              href={`tel:${agent.phone}`}
+                              href={formatTel(agent.phone)}
                               className="flex flex-col items-center gap-2"
                             >
                               <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">

@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import type { FeaturedProperty } from "../api/services/featuredProperties";
+import { handleBannerError } from "../lib/bannerFallback";
+import { formatTel, formatPhoneDisplay } from "../lib/phone";
 
 const WHATSAPP = "2347053053040";
 const PHONE = "2347053053040";
@@ -96,6 +98,7 @@ export default function FeaturedPropertyDetail() {
           <img
             src={allImages[lightboxIndex]}
             alt="Property"
+            onError={handleBannerError}
             className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl"
             onClick={(e) => e.stopPropagation()}
           />
@@ -116,6 +119,7 @@ export default function FeaturedPropertyDetail() {
               <img
                 src={allImages[activeImage]}
                 alt={property.title}
+                onError={handleBannerError}
                 className="w-full h-full object-cover transition-all duration-500"
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/10 to-transparent" />
@@ -178,7 +182,7 @@ export default function FeaturedPropertyDetail() {
                         : "border-transparent opacity-70 hover:opacity-100"
                     }`}
                   >
-                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <img src={url} alt="" onError={handleBannerError} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -294,7 +298,7 @@ export default function FeaturedPropertyDetail() {
                   </a>
 
                   <a
-                    href={`tel:+${PHONE}`}
+                    href={formatTel(PHONE)}
                     className="flex items-center gap-3 p-3.5 rounded-xl bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center shrink-0 shadow-sm">
@@ -302,7 +306,7 @@ export default function FeaturedPropertyDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-bold text-blue-700 uppercase tracking-widest">Call Us</p>
-                      <p className="text-blue-900 font-semibold text-sm truncate">+{PHONE}</p>
+                      <p className="text-blue-900 font-semibold text-sm truncate">{formatPhoneDisplay(PHONE)}</p>
                     </div>
                     <ChevronRight size={15} className="text-blue-400 group-hover:translate-x-0.5 transition-transform" />
                   </a>

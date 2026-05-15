@@ -28,8 +28,10 @@ import vendorsService from "../api/services/vendors";
 import messagesService from "../api/services/messages";
 import vendorJobsService from "../api/services/vendorJobs";
 import uploadService from "../api/services/upload";
+import { formatTel } from "../lib/phone";
 import { useAuth } from "../context/AuthContext";
 import type { VendorPublic } from "../api/types";
+import FallbackImg from "../assets/fallback.png";
 // Chat and booking data now handled via API services
 type ChatMessage = {
   sender: "you" | "them";
@@ -561,8 +563,9 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                     className="flex items-center gap-4 bg-white/60 border border-border-light rounded-2xl p-4 mb-6 hover:shadow-md hover:border-primary/30 transition-all"
                   >
                     <img
-                      src={vendor.avatarUrl ?? ""}
+                      src={vendor.avatarUrl ?? FallbackImg}
                       alt={vendor.name}
+                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
                       className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
                     />
                     <div className="flex-1 min-w-0">
@@ -813,8 +816,9 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                 <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                   <Link to={`/vendor/${vendor.id}`}>
                     <img
-                      src={vendor.bannerImage ?? vendor.avatarUrl ?? ""}
+                      src={vendor.bannerImage ?? vendor.avatarUrl ?? FallbackImg}
                       alt={vendor.name}
+                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
                       className="w-full h-40 object-cover hover:opacity-90 transition-opacity"
                     />
                   </Link>
@@ -824,8 +828,9 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                       className="group flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity"
                     >
                       <img
-                        src={vendor.avatarUrl ?? ""}
+                        src={vendor.avatarUrl ?? FallbackImg}
                         alt={vendor.name}
+                        onError={(e) => { e.currentTarget.src = FallbackImg; }}
                         className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
                       />
                       <div className="flex-1 min-w-0">
@@ -876,7 +881,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                     <div className="h-px bg-border-light my-3" />
                     <div className="flex gap-2">
                       <a
-                        href={`tel:${vendor.phone ?? ""}`}
+                        href={formatTel(vendor.phone)}
                         className="flex-1 h-9 rounded-full bg-white/80 border border-white/40 text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-1"
                       >
                         <Phone className="w-3 h-3" /> Call

@@ -27,7 +27,8 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
-import RealIcon from "../assets/realicon.png";
+import FallbackImg from "../assets/fallback.png";
+import { formatTel } from "../lib/phone";
 import agentsService from "../api/services/agents";
 import messagesService from "../api/services/messages";
 import api from "../api/client";
@@ -288,7 +289,7 @@ const AgentProfile = () => {
       const data = await agentsService.getById(id);
       setAgent({
         id: data.id,
-        photo: data.avatarUrl || RealIcon,
+        photo: data.avatarUrl || FallbackImg,
         name: data.name,
         agency: data.agency || "",
         location: data.location || "",
@@ -463,6 +464,7 @@ const AgentProfile = () => {
                     <img
                       src={agent.photo}
                       alt={agent.name}
+                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
                       className="w-full h-full object-cover object-top"
                     />
                   </div>
@@ -543,7 +545,7 @@ const AgentProfile = () => {
                 {/* Contact buttons — desktop */}
                 <div className="hidden lg:flex flex-col gap-3 shrink-0">
                   <a
-                    href={`tel:${agent.phone}`}
+                    href={formatTel(agent.phone)}
                     className="h-11 px-6 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
                   >
                     <Phone className="w-4 h-4" />
@@ -574,7 +576,7 @@ const AgentProfile = () => {
           <div className="lg:hidden flex flex-col gap-3 mb-8 -mt-4">
             <div className="flex gap-3">
               <a
-                href={`tel:${agent.phone}`}
+                href={formatTel(agent.phone)}
                 className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
               >
                 <Phone className="w-4 h-4" />
@@ -957,7 +959,7 @@ const AgentProfile = () => {
               </p>
             </div>
             <a
-              href={`tel:${agent.phone}`}
+              href={formatTel(agent.phone)}
               className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2"
             >
               <Phone className="w-4 h-4" />

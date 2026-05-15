@@ -21,6 +21,9 @@ import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
 import vendorsService from "../api/services/vendors";
 import api from "../api/client";
+import FallbackImg from "../assets/fallback.png";
+import { BANNER_FALLBACK } from "../lib/bannerFallback";
+import { formatTel } from "../lib/phone";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -260,10 +263,9 @@ const VendorProfile = () => {
         id: vendorData.id,
         photo:
           vendorData.avatarUrl ||
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+          FallbackImg,
         banner:
-          vendorData.bannerImage ||
-          "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=400&fit=crop",
+          vendorData.bannerImage || BANNER_FALLBACK,
         name: vendorData.name,
         category: vendorData.category || "Service Provider",
         location: vendorData.location || "",
@@ -397,6 +399,7 @@ const VendorProfile = () => {
                     <img
                       src={vendor.photo}
                       alt={vendor.name}
+                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
                       className="w-full h-full object-cover object-top"
                     />
                   </div>
@@ -467,7 +470,7 @@ const VendorProfile = () => {
                     Book Now
                   </Link>
                   <a
-                    href={`tel:${vendor.phone}`}
+                    href={formatTel(vendor.phone)}
                     className="h-11 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all inline-flex items-center gap-2"
                   >
                     <Phone className="w-4 h-4" />
@@ -488,7 +491,7 @@ const VendorProfile = () => {
               Book Now
             </Link>
             <a
-              href={`tel:${vendor.phone}`}
+              href={formatTel(vendor.phone)}
               className="flex-1 h-11 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-2"
             >
               <Phone className="w-4 h-4" />
@@ -679,6 +682,7 @@ const VendorProfile = () => {
                       <img
                         src={vendor.photo}
                         alt={vendor.name}
+                        onError={(e) => { e.currentTarget.src = FallbackImg; }}
                         className="w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-md"
                       />
                       <div>
@@ -693,7 +697,7 @@ const VendorProfile = () => {
 
                     <div className="space-y-3 mb-5">
                       <a
-                        href={`tel:${vendor.phone}`}
+                        href={formatTel(vendor.phone)}
                         className="w-full h-10 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
                       >
                         <Phone className="w-4 h-4" />

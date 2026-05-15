@@ -20,6 +20,7 @@ import Footer from "../components/Home/Footer";
 import productsService from "../api/services/products";
 import type { Product } from "../api/types";
 import { DetailSkeleton } from "../components/ui/Skeleton";
+import { formatTel } from "../lib/phone";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -312,7 +313,7 @@ const ProductDetail = () => {
                 {/* Contact supplier */}
                 <div className="flex gap-2 mt-3">
                   <a
-                    href={`tel:${product.phone}`}
+                    href={formatTel(product.phone)}
                     className="flex-1 h-10 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-1.5"
                   >
                     <Phone className="w-3.5 h-3.5" /> Call

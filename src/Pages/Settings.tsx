@@ -30,6 +30,7 @@ import authService from "../api/services/auth";
 import uploadService from "../api/services/upload";
 import type { Session } from "../api/types";
 import ProfilePictureUpload from "../components/Settings/ProfilePictureUpload";
+import FallbackImg from "../assets/fallback.png";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -53,9 +54,7 @@ const Settings = () => {
   const [phone, setPhone] = useState("+234 ");
   const [location, setLocation] = useState("Lagos, Nigeria");
   const [bio, setBio] = useState("");
-  const [avatar, setAvatar] = useState(
-    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&h=200&fit=crop&crop=face",
-  );
+  const [avatar, setAvatar] = useState(FallbackImg);
 
   const [notifEmail, setNotifEmail] = useState(true);
   const [notifSms, setNotifSms] = useState(true);
@@ -293,6 +292,7 @@ const Settings = () => {
                   <img
                     src={avatar}
                     alt={name}
+                    onError={(e) => { e.currentTarget.src = FallbackImg; }}
                     className="w-12 h-12 rounded-full object-cover border border-border-light"
                   />
                   <div className="min-w-0">

@@ -14,6 +14,7 @@ import {
   Shield,
   CheckCircle,
 } from "lucide-react";
+import FallbackImg from "../../assets/fallback.png";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -252,7 +253,7 @@ const ServiceLoop = () => {
             {vendors.map((vendor) => (
               <AuthGate
                 key={vendor.id}
-                href="/services"
+                href={`/vendor/${vendor.id}`}
                 data-sl-card
                 className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
               >
@@ -301,11 +302,9 @@ const ServiceLoop = () => {
                   {/* Vendor header — avatar + name + verified */}
                   <div className="flex items-center gap-3">
                     <img
-                      src={
-                        vendor.avatarUrl ||
-                        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop"
-                      }
+                      src={vendor.avatarUrl || FallbackImg}
                       alt={vendor.name}
+                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
                       className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
                     />
                     <div className="flex-1 min-w-0">

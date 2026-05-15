@@ -3,7 +3,7 @@ import { ArrowUpRight, CheckCircle, Home, Phone, Sparkles } from "lucide-react";
 import AuthGate from "../ui/AuthGate";
 import agentsService from "../../api/services/agents";
 import type { AgentPublic } from "../../api/types";
-import RealIcon from "../../assets/realicon.png";
+import FallbackImg from "../../assets/fallback.png";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -194,8 +194,9 @@ const AgentSpotlight = () => {
               {/* Photo */}
               <div className="h-52 overflow-hidden rounded-t-[20px] relative bg-linear-to-br from-primary/20 to-primary-dark/20">
                 <img
-                  src={agent.avatarUrl || RealIcon}
+                  src={agent.avatarUrl || FallbackImg}
                   alt={agent.name}
+                  onError={(e) => { e.currentTarget.src = FallbackImg; }}
                   className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                 />
                 {/* Verified badge and arrow */}

@@ -25,6 +25,8 @@ import MessagesSkeleton, {
   ConversationsSkeleton,
 } from "../components/Messages/MessagesSkeleton";
 import messagesService from "../api/services/messages";
+import FallbackImg from "../assets/fallback.png";
+import { formatTel } from "../lib/phone";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -119,7 +121,7 @@ const Messages = () => {
       map[c.id] = {
         id: c.id,
         name: c.name,
-        avatar: c.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200",
+        avatar: c.avatar || FallbackImg,
         role: roleDisplay,
         phone: c.phone || "",
         messages: [],
@@ -266,7 +268,7 @@ const Messages = () => {
                         className={`w-full text-left px-4 py-3.5 border-b border-border-light/60 transition-colors flex items-start gap-3 ${isActive ? "bg-primary/5" : "hover:bg-bg-accent/60"}`}
                       >
                         <div className="relative shrink-0">
-                          <img src={c.avatar} alt={c.name} className="w-11 h-11 rounded-full object-cover" />
+                          <img src={c.avatar} alt={c.name} onError={(e) => { e.currentTarget.src = FallbackImg; }} className="w-11 h-11 rounded-full object-cover" />
                           <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${c.role === "Agent" ? "bg-primary" : "bg-blue-500"}`}>
                             {c.role === "Agent" ? <Briefcase className="w-2 h-2 text-white" /> : <Wrench className="w-2 h-2 text-white" />}
                           </span>
@@ -307,7 +309,7 @@ const Messages = () => {
                     >
                       <ArrowLeft className="w-4 h-4" />
                     </button>
-                    <img src={active?.avatar} alt={active?.name || "User"} className="w-10 h-10 rounded-full object-cover" />
+                    <img src={active?.avatar} alt={active?.name || "User"} onError={(e) => { e.currentTarget.src = FallbackImg; }} className="w-10 h-10 rounded-full object-cover" />
                     <div className="flex-1 min-w-0">
                       <p className="font-heading font-bold text-primary-dark text-sm truncate">{active?.name || "User"}</p>
                       <span className={`inline-flex items-center gap-1 text-xs ${active?.role === "Agent" ? "text-primary" : "text-blue-500"}`}>
@@ -316,7 +318,7 @@ const Messages = () => {
                       </span>
                     </div>
                     <a
-                      href={`tel:${active?.phone || ""}`}
+                      href={formatTel(active?.phone)}
                       className="w-9 h-9 rounded-full bg-bg-accent border border-border-light flex items-center justify-center text-text-secondary hover:text-primary hover:border-primary transition-all"
                     >
                       <Phone className="w-4 h-4" />

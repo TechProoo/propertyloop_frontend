@@ -33,6 +33,7 @@ import {
 import Logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
 import { useFirstLoginTour } from "../lib/tour/useFirstLoginTour";
+import { formatTel } from "../lib/phone";
 import vendorsService from "../api/services/vendors";
 import vendorJobsService from "../api/services/vendorJobs";
 import vendorEarningsService from "../api/services/vendorEarnings";
@@ -852,7 +853,7 @@ const VendorDashboard = () => {
                                 </span>
                               </div>
                               <a
-                                href={`tel:${job.clientPhone}`}
+                                href={formatTel(job.clientPhone)}
                                 className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shrink-0"
                               >
                                 <Phone className="w-3.5 h-3.5" />
@@ -1260,7 +1261,7 @@ const VendorDashboard = () => {
                           <MessageCircle className="w-3.5 h-3.5" />
                         </button>
                         <a
-                          href={`tel:${job.clientPhone}`}
+                          href={formatTel(job.clientPhone)}
                           onClick={(e) => e.stopPropagation()}
                           className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                         >
@@ -1550,7 +1551,7 @@ const VendorDashboard = () => {
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
                                 <a
-                                  href={`tel:${activeConvo.phone || ""}`}
+                                  href={formatTel(activeConvo.phone)}
                                   className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                                 >
                                   <Phone className="w-3.5 h-3.5" />

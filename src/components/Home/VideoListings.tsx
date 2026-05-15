@@ -3,6 +3,7 @@ import { ArrowUpRight, Bed, Bath, Maximize, Play, X } from "lucide-react";
 import AuthGate from "../ui/AuthGate";
 import listingsService from "../../api/services/listings";
 import type { Listing } from "../../api/types";
+import { handleBannerError } from "../../lib/bannerFallback";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -226,6 +227,7 @@ const VideoListings = () => {
                       <img
                         src={thumbnail}
                         alt={home.title}
+                        onError={handleBannerError}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       {/* Dark overlay and arrow */}

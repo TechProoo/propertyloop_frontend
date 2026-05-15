@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
+import FallbackImg from "../assets/fallback.png";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -84,8 +85,7 @@ const flowSteps = [
 const mockTransaction = {
   vendor: {
     name: "Chinedu Okonkwo",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
+    avatar: FallbackImg,
     category: "Plumbing",
     rating: 4.9,
     jobs: 234,

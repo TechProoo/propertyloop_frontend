@@ -49,12 +49,14 @@ import type {
 } from "../api/types";
 import { useAuth } from "../context/AuthContext";
 import { useFirstLoginTour } from "../lib/tour/useFirstLoginTour";
+import { formatTel } from "../lib/phone";
 import { useBookmarks } from "../context/BookmarkContext";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import { useChat } from "../api/hooks";
 import MessagesSkeleton, {
   ConversationsSkeleton,
 } from "../components/Messages/MessagesSkeleton";
+import FallbackImg from "../assets/fallback.png";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
@@ -796,7 +798,7 @@ const Dashboard = () => {
                                 job.vendor?.name || "Unknown Vendor";
                               const vendorAvatar =
                                 job.vendor?.avatarUrl ||
-                                "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200";
+                                FallbackImg;
                               const scheduledDate = job.scheduledFor
                                 ? new Date(job.scheduledFor)
                                 : null;
@@ -809,6 +811,7 @@ const Dashboard = () => {
                                   <img
                                     src={vendorAvatar}
                                     alt={vendorName}
+                                    onError={(e) => { e.currentTarget.src = FallbackImg; }}
                                     className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
                                   />
                                   <div className="flex-1 min-w-0">
@@ -1152,8 +1155,9 @@ const Dashboard = () => {
                           >
                             <div className="flex items-start gap-3">
                               <img
-                                src={vendor.avatarUrl || ""}
+                                src={vendor.avatarUrl || FallbackImg}
                                 alt={vendor.name}
+                                onError={(e) => { e.currentTarget.src = FallbackImg; }}
                                 className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
                               />
                               <div className="flex-1 min-w-0">
@@ -1350,8 +1354,9 @@ const Dashboard = () => {
                         >
                           <div className="flex gap-4">
                             <img
-                              src={vendor.avatarUrl || ""}
+                              src={vendor.avatarUrl || FallbackImg}
                               alt={vendor.name}
+                              onError={(e) => { e.currentTarget.src = FallbackImg; }}
                               className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
                             />
                             <div className="flex-1 min-w-0">
@@ -1594,9 +1599,10 @@ const Dashboard = () => {
                                       <img
                                         src={
                                           convo.avatar ||
-                                          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"
+                                          FallbackImg
                                         }
                                         alt={convo.name}
+                                        onError={(e) => { e.currentTarget.src = FallbackImg; }}
                                         className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm"
                                       />
                                     </div>
@@ -1670,9 +1676,10 @@ const Dashboard = () => {
                               <img
                                 src={
                                   activeConvo.avatar ||
-                                  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200"
+                                  FallbackImg
                                 }
                                 alt={activeConvo.name}
+                                onError={(e) => { e.currentTarget.src = FallbackImg; }}
                                 className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
                               />
                               <div className="flex-1 min-w-0">
@@ -1697,7 +1704,7 @@ const Dashboard = () => {
                               <div className="flex items-center gap-2 shrink-0">
                                 {activeConvo.phone && (
                                   <a
-                                    href={`tel:${activeConvo.phone}`}
+                                    href={formatTel(activeConvo.phone)}
                                     className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                                   >
                                     <Phone className="w-3.5 h-3.5" />
@@ -1950,7 +1957,7 @@ const Dashboard = () => {
                             <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end shrink-0">
                               {v.agent?.phone && (
                                 <a
-                                  href={`tel:${v.agent.phone}`}
+                                  href={formatTel(v.agent.phone)}
                                   className="h-8 px-3 rounded-full bg-white/80 border border-border-light text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-colors inline-flex items-center gap-1.5"
                                 >
                                   <Phone className="w-3.5 h-3.5" />

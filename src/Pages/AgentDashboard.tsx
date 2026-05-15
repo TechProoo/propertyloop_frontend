@@ -40,8 +40,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useFirstLoginTour } from "../lib/tour/useFirstLoginTour";
+import { formatTel, formatPhoneDisplay } from "../lib/phone";
 import Logo from "../assets/logo.png";
-import RealIcon from "../assets/realicon.png";
+import FallbackImg from "../assets/fallback.png";
 import agentsService from "../api/services/agents";
 import listingsService from "../api/services/listings";
 import viewingsService from "../api/services/viewings";
@@ -352,7 +353,7 @@ const AgentDashboard = () => {
     yearsExperience: apiStats?.profile.yearsExperience ?? 0,
     verified: apiStats?.profile.verified ?? false,
     name: user?.name || "Agent",
-    photo: user?.avatarUrl || RealIcon,
+    photo: user?.avatarUrl || FallbackImg,
     agency: (user?.agentProfile as any)?.agencyName || "",
     email: user?.email || "",
     phone: user?.phone || "",
@@ -619,6 +620,7 @@ const AgentDashboard = () => {
             <img
               src={agent.photo}
               alt={agent.name}
+              onError={(e) => { e.currentTarget.src = FallbackImg; }}
               className="w-9 h-9 rounded-full object-cover object-top border-2 shrink-0"
               style={{ borderColor: "hsl(160, 25%, 20%)" }}
             />
@@ -725,6 +727,7 @@ const AgentDashboard = () => {
                   <img
                     src={agent.photo}
                     alt={agent.name}
+                    onError={(e) => { e.currentTarget.src = FallbackImg; }}
                     className="w-9 h-9 rounded-full object-cover object-top border-2"
                     style={{ borderColor: "hsl(160, 25%, 20%)" }}
                   />
@@ -795,6 +798,7 @@ const AgentDashboard = () => {
             <img
               src={agent.photo}
               alt={agent.name}
+              onError={(e) => { e.currentTarget.src = FallbackImg; }}
               className="w-9 h-9 rounded-full object-cover object-top border-2 border-white shadow-sm hidden sm:block"
             />
           </div>
@@ -813,7 +817,7 @@ const AgentDashboard = () => {
               className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 backdrop-blur-sm px-4 py-3"
             >
               <img
-                src={RealIcon}
+                src={FallbackImg}
                 alt=""
                 className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
               />
@@ -1681,7 +1685,7 @@ const AgentDashboard = () => {
                                       {v.clientName}
                                     </p>
                                     <p className="text-text-secondary text-xs">
-                                      {v.clientPhone}
+                                      {formatPhoneDisplay(v.clientPhone)}
                                     </p>
                                   </div>
                                   <span
@@ -1750,7 +1754,7 @@ const AgentDashboard = () => {
                                   </button>
                                 )}
                                 <a
-                                  href={`tel:${v.clientPhone}`}
+                                  href={formatTel(v.clientPhone)}
                                   className="h-8 px-3 rounded-full bg-white/80 border border-border-light text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-colors inline-flex items-center gap-1.5"
                                 >
                                   <Phone className="w-3.5 h-3.5" />
@@ -2001,7 +2005,7 @@ const AgentDashboard = () => {
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
                                 <a
-                                  href={`tel:${activeConvo.phone}`}
+                                  href={formatTel(activeConvo.phone)}
                                   className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                                 >
                                   <Phone className="w-3.5 h-3.5" />

@@ -28,6 +28,8 @@ import Footer from "../components/Home/Footer";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import EmptyState from "../components/ui/EmptyState";
 import { useListings } from "../api/hooks";
+import { handleBannerError } from "../lib/bannerFallback";
+import { formatTel } from "../lib/phone";
 
 /* ─── Data ─── */
 
@@ -531,6 +533,7 @@ const Shortlet = () => {
                         <img
                           src={listing.image}
                           alt={listing.title}
+                          onError={handleBannerError}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                         <span className="absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-medium text-primary-dark">
@@ -654,7 +657,7 @@ const Shortlet = () => {
                                   duration: 0.4,
                                   ease: [0.23, 1, 0.32, 1],
                                 }}
-                                href="tel:+2341234567890"
+                                href={formatTel("+2341234567890")}
                                 className="flex flex-col items-center gap-2"
                               >
                                 <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">

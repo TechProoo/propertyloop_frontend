@@ -38,6 +38,9 @@ import viewingsService from "../api/services/viewings";
 import type { Listing as ApiListing } from "../api/types";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import { DetailSkeleton } from "../components/ui/Skeleton";
+import FallbackImg from "../assets/fallback.png";
+import { handleBannerError } from "../lib/bannerFallback";
+import { formatTel } from "../lib/phone";
 import { useAuth } from "../context/AuthContext";
 // Agent data now comes embedded in the listing response
 
@@ -164,7 +167,7 @@ const PropertyDetail = () => {
         id: listing.agent.id,
         photo:
           listing.agent.avatarUrl ||
-          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face",
+          FallbackImg,
         name: listing.agent.name || "Agent",
         agency: listing.agent.agency || "",
         rating: listing.agent.rating ?? 0,
@@ -345,6 +348,7 @@ const PropertyDetail = () => {
                 src={listing.images[activeImage]}
                 alt=""
                 aria-hidden="true"
+                onError={handleBannerError}
                 className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
               />
               <img
@@ -354,6 +358,7 @@ const PropertyDetail = () => {
                 loading="eager"
                 decoding="async"
                 fetchPriority="high"
+                onError={handleBannerError}
                 className="relative w-full h-full object-contain"
               />
               {/* Gradient overlay bottom */}
@@ -437,6 +442,7 @@ const PropertyDetail = () => {
                     <img
                       src={img}
                       alt={`View ${i + 1}`}
+                      onError={handleBannerError}
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -905,6 +911,7 @@ const PropertyDetail = () => {
                     <img
                       src={agent.photo}
                       alt={agent.name}
+                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
                       className="w-14 h-14 rounded-full object-cover object-top border-2 border-white shadow-sm"
                     />
                     <div className="flex-1 min-w-0">
@@ -933,7 +940,7 @@ const PropertyDetail = () => {
                   {/* Contact buttons */}
                   <div className="flex flex-col gap-2.5">
                     <a
-                      href={`tel:+${agent.phone}`}
+                      href={formatTel(agent.phone)}
                       className="h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2 shadow-lg shadow-glow/40"
                     >
                       <Phone className="w-4 h-4" />
@@ -1358,6 +1365,7 @@ const PropertyDetail = () => {
                           <img
                             src={s.coverImage}
                             alt={s.title}
+                            onError={handleBannerError}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                           <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-primary/90 text-white text-[10px] font-medium">

@@ -26,6 +26,7 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import { useProducts } from "../api/hooks";
 import BookmarkButton from "../components/ui/BookmarkButton";
+import { handleBannerError } from "../lib/bannerFallback";
 
 /* ─── Data ─── */
 
@@ -347,6 +348,7 @@ const Marketplace = () => {
                       <img
                         src={product.image}
                         alt={product.name}
+                        onError={handleBannerError}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">

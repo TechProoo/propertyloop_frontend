@@ -33,6 +33,7 @@ import PropertyMap from "../components/ui/PropertyMap";
 import type { MapListing } from "../components/ui/PropertyMap";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import EmptyState from "../components/ui/EmptyState";
+import { formatTel } from "../lib/phone";
 
 const categoryIcons: Record<string, React.ReactNode> = {
   "Flat / Apartment": <Building2 className="w-5 h-5" />,
@@ -888,7 +889,7 @@ const Buy = () => {
                                   duration: 0.4,
                                   ease: [0.23, 1, 0.32, 1],
                                 }}
-                                href="tel:+2341234567890"
+                                href={formatTel("+2341234567890")}
                                 className="flex flex-col items-center gap-2"
                               >
                                 <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">

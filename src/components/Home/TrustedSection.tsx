@@ -1,5 +1,10 @@
 import { useEffect, useRef } from "react";
 import { ArrowRight, Globe, Star, Building } from "lucide-react";
+import FallbackImg from "../../assets/fallback.png";
+import Blk1 from "../../assets/blk-1.jpg";
+import Blk2 from "../../assets/blk-2.jpg";
+import Blk3 from "../../assets/blk-3.jpg";
+import Blk4 from "../../assets/blk-4.jpg";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -34,28 +39,20 @@ const features = [
 
 const avatars = [
   {
-    src: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
+    src: Blk1,
     alt: "Nigerian client portrait",
-    fallback:
-      "https://ui-avatars.com/api/?name=Adaobi&background=14804A&color=ffffff",
   },
   {
-    src: "https://images.pexels.com/photos/3777943/pexels-photo-3777943.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
+    src: Blk2,
     alt: "Nigerian client portrait",
-    fallback:
-      "https://ui-avatars.com/api/?name=Chinedu&background=14804A&color=ffffff",
   },
   {
-    src: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
+    src: Blk3,
     alt: "Nigerian client portrait",
-    fallback:
-      "https://ui-avatars.com/api/?name=Temitope&background=14804A&color=ffffff",
   },
   {
-    src: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&fit=crop",
+    src: Blk4,
     alt: "Nigerian client portrait",
-    fallback:
-      "https://ui-avatars.com/api/?name=Kelechi&background=14804A&color=ffffff",
   },
 ];
 
@@ -207,12 +204,7 @@ const TrustedSection = () => {
                   key={i}
                   src={avatar.src}
                   alt={avatar.alt}
-                  onError={(e) => {
-                    const image = e.currentTarget;
-                    if (image.src !== avatar.fallback) {
-                      image.src = avatar.fallback;
-                    }
-                  }}
+                  onError={(e) => { e.currentTarget.src = FallbackImg; }}
                   data-trusted-avatar
                   className="w-11 h-11 rounded-full border-2 border-white object-cover shadow-md"
                 />

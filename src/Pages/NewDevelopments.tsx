@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
+import { handleBannerError } from "../lib/bannerFallback";
+import { formatTel } from "../lib/phone";
 
 /* ─── Data ─── */
 
@@ -373,6 +375,7 @@ const NewDevelopments = () => {
                       <img
                         src={dev.image}
                         alt={dev.title}
+                        onError={handleBannerError}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       {/* Status badge */}
@@ -491,7 +494,7 @@ const NewDevelopments = () => {
                                 duration: 0.4,
                                 ease: [0.23, 1, 0.32, 1],
                               }}
-                              href="tel:+2341234567890"
+                              href={formatTel("+2341234567890")}
                               className="flex flex-col items-center gap-2"
                             >
                               <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">
