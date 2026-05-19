@@ -327,6 +327,7 @@ const BookService = () => {
   // Booking negotiation state
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   // Initialize chat - create/find conversation and load messages
   useEffect(() => {
@@ -389,6 +390,7 @@ const BookService = () => {
 
     setSending(true);
     setAttachmentError(null);
+    setSendError(null);
 
     try {
       // Upload any attached images/videos first so we can pass URLs to the booking
@@ -453,8 +455,25 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
       setTimeout(() => {
         window.location.href = "/dashboard?tab=messages";
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to send negotiation request:", error);
+      const serverMsg = error?.response?.data?.message;
+      const isSelf =
+        (typeof serverMsg === "string" &&
+          serverMsg.toLowerCase().includes("cannot message yourself")) ||
+        (error instanceof Error &&
+          error.message.toLowerCase().includes("cannot message yourself"));
+      if (isSelf) {
+        setSendError(
+          "You can\u2019t send a booking request to your own profile.",
+        );
+      } else {
+        setSendError(
+          typeof serverMsg === "string"
+            ? serverMsg
+            : "Something went wrong. Please try again.",
+        );
+      }
       setSending(false);
     }
   };
@@ -565,7 +584,9 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                     <img
                       src={vendor.avatarUrl ?? FallbackImg}
                       alt={vendor.name}
-                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
+                      onError={(e) => {
+                        e.currentTarget.src = FallbackImg;
+                      }}
                       className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
                     />
                     <div className="flex-1 min-w-0">
@@ -747,6 +768,16 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                     </div>
                   </div>
 
+                  {sendError && (
+                    <div className="mt-6 px-4 py-3 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-2">
+                      <span className="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-bold">
+                        !
+                      </span>
+                      <p className="text-red-700 text-sm leading-snug">
+                        {sendError}
+                      </p>
+                    </div>
+                  )}
                   <div className="flex justify-end mt-6">
                     <button
                       onClick={handleSendNegotiationRequest}
@@ -816,9 +847,13 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                 <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                   <Link to={`/vendor/${vendor.id}`}>
                     <img
-                      src={vendor.bannerImage ?? vendor.avatarUrl ?? FallbackImg}
+                      src={
+                        vendor.bannerImage ?? vendor.avatarUrl ?? FallbackImg
+                      }
                       alt={vendor.name}
-                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
+                      onError={(e) => {
+                        e.currentTarget.src = FallbackImg;
+                      }}
                       className="w-full h-40 object-cover hover:opacity-90 transition-opacity"
                     />
                   </Link>
@@ -830,7 +865,9 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                       <img
                         src={vendor.avatarUrl ?? FallbackImg}
                         alt={vendor.name}
-                        onError={(e) => { e.currentTarget.src = FallbackImg; }}
+                        onError={(e) => {
+                          e.currentTarget.src = FallbackImg;
+                        }}
                         className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
                       />
                       <div className="flex-1 min-w-0">

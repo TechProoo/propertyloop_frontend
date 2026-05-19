@@ -576,9 +576,6 @@ const Services = () => {
                                   {vendor.rating}
                                 </span>
                                 <span>{vendor.jobs} jobs</span>
-                                <span className="flex items-center gap-1 text-primary font-medium">
-                                  <Shield className="w-3.5 h-3.5" /> Verified
-                                </span>
                               </div>
                             </div>
                             <p className="font-heading font-bold text-primary-dark text-sm mt-2.5">

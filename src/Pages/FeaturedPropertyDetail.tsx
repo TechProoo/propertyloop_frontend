@@ -23,7 +23,10 @@ import { formatTel, formatPhoneDisplay } from "../lib/phone";
 
 const WHATSAPP = "2347053053040";
 const PHONE = "2347053053040";
-const SUPPORT_EMAIL = "support@propertyloop.ng";
+// Public-facing label uses the friendly address; messages route to the
+// actual mailbox alias behind the scenes.
+const SUPPORT_EMAIL_DISPLAY = "support@propertyloop.ng";
+const SUPPORT_EMAIL_TARGET = "support.propertyloop@propertyloop.ng";
 
 export default function FeaturedPropertyDetail() {
   const location = useLocation();
@@ -312,7 +315,7 @@ export default function FeaturedPropertyDetail() {
                   </a>
 
                   <a
-                    href={`mailto:${SUPPORT_EMAIL}?subject=${emailSubject}`}
+                    href={`mailto:${SUPPORT_EMAIL_TARGET}?subject=${emailSubject}`}
                     className="flex items-center gap-3 p-3.5 rounded-xl bg-purple-50 border border-purple-200 hover:bg-purple-100 transition-colors group"
                   >
                     <div className="w-10 h-10 rounded-lg bg-purple-500 flex items-center justify-center shrink-0 shadow-sm">
@@ -320,7 +323,7 @@ export default function FeaturedPropertyDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[10px] font-bold text-purple-700 uppercase tracking-widest">Email</p>
-                      <p className="text-purple-900 font-semibold text-sm truncate">{SUPPORT_EMAIL}</p>
+                      <p className="text-purple-900 font-semibold text-sm truncate">{SUPPORT_EMAIL_DISPLAY}</p>
                     </div>
                     <ChevronRight size={15} className="text-purple-400 group-hover:translate-x-0.5 transition-transform" />
                   </a>

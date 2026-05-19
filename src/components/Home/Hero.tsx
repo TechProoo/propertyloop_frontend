@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { WifiOff, RotateCcw } from "lucide-react";
 import { ImageGallery } from "@/components/ui/carousel-circular-image-gallery";
 import type { ImageGalleryHandle } from "@/components/ui/carousel-circular-image-gallery";
 import gsap from "gsap";
@@ -8,51 +9,42 @@ import type { FeaturedProperty } from "../../api/services/featuredProperties";
 
 const tabs = ["Buy", "Rent", "Shortlet"] as const;
 
-const fallbackProperties = [
-  {
-    title: "Lekki Phase 1 Duplex",
-    description:
-      "4-bed verified agent listing with\nfull property logbook history.",
-    price: "₦185,000,000",
-    url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=600&fit=crop",
-  },
-  {
-    title: "Ikoyi Waterfront Villa",
-    description: "5-bed luxury home with pool\nand private jetty access.",
-    price: "₦450,000,000",
-    url: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=600&fit=crop",
-  },
-  {
-    title: "Victoria Island Penthouse",
-    description: "3-bed penthouse with panoramic\nocean views and smart home.",
-    price: "₦320,000,000",
-    url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=600&fit=crop",
-  },
-  {
-    title: "Banana Island Mansion",
-    description: "6-bed estate with cinema room,\ngym and 24hr power supply.",
-    price: "₦1,200,000,000",
-    url: "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=600&h=600&fit=crop",
-  },
-  {
-    title: "Ajah Modern Terrace",
-    description: "3-bed serviced terrace in\na gated estate with CCTV.",
-    price: "₦75,000,000",
-    url: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=600&fit=crop",
-  },
-];
+type HeroProperty = {
+  title: string;
+  description: string;
+  price: string;
+  url: string;
+};
 
 const Hero = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Buy");
   const [activeSlide, setActiveSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [properties, setProperties] = useState(fallbackProperties);
+  const [properties, setProperties] = useState<HeroProperty[]>([]);
   const [fullProperties, setFullProperties] = useState<FeaturedProperty[]>([]);
+  const [heroLoading, setHeroLoading] = useState(true);
+  const [heroError, setHeroError] = useState(false);
   const galleryRef = useRef<ImageGalleryHandle>(null);
   const sectionRef = useRef<HTMLElement>(null);
-
+  // Track viewport so only ONE ImageGallery is mounted at a time. Mounting
+  // both meant the hidden gallery's autoplay still ticked and fired
+  // onSlideChange, causing the text card to desync from the visible image.
+  const [isDesktop, setIsDesktop] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(min-width: 1024px)").matches,
+  );
   useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const loadProperties = useCallback(() => {
+    setHeroLoading(true);
+    setHeroError(false);
     featuredPropertiesService
       .listActive()
       .then((res) => {
@@ -71,8 +63,17 @@ const Hero = () => {
           );
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setHeroError(true);
+      })
+      .finally(() => {
+        setHeroLoading(false);
+      });
   }, []);
+
+  useEffect(() => {
+    loadProperties();
+  }, [loadProperties]);
 
   const galleryImages = properties.map((p) => ({ title: p.title, url: p.url }));
 
@@ -260,15 +261,28 @@ const Hero = () => {
           zIndex: 2,
         }}
       >
-        <ImageGallery
-          ref={galleryRef}
-          images={galleryImages}
-          autoplayInterval={4500}
-          className="w-full h-full"
-          onSlideChange={handleSlideChange}
-          onImageClick={currentFull ? goToDetail : undefined}
-          hideNavButtons
-        />
+        {isDesktop && heroLoading && (
+          <div className="w-full h-full rounded-[28px] bg-primary/5 animate-pulse" />
+        )}
+        {isDesktop && heroError && (
+          <div className="w-full h-full rounded-[28px] bg-primary/5 flex items-center justify-center">
+            <WifiOff className="w-10 h-10 text-primary/20" />
+          </div>
+        )}
+        {isDesktop &&
+          !heroLoading &&
+          !heroError &&
+          galleryImages.length > 0 && (
+            <ImageGallery
+              ref={galleryRef}
+              images={galleryImages}
+              autoplayInterval={4500}
+              className="w-full h-full"
+              onSlideChange={handleSlideChange}
+              onImageClick={currentFull ? goToDetail : undefined}
+              hideNavButtons
+            />
+          )}
       </div>
 
       {/* ─── MOBILE LAYOUT (stacked, not absolute) ─── */}
@@ -342,33 +356,76 @@ const Hero = () => {
           data-hero-mobile-gallery
           className="mt-5 rounded-2xl overflow-hidden h-[45vh] sm:h-[50vh]"
         >
-          <ImageGallery
-            images={galleryImages}
-            autoplayInterval={4500}
-            className="w-full h-full"
-            onSlideChange={handleSlideChange}
-            onImageClick={currentFull ? goToDetail : undefined}
-          />
+          {!isDesktop && heroLoading && (
+            <div className="w-full h-full bg-primary/5 animate-pulse" />
+          )}
+          {!isDesktop && heroError && (
+            <div className="w-full h-full bg-primary/5 flex items-center justify-center">
+              <WifiOff className="w-10 h-10 text-primary/20" />
+            </div>
+          )}
+          {!isDesktop &&
+            !heroLoading &&
+            !heroError &&
+            galleryImages.length > 0 && (
+              <ImageGallery
+                images={galleryImages}
+                autoplayInterval={4500}
+                className="w-full h-full"
+                onSlideChange={handleSlideChange}
+                onImageClick={currentFull ? goToDetail : undefined}
+              />
+            )}
         </div>
 
         {/* Mobile property card */}
-        <div
-          data-hero-mobile-card
-          onClick={goToDetail}
-          className="mt-4 backdrop-blur-xl bg-white/65 rounded-xl shadow-lg shadow-glow/10 border border-white/40 px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-white/80 transition-colors"
-        >
-          <div className="flex-1 min-w-0">
-            <h3 className="font-heading font-bold text-primary-dark text-[13px] truncate">
-              {current.title}
-            </h3>
-            <p className="text-text-secondary text-[11px] mt-0.5 truncate">
-              {current.description.split("\n")[0]}
-            </p>
+        {heroLoading ? (
+          <div
+            data-hero-mobile-card
+            className="mt-4 backdrop-blur-xl bg-white/65 rounded-xl border border-white/40 h-14 animate-pulse"
+          />
+        ) : heroError ? (
+          <div
+            data-hero-mobile-card
+            className="mt-4 backdrop-blur-xl bg-white/65 rounded-xl shadow-lg shadow-glow/10 border border-white/40 px-4 py-3 flex items-center gap-3"
+          >
+            <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+              <WifiOff className="w-4 h-4 text-red-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-heading font-bold text-primary-dark text-xs">
+                No connection
+              </p>
+              <p className="text-text-secondary text-[10px]">
+                Check your internet and retry.
+              </p>
+            </div>
+            <button
+              onClick={loadProperties}
+              className="shrink-0 h-7 px-3 rounded-full bg-primary text-white text-[10px] font-medium hover:bg-primary-dark transition-colors inline-flex items-center gap-1"
+            >
+              <RotateCcw className="w-2.5 h-2.5" /> Retry
+            </button>
           </div>
-          <div className="ml-3 shrink-0 border border-primary-dark rounded-full px-3 py-1 text-[11px] font-semibold text-primary-dark">
-            {current.price}
+        ) : current ? (
+          <div
+            data-hero-mobile-card
+            onClick={goToDetail}
+            className="mt-4 backdrop-blur-xl bg-white/65 rounded-xl shadow-lg shadow-glow/10 border border-white/40 px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-white/80 transition-colors"
+          >
+            <div className="flex-1 min-w-0">
+              <h3 className="font-heading font-bold text-primary-dark text-[13px] truncate">
+                {current.title}
+              </h3>
+              <p className="text-text-secondary text-[11px] mt-0.5 truncate">
+                {current.description.split("\n")[0]}
+              </p>
+            </div>
+            <div className="ml-3 shrink-0 border border-primary-dark rounded-full px-3 py-1 text-[11px] font-semibold text-primary-dark">
+              {current.price}
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
 
       {/* ─── DESKTOP LAYOUT (absolute positioned, original) ─── */}
@@ -460,68 +517,104 @@ const Hero = () => {
           </div>
 
           {/* Property Card — synced with gallery */}
-          <div
-            data-hero-card
-            onClick={goToDetail}
-            className="flex backdrop-blur-xl bg-white/65 rounded-2xl shadow-lg shadow-glow/10 border border-white/40 px-5 py-4 items-center gap-4 ml-auto max-w-95 cursor-pointer hover:bg-white/80 transition-colors"
-          >
-            <div className="flex-1 min-w-0">
-              <h3 className="font-heading font-bold text-primary-dark text-[15px] transition-all duration-300">
-                {current.title}
-              </h3>
-              <p className="text-text-secondary text-xs mt-0.5 leading-relaxed whitespace-pre-line transition-all duration-300">
-                {current.description}
-              </p>
-              <div className="mt-2.5 inline-block border border-primary-dark rounded-full px-4 py-1.5 text-xs font-semibold text-primary-dark transition-all duration-300">
-                {current.price}
+          {heroLoading ? (
+            <div
+              data-hero-card
+              className="backdrop-blur-xl bg-white/65 rounded-2xl border border-white/40 h-24 w-80 ml-auto animate-pulse"
+            />
+          ) : heroError ? (
+            <div
+              data-hero-card
+              className="flex backdrop-blur-xl bg-white/65 rounded-2xl shadow-lg shadow-glow/10 border border-white/40 px-5 py-4 items-center gap-4 ml-auto max-w-95"
+            >
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                <WifiOff className="w-5 h-5 text-red-400" />
               </div>
-              {currentFull && (
-                <p className="mt-2 text-[11px] text-primary font-semibold tracking-wide">
-                  View details →
+              <div className="flex-1 min-w-0">
+                <h3 className="font-heading font-bold text-primary-dark text-sm">
+                  Couldn’t load properties
+                </h3>
+                <p className="text-text-secondary text-xs mt-0.5">
+                  Check your connection and try again.
                 </p>
-              )}
+                <button
+                  onClick={loadProperties}
+                  className="mt-2.5 h-7 px-4 rounded-full bg-primary text-white text-xs font-medium hover:bg-primary-dark transition-colors inline-flex items-center gap-1.5"
+                >
+                  <RotateCcw className="w-3 h-3" /> Retry
+                </button>
+              </div>
             </div>
+          ) : current ? (
+            <div
+              data-hero-card
+              onClick={goToDetail}
+              className="flex backdrop-blur-xl bg-white/65 rounded-2xl shadow-lg shadow-glow/10 border border-white/40 px-5 py-4 items-center gap-4 ml-auto max-w-95 cursor-pointer hover:bg-white/80 transition-colors"
+            >
+              <div className="flex-1 min-w-0">
+                <h3 className="font-heading font-bold text-primary-dark text-[15px] transition-all duration-300">
+                  {current.title}
+                </h3>
+                <p className="text-text-secondary text-xs mt-0.5 leading-relaxed whitespace-pre-line transition-all duration-300">
+                  {current.description}
+                </p>
+                <div className="mt-2.5 inline-block border border-primary-dark rounded-full px-4 py-1.5 text-xs font-semibold text-primary-dark transition-all duration-300">
+                  {current.price}
+                </div>
+                {currentFull && (
+                  <p className="mt-2 text-[11px] text-primary font-semibold tracking-wide">
+                    View details →
+                  </p>
+                )}
+              </div>
 
-            {/* Navigation Arrows — control the gallery */}
-            <div className="flex gap-2 shrink-0">
-              <button
-                onClick={() => galleryRef.current?.prev()}
-                className="w-10 h-10 rounded-full border border-white/50 backdrop-blur-sm bg-white/40 flex items-center justify-center hover:bg-white/70 transition-colors"
-              >
-                <svg
-                  className="w-4 h-4 text-primary-dark"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              {/* Navigation Arrows — control the gallery */}
+              <div className="flex gap-2 shrink-0">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    galleryRef.current?.prev();
+                  }}
+                  className="w-10 h-10 rounded-full border border-white/50 backdrop-blur-sm bg-white/40 flex items-center justify-center hover:bg-white/70 transition-colors"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={() => galleryRef.current?.next()}
-                className="w-10 h-10 rounded-full bg-primary hover:bg-primary-dark flex items-center justify-center transition-colors shadow-lg shadow-glow/40"
-              >
-                <svg
-                  className="w-4 h-4 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                  <svg
+                    className="w-4 h-4 text-primary-dark"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    galleryRef.current?.next();
+                  }}
+                  className="w-10 h-10 rounded-full bg-primary hover:bg-primary-dark flex items-center justify-center transition-colors shadow-lg shadow-glow/40"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    className="w-4 h-4 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </section>

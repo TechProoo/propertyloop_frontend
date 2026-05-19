@@ -40,6 +40,17 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
   const [photoError, setPhotoError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // A vendor whose saved category isn't in the predefined list means they
+  // picked "Other" previously — keep the picker on "Other" and reveal the
+  // free-text field pre-filled with their value so they can keep editing it.
+  const presetCategories = vendorCategories.filter((c) => c !== "Other");
+  const isCustomCategory =
+    !!data.serviceCategory && !presetCategories.includes(data.serviceCategory);
+  const [usingOther, setUsingOther] = useState(isCustomCategory);
+  const [customCategory, setCustomCategory] = useState(
+    isCustomCategory ? data.serviceCategory ?? "" : "",
+  );
+
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setPhotoError("");
@@ -367,9 +378,25 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
               <div className={wrapperClass("serviceCategory")}>
                 <Hammer className="absolute left-3.5 w-4 h-4 text-text-subtle" />
                 <select
-                  value={data.serviceCategory || ""}
+                  value={
+                    usingOther
+                      ? "Other"
+                      : presetCategories.includes(data.serviceCategory || "")
+                        ? data.serviceCategory || ""
+                        : ""
+                  }
                   onChange={(e) => {
-                    updateData({ serviceCategory: e.target.value });
+                    const picked = e.target.value;
+                    if (picked === "Other") {
+                      setUsingOther(true);
+                      // Persist whatever they may have typed before so they
+                      // can continue editing it.
+                      updateData({ serviceCategory: customCategory.trim() });
+                    } else {
+                      setUsingOther(false);
+                      setCustomCategory("");
+                      updateData({ serviceCategory: picked });
+                    }
                     if (errors.serviceCategory)
                       setErrors((p) => ({ ...p, serviceCategory: "" }));
                   }}
@@ -385,6 +412,22 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
                   ))}
                 </select>
               </div>
+              {usingOther && (
+                <input
+                  type="text"
+                  value={customCategory}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setCustomCategory(v);
+                    updateData({ serviceCategory: v.trim() });
+                    if (errors.serviceCategory)
+                      setErrors((p) => ({ ...p, serviceCategory: "" }));
+                  }}
+                  placeholder="Type your trade (e.g. Welder, Tiler, Locksmith)"
+                  maxLength={60}
+                  className="w-full mt-2 h-11 px-4 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                />
+              )}
               {errors.serviceCategory && (
                 <p className="text-red-500 text-xs mt-1 ml-1">
                   {errors.serviceCategory}

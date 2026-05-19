@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, CheckCircle, Home, Phone, Sparkles } from "lucide-react";
+import {
+  ArrowUpRight,
+  CheckCircle,
+  Home,
+  Phone,
+  Sparkles,
+  WifiOff,
+  RotateCcw,
+} from "lucide-react";
 import AuthGate from "../ui/AuthGate";
 import agentsService from "../../api/services/agents";
 import type { AgentPublic } from "../../api/types";
@@ -20,36 +28,40 @@ const FEATURED_EMAILS: string[] = [
 const AgentSpotlight = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const [agents, setAgents] = useState<AgentPublic[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const loadAgents = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const result = await agentsService.list({
+        limit: 100,
+        sort: "top_performers",
+      });
+
+      const featuredOrder = new Map(
+        FEATURED_EMAILS.map((e, i) => [e.toLowerCase(), i]),
+      );
+      const featured: AgentPublic[] = [];
+      const rest: AgentPublic[] = [];
+      for (const a of result.items) {
+        const idx = featuredOrder.get((a.email ?? "").toLowerCase());
+        if (idx !== undefined) featured[idx] = a;
+        else rest.push(a);
+      }
+      const ordered = [...featured.filter(Boolean), ...rest];
+      setAgents(ordered.slice(0, 3));
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadAgents = async () => {
-      try {
-        const result = await agentsService.list({
-          limit: 100,
-          // Rank by closed deals first, then active listings (with a stable
-          // tiebreaker on createdAt) — see backend top_performers branch.
-          sort: "top_performers",
-        });
-
-        // Promote featured agents to the front, preserving the configured order.
-        const featuredOrder = new Map(
-          FEATURED_EMAILS.map((e, i) => [e.toLowerCase(), i]),
-        );
-        const featured: AgentPublic[] = [];
-        const rest: AgentPublic[] = [];
-        for (const a of result.items) {
-          const idx = featuredOrder.get((a.email ?? "").toLowerCase());
-          if (idx !== undefined) featured[idx] = a;
-          else rest.push(a);
-        }
-        const ordered = [...featured.filter(Boolean), ...rest];
-        setAgents(ordered.slice(0, 3));
-      } catch (error) {
-        console.error("Failed to load agents:", error);
-        setAgents([]);
-      }
-    };
     loadAgents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -183,69 +195,99 @@ const AgentSpotlight = () => {
         </div>
 
         {/* Agent cards — 3 per row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {agents.map((agent, i) => (
-            <AuthGate
-              key={i}
-              href={`/agent/${agent.id}`}
-              data-as-card
-              className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-80 bg-linear-to-br from-white/40 to-white/20 rounded-[20px] animate-pulse"
+              />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-4">
+              <WifiOff className="w-8 h-8 text-red-400" />
+            </div>
+            <h3 className="font-heading font-bold text-primary-dark text-lg">
+              Couldn’t load agents
+            </h3>
+            <p className="text-text-secondary text-sm mt-2 max-w-sm">
+              Check your internet connection and try again.
+            </p>
+            <button
+              onClick={loadAgents}
+              className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center gap-2"
             >
-              {/* Photo */}
-              <div className="h-52 overflow-hidden rounded-t-[20px] relative bg-linear-to-br from-primary/20 to-primary-dark/20">
-                <img
-                  src={agent.avatarUrl || FallbackImg}
-                  alt={agent.name}
-                  onError={(e) => { e.currentTarget.src = FallbackImg; }}
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                />
-                {/* Verified badge and arrow */}
-                {agent.verified && (
-                  <div className="absolute top-3 right-3 flex items-center gap-2">
-                    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary text-xs font-medium">
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      KYC Verified
-                    </span>
-                    <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+              <RotateCcw className="w-4 h-4" /> Try Again
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {agents.map((agent, i) => (
+              <AuthGate
+                key={i}
+                href={`/agent/${agent.id}`}
+                data-as-card
+                className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+              >
+                {/* Photo */}
+                <div className="h-52 overflow-hidden rounded-t-[20px] relative bg-linear-to-br from-primary/20 to-primary-dark/20">
+                  <img
+                    src={agent.avatarUrl || FallbackImg}
+                    alt={agent.name}
+                    onError={(e) => {
+                      e.currentTarget.src = FallbackImg;
+                    }}
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                  />
+                  {/* Verified badge and arrow */}
+                  {agent.verified && (
+                    <div className="absolute top-3 right-3 flex items-center gap-2">
+                      <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary text-xs font-medium">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        KYC Verified
+                      </span>
+                      <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                        <ArrowUpRight className="w-4 h-4 text-white" />
+                      </div>
+                    </div>
+                  )}
+                  {!agent.verified && (
+                    <div className="absolute top-3 right-3 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
                       <ArrowUpRight className="w-4 h-4 text-white" />
                     </div>
-                  </div>
-                )}
-                {!agent.verified && (
-                  <div className="absolute top-3 right-3 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
-                    <ArrowUpRight className="w-4 h-4 text-white" />
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
 
-              {/* Glass content panel */}
-              <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                {/* Name + agency */}
-                <h3 className="font-heading font-bold text-primary-dark text-[16px] leading-snug">
-                  {agent.name}
-                </h3>
-                <p className="text-text-secondary text-xs mt-0.5">
-                  {agent.agency} · {agent.location}
-                </p>
+                {/* Glass content panel */}
+                <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+                  {/* Name + agency */}
+                  <h3 className="font-heading font-bold text-primary-dark text-[16px] leading-snug">
+                    {agent.name}
+                  </h3>
+                  <p className="text-text-secondary text-xs mt-0.5">
+                    {agent.agency} · {agent.location}
+                  </p>
 
-                {/* Divider */}
-                <div className="h-px bg-border-light mt-3 mb-3" />
+                  {/* Divider */}
+                  <div className="h-px bg-border-light mt-3 mb-3" />
 
-                {/* Stats — hidden for brand-new agents (0/0/no rating), where
+                  {/* Stats — hidden for brand-new agents (0/0/no rating), where
                     showing "0 active · 0 closed" reads as a negative signal. */}
-                {agent.listingsCount === 0 &&
-                agent.soldRentedCount === 0 &&
-                !agent.rating ? (
-                  <div className="flex items-center text-xs pr-8">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                      <Sparkles className="w-3 h-3" />
-                      New on PropertyLoop
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between text-xs pr-8">
-                    <div className="flex items-center gap-4 text-text-secondary">
-                      {/* Rating hidden until platform has enough reviews
+                  {agent.listingsCount === 0 &&
+                  agent.soldRentedCount === 0 &&
+                  !agent.rating ? (
+                    <div className="flex items-center text-xs pr-8">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                        <Sparkles className="w-3 h-3" />
+                        New on PropertyLoop
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between text-xs pr-8">
+                      <div className="flex items-center gap-4 text-text-secondary">
+                        {/* Rating hidden until platform has enough reviews
                       {agent.rating > 0 && (
                         <span className="flex items-center gap-1">
                           <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
@@ -253,18 +295,19 @@ const AgentSpotlight = () => {
                         </span>
                       )}
                       */}
-                      <span className="flex items-center gap-1">
-                        <Home className="w-3.5 h-3.5" />
-                        {agent.listingsCount} active
-                      </span>
-                      <span>{agent.soldRentedCount} closed</span>
+                        <span className="flex items-center gap-1">
+                          <Home className="w-3.5 h-3.5" />
+                          {agent.listingsCount} active
+                        </span>
+                        <span>{agent.soldRentedCount} closed</span>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            </AuthGate>
-          ))}
-        </div>
+                  )}
+                </div>
+              </AuthGate>
+            ))}
+          </div>
+        )}
 
         {/* Trust banner */}
         <div

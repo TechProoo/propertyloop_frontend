@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Bed, Bath, Maximize } from "lucide-react";
+import {
+  ArrowUpRight,
+  Bed,
+  Bath,
+  Maximize,
+  WifiOff,
+  RotateCcw,
+} from "lucide-react";
 import AuthGate from "../ui/AuthGate";
 import { CardSkeleton } from "../ui/Skeleton";
 import listingsService from "../../api/services/listings";
@@ -14,11 +21,11 @@ const FeaturedHomes = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const [homes, setHomes] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    // Featured Homes shows a mix of SALE + RENT (not shortlets — those have
-    // their own section). Fetch a small over-sample without a type filter
-    // and trim to 3 SALE/RENT entries client-side.
+  const fetchHomes = () => {
+    setLoading(true);
+    setError(false);
     listingsService
       .list({ limit: 12, sort: "newest" })
       .then((res) => {
@@ -27,8 +34,15 @@ const FeaturedHomes = () => {
           .slice(0, 3);
         setHomes(mixed);
       })
-      .catch(() => {})
+      .catch(() => {
+        setError(true);
+      })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchHomes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -140,6 +154,24 @@ const FeaturedHomes = () => {
         {/* Cards grid — 3 per row */}
         {loading ? (
           <CardSkeleton count={3} />
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-4">
+              <WifiOff className="w-8 h-8 text-red-400" />
+            </div>
+            <h3 className="font-heading font-bold text-primary-dark text-lg">
+              Couldn’t load properties
+            </h3>
+            <p className="text-text-secondary text-sm mt-2 max-w-sm">
+              Check your internet connection and try again.
+            </p>
+            <button
+              onClick={fetchHomes}
+              className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" /> Try Again
+            </button>
+          </div>
         ) : homes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">

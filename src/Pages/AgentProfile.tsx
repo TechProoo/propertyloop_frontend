@@ -283,6 +283,7 @@ const AgentProfile = () => {
   const [showMsgBox, setShowMsgBox] = useState(false);
   const [msgText, setMsgText] = useState("");
   const [sending, setSending] = useState(false);
+  const [msgError, setMsgError] = useState("");
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   const loadAgent = useCallback(async () => {
@@ -322,10 +323,11 @@ const AgentProfile = () => {
   const handleSendMessage = async () => {
     if (!msgText.trim() || !agent?.id || !user) return;
     setSending(true);
+    setMsgError("");
     try {
       const senderRole = user.role || "BUYER";
       if (!senderRole) {
-        alert("Unable to determine your user role. Please log in again.");
+        setMsgError("Unable to determine your user role. Please log in again.");
         setSending(false);
         return;
       }
@@ -335,20 +337,28 @@ const AgentProfile = () => {
         recipientRole: "AGENT" as const,
         senderRole: senderRole as "BUYER" | "AGENT" | "VENDOR",
       };
-      console.log("Sending message with payload:", JSON.stringify(payload));
 
       const { conversationId } = await messagesService.createOrFind(payload);
-      console.log("Conversation created:", conversationId);
-
       await messagesService.sendMessage(conversationId, msgText.trim());
       setMsgText("");
       navigate(`/messages?with=${conversationId}`);
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      if (error instanceof Error) {
-        alert(`Failed to send message: ${error.message}`);
+    } catch (error: any) {
+      const serverMsg = error?.response?.data?.message;
+      const isSelf =
+        (typeof serverMsg === "string" &&
+          serverMsg.toLowerCase().includes("cannot message yourself")) ||
+        (error instanceof Error &&
+          error.message.toLowerCase().includes("cannot message yourself"));
+      if (isSelf) {
+        setMsgError("You can\u2019t send a message to your own profile.");
       } else {
-        alert("Failed to send message. Please try again.");
+        const text =
+          typeof serverMsg === "string"
+            ? serverMsg
+            : error instanceof Error
+              ? error.message
+              : "Failed to send message. Please try again.";
+        setMsgError(text);
       }
     } finally {
       setSending(false);
@@ -500,7 +510,9 @@ const AgentProfile = () => {
                     <img
                       src={agent.photo}
                       alt={agent.name}
-                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
+                      onError={(e) => {
+                        e.currentTarget.src = FallbackImg;
+                      }}
                       className="w-full h-full object-cover object-top group-hover/photo:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover/photo:bg-black/20 transition-colors duration-300 flex items-center justify-center">
@@ -663,11 +675,24 @@ const AgentProfile = () => {
                 </div>
                 <textarea
                   value={msgText}
-                  onChange={(e) => setMsgText(e.target.value)}
+                  onChange={(e) => {
+                    setMsgText(e.target.value);
+                    setMsgError("");
+                  }}
                   placeholder="Type your message..."
                   rows={4}
                   className="w-full px-4 py-3 rounded-2xl bg-white/60 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors resize-none mb-4"
                 />
+                {msgError && (
+                  <div className="mb-4 px-4 py-3 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-2">
+                    <span className="mt-0.5 w-4 h-4 shrink-0 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-bold">
+                      !
+                    </span>
+                    <p className="text-red-700 text-sm leading-snug">
+                      {msgError}
+                    </p>
+                  </div>
+                )}
                 <button
                   onClick={handleSendMessage}
                   disabled={!msgText.trim() || sending}

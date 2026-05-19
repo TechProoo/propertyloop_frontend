@@ -13,6 +13,8 @@ import {
   PipetteIcon,
   Shield,
   CheckCircle,
+  WifiOff,
+  RotateCcw,
 } from "lucide-react";
 import FallbackImg from "../../assets/fallback.png";
 import gsap from "gsap";
@@ -33,27 +35,28 @@ const ServiceLoop = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const [vendors, setVendors] = useState<VendorPublic[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  // Fetch verified vendors from API
+  const loadVendors = async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const result = await vendorsService.list({
+        limit: 100,
+        sort: "top_rated",
+      });
+      const available = result.items.filter((v) => v.availableForHire);
+      setVendors(available.slice(0, 3));
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadVendors = async () => {
-      try {
-        const result = await vendorsService.list({
-          limit: 100,
-          sort: "top_rated",
-        });
-        // Show available vendors (regardless of KYC verified flag —
-        // verified just controls the trust badge on each card).
-        const available = result.items.filter((v) => v.availableForHire);
-        setVendors(available.slice(0, 3));
-      } catch (error) {
-        console.error("Failed to load vendors:", error);
-        setVendors([]);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadVendors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -229,6 +232,24 @@ const ServiceLoop = () => {
               />
             ))}
           </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-4">
+              <WifiOff className="w-8 h-8 text-red-400" />
+            </div>
+            <h3 className="font-heading font-bold text-primary-dark text-lg">
+              Couldn’t load vendors
+            </h3>
+            <p className="text-text-secondary text-sm mt-2 max-w-sm">
+              Check your internet connection and try again.
+            </p>
+            <button
+              onClick={loadVendors}
+              className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center gap-2"
+            >
+              <RotateCcw className="w-4 h-4" /> Try Again
+            </button>
+          </div>
         ) : vendors.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
@@ -304,7 +325,9 @@ const ServiceLoop = () => {
                     <img
                       src={vendor.avatarUrl || FallbackImg}
                       alt={vendor.name}
-                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
+                      onError={(e) => {
+                        e.currentTarget.src = FallbackImg;
+                      }}
                       className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
                     />
                     <div className="flex-1 min-w-0">
@@ -335,10 +358,6 @@ const ServiceLoop = () => {
                       </span>
                       */}
                       <span className="shrink-0">{vendor.jobsCount} jobs</span>
-                      <span className="flex items-center gap-1 shrink-0">
-                        <Shield className="w-3.5 h-3.5" />
-                        Verified
-                      </span>
                     </div>
                     <span className="font-heading font-bold text-primary-dark text-sm shrink-0 ml-auto">
                       {vendor.priceLabel || "From ₦15,000"}
