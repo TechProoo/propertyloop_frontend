@@ -39,19 +39,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const init = async () => {
-      const token = tokens.getAccess();
+      // Optimistic paint: show the cached user immediately if we have one,
+      // so the navbar isn't a flash of logged-out UI on every reload.
       const cached = tokens.getUser<User>();
-      if (token && cached) {
-        setUser(cached);
-        try {
-          const fresh = await authService.me();
-          setUser(fresh);
-        } catch {
-          tokens.clear();
-          setUser(null);
-        }
+      if (cached) setUser(cached);
+
+      // We have no access token in memory after a fresh page load (refresh
+      // tokens are now HttpOnly cookies, not localStorage). Call /auth/refresh
+      // to mint a new access token from the cookie. If the cookie is missing
+      // or expired the call 401s and we treat the user as logged out.
+      try {
+        await authService.refresh();
+        // Once we have an access token, hydrate the user from /auth/me.
+        const fresh = await authService.me();
+        setUser(fresh);
+      } catch {
+        tokens.clear();
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     init();
   }, []);

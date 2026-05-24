@@ -20,14 +20,16 @@ export interface LoginPayload {
 const authService = {
   async signup(payload: SignupPayload): Promise<AuthResponse> {
     const { data } = await api.post<AuthResponse>("/auth/signup", payload);
-    tokens.set(data.accessToken, data.refreshToken);
+    // refreshToken is no longer in the response body — the backend sets it
+    // as an HttpOnly cookie. Only the access token comes back in JSON.
+    tokens.setAccess(data.accessToken);
     tokens.setUser(data.user);
     return data;
   },
 
   async login(payload: LoginPayload): Promise<AuthResponse> {
     const { data } = await api.post<AuthResponse>("/auth/login", payload);
-    tokens.set(data.accessToken, data.refreshToken);
+    tokens.setAccess(data.accessToken);
     tokens.setUser(data.user);
     return data;
   },
@@ -39,16 +41,21 @@ const authService = {
   },
 
   async refresh(): Promise<AuthResponse> {
-    const rt = tokens.getRefresh();
-    const { data } = await api.post<AuthResponse>("/auth/refresh", { refreshToken: rt });
-    tokens.set(data.accessToken, data.refreshToken);
-    tokens.setUser(data.user);
+    // No body — refresh token rides as an HttpOnly cookie thanks to
+    // withCredentials on the axios instance.
+    const { data } = await api.post<AuthResponse>("/auth/refresh", {});
+    tokens.setAccess(data.accessToken);
+    if (data.user) tokens.setUser(data.user);
     return data;
   },
 
-  async logout(refreshToken?: string): Promise<void> {
-    const rt = refreshToken || tokens.getRefresh();
-    try { await api.post("/auth/logout", { refreshToken: rt }); } catch { /* noop */ }
+  async logout(): Promise<void> {
+    // Backend clears the cookie. Nothing to send.
+    try {
+      await api.post("/auth/logout", {});
+    } catch {
+      /* noop */
+    }
     tokens.clear();
   },
 

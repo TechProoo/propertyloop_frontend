@@ -564,8 +564,9 @@ export interface VendorStats {
 export interface AuthResponse {
   user: User;
   accessToken: string;
-  refreshToken: string;
   sessionId: string;
+  // refreshToken is intentionally absent — backend ships it as an HttpOnly
+  // cookie (pl_refresh_token) on /api/auth, not in the JSON body.
 }
 
 export interface Session {

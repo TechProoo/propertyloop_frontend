@@ -24,34 +24,37 @@ const api = axios.create({
 });
 
 // ─── Token helpers ──────────────────────────────────────────────────────────
+//
+// Refresh token lives in an HttpOnly Secure cookie set by the backend —
+// unreadable from JS, immune to XSS exfiltration. The access token lives
+// only in memory: short-lived, lost on full page reload, recovered by
+// calling /auth/refresh during app bootstrap (see AuthContext).
+//
+// A non-sensitive `user` is cached in localStorage purely so the navbar
+// can render the correct UI on first paint without waiting for /auth/me.
 
-const TOKEN_KEYS = {
-  access: "pl_access_token",
-  refresh: "pl_refresh_token",
-  user: "pl_user",
-} as const;
+const USER_CACHE_KEY = "pl_user";
+
+let accessToken: string | null = null;
 
 export const tokens = {
-  getAccess: () => localStorage.getItem(TOKEN_KEYS.access),
-  getRefresh: () => localStorage.getItem(TOKEN_KEYS.refresh),
+  getAccess: () => accessToken,
 
-  set(access: string, refresh: string) {
-    localStorage.setItem(TOKEN_KEYS.access, access);
-    localStorage.setItem(TOKEN_KEYS.refresh, refresh);
+  setAccess(token: string | null) {
+    accessToken = token;
   },
 
   clear() {
-    localStorage.removeItem(TOKEN_KEYS.access);
-    localStorage.removeItem(TOKEN_KEYS.refresh);
-    localStorage.removeItem(TOKEN_KEYS.user);
+    accessToken = null;
+    localStorage.removeItem(USER_CACHE_KEY);
   },
 
   setUser(user: unknown) {
-    localStorage.setItem(TOKEN_KEYS.user, JSON.stringify(user));
+    localStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
   },
 
   getUser<T = unknown>(): T | null {
-    const raw = localStorage.getItem(TOKEN_KEYS.user);
+    const raw = localStorage.getItem(USER_CACHE_KEY);
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -112,14 +115,15 @@ api.interceptors.response.use(
     try {
       if (!refreshPromise) {
         refreshPromise = (async () => {
-          const rt = tokens.getRefresh();
-          if (!rt) throw new Error("No refresh token");
+          // Refresh token travels automatically as an HttpOnly cookie
+          // (withCredentials: true on the axios instance). No body needed.
+          const { data } = await axios.post(
+            `${API_BASE}/auth/refresh`,
+            {},
+            { withCredentials: true },
+          );
 
-          const { data } = await axios.post(`${API_BASE}/auth/refresh`, {
-            refreshToken: rt,
-          });
-
-          tokens.set(data.accessToken, data.refreshToken);
+          tokens.setAccess(data.accessToken);
           if (data.user) tokens.setUser(data.user);
           return data.accessToken as string;
         })();
