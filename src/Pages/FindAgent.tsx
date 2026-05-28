@@ -7,7 +7,6 @@ import {
   SlidersHorizontal,
   ChevronDown,
   Star,
-  Phone,
   X,
   CheckCircle,
   Home,
@@ -22,7 +21,6 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import FallbackImg from "../assets/fallback.png";
 import { useAgents } from "../api/hooks";
-import { formatTel } from "../lib/phone";
 
 /* ─── Data ─── */
 
@@ -504,28 +502,6 @@ const FindAgent = () => {
                               {agent.name}
                             </p>
                           </motion.div>
-
-                          {/* Buttons */}
-                          <div className="flex gap-4">
-                            <motion.a
-                              initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                              animate={{ opacity: 1, scale: 1, y: 0 }}
-                              transition={{
-                                delay: 0.2,
-                                duration: 0.4,
-                                ease: [0.23, 1, 0.32, 1],
-                              }}
-                              href={formatTel(agent.phone)}
-                              className="flex flex-col items-center gap-2"
-                            >
-                              <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">
-                                <Phone className="w-6 h-6" />
-                              </div>
-                              <span className="text-white/70 text-xs">
-                                Call
-                              </span>
-                            </motion.a>
-                          </div>
 
                           {/* View profile button */}
                           <motion.button

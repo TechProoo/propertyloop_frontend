@@ -7,7 +7,6 @@ import {
   MessageCircle,
   MapPin,
   Star,
-  Phone,
   MessageSquare,
   CheckCircle,
   ArrowRight,
@@ -49,7 +48,6 @@ import type {
 } from "../api/types";
 import { useAuth } from "../context/AuthContext";
 import { useFirstLoginTour } from "../lib/tour/useFirstLoginTour";
-import { formatTel } from "../lib/phone";
 import { useBookmarks } from "../context/BookmarkContext";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import { useChat } from "../api/hooks";
@@ -1701,16 +1699,7 @@ const Dashboard = () => {
                                   Active now
                                 </p>
                               </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                {activeConvo.phone && (
-                                  <a
-                                    href={formatTel(activeConvo.phone)}
-                                    className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
-                                  >
-                                    <Phone className="w-3.5 h-3.5" />
-                                  </a>
-                                )}
-                              </div>
+                              <div className="flex items-center gap-2 shrink-0" />
                             </div>
 
                             {/* Messages */}
@@ -1955,15 +1944,6 @@ const Dashboard = () => {
                             </div>
                             {/* Actions */}
                             <div className="flex flex-wrap gap-2 sm:flex-col sm:items-end shrink-0">
-                              {v.agent?.phone && (
-                                <a
-                                  href={formatTel(v.agent.phone)}
-                                  className="h-8 px-3 rounded-full bg-white/80 border border-border-light text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-colors inline-flex items-center gap-1.5"
-                                >
-                                  <Phone className="w-3.5 h-3.5" />
-                                  Call agent
-                                </a>
-                              )}
                               {canCancel && (
                                 <button
                                   disabled={!!viewingCancelling[v.id]}

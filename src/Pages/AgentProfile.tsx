@@ -5,7 +5,6 @@ import {
   ArrowUpRight,
   ArrowLeft,
   Star,
-  Phone,
   Mail,
   Globe,
   MapPin,
@@ -29,7 +28,6 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
 import FallbackImg from "../assets/fallback.png";
-import { formatTel } from "../lib/phone";
 import agentsService from "../api/services/agents";
 import messagesService from "../api/services/messages";
 import api from "../api/client";
@@ -422,7 +420,6 @@ const AgentProfile = () => {
           name: agent.name,
           url: `https://www.propertyloop.ng/agent/${agent.id}`,
           image: agent.photo,
-          telephone: agent.phone,
           email: agent.email,
           worksFor: agent.agency
             ? { "@type": "Organization", name: agent.agency }
@@ -596,13 +593,6 @@ const AgentProfile = () => {
                 {/* Contact buttons — desktop */}
                 <div className="hidden lg:flex flex-col gap-3 shrink-0">
                   <a
-                    href={formatTel(agent.phone)}
-                    className="h-11 px-6 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
-                  >
-                    <Phone className="w-4 h-4" />
-                    Call Agent
-                  </a>
-                  <a
                     href={`mailto:${agent.email}`}
                     className="h-11 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all inline-flex items-center gap-2"
                   >
@@ -625,22 +615,13 @@ const AgentProfile = () => {
 
           {/* Mobile contact buttons */}
           <div className="lg:hidden flex flex-col gap-3 mb-8 -mt-4">
-            <div className="flex gap-3">
-              <a
-                href={formatTel(agent.phone)}
-                className="flex-1 h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
-              >
-                <Phone className="w-4 h-4" />
-                Call
-              </a>
-              <a
-                href={`mailto:${agent.email}`}
-                className="flex-1 h-11 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-2"
-              >
-                <Mail className="w-4 h-4" />
-                Email
-              </a>
-            </div>
+            <a
+              href={`mailto:${agent.email}`}
+              className="h-11 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-2"
+            >
+              <Mail className="w-4 h-4" />
+              Email
+            </a>
             {isLoggedIn && (
               <button
                 onClick={() => setShowMsgBox(!showMsgBox)}
@@ -1022,13 +1003,23 @@ const AgentProfile = () => {
                 can list properties.
               </p>
             </div>
-            <a
-              href={formatTel(agent.phone)}
-              className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2"
-            >
-              <Phone className="w-4 h-4" />
-              Contact {agent.name.split(" ")[0]}
-            </a>
+            {isLoggedIn ? (
+              <button
+                onClick={() => setShowMsgBox(true)}
+                className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                Contact {agent.name.split(" ")[0]}
+              </button>
+            ) : (
+              <a
+                href={`mailto:${agent.email}`}
+                className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2"
+              >
+                <Mail className="w-4 h-4" />
+                Contact {agent.name.split(" ")[0]}
+              </a>
+            )}
           </div>
         </div>
       </main>

@@ -10,7 +10,6 @@ import {
   Maximize,
   MapPin,
   Star,
-  Phone,
   Mail,
   CheckCircle,
   ShieldCheck,
@@ -40,7 +39,6 @@ import BookmarkButton from "../components/ui/BookmarkButton";
 import { DetailSkeleton } from "../components/ui/Skeleton";
 import FallbackImg from "../assets/fallback.png";
 import { handleBannerError } from "../lib/bannerFallback";
-import { formatTel } from "../lib/phone";
 import { useAuth } from "../context/AuthContext";
 // Agent data now comes embedded in the listing response
 
@@ -939,13 +937,29 @@ const PropertyDetail = () => {
 
                   {/* Contact buttons */}
                   <div className="flex flex-col gap-2.5">
-                    <a
-                      href={formatTel(agent.phone)}
+                    <button
+                      onClick={async () => {
+                        if (!isLoggedIn || !user) {
+                          navigate("/login");
+                          return;
+                        }
+                        try {
+                          const { conversationId } = await messagesService.createOrFind({
+                            recipientId: agent.id,
+                            recipientRole: "AGENT",
+                            senderRole: (user.role as "BUYER" | "AGENT" | "VENDOR") || "BUYER",
+                            listingId: listing.id,
+                          });
+                          navigate(`/messages?with=${conversationId}`);
+                        } catch {
+                          /* ignore */
+                        }
+                      }}
                       className="h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2 shadow-lg shadow-glow/40"
                     >
-                      <Phone className="w-4 h-4" />
-                      Call Agent
-                    </a>
+                      <Send className="w-4 h-4" />
+                      Message Agent
+                    </button>
                     <a
                       href={`mailto:${agent.email}?subject=Enquiry: ${listing.title}`}
                       className="h-11 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-2"
