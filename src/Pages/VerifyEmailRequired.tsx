@@ -10,7 +10,7 @@ import { useAuth } from "../context/AuthContext";
 const ease = [0.23, 1, 0.32, 1] as const;
 
 const VerifyEmailRequired = () => {
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -37,11 +37,12 @@ const VerifyEmailRequired = () => {
   const handleCheckVerification = async () => {
     setSending(true);
     try {
-      await refreshUser?.();
+      await logout();
     } catch {
       /* ignore */
     }
     setSending(false);
+    navigate("/login");
   };
 
   const handleLogout = async () => {
@@ -108,7 +109,7 @@ const VerifyEmailRequired = () => {
                 className="w-full h-11 px-6 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:border-primary hover:text-primary transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 <RefreshCw className="w-4 h-4" />
-                I've Verified — Refresh
+                I've Verified — Login
               </button>
               <button
                 onClick={handleLogout}
