@@ -144,7 +144,7 @@ const FeaturedHomes = () => {
             </p>
           </div>
           <AuthGate
-            href="/search"
+            href="/featured"
             className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
           >
             <span data-fh-viewall>View all</span>

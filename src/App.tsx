@@ -52,6 +52,7 @@ import SearchResults from "./Pages/SearchResults";
 import LogbookInfo from "./Pages/LogbookInfo";
 import LogbookList from "./Pages/LogbookList";
 import FeaturedPropertyDetail from "./Pages/FeaturedPropertyDetail";
+import FeaturedProperties from "./Pages/FeaturedProperties";
 import NotFound from "./Pages/NotFound";
 import NetworkError from "./Pages/NetworkError";
 import ScrollToTop from "./components/ScrollToTop";
@@ -141,6 +142,7 @@ function AppContent() {
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
+          <Route path="/featured" element={<FeaturedProperties />} />
           <Route path="/featured-property/:id" element={<FeaturedPropertyDetail />} />
           <Route path="/login" element={<Login />} />
           <Route path="/verify-email" element={<VerifyEmail />} />

@@ -74,9 +74,60 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-// ─── Response interceptor: silent token refresh on 401 ──────────────────────
+// ─── Single-flight token refresh (+ cross-tab coordination) ─────────────────
+//
+// Refresh tokens are single-use and rotated on every /auth/refresh, so two
+// refreshes carrying the same cookie make the backend think a token was
+// replayed. To avoid that we guarantee at most ONE in-flight refresh:
+//   - within a tab, every caller (the 401 interceptor AND the bootstrap in
+//     AuthContext) shares the same `refreshPromise`;
+//   - across tabs, a successful refresh broadcasts the new access token so
+//     sibling tabs adopt it instead of firing their own refresh.
+
+const authChannel =
+  typeof BroadcastChannel !== "undefined"
+    ? new BroadcastChannel("pl_auth")
+    : null;
+
+authChannel?.addEventListener("message", (e: MessageEvent) => {
+  // A sibling tab refreshed — adopt its access token in memory. We set the
+  // field directly (not via a broadcasting path) so this doesn't echo back.
+  if (e.data?.type === "access" && typeof e.data.token === "string") {
+    accessToken = e.data.token;
+  }
+});
 
 let refreshPromise: Promise<string> | null = null;
+
+export function refreshSession(): Promise<string> {
+  if (!refreshPromise) {
+    const p = (async () => {
+      // Refresh token travels automatically as an HttpOnly cookie
+      // (withCredentials: true). No body needed.
+      const { data } = await axios.post(
+        `${API_BASE}/auth/refresh`,
+        {},
+        { withCredentials: true },
+      );
+      tokens.setAccess(data.accessToken);
+      if (data.user) tokens.setUser(data.user);
+      authChannel?.postMessage({ type: "access", token: data.accessToken });
+      return data.accessToken as string;
+    })();
+    refreshPromise = p;
+    // Clear the slot once settled so the next refresh starts fresh. Attaching
+    // handlers here (rather than in callers) keeps a single reset point and
+    // swallows the rejection on this bookkeeping chain — callers still await
+    // `p` directly and handle the error themselves.
+    const clear = () => {
+      if (refreshPromise === p) refreshPromise = null;
+    };
+    p.then(clear, clear);
+  }
+  return refreshPromise;
+}
+
+// ─── Response interceptor: silent token refresh on 401 ──────────────────────
 
 api.interceptors.response.use(
   (res) => {
@@ -113,32 +164,13 @@ api.interceptors.response.use(
     original._retry = true;
 
     try {
-      if (!refreshPromise) {
-        refreshPromise = (async () => {
-          // Refresh token travels automatically as an HttpOnly cookie
-          // (withCredentials: true on the axios instance). No body needed.
-          const { data } = await axios.post(
-            `${API_BASE}/auth/refresh`,
-            {},
-            { withCredentials: true },
-          );
-
-          tokens.setAccess(data.accessToken);
-          if (data.user) tokens.setUser(data.user);
-          return data.accessToken as string;
-        })();
-      }
-
-      const newAccessToken = await refreshPromise;
-      refreshPromise = null;
-
+      const newAccessToken = await refreshSession();
       original.headers = {
         ...original.headers,
         Authorization: `Bearer ${newAccessToken}`,
       };
       return api(original);
     } catch {
-      refreshPromise = null;
       tokens.clear();
       window.location.href = "/login";
       return Promise.reject(error);

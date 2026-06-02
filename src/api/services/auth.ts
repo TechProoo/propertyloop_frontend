@@ -1,4 +1,4 @@
-import api, { tokens } from "../client";
+import api, { tokens, refreshSession } from "../client";
 import type { AuthResponse, Session, SuccessResponse, User } from "../types";
 
 export interface SignupPayload {
@@ -40,13 +40,12 @@ const authService = {
     return data;
   },
 
-  async refresh(): Promise<AuthResponse> {
-    // No body — refresh token rides as an HttpOnly cookie thanks to
-    // withCredentials on the axios instance.
-    const { data } = await api.post<AuthResponse>("/auth/refresh", {});
-    tokens.setAccess(data.accessToken);
-    if (data.user) tokens.setUser(data.user);
-    return data;
+  async refresh(): Promise<void> {
+    // Delegate to the shared single-flight refresh in client.ts so the
+    // bootstrap refresh and any concurrent 401-triggered refresh collapse into
+    // ONE network call (and one token rotation). Token + user caching and
+    // cross-tab broadcast are handled inside refreshSession().
+    await refreshSession();
   },
 
   async logout(): Promise<void> {
