@@ -1,7 +1,11 @@
 import { motion } from "framer-motion";
 import Logo from "../../assets/logo.png";
 
-const SplashLoader = () => {
+const SplashLoader = ({
+  message = "Loading PropertyLoop...",
+}: {
+  message?: string;
+}) => {
   return (
     <motion.div
       initial={{ opacity: 1 }}
@@ -40,7 +44,7 @@ const SplashLoader = () => {
           transition={{ delay: 0.2, duration: 0.4 }}
           className="text-text-secondary text-sm font-medium"
         >
-          Loading PropertyLoop...
+          {message}
         </motion.p>
       </div>
       <style>{`
