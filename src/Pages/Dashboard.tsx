@@ -104,7 +104,7 @@ const navItems = [
 
 /* ─── Component ─── */
 const Dashboard = () => {
-  const { user: authUser, logout } = useAuth();
+  const { user: authUser, logoutWithRedirect } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
@@ -442,10 +442,7 @@ const Dashboard = () => {
               </div>
             )}
             <button
-              onClick={async () => {
-                await logout();
-                window.location.href = "/";
-              }}
+              onClick={logoutWithRedirect}
               className="text-white/40 hover:text-white transition-colors"
             >
               <LogOut className="w-4 h-4" />
@@ -533,10 +530,7 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <button
-                  onClick={async () => {
-                    await logout();
-                    window.location.href = "/";
-                  }}
+                  onClick={logoutWithRedirect}
                   className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-colors text-sm"
                 >
                   <LogOut className="w-4 h-4" /> Logout
@@ -2337,10 +2331,7 @@ const Dashboard = () => {
                       Log out of your account.
                     </p>
                     <button
-                      onClick={async () => {
-                        await logout();
-                        window.location.href = "/";
-                      }}
+                      onClick={logoutWithRedirect}
                       className="h-10 px-6 rounded-full border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors flex items-center gap-2"
                     >
                       <LogOut className="w-4 h-4" />

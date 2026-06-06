@@ -11,6 +11,7 @@ import authService, {
   type LoginPayload,
 } from "../api/services/auth";
 import { tokens } from "../api/client";
+import SplashLoader from "../components/ui/SplashLoader";
 import type { User } from "../api/types";
 
 export type { User, SignupPayload, LoginPayload };
@@ -22,6 +23,9 @@ interface AuthContextType {
   signup: (payload: SignupPayload) => Promise<User>;
   login: (payload: LoginPayload) => Promise<User>;
   logout: () => Promise<void>;
+  /** Logs out showing a full-screen loader, then redirects to /login. */
+  logoutWithRedirect: () => Promise<void>;
+  loggingOut: boolean;
   refreshUser: () => Promise<void>;
 }
 
@@ -36,6 +40,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -88,6 +93,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   }, []);
 
+  const logoutWithRedirect = useCallback(async () => {
+    setLoggingOut(true);
+    try {
+      await authService.logout();
+    } catch {
+      /* logout already clears local tokens; redirect regardless */
+    }
+    setUser(null);
+    // Full reload to /login so all auth-dependent state resets cleanly.
+    window.location.href = "/login";
+  }, []);
+
   const refreshUser = useCallback(async () => {
     try {
       const fresh = await authService.me();
@@ -97,8 +114,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoggedIn: !!user, loading, signup, login, logout, refreshUser }}
+      value={{
+        user,
+        isLoggedIn: !!user,
+        loading,
+        signup,
+        login,
+        logout,
+        logoutWithRedirect,
+        loggingOut,
+        refreshUser,
+      }}
     >
+      {loggingOut && <SplashLoader message="Signing you out..." />}
       {children}
     </AuthContext.Provider>
   );

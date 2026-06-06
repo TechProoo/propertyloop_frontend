@@ -98,7 +98,7 @@ const navItems = [
 /* ─── Component ─── */
 
 const AgentDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user, logoutWithRedirect } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
@@ -635,10 +635,7 @@ const AgentDashboard = () => {
               </div>
             )}
             <button
-              onClick={async () => {
-                await logout();
-                window.location.href = "/";
-              }}
+              onClick={logoutWithRedirect}
               className={`flex items-center gap-2 transition-colors ${
                 sidebarOpen
                   ? "text-red-400 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-md hover:bg-red-500/20 hover:text-red-300"
@@ -742,10 +739,7 @@ const AgentDashboard = () => {
                 </div>
               </div>
               <button
-                onClick={async () => {
-                  await logout();
-                  window.location.href = "/";
-                }}
+                onClick={logoutWithRedirect}
                 className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 hover:text-red-300 transition-colors text-sm font-medium"
               >
                 <LogOut className="w-4 h-4" /> Logout
@@ -2336,10 +2330,7 @@ const AgentDashboard = () => {
                   Log out of your agent account.
                 </p>
                 <button
-                  onClick={async () => {
-                    await logout();
-                    window.location.href = "/";
-                  }}
+                  onClick={logoutWithRedirect}
                   className="h-10 px-6 rounded-full border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors flex items-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />

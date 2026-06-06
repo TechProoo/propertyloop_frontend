@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
-import SplashLoader from "../ui/SplashLoader";
 import Logo from "../../assets/logo.png";
 import gsap from "gsap";
 
@@ -97,22 +96,10 @@ const FlipLink = ({
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
   const location = useLocation();
   const path = location.pathname;
-  const { user, isLoggedIn, logout } = useAuth();
+  const { user, isLoggedIn, logoutWithRedirect, loggingOut } = useAuth();
   const navRef = useRef<HTMLElement>(null);
-
-  const handleLogout = async () => {
-    setLoggingOut(true);
-    try {
-      await logout();
-    } catch {
-      /* logout already clears local tokens; redirect regardless */
-    }
-    // Full reload to /login so all auth-dependent state is reset cleanly.
-    window.location.href = "/login";
-  };
 
   // ─── GSAP cinematic entrance ───────────────────────────────────────────
   useEffect(() => {
@@ -182,7 +169,6 @@ const Navbar = () => {
 
   return (
     <>
-      {loggingOut && <SplashLoader message="Signing you out..." />}
       <nav
         ref={navRef}
         className="w-full px-6 md:px-12 lg:px-20 py-4 flex items-center justify-between relative z-50"
@@ -246,7 +232,7 @@ const Navbar = () => {
               </li>
               <li data-nav-action>
                 <button
-                  onClick={handleLogout}
+                  onClick={logoutWithRedirect}
                   disabled={loggingOut}
                   className="text-sm font-medium px-4 py-2 rounded-full bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
                 >
@@ -354,7 +340,7 @@ const Navbar = () => {
                   Dashboard
                 </a>
                 <button
-                  onClick={handleLogout}
+                  onClick={logoutWithRedirect}
                   disabled={loggingOut}
                   className="py-2 px-4 rounded-full text-left bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
                 >

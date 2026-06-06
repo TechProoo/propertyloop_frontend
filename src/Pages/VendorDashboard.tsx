@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -116,8 +116,7 @@ const formatCurrency = (v: number) => "₦" + v.toLocaleString("en-NG");
 const vendorActivity: { text: string; time: string; type: string }[] = [];
 
 const VendorDashboard = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user, logoutWithRedirect } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
@@ -408,8 +407,7 @@ const VendorDashboard = () => {
     (user?.vendorProfile as any)?.serviceCategory || "Service";
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/");
+    await logoutWithRedirect();
   };
 
   /* ─── Job Actions ─── */
