@@ -304,35 +304,36 @@ const Hero = () => {
         <form
           onSubmit={handleSearch}
           data-hero-mobile-search
-          className="flex flex-col gap-2.5 mt-5 sm:max-w-[320px]"
+          className="flex flex-col gap-3 mt-5"
         >
-          <div className="flex gap-2">
+          <div className="inline-flex gap-1.5 bg-bg-accent p-1 rounded-full self-start">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 type="button"
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-1.5 text-xs font-medium rounded-full border transition-all ${
+                className={`px-5 py-1.5 text-xs font-semibold rounded-full transition-all ${
                   activeTab === tab
-                    ? "backdrop-blur-md bg-white/70 text-primary-dark border-white/50 shadow-sm"
-                    : "backdrop-blur-sm bg-white/30 text-text-secondary border-white/30"
+                    ? "bg-white text-primary-dark shadow-sm"
+                    : "bg-transparent text-text-secondary"
                 }`}
               >
                 {tab}
               </button>
             ))}
           </div>
-          <div className="flex items-center backdrop-blur-xl bg-white/40 rounded-full border border-white/50 shadow-[0_8px_32px_rgba(31,111,67,0.12)] pl-4 pr-1.5 py-1 ring-1 ring-white/20">
+          <div className="flex items-center bg-white rounded-full border border-border-light shadow-[0_8px_30px_rgba(0,0,0,0.06)] pl-5 pr-1.5 py-1.5">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by location, LGA, or keyword"
-              className="flex-1 text-sm text-primary-dark placeholder-text-subtle outline-none bg-transparent py-2"
+              className="flex-1 text-sm text-primary-dark placeholder-text-subtle outline-none bg-transparent py-1.5"
             />
             <button
               type="submit"
-              className="w-9 h-9 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shrink-0 shadow-lg shadow-glow/40"
+              className="w-10 h-10 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shrink-0"
+              aria-label="Search"
             >
               <svg
                 className="w-4 h-4 text-white"
@@ -452,19 +453,19 @@ const Hero = () => {
           <form
             onSubmit={handleSearch}
             data-hero-search
-            className="flex flex-col gap-3 max-w-[320px] mt-10"
+            className="flex flex-col gap-4 max-w-[440px] mt-10"
           >
-            {/* Pill Tabs — glass */}
-            <div className="flex gap-2">
+            {/* Segmented control */}
+            <div className="inline-flex gap-1.5 bg-bg-accent p-1.5 rounded-full self-start">
               {tabs.map((tab) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setActiveTab(tab)}
-                  className={`px-5 py-1.5 text-sm font-medium rounded-full border transition-all ${
+                  className={`px-6 py-2 text-sm font-semibold rounded-full transition-all ${
                     activeTab === tab
-                      ? "backdrop-blur-md bg-white/70 text-primary-dark border-white/50 shadow-sm"
-                      : "backdrop-blur-sm bg-white/30 text-text-secondary border-white/30 hover:bg-white/50 hover:text-primary-dark"
+                      ? "bg-white text-primary-dark shadow-sm"
+                      : "bg-transparent text-text-secondary hover:text-primary-dark"
                   }`}
                 >
                   {tab}
@@ -472,21 +473,22 @@ const Hero = () => {
               ))}
             </div>
 
-            {/* Search Input — glass card */}
-            <div className="flex items-center backdrop-blur-xl bg-white/40 rounded-full border border-white/50 shadow-[0_8px_32px_rgba(31,111,67,0.12)] pl-4 pr-1.5 py-1 ring-1 ring-white/20">
+            {/* Search pill */}
+            <div className="flex items-center bg-white rounded-full border border-border-light shadow-[0_8px_30px_rgba(0,0,0,0.06)] pl-6 pr-1.5 py-1.5">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by location, LGA, or keyword"
-                className="flex-1 text-sm text-primary-dark placeholder-text-subtle outline-none bg-transparent py-2"
+                className="flex-1 text-[15px] text-primary-dark placeholder-text-subtle outline-none bg-transparent py-2"
               />
               <button
                 type="submit"
-                className="w-9 h-9 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shrink-0 shadow-lg shadow-glow/40"
+                className="w-[50px] h-[50px] bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shrink-0"
+                aria-label="Search"
               >
                 <svg
-                  className="w-4 h-4 text-white"
+                  className="w-5 h-5 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

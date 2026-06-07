@@ -176,6 +176,7 @@ const ServiceLoop = () => {
       className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg"
     >
       <div className="max-w-7xl mx-auto">
+       <div className="rounded-[32px] bg-gradient-to-b from-[#eef3ee] to-bg px-5 sm:px-10 lg:px-16 py-12 lg:py-16">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>
@@ -208,15 +209,15 @@ const ServiceLoop = () => {
           </AuthGate>
         </div>
 
-        {/* Category pills */}
+        {/* Category chips */}
         <div className="flex flex-wrap gap-3 mb-10">
           {categories.map((cat, i) => (
             <button
               key={i}
               data-sl-pill
-              className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-text-secondary text-sm hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+              className="flex items-center gap-2.5 px-5 py-3 rounded-full bg-white border border-border-light text-primary-dark text-[15px] font-semibold hover:border-primary transition-all duration-300"
             >
-              {cat.icon}
+              <span className="text-primary">{cat.icon}</span>
               {cat.label}
             </button>
           ))}
@@ -271,22 +272,34 @@ const ServiceLoop = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {vendors.map((vendor) => (
+            {vendors.map((vendor, i) => (
               <AuthGate
                 key={vendor.id}
                 href={`/vendor/${vendor.id}`}
                 data-sl-card
-                className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+                className="group relative bg-white border border-border-light rounded-[24px] p-[18px] shadow-[0_2px_14px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 block"
               >
-                {/* Cover image — banner if uploaded, otherwise the vendor's
-                    profile picture (with a blurred copy as backdrop so a
-                    portrait-oriented avatar still fills the box nicely). */}
-                <div className="relative h-44 overflow-hidden rounded-t-[20px] bg-bg-accent">
+                {/* Tag + arrow over the logo box */}
+                <span className="absolute top-7 left-7 z-10 px-3.5 py-1.5 rounded-full bg-white border border-border-light text-primary-dark text-[13px] font-bold">
+                  {vendor.category || "Service"}
+                </span>
+                <div
+                  className={`absolute top-7 right-7 z-10 w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                    i % 3 === 1
+                      ? "bg-primary hover:bg-primary-dark"
+                      : "bg-[#1a2120] group-hover:bg-primary"
+                  }`}
+                >
+                  <ArrowUpRight className="w-4 h-4 text-white" />
+                </div>
+
+                {/* Logo / banner box */}
+                <div className="h-[150px] rounded-2xl bg-bg-accent overflow-hidden relative flex items-center justify-center">
                   {vendor.bannerImage ? (
                     <img
                       src={vendor.bannerImage}
                       alt={vendor.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover"
                     />
                   ) : vendor.avatarUrl ? (
                     <>
@@ -294,105 +307,76 @@ const ServiceLoop = () => {
                         src={vendor.avatarUrl}
                         alt=""
                         aria-hidden="true"
-                        className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-70"
+                        className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
                       />
                       <img
                         src={vendor.avatarUrl}
                         alt={vendor.name}
-                        className="relative w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                        className="relative h-full w-auto object-contain"
                       />
                     </>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Wrench className="w-12 h-12 text-text-subtle" />
-                    </div>
+                    <Wrench className="w-12 h-12 text-text-subtle/40" />
                   )}
-                  {/* Category badge and arrow */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10">
-                    <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
-                      {vendor.category || "Service"}
-                    </span>
-                    <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
-                      <ArrowUpRight className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
                 </div>
 
-                {/* Glass content panel */}
-                <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                  {/* Vendor header — avatar + name + verified */}
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={vendor.avatarUrl || FallbackImg}
-                      alt={vendor.name}
-                      onError={(e) => {
-                        e.currentTarget.src = FallbackImg;
-                      }}
-                      className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug truncate">
-                          {vendor.name}
-                        </h3>
-                        {vendor.verified && (
-                          <CheckCircle className="w-4 h-4 text-primary shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-text-secondary text-xs">
-                        {vendor.location}
-                      </p>
-                    </div>
-                  </div>
+                {/* Meta row — avatar + name */}
+                <div className="mt-3.5 bg-bg-accent rounded-2xl p-4 flex items-center gap-3">
+                  <img
+                    src={vendor.avatarUrl || FallbackImg}
+                    alt=""
+                    onError={(e) => {
+                      e.currentTarget.src = FallbackImg;
+                    }}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-white shrink-0"
+                  />
+                  <h4 className="font-heading font-bold text-primary-dark text-[15px] truncate flex-1 min-w-0">
+                    {vendor.name}
+                  </h4>
+                  {vendor.verified && (
+                    <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                  )}
+                </div>
 
-                  {/* Divider */}
-                  <div className="h-px bg-border-light mt-3 mb-3" />
-
-                  {/* Stats row */}
-                  <div className="flex items-center flex-wrap gap-y-2 justify-between text-xs">
-                    <div className="flex items-center gap-2 sm:gap-3 text-text-secondary min-w-0">
-                      {/* Rating hidden until platform has enough reviews
-                      <span className="flex items-center gap-1 shrink-0">
-                        <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                        {vendor.rating}
-                      </span>
-                      */}
-                      <span className="shrink-0">{vendor.jobsCount} jobs</span>
-                    </div>
-                    <span className="font-heading font-bold text-primary-dark text-sm shrink-0 ml-auto">
-                      {vendor.priceLabel || "From ₦15,000"}
-                    </span>
-                  </div>
+                {/* Jobs / price row */}
+                <div className="flex items-center justify-between mt-3.5 px-1 pb-1">
+                  <span className="text-text-subtle text-sm">
+                    {vendor.jobsCount} jobs
+                  </span>
+                  <span className="font-heading font-bold text-primary-dark text-[15px]">
+                    {vendor.priceLabel || "From ₦15,000"}
+                  </span>
                 </div>
               </AuthGate>
             ))}
           </div>
         )}
 
-        {/* Trust banner */}
+        {/* Trust strip */}
         <div
           data-sl-banner
-          className="mt-12 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] px-8 py-6 flex flex-col sm:flex-row items-center gap-6"
+          className="mt-11 bg-white border border-border-light rounded-[24px] px-6 sm:px-9 py-7 flex flex-col sm:flex-row items-center gap-6 shadow-[0_2px_14px_rgba(0,0,0,0.04)]"
         >
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <Shield className="w-7 h-7 text-primary" />
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+            <Shield className="w-7 h-7" />
           </div>
           <div className="flex-1 text-center sm:text-left">
             <h3 className="font-heading font-bold text-primary-dark text-lg">
               KYC-verified, trusted vendors
             </h3>
-            <p className="text-text-secondary text-sm mt-1">
+            <p className="text-text-secondary text-sm mt-1 leading-relaxed">
               Every vendor is identity-verified and rated by the community.
               Browse, message, and book directly — no middlemen.
             </p>
           </div>
           <Link
             to="/how-it-works"
-            className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center"
+            className="shrink-0 h-12 px-7 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors duration-300 inline-flex items-center"
           >
             Learn how it works
           </Link>
         </div>
+       </div>
       </div>
     </section>
   );

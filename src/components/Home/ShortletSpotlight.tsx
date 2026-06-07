@@ -1,13 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import {
-  CalendarDays,
-  MapPin,
-  ArrowUpRight,
-  Bed,
-  Bath,
-  Star,
-} from "lucide-react";
+import { CalendarDays, MapPin } from "lucide-react";
 import AuthGate from "../ui/AuthGate";
 import listingsService from "../../api/services/listings";
 import type { Listing } from "../../api/types";
@@ -175,7 +168,7 @@ const ShortletSpotlight = () => {
         {/* Date picker bar */}
         <div
           data-ss-datepicker
-          className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] px-5 sm:px-6 py-5 mb-10 flex flex-col sm:flex-row sm:items-end gap-4"
+          className="bg-white border border-border-light rounded-[24px] shadow-[0_2px_14px_rgba(0,0,0,0.04)] px-5 sm:px-8 py-7 mb-10 flex flex-col sm:flex-row sm:items-end gap-5"
         >
           <div className="flex items-center gap-2 text-primary shrink-0 sm:pb-1">
             <CalendarDays className="w-5 h-5" />
@@ -268,7 +261,7 @@ const ShortletSpotlight = () => {
                 data-ss-card
                 className="group relative bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 overflow-hidden block"
               >
-                <div className="h-48 overflow-hidden relative bg-bg-accent">
+                <div className="h-56 overflow-hidden relative bg-bg-accent">
                   {s.coverImage ? (
                     <img
                       src={s.coverImage}
@@ -281,51 +274,39 @@ const ShortletSpotlight = () => {
                       <CalendarDays className="w-10 h-10 text-text-subtle" />
                     </div>
                   )}
-                  <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-medium">
-                    Shortlet
+                  <span className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-semibold">
+                    Verified host
                   </span>
-                  <div className="absolute top-3 right-3 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
-                    <ArrowUpRight className="w-4 h-4 text-white" />
-                  </div>
+                  {s.rating > 0 && (
+                    <span className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-[#1a2120] text-white text-xs font-bold">
+                      ★ {s.rating.toFixed(1)}
+                    </span>
+                  )}
                 </div>
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug line-clamp-1">
-                      {s.title}
-                    </h3>
-                    {s.rating > 0 && (
-                      <span className="flex items-center gap-1 text-xs text-text-secondary shrink-0">
-                        <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                        {s.rating.toFixed(1)}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1 text-text-secondary text-xs mb-3">
-                    <MapPin className="w-3 h-3 shrink-0" />
+                <div className="p-5">
+                  <h3 className="font-heading font-bold text-primary-dark text-[16px] leading-snug line-clamp-1">
+                    {s.title}
+                  </h3>
+                  <div className="flex items-center gap-1.5 text-text-subtle text-xs mt-1.5">
+                    <MapPin className="w-3.5 h-3.5 shrink-0" />
                     <span className="truncate">{s.location}</span>
                   </div>
-                  <div className="h-px bg-border-light mb-3" />
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-3 text-text-secondary">
-                      <span className="flex items-center gap-1">
-                        <Bed className="w-3.5 h-3.5" />
-                        {s.beds}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Bath className="w-3.5 h-3.5" />
-                        {s.baths}
-                      </span>
-                    </div>
-                    <span className="font-heading font-bold text-primary-dark text-sm">
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-border-light">
+                    <span className="font-heading font-bold text-primary-dark text-lg tracking-tight">
                       {s.priceLabel}
                       {s.period && (
-                        <span className="text-text-subtle font-normal">
+                        <span className="text-text-subtle text-xs font-normal">
+                          {" "}
                           /{s.period.replace(/^\//, "")}
                         </span>
                       )}
                     </span>
+                    <span className="text-xs font-semibold text-text-secondary bg-bg px-3 py-1.5 rounded-full">
+                      {s.beds} {s.beds === 1 ? "bed" : "beds"}
+                    </span>
                   </div>
-                </div>              </AuthGate>
+                </div>
+              </AuthGate>
             ))}
           </div>
         )}

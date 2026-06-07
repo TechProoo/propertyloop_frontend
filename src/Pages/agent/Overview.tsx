@@ -26,6 +26,10 @@ import {
   BouncyLoader,
   initials,
 } from "../../components/agent/ui";
+import {
+  buildAgentNotifications,
+  useNotifReads,
+} from "./agentNotifications";
 
 export default function AgentOverview() {
   const { user } = useAuth();
@@ -37,6 +41,13 @@ export default function AgentOverview() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [nudgeOpen, setNudgeOpen] = useState(!user?.avatarUrl);
+
+  // Notification bell dropdown
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifications = buildAgentNotifications(user, stats);
+  const { isUnread, markRead, markAllRead, unreadCount } = useNotifReads();
+  const unread = unreadCount(notifications);
+  const previewNotifs = notifications.slice(0, 5);
 
   useEffect(() => {
     let active = true;
@@ -71,18 +82,134 @@ export default function AgentOverview() {
         subtitle="Here's how your listings are performing this week."
         actions={
           <>
-            <button
-              className="w-11 h-11 rounded-xl grid place-items-center relative"
-              style={{ background: C.card, border: `1px solid ${C.line}`, color: C.ink2 }}
-              onClick={() => navigate("/agent-dashboard/messages")}
-              aria-label="Notifications"
-            >
-              <Bell className="w-[19px] h-[19px]" />
-              <span
-                className="absolute top-[11px] right-[11px] w-2 h-2 rounded-full"
-                style={{ background: C.accent, border: `2px solid ${C.card}` }}
-              />
-            </button>
+            <div className="relative">
+              <button
+                className="w-11 h-11 rounded-xl grid place-items-center relative"
+                style={{ background: C.card, border: `1px solid ${C.line}`, color: C.ink2 }}
+                onClick={() => setNotifOpen((o) => !o)}
+                aria-label="Notifications"
+              >
+                <Bell className="w-[19px] h-[19px]" />
+                {unread > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full grid place-items-center text-[10px] font-bold text-white"
+                    style={{ background: C.accent, border: `2px solid ${C.card}` }}
+                  >
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
+              </button>
+
+              {notifOpen && (
+                <>
+                  {/* click-away backdrop */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setNotifOpen(false)}
+                  />
+                  <div
+                    className="absolute right-0 mt-2 w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl z-50 overflow-hidden text-left"
+                    style={{
+                      background: C.card,
+                      border: `1px solid ${C.line}`,
+                      boxShadow: "0 18px 50px rgba(0,0,0,0.14)",
+                    }}
+                  >
+                    <div
+                      className="flex items-center justify-between px-4 py-3"
+                      style={{ borderBottom: `1px solid ${C.line}` }}
+                    >
+                      <b className="text-sm font-bold" style={{ color: C.ink }}>
+                        Notifications
+                      </b>
+                      {unread > 0 && (
+                        <button
+                          onClick={() => markAllRead(notifications.map((n) => n.id))}
+                          className="text-xs font-bold"
+                          style={{ color: C.primary }}
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-[360px] overflow-y-auto">
+                      {previewNotifs.length === 0 ? (
+                        <div
+                          className="px-4 py-10 text-center text-xs"
+                          style={{ color: C.ink3 }}
+                        >
+                          You're all caught up 🎉
+                        </div>
+                      ) : (
+                        previewNotifs.map((n) => {
+                          const fresh = isUnread(n.id);
+                          return (
+                            <button
+                              key={n.id}
+                              onClick={() => {
+                                markRead(n.id);
+                                setNotifOpen(false);
+                                navigate(n.to);
+                              }}
+                              className="w-full flex items-start gap-3 px-4 py-3 text-left transition-colors"
+                              style={{
+                                borderBottom: `1px solid ${C.line2}`,
+                                background: fresh ? C.primarySoft : "transparent",
+                              }}
+                            >
+                              <span
+                                className="w-8 h-8 rounded-lg grid place-items-center shrink-0"
+                                style={{
+                                  background:
+                                    n.tone === "action" ? C.primarySoft : C.surface2,
+                                  color: n.tone === "action" ? C.primary : C.ink2,
+                                }}
+                              >
+                                {n.icon}
+                              </span>
+                              <span className="flex-1 min-w-0">
+                                <span className="flex items-center gap-2">
+                                  <span
+                                    className="font-bold text-[13px] truncate"
+                                    style={{ color: C.ink }}
+                                  >
+                                    {n.title}
+                                  </span>
+                                  {fresh && (
+                                    <span
+                                      className="w-1.5 h-1.5 rounded-full shrink-0"
+                                      style={{ background: C.primary }}
+                                    />
+                                  )}
+                                </span>
+                                <span
+                                  className="block text-[11.5px] mt-0.5 leading-snug"
+                                  style={{ color: C.ink3 }}
+                                >
+                                  {n.desc}
+                                </span>
+                              </span>
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setNotifOpen(false);
+                        navigate("/agent-dashboard/notifications");
+                      }}
+                      className="w-full px-4 py-3 text-[13px] font-bold transition-colors"
+                      style={{ color: C.primary, borderTop: `1px solid ${C.line}` }}
+                    >
+                      View all notifications
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
             <PrimaryButton onClick={() => navigate("/add-property")}>
               <Plus className="w-[17px] h-[17px]" strokeWidth={2.2} /> Add Listing
             </PrimaryButton>

@@ -200,8 +200,8 @@ const FeaturedHomes = () => {
                 data-fh-card
                 className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
               >
-                {/* Image — flush top, rounded top corners only */}
-                <div className="h-52 overflow-hidden rounded-t-[20px] relative">
+                {/* Image — tall, rounded top */}
+                <div className="h-[320px] overflow-hidden rounded-t-[24px] relative">
                   <img
                     src={home.coverImage}
                     alt={home.title}
@@ -210,53 +210,48 @@ const FeaturedHomes = () => {
                   />
                   {/* Sale / Rent tag */}
                   <span
-                    className={`absolute top-3 left-3 px-2.5 py-1 rounded-full backdrop-blur-sm text-white text-xs font-semibold tracking-wide shadow-sm ${
-                      home.type === "SALE"
-                        ? "bg-primary/90"
-                        : "bg-indigo-500/90"
+                    className={`absolute top-4 left-4 px-3.5 py-1.5 rounded-full text-white text-xs font-semibold tracking-wide shadow-sm ${
+                      home.type === "SALE" ? "bg-primary" : "bg-primary-light"
                     }`}
                   >
                     {home.type === "SALE" ? "For Sale" : "For Rent"}
                   </span>
-                  <div className="absolute top-3 right-3 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                  <div className="absolute top-4 right-4 w-11 h-11 bg-[#1a2120] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
                     <ArrowUpRight className="w-4 h-4 text-white" />
                   </div>
                 </div>
 
-                {/* Content — glass morphism panel */}
-                <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                  {/* Price */}
-                  <p className="font-heading font-bold text-primary-dark text-[18px]">
+                {/* Overlapping glass info card */}
+                <div className="mx-3.5 mb-3.5 -mt-24 relative z-10 bg-white/85 backdrop-blur-md border border-white/60 rounded-[20px] px-5 pt-4 pb-5 shadow-[0_14px_36px_rgba(0,0,0,0.10)]">
+                  <p className="font-heading font-bold text-primary-dark text-[20px] tracking-tight">
                     {home.priceLabel}
                   </p>
-
-                  {/* Title */}
                   <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1.5 truncate">
                     {home.title}
                   </h3>
-
-                  {/* Address */}
-                  <p className="text-text-secondary text-xs mt-1">
+                  <p className="text-text-subtle text-xs mt-1 truncate">
                     {home.address}
                   </p>
 
-                  {/* Divider */}
-                  <div className="h-px bg-border-light mt-4 mb-3" />
-
-                  {/* Stats row */}
-                  <div className="flex items-center gap-4 text-text-secondary text-xs pr-10">
-                    <span className="flex items-center gap-1.5">
-                      <Bed className="w-3.5 h-3.5" />
-                      {home.beds} Beds
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Bath className="w-3.5 h-3.5" />
-                      {home.baths} Bathrooms
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Maximize className="w-3.5 h-3.5" />
-                      {home.sqft}m²
-                    </span>
+                  {/* Spec row — 3 columns */}
+                  <div className="flex gap-2 mt-4 pt-4 border-t border-border-light">
+                    {[
+                      { Icon: Bed, value: home.beds, label: "Beds" },
+                      { Icon: Bath, value: home.baths, label: "Baths" },
+                      { Icon: Maximize, value: home.sqft, label: "m²" },
+                    ].map(({ Icon, value, label }) => (
+                      <div key={label} className="flex-1 flex items-center gap-2 min-w-0">
+                        <Icon className="w-4 h-4 text-text-subtle shrink-0" />
+                        <span className="leading-tight min-w-0">
+                          <b className="block text-sm font-extrabold text-primary-dark truncate">
+                            {value}
+                          </b>
+                          <span className="text-[11px] text-text-subtle">
+                            {label}
+                          </span>
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </AuthGate>

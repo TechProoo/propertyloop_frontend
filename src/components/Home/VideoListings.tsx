@@ -174,8 +174,8 @@ const VideoListings = () => {
               home.type === "SALE"
                 ? "bg-primary text-white"
                 : home.type === "RENT"
-                  ? "bg-blue-500 text-white"
-                  : "bg-amber-500 text-white";
+                  ? "bg-primary-light text-white"
+                  : "bg-[#b9842c] text-white";
 
             return (
               <div
@@ -184,10 +184,10 @@ const VideoListings = () => {
                 className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
               >
                 {/* Video / Thumbnail area */}
-                <div className="relative h-52 overflow-hidden rounded-t-[20px] bg-black">
+                <div className="relative h-[320px] overflow-hidden rounded-t-3xl bg-black">
                   {/* Category pill */}
                   <span
-                    className={`absolute top-3 left-3 z-20 px-2.5 py-1 rounded-full text-[11px] font-semibold shadow-sm ${categoryStyles}`}
+                    className={`absolute top-4 left-4 z-20 px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-sm ${categoryStyles}`}
                   >
                     {categoryLabel}
                   </span>
@@ -246,21 +246,20 @@ const VideoListings = () => {
                         }}
                         className="absolute inset-0 flex items-center justify-center"
                       >
-                        <div className="w-14 h-14 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-[0_4px_16px_rgba(0,0,0,0.2)] hover:bg-white hover:scale-110 transition-all duration-300">
-                          <Play className="w-6 h-6 text-primary-dark fill-primary-dark ml-0.5" />
+                        <div className="w-[68px] h-[68px] rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.2)] hover:bg-white hover:scale-110 transition-all duration-300">
+                          <Play className="w-7 h-7 text-primary-dark fill-primary-dark ml-0.5" />
                         </div>
                       </button>
                     </>
                   )}
                 </div>
 
-                {/* Content — glass morphism panel */}
+                {/* Overlapping glass info card */}
                 <a
                   href={`/property/${home.id}`}
-                  className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)] block"
+                  className="mx-3.5 mb-3.5 -mt-24 relative z-10 bg-white/85 backdrop-blur-md border border-white/60 rounded-[20px] px-5 pt-4 pb-5 shadow-[0_14px_36px_rgba(0,0,0,0.10)] block"
                 >
-                  {/* Price */}
-                  <p className="font-heading font-bold text-primary-dark text-[18px]">
+                  <p className="font-heading font-bold text-primary-dark text-[20px] tracking-tight">
                     {fullPrice}
                     {period && (
                       <span className="text-text-subtle text-[13px] font-normal ml-1">
@@ -268,34 +267,32 @@ const VideoListings = () => {
                       </span>
                     )}
                   </p>
-
-                  {/* Title */}
                   <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1.5 truncate">
                     {home.title}
                   </h3>
-
-                  {/* Address */}
-                  <p className="text-text-secondary text-xs mt-1">
+                  <p className="text-text-subtle text-xs mt-1 truncate">
                     {home.address}
                   </p>
 
-                  {/* Divider */}
-                  <div className="h-px bg-border-light mt-4 mb-3" />
-
-                  {/* Stats row */}
-                  <div className="flex items-center gap-4 text-text-secondary text-xs pr-10">
-                    <span className="flex items-center gap-1.5">
-                      <Bed className="w-3.5 h-3.5" />
-                      {home.beds} Beds
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Bath className="w-3.5 h-3.5" />
-                      {home.baths} Baths
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Maximize className="w-3.5 h-3.5" />
-                      {home.sqft}m²
-                    </span>
+                  {/* Spec row — 3 columns */}
+                  <div className="flex gap-2 mt-4 pt-4 border-t border-border-light">
+                    {[
+                      { Icon: Bed, value: home.beds, label: "Beds" },
+                      { Icon: Bath, value: home.baths, label: "Baths" },
+                      { Icon: Maximize, value: home.sqft, label: "m²" },
+                    ].map(({ Icon, value, label }) => (
+                      <div key={label} className="flex-1 flex items-center gap-2 min-w-0">
+                        <Icon className="w-4 h-4 text-text-subtle shrink-0" />
+                        <span className="leading-tight min-w-0">
+                          <b className="block text-sm font-extrabold text-primary-dark truncate">
+                            {value}
+                          </b>
+                          <span className="text-[11px] text-text-subtle">
+                            {label}
+                          </span>
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </a>
               </div>

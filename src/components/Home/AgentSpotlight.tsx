@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowUpRight,
   CheckCircle,
-  Home,
   Phone,
   Sparkles,
   WifiOff,
@@ -229,99 +227,98 @@ const AgentSpotlight = () => {
                 key={i}
                 href={`/agent/${agent.id}`}
                 data-as-card
-                className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
+                className="group bg-white border border-border-light rounded-[24px] p-6 shadow-[0_2px_14px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 block"
               >
-                {/* Photo */}
-                <div className="h-52 overflow-hidden rounded-t-[20px] relative bg-linear-to-br from-primary/20 to-primary-dark/20">
-                  <img
-                    src={agent.avatarUrl || FallbackImg}
-                    alt={agent.name}
-                    onError={(e) => {
-                      e.currentTarget.src = FallbackImg;
-                    }}
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {/* Verified badge and arrow */}
-                  {agent.verified && (
-                    <div className="absolute top-3 right-3 flex items-center gap-2">
-                      <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-primary text-xs font-medium">
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        KYC Verified
-                      </span>
-                      <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
-                        <ArrowUpRight className="w-4 h-4 text-white" />
-                      </div>
+                {/* Top — avatar + name + agency */}
+                <div className="flex items-center gap-4">
+                  <div className="w-[68px] h-[68px] rounded-full overflow-hidden bg-bg-accent shrink-0">
+                    <img
+                      src={agent.avatarUrl || FallbackImg}
+                      alt={agent.name}
+                      onError={(e) => {
+                        e.currentTarget.src = FallbackImg;
+                      }}
+                      className="w-full h-full object-cover object-top"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-heading font-bold text-primary-dark text-[17px] leading-tight truncate">
+                        {agent.name}
+                      </h3>
+                      {agent.verified && (
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                      )}
                     </div>
-                  )}
-                  {!agent.verified && (
-                    <div className="absolute top-3 right-3 w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
-                      <ArrowUpRight className="w-4 h-4 text-white" />
-                    </div>
-                  )}
+                    <p className="text-text-subtle text-xs mt-1 truncate">
+                      {agent.agency} · {agent.location}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Glass content panel */}
-                <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                  {/* Name + agency */}
-                  <h3 className="font-heading font-bold text-primary-dark text-[16px] leading-snug">
-                    {agent.name}
-                  </h3>
-                  <p className="text-text-secondary text-xs mt-0.5">
-                    {agent.agency} · {agent.location}
-                  </p>
+                {/* KYC pill */}
+                {agent.verified && (
+                  <span className="inline-flex items-center gap-1.5 mt-4 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary-dark text-xs font-semibold">
+                    <CheckCircle className="w-3.5 h-3.5 text-primary" />
+                    KYC Verified
+                  </span>
+                )}
 
-                  {/* Divider */}
-                  <div className="h-px bg-border-light mt-3 mb-3" />
+                {/* Stats — or "new agent" badge */}
+                {agent.listingsCount === 0 &&
+                agent.soldRentedCount === 0 &&
+                !agent.rating ? (
+                  <div className="mt-5">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                      <Sparkles className="w-3 h-3" />
+                      New on PropertyLoop
+                    </span>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-2 my-5 py-4 border-t border-b border-border-light text-center">
+                    <div>
+                      <b className="font-heading text-[20px] font-bold text-primary-dark block tracking-tight">
+                        {agent.listingsCount}
+                      </b>
+                      <span className="text-[11px] text-text-subtle">Active</span>
+                    </div>
+                    <div>
+                      <b className="font-heading text-[20px] font-bold text-primary-dark block tracking-tight">
+                        {agent.soldRentedCount}
+                      </b>
+                      <span className="text-[11px] text-text-subtle">Closed</span>
+                    </div>
+                    <div>
+                      <b className="font-heading text-[20px] font-bold text-primary-dark block tracking-tight">
+                        {agent.rating > 0 ? agent.rating.toFixed(1) : "—"}
+                      </b>
+                      <span className="text-[11px] text-text-subtle">Rating</span>
+                    </div>
+                  </div>
+                )}
 
-                  {/* Stats — hidden for brand-new agents (0/0/no rating), where
-                    showing "0 active · 0 closed" reads as a negative signal. */}
-                  {agent.listingsCount === 0 &&
-                  agent.soldRentedCount === 0 &&
-                  !agent.rating ? (
-                    <div className="flex items-center text-xs pr-8">
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                        <Sparkles className="w-3 h-3" />
-                        New on PropertyLoop
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between text-xs pr-8">
-                      <div className="flex items-center gap-4 text-text-secondary">
-                        {/* Rating hidden until platform has enough reviews
-                      {agent.rating > 0 && (
-                        <span className="flex items-center gap-1">
-                          <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                          {agent.rating}
-                        </span>
-                      )}
-                      */}
-                        <span className="flex items-center gap-1">
-                          <Home className="w-3.5 h-3.5" />
-                          {agent.listingsCount} active
-                        </span>
-                        <span>{agent.soldRentedCount} closed</span>
-                      </div>
-                    </div>
-                  )}
+                {/* View profile */}
+                <div className="w-full mt-5 bg-bg-accent text-primary-dark group-hover:bg-primary group-hover:text-white rounded-2xl py-3.5 text-center font-semibold text-sm transition-colors">
+                  View profile
                 </div>
               </AuthGate>
             ))}
           </div>
         )}
 
-        {/* Trust banner */}
+        {/* Trust strip */}
         <div
           data-as-banner
-          className="mt-12 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] px-8 py-6 flex flex-col sm:flex-row items-center gap-6"
+          className="mt-11 bg-white border border-border-light rounded-[24px] px-6 sm:px-9 py-7 flex flex-col sm:flex-row items-center gap-6 shadow-[0_2px_14px_rgba(0,0,0,0.04)]"
         >
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <CheckCircle className="w-7 h-7 text-primary" />
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+            <CheckCircle className="w-7 h-7" />
           </div>
           <div className="flex-1 text-center sm:text-left">
             <h3 className="font-heading font-bold text-primary-dark text-lg">
               All agents are KYC-verified
             </h3>
-            <p className="text-text-secondary text-sm mt-1">
+            <p className="text-text-secondary text-sm mt-1 leading-relaxed">
               Every agent on PropertyLoop passes identity verification before
               they can list properties. This is how we keep listings trustworthy
               and protect buyers and tenants.
@@ -329,7 +326,7 @@ const AgentSpotlight = () => {
           </div>
           <a
             href="/find-agent"
-            className="shrink-0 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2"
+            className="shrink-0 h-12 px-7 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2"
           >
             <Phone className="w-4 h-4" />
             Contact an agent

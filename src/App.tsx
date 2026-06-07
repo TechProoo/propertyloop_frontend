@@ -28,6 +28,7 @@ import AgentManageListing from "./Pages/agent/ManageListing";
 import AgentAnalytics from "./Pages/agent/Analytics";
 import AgentViewings from "./Pages/agent/Viewings";
 import AgentMessagesPage from "./Pages/agent/Messages";
+import AgentNotifications from "./Pages/agent/Notifications";
 import AgentLogbook from "./Pages/agent/Logbook";
 import AgentSubscription from "./Pages/agent/Subscription";
 import AgentSettings from "./Pages/agent/Settings";
@@ -183,6 +184,7 @@ function AppContent() {
             <Route path="viewings" element={<AgentViewings />} />
             <Route path="logbook" element={<AgentLogbook />} />
             <Route path="messages" element={<AgentMessagesPage />} />
+            <Route path="notifications" element={<AgentNotifications />} />
             <Route path="subscription" element={<AgentSubscription />} />
             <Route path="settings" element={<AgentSettings />} />
           </Route>
