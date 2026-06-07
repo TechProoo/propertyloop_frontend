@@ -96,3 +96,9 @@
   text-underline-offset: 2px;
 }
 .pl-prose a:hover { color: #1a3d2a; }
+
+/* Bouncy dot loader (agent dashboard) */
+@keyframes pl-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.55; }
+  40% { transform: translateY(-9px); opacity: 1; }
+}

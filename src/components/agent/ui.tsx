@@ -246,6 +246,38 @@ export function StatusPill({ status }: { status: string }) {
   );
 }
 
+/** Three bouncing dots — the dashboard's loading indicator. */
+export function BouncyLoader({
+  label,
+  className = "",
+}: {
+  label?: string;
+  className?: string;
+}) {
+  return (
+    <div className={`flex flex-col items-center justify-center gap-3 ${className}`}>
+      <div className="flex gap-1.5">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="w-2.5 h-2.5 rounded-full"
+            style={{
+              background: C.primary,
+              animation: "pl-bounce 1s infinite ease-in-out",
+              animationDelay: `${i * 0.16}s`,
+            }}
+          />
+        ))}
+      </div>
+      {label && (
+        <span className="text-[13px]" style={{ color: C.ink3 }}>
+          {label}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function EmptyState({
   icon,
   title,

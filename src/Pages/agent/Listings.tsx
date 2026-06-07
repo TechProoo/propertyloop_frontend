@@ -12,6 +12,7 @@ import {
   PrimaryButton,
   StatusPill,
   EmptyState,
+  BouncyLoader,
 } from "../../components/agent/ui";
 
 const FILTERS: { id: string; label: string; match: (s: ListingStatus) => boolean }[] = [
@@ -112,7 +113,7 @@ export default function AgentListings() {
       {/* Table */}
       <Card className="mt-3.5 !p-0 overflow-hidden">
         {loading ? (
-          <p className="text-[13px] p-6" style={{ color: C.ink3 }}>Loading…</p>
+          <div className="py-10"><BouncyLoader /></div>
         ) : shown.length === 0 ? (
           <div className="p-6">
             <EmptyState

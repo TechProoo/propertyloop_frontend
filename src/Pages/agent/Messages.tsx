@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Search, Send } from "lucide-react";
 import { useConversations } from "../../api/hooks";
-import { C, PageHeader, initials } from "../../components/agent/ui";
+import { C, PageHeader, BouncyLoader, initials } from "../../components/agent/ui";
 
 const QUICK = ["Yes, it's available", "Share the address", "Suggest a time"];
 
@@ -65,7 +65,7 @@ export default function AgentMessages() {
           </div>
           <div className="overflow-auto flex-1">
             {loading ? (
-              <p className="text-[13px] p-4" style={{ color: C.ink3 }}>Loading…</p>
+              <div className="p-8"><BouncyLoader /></div>
             ) : filtered.length === 0 ? (
               <p className="text-[13px] p-4" style={{ color: C.ink3 }}>No conversations yet.</p>
             ) : (
@@ -112,7 +112,7 @@ export default function AgentMessages() {
 
               <div className="flex-1 overflow-auto px-[18px] py-4 flex flex-col gap-2">
                 {messagesLoadingId === selected && msgs.length === 0 ? (
-                  <p className="text-[13px] m-auto" style={{ color: C.ink3 }}>Loading messages…</p>
+                  <div className="m-auto"><BouncyLoader /></div>
                 ) : msgs.length === 0 ? (
                   <p className="text-[13px] m-auto" style={{ color: C.ink3 }}>No messages yet — say hello.</p>
                 ) : (

@@ -4,7 +4,7 @@ import listingsService from "../../api/services/listings";
 import type { LogbookEntry } from "../../api/services/listings";
 import type { Listing } from "../../api/types";
 import { toast } from "../../lib/toast";
-import { C, Card, PageHeader, EmptyState, naira } from "../../components/agent/ui";
+import { C, Card, PageHeader, EmptyState, BouncyLoader, naira } from "../../components/agent/ui";
 
 const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 function dateLabel(iso?: string) {
@@ -71,7 +71,7 @@ export default function AgentLogbook() {
         {/* Property picker */}
         <Card className="!p-2">
           {loadingList ? (
-            <p className="text-[13px] p-3" style={{ color: C.ink3 }}>Loading…</p>
+            <div className="p-6"><BouncyLoader /></div>
           ) : listings.length === 0 ? (
             <p className="text-[13px] p-3" style={{ color: C.ink3 }}>No listings yet.</p>
           ) : (
@@ -113,7 +113,7 @@ export default function AgentLogbook() {
               </div>
 
               {loadingLog ? (
-                <p className="text-[13px]" style={{ color: C.ink3 }}>Loading entries…</p>
+                <div className="py-8"><BouncyLoader /></div>
               ) : entries.length === 0 ? (
                 <EmptyState
                   icon={<ClipboardList className="w-[26px] h-[26px]" />}

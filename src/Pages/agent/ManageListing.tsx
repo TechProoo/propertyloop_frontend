@@ -21,6 +21,7 @@ import {
   GhostButton,
   StatusPill,
   StatCard,
+  BouncyLoader,
   initials,
 } from "../../components/agent/ui";
 
@@ -164,7 +165,7 @@ export default function ManageListing() {
   };
 
   if (loading) {
-    return <p className="text-[13px]" style={{ color: C.ink3 }}>Loading…</p>;
+    return <div className="py-16"><BouncyLoader /></div>;
   }
   if (!listing) {
     return (

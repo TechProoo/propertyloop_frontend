@@ -3,7 +3,7 @@ import { CalendarDays } from "lucide-react";
 import viewingsService from "../../api/services/viewings";
 import type { Viewing, ViewingStatus } from "../../api/types";
 import { toast } from "../../lib/toast";
-import { C, Card, PageHeader, StatusPill, EmptyState } from "../../components/agent/ui";
+import { C, Card, PageHeader, StatusPill, EmptyState, BouncyLoader } from "../../components/agent/ui";
 
 const WEEKDAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -104,7 +104,7 @@ export default function AgentViewings() {
       <div className="mt-[18px] grid gap-4 items-start grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex flex-col gap-4 min-w-0">
           {loading ? (
-            <Card><p className="text-[13px]" style={{ color: C.ink3 }}>Loading…</p></Card>
+            <Card><BouncyLoader className="py-6" /></Card>
           ) : grouped.length === 0 ? (
             <Card>
               <EmptyState

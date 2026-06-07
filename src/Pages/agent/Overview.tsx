@@ -23,6 +23,7 @@ import {
   PrimaryButton,
   StatCard,
   EmptyState,
+  BouncyLoader,
   initials,
 } from "../../components/agent/ui";
 
@@ -210,7 +211,7 @@ export default function AgentOverview() {
               </Link>
             </div>
             {loading ? (
-              <p className="text-[13px] mt-3" style={{ color: C.ink3 }}>Loading…</p>
+              <div className="py-8"><BouncyLoader /></div>
             ) : listings.length === 0 ? (
               <div className="mt-3.5">
                 <EmptyState
