@@ -21,7 +21,15 @@ import Services from "./Pages/Services";
 import PropertyDetail from "./Pages/PropertyDetail";
 import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
-import AgentDashboard from "./Pages/AgentDashboard";
+import AgentLayout from "./components/agent/AgentLayout";
+import AgentOverview from "./Pages/agent/Overview";
+import AgentListings from "./Pages/agent/Listings";
+import AgentAnalytics from "./Pages/agent/Analytics";
+import AgentViewings from "./Pages/agent/Viewings";
+import AgentMessagesPage from "./Pages/agent/Messages";
+import AgentLogbook from "./Pages/agent/Logbook";
+import AgentSubscription from "./Pages/agent/Subscription";
+import AgentSettings from "./Pages/agent/Settings";
 import ServiceEscrow from "./Pages/ServiceEscrow";
 import ShortletBooking from "./Pages/ShortletBooking";
 import RentalEscrow from "./Pages/RentalEscrow";
@@ -162,10 +170,20 @@ function AppContent() {
             path="/agent-dashboard"
             element={
               <ProtectedRoute allowedRoles={["AGENT"]}>
-                <AgentDashboard />
+                <AgentLayout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route index element={<Navigate to="overview" replace />} />
+            <Route path="overview" element={<AgentOverview />} />
+            <Route path="listings" element={<AgentListings />} />
+            <Route path="analytics" element={<AgentAnalytics />} />
+            <Route path="viewings" element={<AgentViewings />} />
+            <Route path="logbook" element={<AgentLogbook />} />
+            <Route path="messages" element={<AgentMessagesPage />} />
+            <Route path="subscription" element={<AgentSubscription />} />
+            <Route path="settings" element={<AgentSettings />} />
+          </Route>
           <Route
             path="/vendor-dashboard"
             element={
