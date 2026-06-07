@@ -253,6 +253,8 @@ export interface Listing {
   verified: boolean;
   status: ListingStatus;
   viewsCount: number;
+  featured?: boolean;
+  openToOffers?: boolean;
   createdAt: string;
   updatedAt?: string;
   documents?: ListingDocument[];

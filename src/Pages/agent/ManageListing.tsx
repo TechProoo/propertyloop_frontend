@@ -84,7 +84,6 @@ export default function ManageListing() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
 
-  // UI-only toggles — no backend field exposed for these yet.
   const [featured, setFeatured] = useState(false);
   const [acceptOffers, setAcceptOffers] = useState(false);
 
@@ -96,8 +95,11 @@ export default function ManageListing() {
       viewingsService.list({ limit: 100 }),
     ]).then(([l, ld, v]) => {
       if (!active) return;
-      if (l.status === "fulfilled") setListing(l.value);
-      else toast.error("Couldn't load this listing");
+      if (l.status === "fulfilled") {
+        setListing(l.value);
+        setFeatured(!!l.value.featured);
+        setAcceptOffers(!!l.value.openToOffers);
+      } else toast.error("Couldn't load this listing");
       if (ld.status === "fulfilled")
         setLeads(ld.value.items.filter((x) => x.listingId === id));
       if (v.status === "fulfilled")
@@ -120,6 +122,30 @@ export default function ManageListing() {
       toast.error("Couldn't update the listing");
     } finally {
       setBusy(false);
+    }
+  };
+
+  const toggleFeatured = async () => {
+    if (!listing) return;
+    const next = !featured;
+    setFeatured(next);
+    try {
+      setListing(await listingsService.update(listing.id, { featured: next }));
+    } catch {
+      setFeatured(!next);
+      toast.error("Couldn't update featured placement");
+    }
+  };
+
+  const toggleOffers = async () => {
+    if (!listing) return;
+    const next = !acceptOffers;
+    setAcceptOffers(next);
+    try {
+      setListing(await listingsService.update(listing.id, { openToOffers: next }));
+    } catch {
+      setAcceptOffers(!next);
+      toast.error("Couldn't update offer settings");
     }
   };
 
@@ -341,10 +367,10 @@ export default function ManageListing() {
               />
             </SetRow>
             <SetRow title="Featured placement" sub="Top of search · Pro included">
-              <Toggle on={featured} onClick={() => setFeatured((v) => !v)} />
+              <Toggle on={featured} disabled={busy} onClick={toggleFeatured} />
             </SetRow>
             <SetRow title="Accept offers" sub="Buyers can submit offers" last>
-              <Toggle on={acceptOffers} onClick={() => setAcceptOffers((v) => !v)} />
+              <Toggle on={acceptOffers} disabled={busy} onClick={toggleOffers} />
             </SetRow>
             <div className="flex gap-2 mt-3.5">
               <button
@@ -364,9 +390,6 @@ export default function ManageListing() {
                 {listing.type === "RENT" ? "Mark rented" : "Mark sold"}
               </button>
             </div>
-            <p className="text-[11px] mt-2.5 mb-0" style={{ color: C.ink3 }}>
-              Featured &amp; offers toggles are presentational until those fields are exposed by the API.
-            </p>
           </Card>
 
           {/* Logbook quick link */}

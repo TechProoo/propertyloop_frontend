@@ -42,6 +42,8 @@ export interface CreateListingPayload {
   virtualTourUrl?: string;
   videoUrl?: string;
   videoUrls?: string[];
+  featured?: boolean;
+  openToOffers?: boolean;
 }
 
 export interface UpdateListingPayload extends Partial<CreateListingPayload> {
