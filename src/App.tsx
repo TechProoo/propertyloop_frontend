@@ -24,6 +24,7 @@ import Dashboard from "./Pages/Dashboard";
 import AgentLayout from "./components/agent/AgentLayout";
 import AgentOverview from "./Pages/agent/Overview";
 import AgentListings from "./Pages/agent/Listings";
+import AgentManageListing from "./Pages/agent/ManageListing";
 import AgentAnalytics from "./Pages/agent/Analytics";
 import AgentViewings from "./Pages/agent/Viewings";
 import AgentMessagesPage from "./Pages/agent/Messages";
@@ -177,6 +178,7 @@ function AppContent() {
             <Route index element={<Navigate to="overview" replace />} />
             <Route path="overview" element={<AgentOverview />} />
             <Route path="listings" element={<AgentListings />} />
+            <Route path="listings/:id" element={<AgentManageListing />} />
             <Route path="analytics" element={<AgentAnalytics />} />
             <Route path="viewings" element={<AgentViewings />} />
             <Route path="logbook" element={<AgentLogbook />} />

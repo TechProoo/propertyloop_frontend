@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Plus, ClipboardList, Trash2, Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Home } from "lucide-react";
 import listingsService from "../../api/services/listings";
+import leadsService from "../../api/services/leads";
 import type { Listing, ListingStatus } from "../../api/types";
 import { toast } from "../../lib/toast";
 import {
@@ -21,22 +22,31 @@ const FILTERS: { id: string; label: string; match: (s: ListingStatus) => boolean
   { id: "closed", label: "Sold / Rented", match: (s) => s === "SOLD" || s === "RENTED" },
 ];
 
-const STATUS_OPTIONS: ListingStatus[] = ["ACTIVE", "PAUSED", "SOLD", "RENTED", "ARCHIVED"];
-
 export default function AgentListings() {
   const navigate = useNavigate();
   const [items, setItems] = useState<Listing[]>([]);
+  const [leadCounts, setLeadCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
-  const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
-    listingsService
-      .listMine({ limit: 100 })
-      .then((res) => active && setItems(res.items))
-      .catch(() => active && toast.error("Couldn't load your listings"))
-      .finally(() => active && setLoading(false));
+    Promise.allSettled([
+      listingsService.listMine({ limit: 100 }),
+      leadsService.list({ limit: 100 }),
+    ]).then(([l, ld]) => {
+      if (!active) return;
+      if (l.status === "fulfilled") setItems(l.value.items);
+      else toast.error("Couldn't load your listings");
+      if (ld.status === "fulfilled") {
+        const m: Record<string, number> = {};
+        ld.value.items.forEach((x) => {
+          m[x.listingId] = (m[x.listingId] ?? 0) + 1;
+        });
+        setLeadCounts(m);
+      }
+      setLoading(false);
+    });
     return () => {
       active = false;
     };
@@ -53,33 +63,7 @@ export default function AgentListings() {
 
   const shown = items.filter((l) => FILTERS.find((f) => f.id === filter)!.match(l.status));
 
-  const changeStatus = async (l: Listing, status: ListingStatus) => {
-    if (status === l.status) return;
-    setBusyId(l.id);
-    try {
-      const updated = await listingsService.update(l.id, { status });
-      setItems((arr) => arr.map((x) => (x.id === l.id ? updated : x)));
-      toast.success(`Listing marked ${status.toLowerCase().replace("_", " ")}`);
-    } catch {
-      toast.error("Couldn't update status");
-    } finally {
-      setBusyId(null);
-    }
-  };
-
-  const remove = async (l: Listing) => {
-    if (!window.confirm(`Delete "${l.title}"? This can't be undone.`)) return;
-    setBusyId(l.id);
-    try {
-      await listingsService.remove(l.id);
-      setItems((arr) => arr.filter((x) => x.id !== l.id));
-      toast.success("Listing deleted");
-    } catch {
-      toast.error("Couldn't delete listing");
-    } finally {
-      setBusyId(null);
-    }
-  };
+  const manage = (id: string) => navigate(`/agent-dashboard/listings/${id}`);
 
   return (
     <div>
@@ -147,10 +131,10 @@ export default function AgentListings() {
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  {["Property", "Type", "Price", "Views", "Status", ""].map((h) => (
+                  {["Property", "Type", "Price", "Views", "Leads", "Status", ""].map((h) => (
                     <th
                       key={h}
-                      className="text-left text-[11px] font-bold uppercase tracking-wide px-4 py-3.5"
+                      className="text-left text-[11px] font-bold uppercase tracking-wide px-4 py-3.5 whitespace-nowrap"
                       style={{ color: C.ink3, borderBottom: `1px solid ${C.line2}` }}
                     >
                       {h}
@@ -160,11 +144,15 @@ export default function AgentListings() {
               </thead>
               <tbody>
                 {shown.map((l) => (
-                  <tr key={l.id} style={{ opacity: busyId === l.id ? 0.5 : 1 }}>
+                  <tr
+                    key={l.id}
+                    onClick={() => manage(l.id)}
+                    className="cursor-pointer transition-colors hover:bg-[#faf9f6]"
+                  >
                     <td className="px-4 py-3.5" style={{ borderBottom: `1px solid ${C.line2}` }}>
                       <div className="flex items-center gap-3">
                         <div
-                          className="w-12 h-12 rounded-[10px] flex-shrink-0"
+                          className="w-12 h-12 rounded-[10px] shrink-0"
                           style={{ background: l.coverImage ? `url(${l.coverImage}) center/cover` : C.surface3 }}
                         />
                         <div className="min-w-0">
@@ -173,50 +161,37 @@ export default function AgentListings() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3.5 text-[13.5px]" style={{ borderBottom: `1px solid ${C.line2}`, color: C.ink2 }}>
+                    <td className="px-4 py-3.5 text-[13.5px] whitespace-nowrap" style={{ borderBottom: `1px solid ${C.line2}`, color: C.ink2 }}>
                       {l.type === "SALE" ? "For sale" : l.type === "RENT" ? "For rent" : "Shortlet"}
                     </td>
-                    <td className="px-4 py-3.5" style={{ borderBottom: `1px solid ${C.line2}` }}>
+                    <td className="px-4 py-3.5 whitespace-nowrap" style={{ borderBottom: `1px solid ${C.line2}` }}>
                       <b className="text-[13.5px]" style={{ color: C.ink }}>{l.priceLabel}</b>
                     </td>
                     <td className="px-4 py-3.5 text-[13.5px]" style={{ borderBottom: `1px solid ${C.line2}`, color: C.ink2 }}>
                       {l.viewsCount.toLocaleString()}
                     </td>
                     <td className="px-4 py-3.5" style={{ borderBottom: `1px solid ${C.line2}` }}>
+                      <span
+                        className="inline-grid place-items-center min-w-[24px] h-6 px-2 rounded-full text-xs font-bold"
+                        style={{ background: C.primarySoft, color: C.primaryInk }}
+                      >
+                        {leadCounts[l.id] ?? 0}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 whitespace-nowrap" style={{ borderBottom: `1px solid ${C.line2}` }}>
                       <StatusPill status={l.status} />
                     </td>
-                    <td className="px-4 py-3.5" style={{ borderBottom: `1px solid ${C.line2}` }}>
-                      <div className="flex items-center gap-2 justify-end">
-                        <select
-                          value={l.status}
-                          disabled={busyId === l.id}
-                          onChange={(e) => changeStatus(l, e.target.value as ListingStatus)}
-                          className="text-[12.5px] font-bold rounded-full px-3 py-1.5 cursor-pointer"
-                          style={{ background: C.card, border: `1px solid ${C.line}`, color: C.ink }}
-                        >
-                          {!STATUS_OPTIONS.includes(l.status) && <option value={l.status}>{l.status}</option>}
-                          {STATUS_OPTIONS.map((s) => (
-                            <option key={s} value={s}>{s.charAt(0) + s.slice(1).toLowerCase().replace("_", " ")}</option>
-                          ))}
-                        </select>
-                        <Link
-                          to="/agent-dashboard/logbook"
-                          className="w-9 h-9 grid place-items-center rounded-full"
-                          style={{ background: C.card, border: `1px solid ${C.line}`, color: C.ink2 }}
-                          title="Logbook"
-                        >
-                          <ClipboardList className="w-4 h-4" />
-                        </Link>
-                        <button
-                          onClick={() => remove(l)}
-                          disabled={busyId === l.id}
-                          className="w-9 h-9 grid place-items-center rounded-full"
-                          style={{ background: C.card, border: `1px solid ${C.line}`, color: C.danger }}
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                    <td className="px-4 py-3.5 text-right" style={{ borderBottom: `1px solid ${C.line2}` }}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          manage(l.id);
+                        }}
+                        className="px-3.5 py-1.5 rounded-full text-[12.5px] font-bold whitespace-nowrap hover:bg-[#ece6df] transition-colors"
+                        style={{ background: C.card, border: `1px solid ${C.line}`, color: C.ink }}
+                      >
+                        Manage
+                      </button>
                     </td>
                   </tr>
                 ))}
