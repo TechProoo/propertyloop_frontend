@@ -67,7 +67,7 @@ export default function AgentLogbook() {
         subtitle="The honest service history that travels with every property you manage."
       />
 
-      <div className="mt-4 grid gap-4 items-start" style={{ gridTemplateColumns: "300px minmax(0,1fr)" }}>
+      <div className="mt-4 grid gap-4 items-start grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)]">
         {/* Property picker */}
         <Card className="!p-2">
           {loadingList ? (

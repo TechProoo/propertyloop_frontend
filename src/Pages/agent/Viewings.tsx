@@ -101,7 +101,7 @@ export default function AgentViewings() {
         subtitle={`${summary.confirmed} confirmed · ${summary.pending} awaiting your confirmation`}
       />
 
-      <div className="mt-[18px] grid gap-4 items-start" style={{ gridTemplateColumns: "minmax(0,1fr) 320px" }}>
+      <div className="mt-[18px] grid gap-4 items-start grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex flex-col gap-4 min-w-0">
           {loading ? (
             <Card><p className="text-[13px]" style={{ color: C.ink3 }}>Loading…</p></Card>

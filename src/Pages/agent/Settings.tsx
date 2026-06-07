@@ -92,14 +92,14 @@ export default function AgentSettings() {
     <div>
       <PageHeader title="Settings" subtitle="Manage your profile, security and notifications." />
 
-      <div className="mt-[18px] grid gap-4 items-start" style={{ gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)" }}>
+      <div className="mt-[18px] grid gap-4 items-start grid-cols-1 lg:grid-cols-2">
         {/* Left — profile */}
         <Card>
           <h3 className="m-0 mb-3.5 text-base font-extrabold" style={{ color: C.ink }}>Profile picture</h3>
           <ProfilePictureUpload currentImage={user?.avatarUrl || null} onUpload={handlePhoto} label="Profile Picture" />
 
           <h3 className="mt-5 mb-3.5 text-base font-extrabold" style={{ color: C.ink }}>Agent profile</h3>
-          <div className="grid grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <Field label="Full name">
               <input className={inputCls} style={{ background: C.surface, border: `1px solid ${C.line}`, color: C.ink }} value={name} onChange={(e) => setName(e.target.value)} />
             </Field>

@@ -48,9 +48,9 @@ export default function AgentMessages() {
         subtitle="Reply fast — agents who respond within an hour win more deals."
       />
 
-      <div className="mt-[18px] grid gap-4" style={{ gridTemplateColumns: "320px 1fr", height: 600 }}>
+      <div className="mt-[18px] grid gap-4 grid-cols-1 lg:grid-cols-[320px_1fr] lg:h-[600px]">
         {/* Thread list */}
-        <div className="rounded-[20px] border overflow-hidden flex flex-col" style={{ background: C.card, borderColor: C.line }}>
+        <div className="rounded-[20px] border overflow-hidden flex flex-col max-h-[360px] lg:max-h-none" style={{ background: C.card, borderColor: C.line }}>
           <div className="p-3.5" style={{ borderBottom: `1px solid ${C.line2}` }}>
             <div className="flex items-center gap-2 rounded-full px-3.5 py-2" style={{ background: C.surface2, color: C.ink3 }}>
               <Search className="w-[15px] h-[15px]" />
@@ -95,7 +95,7 @@ export default function AgentMessages() {
         </div>
 
         {/* Conversation */}
-        <div className="rounded-[20px] border flex flex-col overflow-hidden" style={{ background: C.card, borderColor: C.line }}>
+        <div className="rounded-[20px] border flex flex-col overflow-hidden min-h-[520px] lg:min-h-0" style={{ background: C.card, borderColor: C.line }}>
           {!convo ? (
             <div className="flex-1 grid place-items-center text-[13px]" style={{ color: C.ink3 }}>
               Select a conversation

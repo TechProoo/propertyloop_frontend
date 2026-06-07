@@ -163,7 +163,7 @@ export default function AgentOverview() {
       </div>
 
       {/* Two columns */}
-      <div className="mt-4 grid gap-4 items-start" style={{ gridTemplateColumns: "minmax(0,1.7fr) minmax(0,1fr)" }}>
+      <div className="mt-4 grid gap-4 items-start grid-cols-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-4 min-w-0">
           {/* Views chart (illustrative trend) */}
           <Card>

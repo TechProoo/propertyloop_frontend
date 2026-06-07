@@ -62,7 +62,7 @@ export default function AgentAnalytics() {
         {stat(loading ? "—" : closed.toString(), "Deals closed", undefined, "flat")}
       </div>
 
-      <div className="mt-4 grid gap-4 items-start" style={{ gridTemplateColumns: "minmax(0,1.5fr) minmax(0,1fr)" }}>
+      <div className="mt-4 grid gap-4 items-start grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         {/* Views & leads chart (illustrative) */}
         <Card>
           <div className="flex items-center justify-between">
