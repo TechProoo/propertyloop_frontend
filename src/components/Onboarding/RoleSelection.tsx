@@ -10,8 +10,16 @@ import {
   ShieldCheck,
   Star,
   Wallet,
+  Layers,
   ClipboardList,
+  Shield,
 } from "lucide-react";
+
+const roleLabels: Record<UserRole, string> = {
+  buyer: "Buyer",
+  agent: "Agent",
+  vendor: "Vendor",
+};
 
 interface Props {
   selectedRole: UserRole | null;
@@ -26,6 +34,7 @@ const roles: {
   description: string;
   icon: React.ReactNode;
   features: { icon: React.ReactNode; text: string }[];
+  kycNote?: string;
 }[] = [
   {
     id: "buyer",
@@ -50,8 +59,9 @@ const roles: {
     features: [
       { icon: <BarChart3 className="w-3.5 h-3.5" />, text: "CRM & analytics dashboard" },
       { icon: <Star className="w-3.5 h-3.5" />, text: "Verified agent badge" },
-      { icon: <Wallet className="w-3.5 h-3.5" />, text: "In-platform transactions" },
+      { icon: <Layers className="w-3.5 h-3.5" />, text: "Unlimited listings (Pro)" },
     ],
+    kycNote: "KYC verification required",
   },
   {
     id: "vendor",
@@ -63,8 +73,9 @@ const roles: {
     features: [
       { icon: <ShieldCheck className="w-3.5 h-3.5" />, text: "Reach KYC-verified clients" },
       { icon: <Star className="w-3.5 h-3.5" />, text: "Build your reputation" },
-      { icon: <ClipboardList className="w-3.5 h-3.5" />, text: "Job booking & scheduling" },
+      { icon: <Wallet className="w-3.5 h-3.5" />, text: "Escrow-protected payments" },
     ],
+    kycNote: "Trade verification required",
   },
 ];
 
@@ -154,6 +165,14 @@ const RoleSelection = ({ selectedRole, onSelectRole, onContinue }: Props) => {
                   </div>
                 ))}
               </div>
+
+              {/* KYC / trade verification note */}
+              {role.kycNote && (
+                <div className="mt-3.5 flex items-center gap-1.5 text-[11px] font-medium text-text-subtle">
+                  <Shield className="w-3 h-3" />
+                  {role.kycNote}
+                </div>
+              )}
             </motion.button>
           );
         })}
@@ -172,7 +191,7 @@ const RoleSelection = ({ selectedRole, onSelectRole, onContinue }: Props) => {
               : "bg-white/40 text-text-subtle border border-border-light cursor-not-allowed"
           }`}
         >
-          Continue
+          {selectedRole ? `Continue as ${roleLabels[selectedRole]}` : "Continue"}
           <ArrowRight className="w-4 h-4" />
         </motion.button>
       </div>

@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import uploadService from "../api/services/upload";
 import usersService from "../api/services/users";
 import waitlistService from "../api/services/waitlist";
+import agentsService from "../api/services/agents";
 
 export type UserRole = "buyer" | "agent" | "vendor";
 
@@ -29,6 +30,9 @@ export interface OnboardingData {
   agencyName?: string;
   licenseNumber?: string;
   businessAddress?: string;
+  // yearsExperience (shared with vendor below) doubles as the agent's years of
+  // experience; specialty is a free-text "Sales, Rentals…" captured for agents.
+  specialty?: string;
   // Vendor-specific
   serviceCategory?: string;
   yearsExperience?: string;
@@ -123,6 +127,29 @@ const Onboarding = () => {
           await refreshUser();
         } catch (uploadErr) {
           console.error("Profile photo upload failed:", uploadErr);
+        }
+      }
+
+      // Persist the agent-only extras the design collects (years of experience,
+      // specialty) — these aren't part of the signup DTO, so they go through the
+      // agent-profile update once we're authenticated. Best-effort: a failure
+      // here shouldn't block onboarding; the agent can edit them later.
+      if (data.role === "agent") {
+        const years = parseInt((data.yearsExperience ?? "").replace(/\D/g, ""), 10);
+        const specialty = (data.specialty ?? "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const agentUpdates: { yearsExperience?: number; specialty?: string[] } = {};
+        if (!Number.isNaN(years)) agentUpdates.yearsExperience = years;
+        if (specialty.length) agentUpdates.specialty = specialty;
+        if (Object.keys(agentUpdates).length) {
+          try {
+            await agentsService.updateMe(agentUpdates);
+            await refreshUser();
+          } catch (agentErr) {
+            console.error("Agent profile detail update failed:", agentErr);
+          }
         }
       }
 

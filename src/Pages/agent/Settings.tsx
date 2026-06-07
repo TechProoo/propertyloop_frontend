@@ -150,7 +150,7 @@ export default function AgentSettings() {
               <div className="flex-1">
                 <b className="text-[13.5px] block" style={{ color: C.ink }}>KYC {ap?.verified ? "verified" : "not verified"}</b>
                 <span className="text-xs" style={{ color: C.ink3 }}>
-                  {ap?.verified ? "Identity confirmed via Smile Identity" : "Complete KYC to earn the verified badge"}
+                  {ap?.verified ? "Identity confirmed from well trained agents" : "Complete KYC to earn the verified badge"}
                 </span>
               </div>
               <StatusPill status={ap?.verified ? "ACTIVE" : "PENDING"} />

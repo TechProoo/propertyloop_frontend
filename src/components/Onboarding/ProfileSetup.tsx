@@ -11,6 +11,7 @@ import {
   Clock,
   Upload,
   Camera,
+  Award,
 } from "lucide-react";
 
 interface Props {
@@ -362,6 +363,41 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
                   {errors.businessAddress}
                 </p>
               )}
+            </div>
+
+            {/* Years experience + Specialty */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                  Years experience <span className="text-text-subtle font-normal">· optional</span>
+                </label>
+                <div className={wrapperClass("")}>
+                  <Clock className="absolute left-3.5 w-4 h-4 text-text-subtle" />
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="e.g. 8"
+                    value={data.yearsExperience || ""}
+                    onChange={(e) => updateData({ yearsExperience: e.target.value })}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                  Specialty <span className="text-text-subtle font-normal">· optional</span>
+                </label>
+                <div className={wrapperClass("")}>
+                  <Award className="absolute left-3.5 w-4 h-4 text-text-subtle" />
+                  <input
+                    type="text"
+                    placeholder="Sales, Rentals…"
+                    value={data.specialty || ""}
+                    onChange={(e) => updateData({ specialty: e.target.value })}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
             </div>
 
           </div>

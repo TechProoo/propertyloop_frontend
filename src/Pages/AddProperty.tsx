@@ -28,6 +28,8 @@ import {
   Image,
   Plus,
   AlertCircle,
+  KeyRound,
+  Moon,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -130,14 +132,22 @@ const stepLabels = {
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
+// Solid-white field styling from the "List Your Property" redesign.
 const inputClass =
-  "h-11 px-4 rounded-2xl bg-white/40 backdrop-blur-md border border-white/50 text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary focus:bg-white/60 focus:shadow-[0_4px_20px_rgba(31,111,67,0.08)] transition-all w-full";
+  "h-[50px] px-[15px] rounded-[13px] bg-white border-[1.5px] border-[#e1dcd3] text-[#1a2120] text-[14.5px] font-medium placeholder:text-[#7f857f] placeholder:font-normal focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_#e3efe7] hover:border-[#ddd5c9] transition-all w-full";
 
 const selectClass =
-  "h-11 px-4 rounded-2xl bg-white/40 backdrop-blur-md border border-white/50 text-primary-dark text-sm focus:outline-none focus:border-primary focus:bg-white/60 focus:shadow-[0_4px_20px_rgba(31,111,67,0.08)] transition-all appearance-none w-full";
+  "h-[50px] px-[15px] rounded-[13px] bg-white border-[1.5px] border-[#e1dcd3] text-[#1a2120] text-[14.5px] font-medium focus:outline-none focus:border-primary focus:shadow-[0_0_0_3px_#e3efe7] hover:border-[#ddd5c9] transition-all appearance-none w-full";
 
-const labelClass =
-  "text-xs font-heading font-semibold text-primary-dark mb-1.5 block";
+const labelClass = "text-[13px] font-bold text-[#4d524f] mb-[7px] block";
+
+// Uppercase green section header (design ".sec-title").
+const secTitleClass =
+  "text-[12px] font-extrabold text-primary uppercase tracking-[0.08em] mb-3.5 mt-1";
+
+// Solid-white panel wrapper (design ".panel").
+const panelClass =
+  "bg-white border border-[#e1dcd3] rounded-[24px] p-6 sm:p-9 shadow-[0_1px_2px_rgba(0,0,0,0.03)]";
 
 /* ─── Component ─── */
 
@@ -791,7 +801,7 @@ const AddProperty = () => {
                     className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-heading font-semibold transition-all ${
                       i <= stepIndex
                         ? "backdrop-blur-md bg-primary/90 text-white shadow-lg shadow-glow/40 border border-primary/40"
-                        : "backdrop-blur-md bg-white/30 text-text-secondary border border-white/50"
+                        : "backdrop-blur-md bg-[#ece6df] text-text-secondary border border-[#e1dcd3]"
                     }`}
                   >
                     {i < stepIndex ? (
@@ -822,7 +832,7 @@ const AddProperty = () => {
                   {i < steps.length - 1 && (
                     <div
                       className={`w-8 sm:w-16 h-0.5 rounded-full transition-all ${
-                        i < stepIndex ? "bg-primary/80" : "bg-white/30"
+                        i < stepIndex ? "bg-primary/80" : "bg-[#ece6df]"
                       }`}
                     />
                   )}
@@ -841,7 +851,7 @@ const AddProperty = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease }}
-                  className="backdrop-blur-xl bg-white/30 border border-white/40 rounded-[28px] p-10 shadow-[0_8px_32px_rgba(0,0,0,0.06)] ring-1 ring-white/20 text-center"
+                  className={`${panelClass} !p-10 text-center`}
                 >
                   <div className="w-16 h-16 rounded-full bg-primary/15 backdrop-blur-sm border border-primary/20 flex items-center justify-center mx-auto mb-5">
                     <CheckCircle className="w-8 h-8 text-primary" />
@@ -880,31 +890,60 @@ const AddProperty = () => {
                 >
                   {/* ─── Step 1: Property Details ─── */}
                   {currentStep === "details" && (
-                    <div className="backdrop-blur-xl bg-white/30 border border-white/40 rounded-[28px] p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.06)] ring-1 ring-white/20">
-                      <h3 className="font-heading font-bold text-primary-dark text-lg mb-6">
-                        Property Details
-                      </h3>
+                    <div className={panelClass}>
+                      <div className="mb-7">
+                        <h2 className="font-heading text-[26px] font-bold text-[#1a2120] tracking-tight">
+                          Tell us about the property
+                        </h2>
+                        <p className="text-[14px] text-[#4d524f] mt-1">
+                          The clearer your listing, the more enquiries you'll
+                          get.
+                        </p>
+                      </div>
 
                       <div className="flex flex-col gap-5">
-                        {/* Listing type pills */}
+                        {/* Listing type — segmented cards */}
                         <div>
-                          <label className={labelClass}>Listing Type</label>
-                          <div className="flex gap-2">
-                            {listingTypes.map((lt) => (
-                              <button
-                                key={lt.value}
-                                onClick={() =>
-                                  updateForm({ listingType: lt.value })
-                                }
-                                className={`px-5 py-2 text-sm font-medium rounded-full border transition-all ${
-                                  form.listingType === lt.value
-                                    ? "backdrop-blur-md bg-primary/90 text-white border-primary/60 shadow-lg shadow-glow/40"
-                                    : "backdrop-blur-md bg-white/30 text-text-secondary border-white/50 hover:bg-white/50 hover:border-primary hover:text-primary"
-                                }`}
-                              >
-                                {lt.label}
-                              </button>
-                            ))}
+                          <div className={secTitleClass}>Listing type</div>
+                          <div className="grid grid-cols-3 gap-3">
+                            {listingTypes.map((lt) => {
+                              const on = form.listingType === lt.value;
+                              const meta =
+                                lt.value === "sale"
+                                  ? { Icon: Home, sub: "One-time purchase" }
+                                  : lt.value === "rent"
+                                    ? { Icon: KeyRound, sub: "Yearly tenancy" }
+                                    : { Icon: Moon, sub: "Nightly stays" };
+                              return (
+                                <button
+                                  key={lt.value}
+                                  onClick={() =>
+                                    updateForm({ listingType: lt.value })
+                                  }
+                                  className={`text-left border-[1.5px] rounded-2xl p-4 transition-all ${
+                                    on
+                                      ? "border-primary bg-[#e3efe7]"
+                                      : "border-[#e1dcd3] bg-white hover:border-[#ddd5c9]"
+                                  }`}
+                                >
+                                  <span
+                                    className={`w-10 h-10 rounded-[11px] grid place-items-center mb-2.5 ${
+                                      on
+                                        ? "bg-white text-primary"
+                                        : "bg-[#ece6df] text-[#4d524f]"
+                                    }`}
+                                  >
+                                    <meta.Icon className="w-5 h-5" />
+                                  </span>
+                                  <b className="block text-[14.5px] font-bold text-[#1a2120]">
+                                    {lt.label}
+                                  </b>
+                                  <span className="text-[12px] text-[#7f857f]">
+                                    {meta.sub}
+                                  </span>
+                                </button>
+                              );
+                            })}
                           </div>
                         </div>
 
@@ -923,10 +962,10 @@ const AddProperty = () => {
                                       propertyType: "",
                                     }));
                                 }}
-                                className={`flex items-center gap-2 px-4 text-nowrap py-2 rounded-full border text-sm font-medium transition-all ${
+                                className={`flex items-center gap-2 px-4 text-nowrap py-2.5 rounded-full border-[1.5px] text-sm font-semibold transition-all ${
                                   form.propertyType === pt.label
-                                    ? "backdrop-blur-md bg-primary/90 text-white border-primary/60 shadow-lg shadow-glow/40"
-                                    : "backdrop-blur-md bg-white/30 text-text-secondary border-white/50 hover:bg-white/50 hover:border-primary hover:text-primary"
+                                    ? "bg-primary text-white border-primary"
+                                    : "bg-white text-[#4d524f] border-[#e1dcd3] hover:border-primary hover:text-primary"
                                 }`}
                               >
                                 {pt.icon}
@@ -1194,10 +1233,10 @@ const AddProperty = () => {
                                         : [...form.features, f],
                                     })
                                   }
-                                  className={`h-8 px-3 rounded-full text-xs font-medium border transition-all ${
+                                  className={`h-9 px-3.5 rounded-full text-[13.5px] font-semibold border-[1.5px] transition-all ${
                                     selected
                                       ? "bg-primary text-white border-primary"
-                                      : "bg-white/50 text-primary-dark border-white/50 hover:border-primary"
+                                      : "bg-white text-[#4d524f] border-[#e1dcd3] hover:border-primary hover:text-primary"
                                   }`}
                                 >
                                   {selected && (
@@ -1276,10 +1315,16 @@ const AddProperty = () => {
 
                   {/* ─── Step 2: Photos & Documents ─── */}
                   {currentStep === "photos" && (
-                    <div className="backdrop-blur-xl bg-white/30 border border-white/40 rounded-[28px] p-6 sm:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.06)] ring-1 ring-white/20">
-                      <h3 className="font-heading font-bold text-primary-dark text-lg mb-6">
-                        Photos & Documents
-                      </h3>
+                    <div className={panelClass}>
+                      <div className="mb-7">
+                        <h2 className="font-heading text-[26px] font-bold text-[#1a2120] tracking-tight">
+                          Photos &amp; documents
+                        </h2>
+                        <p className="text-[14px] text-[#4d524f] mt-1">
+                          Listings with 6+ photos and verified documents get up
+                          to 4× more enquiries.
+                        </p>
+                      </div>
 
                       <div className="flex flex-col gap-6">
                         {/* Photo upload */}
@@ -1300,9 +1345,9 @@ const AddProperty = () => {
                               uploadingPhotoIndex !== null ||
                               pendingPhotoFiles.length >= 10
                             }
-                            className="w-full border-2 border-dashed border-white/40 rounded-2xl p-8 flex flex-col items-center gap-3 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full border-2 border-dashed border-[#e1dcd3] rounded-2xl p-8 flex flex-col items-center gap-3 bg-white hover:border-primary hover:bg-[#e3efe7] hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <div className="w-14 h-14 rounded-full bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center shadow-[0_4px_16px_rgba(31,111,67,0.06)]">
+                            <div className="w-14 h-14 rounded-full bg-[#ece6df] border border-[#e1dcd3] flex items-center justify-center shadow-[0_4px_16px_rgba(31,111,67,0.06)]">
                               {uploadingPhotoIndex !== null ? (
                                 <div className="animate-spin">
                                   <Camera className="w-6 h-6 text-primary" />
@@ -1371,7 +1416,7 @@ const AddProperty = () => {
                                   type="button"
                                   onClick={triggerPhotoUpload}
                                   disabled={uploadingPhotoIndex !== null}
-                                  className="h-24 rounded-xl border-2 border-dashed border-white/40 bg-white/20 backdrop-blur-sm flex items-center justify-center text-text-subtle hover:border-primary hover:text-primary hover:bg-white/40 transition-all disabled:opacity-50"
+                                  className="h-24 rounded-xl border-2 border-dashed border-[#e1dcd3] bg-white flex items-center justify-center text-text-subtle hover:border-primary hover:text-primary hover:bg-[#e3efe7] transition-all disabled:opacity-50"
                                 >
                                   {uploadingPhotoIndex !== null ? (
                                     <div className="animate-spin">
@@ -1386,7 +1431,7 @@ const AddProperty = () => {
                           )}
                         </div>
 
-                        <div className="h-px bg-white/30" />
+                        <div className="h-px bg-[#ece6df]" />
 
                         {/* Document upload */}
                         <div>
@@ -1404,9 +1449,9 @@ const AddProperty = () => {
                           <button
                             type="button"
                             onClick={triggerDocUpload}
-                            className="w-full border-2 border-dashed border-white/40 rounded-2xl p-6 flex items-center gap-4 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all cursor-pointer text-left"
+                            className="w-full border-2 border-dashed border-[#e1dcd3] rounded-2xl p-6 flex items-center gap-4 bg-white hover:border-primary hover:bg-[#e3efe7] hover:shadow-[0_4px_20px_rgba(31,111,67,0.06)] transition-all cursor-pointer text-left"
                           >
-                            <div className="w-10 h-10 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 rounded-xl bg-[#ece6df] border border-[#e1dcd3] flex items-center justify-center shrink-0">
                               <FileText className="w-5 h-5 text-primary" />
                             </div>
                             <div>
@@ -1433,7 +1478,7 @@ const AddProperty = () => {
                               {pendingDocFiles.map((file, i) => (
                                 <div
                                   key={i}
-                                  className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50"
+                                  className="flex items-center gap-3 px-3 py-2 rounded-xl bg-[#ece6df] border border-[#e1dcd3]"
                                 >
                                   <FileText className="w-4 h-4 text-primary shrink-0" />
                                   <div className="flex-1 min-w-0">
@@ -1476,7 +1521,7 @@ const AddProperty = () => {
                           </div>
                         </div>
 
-                        <div className="h-px bg-white/30" />
+                        <div className="h-px bg-[#ece6df]" />
 
                         {/* Video upload */}
                         <div>
@@ -1502,7 +1547,7 @@ const AddProperty = () => {
                               {form.videoUrls.map((url, idx) => (
                                 <div
                                   key={url}
-                                  className="flex items-center justify-between gap-3 rounded-xl bg-black/20 backdrop-blur-sm border border-white/20 px-4 py-3"
+                                  className="flex items-center justify-between gap-3 rounded-xl bg-[#f5f0eb] border border-[#e1dcd3] px-4 py-3"
                                 >
                                   <div className="flex items-center gap-3 min-w-0">
                                     <Video className="w-4 h-4 text-primary shrink-0" />
@@ -1522,7 +1567,7 @@ const AddProperty = () => {
                               {pendingVideoFiles.map((file, idx) => (
                                 <div
                                   key={file.name + idx}
-                                  className="flex items-center justify-between gap-3 rounded-xl bg-white/40 backdrop-blur-sm border border-white/50 px-4 py-3"
+                                  className="flex items-center justify-between gap-3 rounded-xl bg-[#ece6df] border border-[#e1dcd3] px-4 py-3"
                                 >
                                   <div className="flex items-center gap-3 min-w-0">
                                     <Video className="w-4 h-4 text-primary shrink-0" />
@@ -1549,16 +1594,16 @@ const AddProperty = () => {
                           <div className="flex flex-col gap-3">
                             {(form.videoUrls.length > 0 || pendingVideoFiles.length > 0) && (
                               <div className="flex items-center gap-2">
-                                <div className="flex-1 h-px bg-white/30" />
+                                <div className="flex-1 h-px bg-[#ece6df]" />
                                 <span className="text-xs text-text-subtle">Add more</span>
-                                <div className="flex-1 h-px bg-white/30" />
+                                <div className="flex-1 h-px bg-[#ece6df]" />
                               </div>
                             )}
                             {form.videoUrls.length === 0 && pendingVideoFiles.length === 0 && (
                               <div className="flex items-center gap-2">
-                                <div className="flex-1 h-px bg-white/30" />
+                                <div className="flex-1 h-px bg-[#ece6df]" />
                                 <span className="text-xs text-text-subtle">OR</span>
-                                <div className="flex-1 h-px bg-white/30" />
+                                <div className="flex-1 h-px bg-[#ece6df]" />
                               </div>
                             )}
 
@@ -1566,9 +1611,9 @@ const AddProperty = () => {
                               <button
                                 type="button"
                                 onClick={triggerVideoUpload}
-                                className="border-2 border-dashed border-white/40 rounded-xl p-4 flex flex-col items-center gap-2 bg-white/20 backdrop-blur-md hover:border-primary hover:bg-white/40 transition-all"
+                                className="border-2 border-dashed border-[#e1dcd3] rounded-xl p-4 flex flex-col items-center gap-2 bg-white hover:border-primary hover:bg-[#e3efe7] transition-all"
                               >
-                                <div className="w-8 h-8 rounded-full bg-white/40 backdrop-blur-sm border border-white/50 flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-full bg-[#ece6df] border border-[#e1dcd3] flex items-center justify-center">
                                   <Video className="w-4 h-4 text-primary" />
                                 </div>
                                 <p className="text-xs text-primary-dark font-medium text-center">
@@ -1645,7 +1690,7 @@ const AddProperty = () => {
                   {currentStep === "review" && (
                     <div className="flex flex-col gap-6">
                       {/* Preview card */}
-                      <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                      <div className="bg-white border border-[#e1dcd3] rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                         {/* Preview image */}
                         <div className="h-48 overflow-hidden relative bg-bg-accent">
                           {photoPreviews.length > 0 ? (
@@ -1675,7 +1720,7 @@ const AddProperty = () => {
                         </div>
 
                         {/* Content */}
-                        <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+                        <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white border border-[#e1dcd3] rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
                           <p className="font-heading font-bold text-primary-dark text-[18px]">
                             ₦{form.price || "0"}
                             {form.listingType === "rent" && (
@@ -1726,7 +1771,7 @@ const AddProperty = () => {
                       </div>
 
                       {/* Details summary */}
-                      <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] p-6 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+                      <div className="bg-white border border-[#e1dcd3] rounded-[20px] p-6 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
                         <h3 className="font-heading font-bold text-primary-dark text-base mb-4">
                           Listing Summary
                         </h3>
@@ -1792,8 +1837,101 @@ const AddProperty = () => {
                           )}
                       </div>
 
+                      {/* Listing health — computed from the actual form */}
+                      <div className="bg-white border border-[#e1dcd3] rounded-[20px] p-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
+                        <div className={secTitleClass}>Listing health</div>
+                        <div className="flex flex-col">
+                          {[
+                            {
+                              ok: pendingPhotoFiles.length >= 4,
+                              title:
+                                pendingPhotoFiles.length >= 4
+                                  ? `${pendingPhotoFiles.length} photos uploaded`
+                                  : `${pendingPhotoFiles.length} photo${pendingPhotoFiles.length === 1 ? "" : "s"} added`,
+                              sub:
+                                pendingPhotoFiles.length >= 4
+                                  ? "Meets the minimum for verification"
+                                  : "Add at least 4 for verification",
+                            },
+                            {
+                              ok: pendingDocFiles.length > 0,
+                              title:
+                                pendingDocFiles.length > 0
+                                  ? `${pendingDocFiles.length} document${pendingDocFiles.length === 1 ? "" : "s"} attached`
+                                  : "Add a verified document",
+                              sub:
+                                pendingDocFiles.length > 0
+                                  ? "Strongest trust signal to buyers"
+                                  : "Optional · C of O boosts buyer trust",
+                            },
+                            {
+                              ok: !!(
+                                form.price &&
+                                form.size &&
+                                form.beds &&
+                                form.baths
+                              ),
+                              title: "Specs & price filled",
+                              sub: undefined,
+                            },
+                            {
+                              ok:
+                                form.videoUrls.length > 0 ||
+                                pendingVideoFiles.length > 0 ||
+                                !!form.virtualTourUrl,
+                              title: "Video or virtual tour",
+                              sub: "Optional · listings with video get more views",
+                            },
+                          ].map((item) => (
+                            <div
+                              key={item.title}
+                              className="flex items-start gap-3 py-3 border-t border-[#ece6df] first:border-t-0"
+                            >
+                              <div
+                                className={`w-6 h-6 rounded-[7px] grid place-items-center shrink-0 ${
+                                  item.ok
+                                    ? "bg-primary text-white"
+                                    : "bg-[#f5ead4] text-[#8a5a14]"
+                                }`}
+                              >
+                                {item.ok ? (
+                                  <svg
+                                    width="13"
+                                    height="13"
+                                    viewBox="0 0 14 14"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                  >
+                                    <path d="M2 7.5L5 10.5 12 3.5" />
+                                  </svg>
+                                ) : (
+                                  <span className="text-[13px] font-extrabold leading-none">!</span>
+                                )}
+                              </div>
+                              <div>
+                                <b className="text-[13.5px] font-bold text-[#1a2120] block">
+                                  {item.title}
+                                </b>
+                                {item.sub && (
+                                  <span className="text-[12px] text-[#7f857f]">
+                                    {item.sub}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-4 px-4 py-3.5 rounded-[14px] bg-[#e3efe7] text-[13px] leading-relaxed text-[#134a2d]">
+                          A PropertyLoop inspector verifies the home before it
+                          goes live — usually within <b>2 hours</b> during
+                          business hours.
+                        </div>
+                      </div>
+
                       {/* Agent notice + Terms */}
-                      <div className="bg-white/25 backdrop-blur-md rounded-2xl border border-white/40 p-5">
+                      <div className="bg-[#e3efe7] rounded-2xl border border-[#cfe5d8] p-5">
                         <div className="flex items-start gap-3">
                           <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                           <div>

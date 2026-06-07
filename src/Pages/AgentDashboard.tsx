@@ -37,6 +37,7 @@ import {
   Wrench,
   ClipboardList,
   ShieldCheck,
+  UserRound,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useFirstLoginTour } from "../lib/tour/useFirstLoginTour";
@@ -214,6 +215,26 @@ const AgentDashboard = () => {
     }
   });
   const defaultNotifOn = ["New Lead Alerts", "Viewing Reminders"];
+
+  // ─── Notification bell dropdown ──────────────────────────────────────────
+  const [notifOpen, setNotifOpen] = useState(false);
+  const NOTIF_READ_KEY = "agent_notif_read";
+  const [readNotifs, setReadNotifs] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem(NOTIF_READ_KEY) || "[]");
+    } catch {
+      return [];
+    }
+  });
+  const persistReadNotifs = (ids: string[]) => {
+    setReadNotifs(ids);
+    localStorage.setItem(NOTIF_READ_KEY, JSON.stringify(ids));
+  };
+  const markNotifRead = (id: string) => {
+    if (readNotifs.includes(id)) return;
+    persistReadNotifs([...readNotifs, id]);
+  };
+
   const toggleNotif = (label: string) => {
     setNotifPrefs((prev) => {
       const current =
@@ -359,6 +380,63 @@ const AgentDashboard = () => {
     phone: user?.phone || "",
     location: user?.location || "",
     bio: user?.bio || "",
+  };
+
+  // ─── Notifications shown in the bell dropdown ────────────────────────────
+  // Derived from real account state so nothing here is fake. The profile
+  // nudge always leads the list while the agent's profile is still bare.
+  const profileIncomplete = !user?.avatarUrl || !agent.bio || !agent.agency;
+  type Notification = {
+    id: string;
+    icon: React.ReactNode;
+    title: string;
+    desc: string;
+    onClick: () => void;
+  };
+  const notifications: Notification[] = [
+    ...(profileIncomplete
+      ? [
+          {
+            id: "finish-profile",
+            icon: <UserRound className="w-4 h-4" />,
+            title: "Finish your profile",
+            desc: "Add your photo, agency and bio so buyers can trust you.",
+            onClick: () => setActiveNav("settings"),
+          },
+        ]
+      : []),
+    ...(!agent.verified
+      ? [
+          {
+            id: "get-verified",
+            icon: <ShieldCheck className="w-4 h-4" />,
+            title: "Get verified",
+            desc: "Complete verification to earn your agent badge.",
+            onClick: () => setActiveNav("settings"),
+          },
+        ]
+      : []),
+    ...(unreadMessagesCount > 0
+      ? [
+          {
+            id: "unread-messages",
+            icon: <MessageSquare className="w-4 h-4" />,
+            title: `${unreadMessagesCount} unread message${
+              unreadMessagesCount > 1 ? "s" : ""
+            }`,
+            desc: "Buyers are waiting to hear back from you.",
+            onClick: () => setActiveNav("messages"),
+          },
+        ]
+      : []),
+  ];
+  const unreadNotifCount = notifications.filter(
+    (n) => !readNotifs.includes(n.id),
+  ).length;
+  const markAllNotifsRead = () => {
+    persistReadNotifs(
+      Array.from(new Set([...readNotifs, ...notifications.map((n) => n.id)])),
+    );
   };
 
   const handleStatusChange = async (listingId: string, newStatus: string) => {
@@ -778,17 +856,86 @@ const AgentDashboard = () => {
               <PlusCircle className="w-3.5 h-3.5" />
               Add Listing
             </Link>
-            <button
-              onClick={() => setActiveNav("messages")}
-              className="relative w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-text-secondary hover:bg-white transition-all shadow-sm"
-            >
-              <Bell className="w-4 h-4" />
-              {unreadMessagesCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
-                  {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
-                </span>
+            <div className="relative">
+              <button
+                onClick={() => setNotifOpen((o) => !o)}
+                aria-label="Notifications"
+                className="relative w-9 h-9 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40 flex items-center justify-center text-text-secondary hover:bg-white transition-all shadow-sm"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadNotifCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                    {unreadNotifCount > 99 ? "99+" : unreadNotifCount}
+                  </span>
+                )}
+              </button>
+
+              {notifOpen && (
+                <>
+                  {/* click-away backdrop */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setNotifOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-border-light bg-white shadow-xl shadow-black/5 z-50 overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
+                      <p className="font-heading font-bold text-primary-dark text-sm">
+                        Notifications
+                      </p>
+                      {unreadNotifCount > 0 && (
+                        <button
+                          onClick={markAllNotifsRead}
+                          className="text-xs font-semibold text-primary hover:underline"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-10 text-center text-text-subtle text-xs">
+                          You're all caught up 🎉
+                        </div>
+                      ) : (
+                        notifications.map((n) => {
+                          const isUnread = !readNotifs.includes(n.id);
+                          return (
+                            <button
+                              key={n.id}
+                              onClick={() => {
+                                markNotifRead(n.id);
+                                n.onClick();
+                                setNotifOpen(false);
+                              }}
+                              className={`w-full flex items-start gap-3 px-4 py-3 text-left border-b border-border-light/60 last:border-0 hover:bg-bg-accent/60 transition-colors ${
+                                isUnread ? "bg-primary/5" : ""
+                              }`}
+                            >
+                              <span className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                                {n.icon}
+                              </span>
+                              <span className="flex-1 min-w-0">
+                                <span className="flex items-center gap-2">
+                                  <span className="font-heading font-semibold text-primary-dark text-xs truncate">
+                                    {n.title}
+                                  </span>
+                                  {isUnread && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                                  )}
+                                </span>
+                                <span className="block text-text-subtle text-[11px] mt-0.5 leading-snug">
+                                  {n.desc}
+                                </span>
+                              </span>
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                </>
               )}
-            </button>
+            </div>
             <img
               src={agent.photo}
               alt={agent.name}
