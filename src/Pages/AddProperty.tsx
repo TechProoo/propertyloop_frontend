@@ -200,7 +200,6 @@ const AddProperty = () => {
     if (!form.address.trim()) newErrors.address = "Address is required";
     if (!form.location) newErrors.location = "Select a location";
     if (!form.price.trim()) newErrors.price = "Price is required";
-    if (!form.size.trim()) newErrors.size = "Property size is required";
     const descText = form.description.replace(/<[^>]*>/g, "").trim();
     if (!descText) newErrors.description = "Please describe your property";
     setErrors(newErrors);
@@ -356,7 +355,7 @@ const AddProperty = () => {
           location: form.location,
           beds: parseInt(form.beds) || 0,
           baths: parseInt(form.baths) || 0,
-          sqft: form.size,
+          sqft: form.size.trim() || undefined,
           yearBuilt: form.yearBuilt.trim() || undefined,
           description: form.description,
           features: form.features,
@@ -842,7 +841,7 @@ const AddProperty = () => {
           )}
 
           {/* ─── Form Content ─── */}
-          <div className="max-w-2xl mx-auto mb-20">
+          <div className="max-w-3xl mx-auto mb-20">
             <AnimatePresence mode="wait">
               {submitted ? (
                 /* ─── Success State ─── */
@@ -1124,7 +1123,12 @@ const AddProperty = () => {
                         {/* Size + Year */}
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className={labelClass}>Size (m²)</label>
+                            <label className={labelClass}>
+                              Size (m²){" "}
+                              <span className="font-normal text-text-subtle">
+                                (optional)
+                              </span>
+                            </label>
                             <input
                               type="text"
                               placeholder="e.g. 2,400"
@@ -1865,12 +1869,7 @@ const AddProperty = () => {
                                   : "Optional · C of O boosts buyer trust",
                             },
                             {
-                              ok: !!(
-                                form.price &&
-                                form.size &&
-                                form.beds &&
-                                form.baths
-                              ),
+                              ok: !!(form.price && form.beds && form.baths),
                               title: "Specs & price filled",
                               sub: undefined,
                             },

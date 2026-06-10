@@ -33,7 +33,7 @@ export interface CreateListingPayload {
   location: string;
   beds: number;
   baths: number;
-  sqft: string;
+  sqft?: string;
   yearBuilt?: string;
   description: string;
   features: string[];
