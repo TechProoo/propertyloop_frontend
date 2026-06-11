@@ -195,6 +195,12 @@ const Navbar = () => {
                 isActive={path === "/services"}
               />
             </li>
+            <li data-nav-link className="relative">
+              <FlipLink label="Feed" href="/feed" isActive={path === "/feed"} />
+              <span className="absolute -top-2 -right-6 bg-primary text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full pointer-events-none">
+                New
+              </span>
+            </li>
           </ul>
         </div>
 
@@ -311,6 +317,15 @@ const Navbar = () => {
               className={`py-2 hover:text-primary ${path === "/services" ? "text-primary font-semibold" : ""}`}
             >
               Service Loop
+            </a>
+            <a
+              href="/feed"
+              className={`py-2 hover:text-primary flex items-center gap-2 ${path === "/feed" ? "text-primary font-semibold" : ""}`}
+            >
+              Feed
+              <span className="bg-primary text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">
+                New
+              </span>
             </a>
             <hr className="border-border-light" />
             {isLoggedIn && user?.role === "AGENT" && (

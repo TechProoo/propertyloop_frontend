@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   ChevronLeft,
+  Newspaper,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { C, initials } from "./ui";
@@ -28,6 +29,7 @@ const NAV = [
   { to: "viewings", label: "Viewings", icon: CalendarDays },
   { to: "logbook", label: "Logbook", icon: ClipboardList },
   { to: "messages", label: "Messages", icon: MessageCircle },
+  { to: "/feed", label: "Community Feed", icon: Newspaper },
 ];
 
 const ACCOUNT_NAV = [

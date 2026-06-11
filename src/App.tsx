@@ -10,6 +10,8 @@ import HowItWorks from "./Pages/HowItWorks";
 import Buy from "./Pages/Buy";
 import Rent from "./Pages/Rent";
 import Sell from "./Pages/Sell";
+import Feed from "./Pages/Feed";
+import FeedProfile from "./Pages/FeedProfile";
 import Onboarding from "./Pages/Onboarding";
 import FindAgent from "./Pages/FindAgent";
 import AgentProfile from "./Pages/AgentProfile";
@@ -128,6 +130,8 @@ function AppContent() {
           <Route path="/buy" element={<Buy />} />
           <Route path="/rent" element={<Rent />} />
           <Route path="/sell" element={<Sell />} />
+          <Route path="/feed" element={<Feed />} />
+          <Route path="/feed/u/:id" element={<FeedProfile />} />
           <Route path="/shortlet" element={<Shortlet />} />
           <Route path="/new-developments" element={<NewDevelopments />} />
           <Route
