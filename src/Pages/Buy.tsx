@@ -1,46 +1,54 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useListings } from "../api/hooks";
 import listingsService from "../api/services/listings";
+import type { Listing } from "../api/types";
 import Seo from "../components/Seo";
 import {
-  ArrowUpRight,
+  Search,
+  MapPin,
   Bed,
   Bath,
   Maximize,
-  Search,
-  SlidersHorizontal,
-  MapPin,
-  Building2,
-  Home,
-  LandPlot,
-  Store,
-  LayoutGrid,
   ChevronDown,
-  Phone,
+  SlidersHorizontal,
+  MessageCircle,
+  Images,
   X,
-  TrendingUp,
-  BarChart2,
-  Tag,
-  ShieldCheck,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
-// listings now fetched from API via useListings hook
 import PropertyMap from "../components/ui/PropertyMap";
 import type { MapListing } from "../components/ui/PropertyMap";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import EmptyState from "../components/ui/EmptyState";
-import { formatTel } from "../lib/phone";
+import { BouncyLoader } from "../components/agent/ui";
 
-const categoryIcons: Record<string, React.ReactNode> = {
-  "Flat / Apartment": <Building2 className="w-5 h-5" />,
-  House: <Home className="w-5 h-5" />,
-  Land: <LandPlot className="w-5 h-5" />,
-  Commercial: <Store className="w-5 h-5" />,
-};
+/* ── helpers ─────────────────────────────────────────────────────────── */
+
+const PRICE_OPTS = [
+  { value: "any", label: "Any price" },
+  { value: "0-50000000", label: "Under ₦50M" },
+  { value: "50000000-150000000", label: "₦50M – ₦150M" },
+  { value: "150000000-300000000", label: "₦150M – ₦300M" },
+  { value: "300000000-0", label: "₦300M+" },
+];
+
+const BEDS_OPTS = [
+  { value: "any", label: "Any beds" },
+  { value: "1", label: "1+ beds" },
+  { value: "2", label: "2+ beds" },
+  { value: "3", label: "3+ beds" },
+  { value: "4", label: "4+ beds" },
+];
+
+const SORT_OPTS = [
+  { value: "newest", label: "Newest" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+  { value: "top_rated", label: "Top rated" },
+];
 
 const propertyTypeMap: Record<string, string> = {
   "Flats & Apartments": "Flat / Apartment",
@@ -49,135 +57,197 @@ const propertyTypeMap: Record<string, string> = {
   "Commercial Property": "Commercial",
 };
 
+const FALLBACK_HERO =
+  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&h=1120&fit=crop";
+
+// New-today (gold) → Verified (green) → For sale.
+const listingTag = (l: Listing): { label: string; tone: "new" | "verified" } => {
+  const ageDays = (Date.now() - new Date(l.createdAt).getTime()) / 86_400_000;
+  if (ageDays <= 2) return { label: "New today", tone: "new" };
+  return { label: l.agent?.verified ? "Verified" : "For sale", tone: "verified" };
+};
+
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
+/* ── styled pill <select> for the filter bar ─────────────────────────── */
+
+const ChipSelect = ({
+  value,
+  onChange,
+  options,
+  active,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  active?: boolean;
+}) => (
+  <div className="relative shrink-0">
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={`appearance-none cursor-pointer rounded-full border pl-4 pr-9 py-2.5 text-sm font-semibold transition-colors focus:outline-none ${
+        active
+          ? "bg-primary-soft border-transparent text-primary-ink"
+          : "bg-white border-line text-ink-2 hover:border-primary"
+      }`}
+    >
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-3" />
+  </div>
+);
+
+/* ── page ────────────────────────────────────────────────────────────── */
+
 const Buy = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
-  const [activeCategory, setActiveCategory] = useState("All Property");
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [contactCard, setContactCard] = useState<number | null>(null);
-  const [showFilters, setShowFilters] = useState(false);
-  const [showMap, setShowMap] = useState(true);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [priceRange, setPriceRange] = useState("any");
   const [bedsFilter, setBedsFilter] = useState("any");
+  const [typeFilter, setTypeFilter] = useState("All Property");
   const [bathsFilter, setBathsFilter] = useState("any");
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [sort, setSort] = useState("newest");
+  const [showAllFilters, setShowAllFilters] = useState(false);
   const [stats, setStats] = useState<any>(null);
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [activePin, setActivePin] = useState<number | null>(null);
+  // Accumulated listings across pages (infinite scroll).
+  const [allListings, setAllListings] = useState<Listing[]>([]);
+
   const resultsRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  const PAGE_SIZE = 5;
 
   const {
     items: apiListings,
     loading: listingsLoading,
-    updateParams,
+    total,
     page,
     pages,
     nextPage,
-  } = useListings({ type: "SALE", limit: 50 });
+    updateParams,
+  } = useListings({ type: "SALE", limit: PAGE_SIZE });
 
-  // Debounce search input to avoid an API call on every keystroke
+  // Debounced search box.
   useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedSearch(searchQuery);
-      if (searchQuery.trim()) {
-        resultsRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
-    }, 400);
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 400);
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  // Fetch category stats
+  // Category / market stats.
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const data = await listingsService.getStats("SALE");
-        setStats(data);
-      } catch (err) {
-        console.error("Failed to fetch stats:", err);
-      } finally {
-        setStatsLoading(false);
-      }
-    };
-    fetchStats();
+    listingsService
+      .getStats("SALE")
+      .then(setStats)
+      .catch((err) => console.error("Failed to fetch sale stats:", err));
   }, []);
 
-  // Build categories from stats
-  const categories = stats
-    ? [
-        ...Object.entries(stats.byType || {}).map(([type, count]) => ({
-          icon: categoryIcons[type as keyof typeof categoryIcons] || (
-            <LayoutGrid className="w-5 h-5" />
-          ),
-          label:
-            Object.keys(propertyTypeMap).find(
-              (key) => propertyTypeMap[key] === type,
-            ) || type,
-          count: count as number,
-        })),
-        {
-          icon: <LayoutGrid className="w-5 h-5" />,
-          label: "All Property",
-          count: stats.total || 0,
-        },
-      ]
-    : [];
-
-  // Push filter changes to the API
+  // Push filters to the API.
   useEffect(() => {
     const [priceMin, priceMax] =
       priceRange !== "any"
         ? priceRange.split("-").map(Number)
         : [undefined, undefined];
     updateParams({
-      type: "SALE" as const,
-      limit: 50,
-      propertyType:
-        activeCategory !== "All Property" && propertyTypeMap[activeCategory]
-          ? propertyTypeMap[activeCategory]
-          : undefined,
+      type: "SALE",
+      limit: PAGE_SIZE,
+      propertyType: propertyTypeMap[typeFilter] || undefined,
       search: debouncedSearch.trim() || undefined,
       minBeds: bedsFilter !== "any" ? parseInt(bedsFilter) : undefined,
       minBaths: bathsFilter !== "any" ? parseInt(bathsFilter) : undefined,
       minPrice: priceMin || undefined,
       maxPrice: priceMax || undefined,
-    } as any);
+      sort: sort as any,
+    });
   }, [
-    activeCategory,
+    typeFilter,
     debouncedSearch,
     priceRange,
     bedsFilter,
     bathsFilter,
+    sort,
     updateParams,
   ]);
 
-  // Map API listings to the shape the UI expects
-  const currentListings = apiListings.map((l) => ({
-    id: l.id,
-    image: l.coverImage,
+  // Accumulate pages: page 1 replaces, later pages append (deduped).
+  useEffect(() => {
+    setAllListings((prev) => {
+      if (page <= 1) return apiListings;
+      const seen = new Set(prev.map((p) => p.id));
+      return [...prev, ...apiListings.filter((l) => !seen.has(l.id))];
+    });
+  }, [apiListings, page]);
+
+  const hasMore = !!page && !!pages && page < pages;
+
+  // Infinite scroll — auto-load the next page when the sentinel nears view.
+  useEffect(() => {
+    if (!hasMore || listingsLoading) return;
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) nextPage();
+      },
+      { rootMargin: "400px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, listingsLoading, nextPage, allListings.length]);
+
+  // Type chip options from live stats.
+  const typeOptions = useMemo(() => {
+    const opts = [{ value: "All Property", label: "Any type" }];
+    if (stats?.byType) {
+      for (const type of Object.keys(stats.byType)) {
+        const label =
+          Object.keys(propertyTypeMap).find(
+            (k) => propertyTypeMap[k] === type,
+          ) || type;
+        opts.push({ value: label, label });
+      }
+    } else {
+      opts.push(
+        { value: "Flats & Apartments", label: "Flats & Apartments" },
+        { value: "Houses", label: "Houses" },
+        { value: "Lands", label: "Lands" },
+      );
+    }
+    return opts;
+  }, [stats]);
+
+  // Stable pseudo-coords per listing for the map (backend has no geo yet).
+  const coords = useMemo(() => {
+    const m: Record<string, { lat: number; lng: number }> = {};
+    allListings.forEach((l, i) => {
+      // deterministic spread around Lagos based on index
+      m[l.id] = {
+        lat: 6.43 + ((i * 7) % 30) / 1000,
+        lng: 3.4 + ((i * 11) % 80) / 1000,
+      };
+    });
+    return m;
+  }, [allListings]);
+
+  const mapListings: MapListing[] = allListings.map((l, i) => ({
+    lat: coords[l.id]?.lat ?? 6.45,
+    lng: coords[l.id]?.lng ?? 3.4,
     price: l.priceLabel,
-    title: l.title,
-    address: l.address,
-    beds: l.beds,
-    baths: l.baths,
-    sqft: l.sqft,
-    rating: l.rating,
-    agent: l.agent?.name || l.agent?.agency || "Agent",
-    lat: 6.45 + Math.random() * 0.03,
-    lng: 3.4 + Math.random() * 0.08,
-  }));
-
-  const getPropertyLink = (title: string) => {
-    const match = apiListings.find((l) => l.title === title);
-    return match ? `/property/${match.id}` : "#";
-  };
-
-  const mapListings: MapListing[] = currentListings.map((l, i) => ({
-    lat: l.lat,
-    lng: l.lng,
-    price: l.price,
     title: l.title,
     address: l.address,
     beds: l.beds,
@@ -186,772 +256,500 @@ const Buy = () => {
     index: i,
   }));
 
+  const featured = allListings[0];
+  const homesCount = stats?.total ?? total;
+  const agentsCount = stats?.verifiedAgents;
+  const fmtPlus = (n?: number) =>
+    n == null ? "—" : n >= 1000 ? `${(Math.floor(n / 100) / 10).toFixed(1)}k` : `${n}`;
+
+  const headerArea = debouncedSearch.trim() || "Lagos";
+  const resultCount = total || allListings.length;
+
+  const goToListing = (id: string) => navigate(`/property/${id}`);
+  const clearAll = () => {
+    setSearchQuery("");
+    setPriceRange("any");
+    setBedsFilter("any");
+    setBathsFilter("any");
+    setTypeFilter("All Property");
+  };
+
+  // Active-filter chips.
+  const activeFilters: { key: string; label: string; clear: () => void }[] = [];
+  if (debouncedSearch.trim())
+    activeFilters.push({
+      key: "q",
+      label: debouncedSearch.trim(),
+      clear: () => setSearchQuery(""),
+    });
+  if (priceRange !== "any")
+    activeFilters.push({
+      key: "price",
+      label: PRICE_OPTS.find((o) => o.value === priceRange)?.label || "Price",
+      clear: () => setPriceRange("any"),
+    });
+  if (bedsFilter !== "any")
+    activeFilters.push({
+      key: "beds",
+      label: `${bedsFilter}+ beds`,
+      clear: () => setBedsFilter("any"),
+    });
+  if (bathsFilter !== "any")
+    activeFilters.push({
+      key: "baths",
+      label: `${bathsFilter}+ baths`,
+      clear: () => setBathsFilter("any"),
+    });
+  if (typeFilter !== "All Property")
+    activeFilters.push({
+      key: "type",
+      label: typeFilter,
+      clear: () => setTypeFilter("All Property"),
+    });
+
   return (
-    <div className="min-h-screen bg-[#f5f0eb]">
+    <div className="min-h-screen bg-[#f5f0eb] font-heading">
       <Seo
         title="Properties for Sale in Nigeria"
-        description="Browse verified properties for sale across Nigeria. Filter by location, price, bedrooms and more. Buy your next home with confidence on PropertyLoop."
+        description="Browse verified homes for sale across Lagos, Abuja and Port Harcourt. Every home is walked in person and listed by a KYC-verified agent — message them directly, no middlemen."
         path="/buy"
-        keywords="property for sale Nigeria, houses for sale Lagos, buy property, real estate listings Nigeria, verified properties"
+        keywords="property for sale Nigeria, houses for sale Lagos, buy property, verified properties, PropertyLoop"
       />
       <Navbar />
 
-      <main className="w-full px-6 md:px-12 lg:px-20 pt-5 pb-0">
-        <div className="max-w-7xl mx-auto">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-text-secondary text-sm mb-8">
-            <Link to="/" className="hover:text-primary transition-colors">
-              Home
-            </Link>
-            <span>/</span>
-            <span className="text-primary-dark font-medium">
-              Property For Sale
-            </span>
-          </div>
+      {/* ── HERO (editorial split) ───────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-10 lg:pt-12 pb-8">
+        <div className="flex items-end justify-between gap-5 border-b-[1.5px] border-ink/85 pb-4">
+          <span className="text-[12px] font-extrabold tracking-[0.22em] uppercase text-primary">
+            Homes for Sale · Lagos
+          </span>
+          <span className="font-display italic text-[15px] text-ink-2 hidden sm:block">
+            Updated daily · June 2026
+          </span>
+        </div>
 
-          {/* Hero header — with bg image */}
-          <div className="relative overflow-hidden rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] mb-10">
-            {/* Background image */}
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{
-                backgroundImage:
-                  "url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1400&h=600&fit=crop)",
-              }}
-            />
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-linear-to-r from-primary-dark/90 via-primary-dark/75 to-primary-dark/40" />
-            {/* Decorative circles */}
-            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/5" />
-            <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-white/5" />
-
-            <div className="relative z-10 p-8 sm:p-10 lg:p-14">
-              <h1 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3.5rem] leading-[1.1] font-bold text-white tracking-tight">
-                Property <span className="text-white/70">For Sale</span>
-              </h1>
-              <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
-                Browse verified listings from KYC-checked agents. Every property
-                includes price history, verified documents, and neighbourhood
-                intelligence.
+        <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-12 mt-8 lg:mt-10 items-end">
+          {/* Left — copy + figures */}
+          <div>
+            <h1 className="font-display font-medium text-[2.6rem] sm:text-[3.6rem] lg:text-[4.5rem] leading-[0.96] tracking-[-0.03em] text-ink">
+              Find the one
+              <br />
+              that's <span className="italic text-primary">actually</span> yours.
+            </h1>
+            <div className="flex gap-5 mt-7 max-w-[560px]">
+              <span className="w-[3px] rounded-full bg-primary shrink-0" />
+              <p className="text-base text-ink-2 leading-relaxed">
+                Every home here was walked in person by our team and is listed by
+                a KYC-verified agent. Browse, then message the person who knows
+                the property best — no middlemen.
               </p>
-
-              {/* Stats pills */}
-              <div className="flex flex-wrap gap-3 mt-6">
-                {[
-                  { value: "8,050+", label: "Properties" },
-                  { value: "1,200+", label: "Agents" },
-                  { value: "5", label: "Cities" },
-                ].map((s) => (
-                  <div
-                    key={s.label}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-sm"
-                  >
-                    <span className="font-heading font-bold text-white">
-                      {s.value}
-                    </span>
-                    <span className="text-white/50">{s.label}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Search bar — glass on dark */}
-              <div className="mt-8 bg-white/10 backdrop-blur-md border border-white/15 rounded-[18px] p-3 flex flex-col sm:flex-row gap-3">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by location, property name, or keyword..."
-                    className="w-full h-12 pl-11 pr-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-colors"
-                  />
-                </div>
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className={`shrink-0 h-12 px-6 rounded-full backdrop-blur-sm border text-sm font-medium transition-all duration-300 inline-flex items-center gap-2 ${
-                    showFilters
-                      ? "bg-white text-primary-dark border-white"
-                      : "bg-white/10 border-white/15 text-white hover:bg-white/20"
-                  }`}
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  Filters
-                </button>
-                <button className="shrink-0 h-12 px-8 rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors duration-300 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(0,0,0,0.15)]">
-                  <Search className="w-4 h-4" />
-                  Search
-                </button>
-              </div>
-
-              {/* ─── Advanced Filters (collapsible) ─── */}
-              <AnimatePresence>
-                {showFilters && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mt-4 bg-white/10 backdrop-blur-md border border-white/15 rounded-[18px] p-4 flex flex-col sm:flex-row gap-3">
-                      {/* Price Range */}
-                      <div className="flex-1">
-                        <label className="text-white/50 text-[11px] font-medium mb-1.5 block">
-                          Price Range
-                        </label>
-                        <select
-                          value={priceRange}
-                          onChange={(e) => setPriceRange(e.target.value)}
-                          className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
-                        >
-                          <option value="any" className="text-primary-dark">
-                            Any Price
-                          </option>
-                          <option
-                            value="0-50000000"
-                            className="text-primary-dark"
-                          >
-                            Under ₦50M
-                          </option>
-                          <option
-                            value="50000000-100000000"
-                            className="text-primary-dark"
-                          >
-                            ₦50M – ₦100M
-                          </option>
-                          <option
-                            value="100000000-300000000"
-                            className="text-primary-dark"
-                          >
-                            ₦100M – ₦300M
-                          </option>
-                          <option
-                            value="300000000-0"
-                            className="text-primary-dark"
-                          >
-                            ₦300M+
-                          </option>
-                        </select>
-                      </div>
-
-                      {/* Beds */}
-                      <div className="flex-1">
-                        <label className="text-white/50 text-[11px] font-medium mb-1.5 block">
-                          Bedrooms
-                        </label>
-                        <select
-                          value={bedsFilter}
-                          onChange={(e) => setBedsFilter(e.target.value)}
-                          className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
-                        >
-                          <option value="any" className="text-primary-dark">
-                            Any
-                          </option>
-                          <option value="1" className="text-primary-dark">
-                            1+
-                          </option>
-                          <option value="2" className="text-primary-dark">
-                            2+
-                          </option>
-                          <option value="3" className="text-primary-dark">
-                            3+
-                          </option>
-                          <option value="4" className="text-primary-dark">
-                            4+
-                          </option>
-                        </select>
-                      </div>
-
-                      {/* Baths */}
-                      <div className="flex-1">
-                        <label className="text-white/50 text-[11px] font-medium mb-1.5 block">
-                          Bathrooms
-                        </label>
-                        <select
-                          value={bathsFilter}
-                          onChange={(e) => setBathsFilter(e.target.value)}
-                          className="w-full h-10 px-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white text-sm focus:outline-none focus:border-white/30 transition-colors appearance-none"
-                        >
-                          <option value="any" className="text-primary-dark">
-                            Any
-                          </option>
-                          <option value="1" className="text-primary-dark">
-                            1+
-                          </option>
-                          <option value="2" className="text-primary-dark">
-                            2+
-                          </option>
-                          <option value="3" className="text-primary-dark">
-                            3+
-                          </option>
-                        </select>
-                      </div>
-
-                      {/* Clear */}
-                      <div className="flex items-end">
-                        <button
-                          onClick={() => {
-                            setPriceRange("any");
-                            setBedsFilter("any");
-                            setBathsFilter("any");
-                          }}
-                          className="h-10 px-5 rounded-full bg-white/10 border border-white/15 text-white/70 text-xs font-medium hover:bg-white/20 transition-all"
-                        >
-                          Clear
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
-          </div>
-
-          {/* ─── Map Section ─── */}
-          <div ref={resultsRef} className="mb-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-primary" />
-                <h3 className="font-heading font-bold text-primary-dark text-sm">
-                  Map View
-                </h3>
-                <span className="text-text-subtle text-xs">
-                  — {currentListings.length} properties
-                </span>
-              </div>
-              <button
-                onClick={() => setShowMap(!showMap)}
-                className="h-8 px-4 rounded-full bg-white/80 border border-border-light text-primary-dark text-xs font-medium hover:bg-primary hover:text-white hover:border-primary transition-all"
-              >
-                {showMap ? "Hide Map" : "Show Map"}
-              </button>
-            </div>
-            <AnimatePresence>
-              {showMap && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  <PropertyMap
-                    listings={mapListings}
-                    activeIndex={hoveredCard}
-                    onMarkerClick={(i) =>
-                      setContactCard(contactCard === i ? null : i)
-                    }
-                    className="h-100"
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* ─── Price Insights ─── */}
-          {!listingsLoading &&
-            apiListings.length > 0 &&
-            (() => {
-              const prices = apiListings
-                .map((l) => l.priceNaira)
-                .filter(Boolean);
-              const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
-              const min = Math.min(...prices);
-              const max = Math.max(...prices);
-              const verified = apiListings.filter(
-                (l) => l.agent?.verified,
-              ).length;
-              const avgBeds =
-                apiListings.reduce((a, l) => a + (l.beds || 0), 0) /
-                apiListings.length;
-              const fmt = (n: number) =>
-                n >= 1_000_000_000
-                  ? `₦${(n / 1_000_000_000).toFixed(1)}B`
-                  : n >= 1_000_000
-                    ? `₦${(n / 1_000_000).toFixed(1)}M`
-                    : `₦${(n / 1_000).toFixed(0)}K`;
-              const cards = [
-                {
-                  icon: <BarChart2 className="w-5 h-5" />,
-                  label: "Avg. Price",
-                  value: fmt(avg),
-                  sub: `across ${prices.length} listings`,
-                  color: "text-primary",
-                  bg: "bg-primary/10",
-                },
-                {
-                  icon: <Tag className="w-5 h-5" />,
-                  label: "Lowest Price",
-                  value: fmt(min),
-                  sub: "cheapest active listing",
-                  color: "text-green-600",
-                  bg: "bg-green-50",
-                },
-                {
-                  icon: <TrendingUp className="w-5 h-5" />,
-                  label: "Highest Price",
-                  value: fmt(max),
-                  sub: "premium listing",
-                  color: "text-amber-600",
-                  bg: "bg-amber-50",
-                },
-                {
-                  icon: <ShieldCheck className="w-5 h-5" />,
-                  label: "Verified",
-                  value: `${verified} / ${apiListings.length}`,
-                  sub: "KYC-checked agents",
-                  color: "text-primary",
-                  bg: "bg-primary/10",
-                },
-                {
-                  icon: <Bed className="w-5 h-5" />,
-                  label: "Avg. Bedrooms",
-                  value: avgBeds.toFixed(1),
-                  sub: "per listing",
-                  color: "text-text-secondary",
-                  bg: "bg-bg-accent",
-                },
-              ];
-              return (
-                <div className="mb-10 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-6 sm:p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                      <BarChart2 className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-text-subtle text-[10px] uppercase tracking-widest">
-                        Live Data
-                      </p>
-                      <h3 className="font-heading font-bold text-primary-dark text-base">
-                        Price Insights
-                      </h3>
-                    </div>
-                    <span className="ml-auto text-text-subtle text-xs">
-                      {activeCategory !== "All Property"
-                        ? activeCategory
-                        : "All Properties"}
-                      {debouncedSearch ? ` · "${debouncedSearch}"` : ""}
-                    </span>
+            <div className="flex flex-wrap gap-9 mt-9">
+              {[
+                { n: `${fmtPlus(homesCount)}`, sup: "+", s: "Verified homes for sale" },
+                { n: `${fmtPlus(agentsCount)}`, sup: "+", s: "KYC-verified agents" },
+                { n: "100", sup: "%", s: "Inspected before listing" },
+              ].map((f) => (
+                <div key={f.s}>
+                  <div className="font-display font-semibold text-3xl tracking-[-0.02em] text-ink">
+                    {f.n}
+                    <sup className="text-primary text-base">{f.sup}</sup>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                    {cards.map((card) => (
-                      <div
-                        key={card.label}
-                        className="bg-white/80 backdrop-blur-md border border-white/50 rounded-2xl p-4 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 transition-all duration-300"
-                      >
-                        <div
-                          className={`w-9 h-9 rounded-xl ${card.bg} flex items-center justify-center ${card.color} mb-3`}
-                        >
-                          {card.icon}
-                        </div>
-                        <p
-                          className={`font-heading font-bold text-xl ${card.color}`}
-                        >
-                          {card.value}
-                        </p>
-                        <p className="font-heading font-semibold text-primary-dark text-[13px] leading-tight mt-0.5">
-                          {card.label}
-                        </p>
-                        <p className="text-text-subtle text-[11px] leading-snug mt-1.5">
-                          {card.sub}
-                        </p>
-                      </div>
-                    ))}
+                  <div className="text-[12.5px] text-ink-3 mt-1 max-w-[110px] leading-snug">
+                    {f.s}
                   </div>
                 </div>
-              );
-            })()}
-
-          {/* ─── Mobile Category Strip ─── */}
-          <div className="lg:hidden overflow-x-auto -mx-6 px-6 pb-4 mb-6">
-            <div className="flex gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat.label}
-                  onClick={() => setActiveCategory(cat.label)}
-                  className={`shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium border whitespace-nowrap transition-all ${
-                    activeCategory === cat.label
-                      ? "bg-primary text-white border-primary"
-                      : "bg-white/80 text-primary-dark border-border-light hover:border-primary"
-                  }`}
-                >
-                  {cat.icon}
-                  {cat.label}
-                </button>
               ))}
             </div>
           </div>
 
-          {/* Category sidebar + listings */}
-          <div className="flex flex-col lg:flex-row gap-8 mb-10">
-            {/* Left — category nav */}
-            <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
-              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                <div className="px-5 py-4 border-b border-border-light">
-                  <h3 className="font-heading font-bold text-primary-dark text-sm">
-                    Categories
-                  </h3>
-                </div>
-                <div className="p-2">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.label}
-                      onClick={() => setActiveCategory(cat.label)}
-                      className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all duration-200 ${
-                        activeCategory === cat.label
-                          ? "bg-primary/10 text-primary"
-                          : "text-primary-dark hover:bg-bg-accent"
-                      }`}
-                    >
-                      <div
-                        className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                          activeCategory === cat.label
-                            ? "bg-primary text-white"
-                            : "bg-white/80 border border-border-light text-text-secondary"
-                        }`}
-                      >
-                        {cat.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-heading font-bold text-[14px] leading-tight">
-                          {cat.label} For Sale
-                        </p>
-                        <p className="text-text-secondary text-xs mt-0.5">
-                          {cat.count.toLocaleString()} listings
-                        </p>
-                      </div>
-                      <ChevronDown
-                        className={`w-4 h-4 shrink-0 -rotate-90 ${
-                          activeCategory === cat.label
-                            ? "text-primary"
-                            : "text-text-subtle"
-                        }`}
-                      />
-                    </button>
-                  ))}
-                </div>
+          {/* Right — featured photo with detail card */}
+          <div className="relative rounded-[8px_8px_60px_8px] overflow-hidden aspect-[4/5] bg-[#16321f] shadow-[0_30px_60px_rgba(0,0,0,0.16)]">
+            <img
+              src={featured?.coverImage || FALLBACK_HERO}
+              alt={featured?.title || "Featured home"}
+              className="w-full h-full object-cover"
+            />
+            <span className="absolute top-4 left-4 z-[3] bg-white text-ink text-[11px] font-extrabold tracking-[0.1em] uppercase px-3 py-1.5 rounded-full">
+              Featured · {featured?.location || "Lekki"}
+            </span>
+            <button
+              type="button"
+              onClick={() => featured && goToListing(featured.id)}
+              className="absolute left-3.5 right-3.5 bottom-3.5 z-[3] text-left bg-white/85 backdrop-blur-xl border border-white/60 rounded-2xl px-4 py-3.5 hover:bg-white transition-colors"
+            >
+              <div className="font-display font-bold text-[22px] tracking-[-0.02em] text-ink">
+                {featured?.priceLabel || "₦78,000,000"}
               </div>
-
-              {/* Quick stats */}
-              <div className="mt-5 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
-                <h4 className="font-heading font-bold text-primary-dark text-sm mb-3">
-                  Market Snapshot
-                </h4>
-                <div className="flex flex-col gap-3">
-                  {(statsLoading || !stats
-                    ? [
-                        { label: "Avg. price (Lagos)", value: "–" },
-                        { label: "New this week", value: "–" },
-                        { label: "Verified agents", value: "–" },
-                      ]
-                    : [
-                        {
-                          label: "Avg. price (Lagos)",
-                          value: stats.avgPrice
-                            ? `₦${(stats.avgPrice / 1000000).toFixed(1)}M`
-                            : "–",
-                        },
-                        {
-                          label: "New this week",
-                          value: stats.newThisWeek?.toLocaleString() || "0",
-                        },
-                        {
-                          label: "Verified agents",
-                          value:
-                            stats.verifiedAgents > 999
-                              ? `${(stats.verifiedAgents / 1000).toFixed(1)}K+`
-                              : stats.verifiedAgents.toString(),
-                        },
-                      ]
-                  ).map((stat) => (
-                    <div
-                      key={stat.label}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="text-text-secondary text-xs">
-                        {stat.label}
-                      </span>
-                      <span className="font-heading font-bold text-primary-dark text-sm">
-                        {stat.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+              <div className="text-[13px] font-bold text-ink mt-0.5 truncate">
+                {featured?.title || "Hibiscus House · 4-bed detached"}
               </div>
-            </div>
-
-            {/* Right — listing cards */}
-            <div className="flex-1">
-              {/* Results header */}
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
-                <p className="text-text-secondary text-sm">
-                  Showing{" "}
-                  <span className="font-bold text-primary-dark">
-                    {currentListings.length}
-                  </span>{" "}
-                  properties in{" "}
-                  <span className="font-bold text-primary-dark">
-                    {activeCategory === "All Property"
-                      ? "All Categories"
-                      : activeCategory}
-                  </span>
-                </p>
-                <select className="h-9 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-xs focus:outline-none focus:border-primary transition-colors appearance-none pr-8">
-                  <option>Newest first</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                  <option>Most popular</option>
-                </select>
+              <div className="text-xs text-ink-3 mt-0.5 truncate">
+                {featured?.address || "Admiralty Way, Lekki Phase 1"}
               </div>
-
-              {/* Cards grid */}
-              {listingsLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden animate-pulse"
-                    >
-                      <div className="h-44 bg-border-light/60" />
-                      <div className="p-5 space-y-3">
-                        <div className="h-5 bg-border-light/60 rounded-full w-1/3" />
-                        <div className="h-4 bg-border-light/60 rounded-full w-2/3" />
-                        <div className="h-3 bg-border-light/60 rounded-full w-1/2" />
-                        <div className="h-px bg-border-light my-2" />
-                        <div className="flex gap-4">
-                          <div className="h-3 bg-border-light/60 rounded-full w-16" />
-                          <div className="h-3 bg-border-light/60 rounded-full w-16" />
-                          <div className="h-3 bg-border-light/60 rounded-full w-16" />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              <div className="flex items-center gap-2 mt-2.5 pt-2.5 border-t border-black/10">
+                <div className="w-[26px] h-[26px] rounded-full bg-surface-3 overflow-hidden shrink-0 grid place-items-center text-[9px] font-bold text-primary-ink">
+                  {featured?.agent?.avatarUrl ? (
+                    <img
+                      src={featured.agent.avatarUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    initials(featured?.agent?.name || "PropertyLoop")
+                  )}
                 </div>
-              ) : currentListings.length === 0 ? (
-                <EmptyState
-                  icon={<Search className="w-10 h-10" />}
-                  title="No Properties Found"
-                  description={
-                    searchQuery
-                      ? `No properties for sale match "${searchQuery}". Try adjusting your search criteria.`
-                      : "No properties available for your current filters. Try adjusting your search criteria or browse our featured categories."
-                  }
-                  actions={[
-                    {
-                      label: "Clear All Filters",
-                      icon: <LayoutGrid className="w-4 h-4" />,
-                      onClick: () => {
-                        setSearchQuery("");
-                        setActiveCategory("All Property");
-                        setPriceRange("any");
-                        setBedsFilter("any");
-                        setBathsFilter("any");
-                      },
-                      variant: "primary",
-                    },
-                    {
-                      label: "Browse All",
-                      onClick: () => setActiveCategory("All Property"),
-                      variant: "secondary",
-                    },
-                  ]}
-                  suggestions={categories.slice(0, 4).map((cat) => ({
-                    icon: cat.icon,
-                    label: cat.label,
-                    onClick: () => setActiveCategory(cat.label),
-                  }))}
-                />
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
-                  {currentListings.map((listing, i) => (
-                    <div
-                      key={i}
-                      onClick={() => {
-                        if (!isLoggedIn) {
-                          navigate("/onboarding");
-                          return;
-                        }
-                        setContactCard(contactCard === i ? null : i);
-                      }}
-                      onMouseEnter={() => setHoveredCard(i)}
-                      onMouseLeave={() => setHoveredCard(null)}
-                      className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-                    >
-                      {/* Image */}
-                      <div className="h-44 overflow-hidden rounded-t-[20px] relative">
-                        <img
-                          src={listing.image}
-                          alt={listing.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute top-3 right-3 flex items-center gap-2">
-                          <BookmarkButton
-                            id={listing.id}
-                            type="property"
-                            size="sm"
-                          />
-                          <span className="px-2.5 py-1 rounded-full bg-primary/90 backdrop-blur-sm text-white text-xs font-medium">
-                            For Sale
-                          </span>
-                          <div className="w-10 h-10 bg-[#1a1a1a] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
-                            <ArrowUpRight className="w-4 h-4 text-white" />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Glass content */}
-                      <div className="mx-3 mb-3 -mt-6 relative z-10 bg-white/70 backdrop-blur-md border border-white/40 rounded-2xl px-5 pt-4 pb-5 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
-                        <p className="font-heading font-bold text-primary-dark text-[18px]">
-                          {listing.price}
-                        </p>
-                        <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1 truncate">
-                          {listing.title}
-                        </h3>
-                        <p className="text-text-secondary text-xs mt-0.5 flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {listing.address}
-                        </p>
-
-                        <div className="h-px bg-border-light mt-3 mb-3" />
-
-                        <div className="flex items-center gap-4 text-text-secondary text-xs pr-10">
-                          {listing.beds > 0 && (
-                            <span className="flex items-center gap-1.5">
-                              <Bed className="w-3.5 h-3.5" />
-                              {listing.beds} Beds
-                            </span>
-                          )}
-                          {listing.baths > 0 && (
-                            <span className="flex items-center gap-1.5">
-                              <Bath className="w-3.5 h-3.5" />
-                              {listing.baths} Baths
-                            </span>
-                          )}
-                          <span className="flex items-center gap-1.5">
-                            <Maximize className="w-3.5 h-3.5" />
-                            {listing.sqft}m²
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Contact overlay */}
-                      <AnimatePresence>
-                        {contactCard === i && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.25 }}
-                            className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-primary-dark/80 backdrop-blur-md rounded-[20px]"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {/* Close */}
-                            <motion.button
-                              initial={{ opacity: 0, scale: 0.5 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{
-                                delay: 0.15,
-                                duration: 0.3,
-                                ease: [0.23, 1, 0.32, 1],
-                              }}
-                              onClick={() => setContactCard(null)}
-                              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/25 transition-colors"
-                            >
-                              <X className="w-4 h-4" />
-                            </motion.button>
-
-                            {/* Agent name */}
-                            <motion.div
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{
-                                delay: 0.1,
-                                duration: 0.35,
-                                ease: [0.23, 1, 0.32, 1],
-                              }}
-                              className="text-center"
-                            >
-                              <p className="text-white/60 text-xs">
-                                Contact Agent
-                              </p>
-                              <p className="font-heading font-bold text-white text-base mt-1">
-                                {listing.agent}
-                              </p>
-                            </motion.div>
-
-                            {/* Buttons */}
-                            <div className="flex gap-4">
-                              <motion.a
-                                initial={{ opacity: 0, scale: 0.5, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                transition={{
-                                  delay: 0.2,
-                                  duration: 0.4,
-                                  ease: [0.23, 1, 0.32, 1],
-                                }}
-                                href={formatTel("+2341234567890")}
-                                className="flex flex-col items-center gap-2"
-                              >
-                                <div className="w-14 h-14 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white hover:text-primary-dark transition-all duration-300">
-                                  <Phone className="w-6 h-6" />
-                                </div>
-                                <span className="text-white/70 text-xs">
-                                  Call
-                                </span>
-                              </motion.a>
-                            </div>
-
-                            {/* Details button */}
-                            <motion.button
-                              initial={{ opacity: 0, y: 15 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{
-                                delay: 0.4,
-                                duration: 0.35,
-                                ease: [0.23, 1, 0.32, 1],
-                              }}
-                              onClick={() =>
-                                navigate(getPropertyLink(listing.title))
-                              }
-                              className="mt-1 h-10 px-6 rounded-full bg-white/15 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white hover:text-primary-dark transition-all duration-300 inline-flex items-center gap-2"
-                            >
-                              <ArrowUpRight className="w-4 h-4" />
-                              View details
-                            </motion.button>
-
-                            {/* Property name */}
-                            <motion.p
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: 0.5, duration: 0.3 }}
-                              className="text-white/40 text-xs text-center px-6 mt-1 truncate max-w-full"
-                            >
-                              {listing.title}
-                            </motion.p>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Load more */}
-              {!!page && !!pages && page < pages && (
-                <div className="mt-10 text-center">
-                  <button
-                    onClick={nextPage}
-                    disabled={listingsLoading}
-                    className="h-11 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {listingsLoading ? "Loading..." : "Load more properties"}
-                  </button>
-                </div>
-              )}
-            </div>
+                <b className="text-xs text-ink">
+                  {featured?.agent?.name || "Verified agent"}
+                </b>
+                {featured?.agent?.verified !== false && (
+                  <small className="text-primary font-bold text-[11px]">
+                    ✓ Verified agent
+                  </small>
+                )}
+              </div>
+            </button>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* ── STICKY FILTER BAR ────────────────────────────────── */}
+      <div className="sticky top-3 z-30 max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
+        <div className="bg-white border border-line-2 rounded-[20px] p-3.5 flex items-center gap-3 flex-wrap shadow-[0_12px_36px_rgba(0,0,0,0.08)]">
+          <div className="flex-1 min-w-[200px] flex items-center gap-2.5 bg-surface-2 rounded-full px-4 py-2.5">
+            <Search className="w-[18px] h-[18px] text-ink-3 shrink-0" />
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by area, e.g. Lekki, Lagos"
+              className="flex-1 min-w-0 bg-transparent text-[14.5px] text-ink placeholder:text-ink-3 focus:outline-none"
+            />
+          </div>
+          <ChipSelect
+            value={priceRange}
+            onChange={setPriceRange}
+            options={PRICE_OPTS}
+            active={priceRange !== "any"}
+          />
+          <ChipSelect
+            value={bedsFilter}
+            onChange={setBedsFilter}
+            options={BEDS_OPTS}
+            active={bedsFilter !== "any"}
+          />
+          <ChipSelect
+            value={typeFilter}
+            onChange={setTypeFilter}
+            options={typeOptions}
+            active={typeFilter !== "All Property"}
+          />
+          <button
+            onClick={() => setShowAllFilters((s) => !s)}
+            className={`shrink-0 inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors ${
+              showAllFilters
+                ? "bg-primary-soft border-transparent text-primary-ink"
+                : "bg-white border-line text-ink-2 hover:border-primary"
+            }`}
+          >
+            <SlidersHorizontal className="w-[15px] h-[15px]" />
+            All filters
+          </button>
+        </div>
+
+        {showAllFilters && (
+          <div className="mt-2.5 bg-white border border-line-2 rounded-[20px] p-4 flex flex-wrap items-end gap-4 shadow-[0_8px_24px_rgba(0,0,0,0.06)]">
+            <div className="flex-1 min-w-[160px]">
+              <label className="block text-[11px] font-semibold text-ink-3 mb-1.5">
+                Bathrooms
+              </label>
+              <select
+                value={bathsFilter}
+                onChange={(e) => setBathsFilter(e.target.value)}
+                className="w-full h-10 px-4 rounded-full bg-surface-2 border border-line text-sm text-ink focus:outline-none focus:border-primary appearance-none"
+              >
+                <option value="any">Any</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
+              </select>
+            </div>
+            <div className="flex-1 min-w-[160px]">
+              <label className="block text-[11px] font-semibold text-ink-3 mb-1.5">
+                Sort by
+              </label>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="w-full h-10 px-4 rounded-full bg-surface-2 border border-line text-sm text-ink focus:outline-none focus:border-primary appearance-none"
+              >
+                {SORT_OPTS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={clearAll}
+              className="h-10 px-5 rounded-full bg-surface-2 border border-line text-ink-2 text-xs font-semibold hover:bg-primary hover:text-white hover:border-primary transition-all"
+            >
+              Clear all filters
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── RESULTS + MAP SPLIT ──────────────────────────────── */}
+      <section
+        ref={resultsRef}
+        className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-8 pb-16 scroll-mt-24"
+      >
+        <div className="grid lg:grid-cols-[1fr_0.92fr] gap-8 items-start">
+          {/* LEFT — results list */}
+          <div>
+            <div className="flex items-end justify-between gap-5">
+              <div>
+                <h2 className="font-display font-semibold text-[1.75rem] sm:text-[1.875rem] tracking-[-0.02em] text-ink">
+                  <span className="text-primary">
+                    {resultCount.toLocaleString()}{" "}
+                    {resultCount === 1 ? "home" : "homes"}
+                  </span>{" "}
+                  for sale in {headerArea}
+                </h2>
+                <p className="text-sm text-ink-3 mt-1.5">
+                  Every listing verified · talk straight to the agent
+                </p>
+              </div>
+              <div className="relative shrink-0 hidden sm:block">
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="appearance-none cursor-pointer rounded-full border border-line bg-white pl-4 pr-9 py-2.5 text-sm font-bold text-ink focus:outline-none"
+                >
+                  {SORT_OPTS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      Sort: {o.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-3" />
+              </div>
+            </div>
+
+            {/* active filters */}
+            {activeFilters.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap mt-5 mb-6">
+                {activeFilters.map((f) => (
+                  <span
+                    key={f.key}
+                    className="inline-flex items-center gap-2 bg-ink text-white pl-3.5 pr-2 py-1.5 rounded-full text-[13px] font-semibold"
+                  >
+                    {f.label}
+                    <button
+                      onClick={f.clear}
+                      aria-label={`Remove ${f.label}`}
+                      className="w-5 h-5 rounded-full bg-white/20 grid place-items-center hover:bg-white/30 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+                <button
+                  onClick={clearAll}
+                  className="text-[13px] font-bold text-primary ml-1 hover:text-primary-ink transition-colors"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+
+            {/* list */}
+            {listingsLoading && allListings.length === 0 ? (
+              <div className="flex flex-col gap-5 mt-6">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="grid sm:grid-cols-[300px_1fr] bg-white border border-line-2 rounded-[24px] overflow-hidden animate-pulse"
+                  >
+                    <div className="h-[200px] sm:h-[230px] bg-surface-2" />
+                    <div className="p-6 space-y-3">
+                      <div className="h-6 w-1/3 bg-surface-2 rounded-full" />
+                      <div className="h-4 w-2/3 bg-surface-2 rounded-full" />
+                      <div className="h-3 w-1/2 bg-surface-2 rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : allListings.length === 0 ? (
+              <div className="mt-6">
+                <EmptyState
+                  icon={<Search className="w-10 h-10" />}
+                  title="No homes found"
+                  description={
+                    debouncedSearch
+                      ? `No homes for sale match "${debouncedSearch}". Try adjusting your filters.`
+                      : "No homes match your current filters. Try widening your price range or area."
+                  }
+                  actions={[
+                    { label: "Clear all filters", onClick: clearAll, variant: "primary" },
+                  ]}
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-5 mt-6">
+                {allListings.map((l, i) => {
+                  const tag = listingTag(l);
+                  const agentName = l.agent?.name || l.agent?.agency || "Agent";
+                  const isHot = tag.tone === "new";
+                  return (
+                    <div
+                      key={l.id}
+                      onClick={() => goToListing(l.id)}
+                      onMouseEnter={() => setActivePin(i)}
+                      onMouseLeave={() => setActivePin(null)}
+                      className={`group grid sm:grid-cols-[300px_1fr] bg-white border rounded-[24px] overflow-hidden cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(0,0,0,0.10)] hover:border-transparent ${
+                        isHot
+                          ? "border-transparent ring-2 ring-primary"
+                          : "border-line-2"
+                      }`}
+                    >
+                      {/* photo */}
+                      <div className="relative h-[200px] sm:h-[230px] bg-surface-2 overflow-hidden">
+                        <img
+                          src={l.coverImage}
+                          alt={l.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <span
+                          className={`absolute top-3.5 left-3.5 inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full text-white ${
+                            tag.tone === "new" ? "bg-accent" : "bg-primary"
+                          }`}
+                        >
+                          {tag.label}
+                        </span>
+                        <div
+                          className="absolute top-3 right-3"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <BookmarkButton id={l.id} type="property" size="md" />
+                        </div>
+                        {l.images?.length > 0 && (
+                          <span className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 bg-black/55 backdrop-blur-sm text-white text-[11.5px] font-semibold px-2.5 py-1 rounded-full">
+                            <Images className="w-3.5 h-3.5" />
+                            {l.images.length} photos
+                          </span>
+                        )}
+                      </div>
+
+                      {/* body */}
+                      <div className="p-5 sm:p-6 flex flex-col">
+                        <div className="font-display font-bold text-[27px] tracking-[-0.02em] text-ink">
+                          {l.priceLabel}
+                        </div>
+                        <h3 className="text-[17px] font-extrabold tracking-[-0.01em] text-ink mt-1">
+                          {l.title}
+                        </h3>
+                        <p className="flex items-center gap-1.5 text-[13.5px] text-ink-3 mt-1">
+                          <MapPin className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{l.address}</span>
+                        </p>
+
+                        <div className="flex flex-wrap gap-x-[18px] gap-y-2 mt-3.5 text-[13.5px] font-semibold text-ink-2">
+                          {l.beds > 0 && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <Bed className="w-4 h-4 text-ink-3" />
+                              {l.beds} beds
+                            </span>
+                          )}
+                          {l.baths > 0 && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <Bath className="w-4 h-4 text-ink-3" />
+                              {l.baths} baths
+                            </span>
+                          )}
+                          {l.sqft && (
+                            <span className="inline-flex items-center gap-1.5">
+                              <Maximize className="w-4 h-4 text-ink-3" />
+                              {l.sqft} m²
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2.5 mt-auto pt-4 border-t border-line-2">
+                          <div className="w-[34px] h-[34px] rounded-full bg-surface-3 overflow-hidden shrink-0 grid place-items-center text-[11px] font-bold text-primary-ink">
+                            {l.agent?.avatarUrl ? (
+                              <img
+                                src={l.agent.avatarUrl}
+                                alt={agentName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              initials(agentName)
+                            )}
+                          </div>
+                          <div className="leading-tight min-w-0">
+                            <div className="text-[12.5px] font-bold text-ink truncate">
+                              {agentName}
+                            </div>
+                            {l.agent?.verified && (
+                              <small className="block text-primary font-semibold text-[11px]">
+                                ✓ Verified agent
+                              </small>
+                            )}
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!isLoggedIn) {
+                                navigate("/onboarding");
+                                return;
+                              }
+                              goToListing(l.id);
+                            }}
+                            className="ml-auto inline-flex items-center gap-1.5 bg-primary text-white px-4 py-2.5 rounded-full text-[13px] font-bold hover:bg-primary-light transition-colors"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                            Message
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* infinite-scroll sentinel + bouncy loader */}
+            {allListings.length > 0 && (
+              <div ref={loadMoreRef} className="py-10">
+                {listingsLoading && page > 1 ? (
+                  <BouncyLoader label="Loading more homes…" />
+                ) : !hasMore ? (
+                  <p className="text-center text-sm text-ink-3">
+                    You've reached the end · {resultCount.toLocaleString()} homes
+                  </p>
+                ) : null}
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT — sticky map */}
+          <div className="hidden lg:block lg:sticky lg:top-24 h-[calc(100vh-7rem)]">
+            {allListings.length > 0 ? (
+              <PropertyMap
+                listings={mapListings}
+                activeIndex={activePin}
+                onMarkerClick={(i) => goToListing(allListings[i].id)}
+                className="h-full"
+              />
+            ) : (
+              <div className="h-full rounded-[20px] border border-line-2 bg-surface-2 grid place-items-center text-ink-3 text-sm">
+                Map appears when homes match your search
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>

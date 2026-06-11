@@ -4,12 +4,30 @@
   /* Fonts */
   --font-heading: "Libre Franklin", sans-serif;
   --font-body: "Eczar", serif;
+  --font-display: "Playfair Display", Georgia, serif;
 
   /* Brand */
   --color-primary: #1f6f43;
   --color-primary-dark: #1a3d2a;
   --color-primary-light: #2d5a3f;
   --color-primary-muted: #4a7a5c;
+  --color-primary-ink: #134a2d;
+  --color-primary-soft: #e3efe7;
+
+  /* Warm gold accent */
+  --color-accent: #b9842c;
+  --color-accent-soft: #f5ead4;
+
+  /* Charcoal ink (editorial text — neutral, not green) */
+  --color-ink: #1a2120;
+  --color-ink-2: #4d524f;
+  --color-ink-3: #7f857f;
+
+  /* Warm neutral surfaces + hairlines */
+  --color-surface-2: #ece6df;
+  --color-surface-3: #ddd5c9;
+  --color-line: #e1dcd3;
+  --color-line-2: #ece6df;
 
   /* Backgrounds */
   --color-bg: #f5f7f5;
@@ -102,3 +120,17 @@
   0%, 80%, 100% { transform: translateY(0); opacity: 0.55; }
   40% { transform: translateY(-9px); opacity: 1; }
 }
+
+/* ─── Rent page area ticker (marquee) ─── */
+@keyframes pl-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.pl-ticker-track {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: pl-ticker 32s linear infinite;
+  will-change: transform;
+}
+.pl-ticker-mask:hover .pl-ticker-track { animation-play-state: paused; }
