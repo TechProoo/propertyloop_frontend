@@ -227,7 +227,7 @@ const AddProperty = () => {
   // Turn an axios/network error into a sentence the user can act on.
   // Especially important on mobile where the only visible error is a toast.
   const describeUploadError = (err: any): string => {
-    if (!err) return "Upload failed. Please try again.";
+    if (!err) return "That didn't go through. Please try again in a moment.";
 
     // Always log full details for desktop debugging; the toast is short.
     console.error("Upload error:", {
@@ -239,48 +239,51 @@ const AddProperty = () => {
       data: err?.response?.data,
     });
 
-    // Endpoint hint so the toast tells us which call failed
+    // A friendly, plain-language hint about which step ran into trouble.
     const url: string | undefined = err?.config?.url;
     const where = (() => {
       if (!url) return "";
       if (url.includes("/listings/upload/video/presign"))
-        return " (video presign)";
+        return " while preparing your video";
       if (url.includes("amazonaws.com") || url.includes("r2.cloudflarestorage"))
-        return " (R2 upload)";
-      if (url.includes("/listings/upload/video")) return " (video upload)";
-      if (url.includes("/listings/upload/photo")) return " (photo upload)";
+        return " while uploading your file";
+      if (url.includes("/listings/upload/video")) return " while uploading your video";
+      if (url.includes("/listings/upload/photo")) return " while uploading your photos";
       if (url.endsWith("/listings") || url.includes("/listings?"))
-        return " (create listing)";
+        return " while publishing your listing";
       if (url.includes("/listings/") && url.includes("/documents"))
-        return " (attach document)";
-      return ` (${url.split("?")[0].split("/").slice(-2).join("/")})`;
+        return " while attaching your document";
+      return "";
     })();
 
     // Axios-style network failure (no HTTP response received)
     const code = err?.code as string | undefined;
     if (code === "ERR_NETWORK" || err?.message === "Network Error") {
       if (typeof navigator !== "undefined" && navigator.onLine === false) {
-        return "You're offline. Reconnect and try again.";
+        return "You're offline — reconnect to the internet and try again. Nothing you entered was lost.";
       }
-      return `Network was reset before the request finished${where}. On mobile this often means the connection dropped or your browser sent the page to the background. Stay on the tab and retry.`;
+      return `The connection dropped${where}. Stay on this tab and give it another try — your details are still here.`;
     }
     if (code === "ECONNABORTED") {
-      return `Request timed out${where}. Try a smaller file or a stronger connection.`;
+      return `That took too long${where}. Try again on a stronger connection, or use a smaller photo/video.`;
     }
 
     const status = err?.response?.status as number | undefined;
     if (status === 401)
-      return `Your session expired${where}. Sign in again and retry.`;
+      return `Your session timed out${where}. Please sign in again — your details are saved, so you can pick up right where you left off.`;
     if (status === 403)
-      return `Request was rejected (forbidden)${where}. The file type may not be allowed.`;
-    if (status === 413) return `File is too large for the server${where}.`;
-    if (status === 400) {
-      const msg =
-        err?.response?.data?.message || "Bad request — check your form fields.";
-      return `${msg}${where}`;
+      return `We couldn't accept that${where}. The file type may not be supported — try a JPG, PNG, or MP4.`;
+    if (status === 413)
+      return `That file is a little too large${where}. Please use a smaller photo or video and try again.`;
+    if (status === 400 || status === 422) {
+      // The backend now sends friendly, specific guidance for these.
+      return (
+        err?.response?.data?.message ||
+        `Some details need a quick look${where}. Please review your entries and try again.`
+      );
     }
     if (status && status >= 500)
-      return `Server error ${status}${where}. Please try again in a minute.`;
+      return `Something went wrong on our end${where} — don't worry, nothing you entered was lost. Please try again in a moment.`;
 
     // R2 sometimes returns plain XML — the body shows up as a string
     const data = err?.response?.data;
@@ -294,8 +297,7 @@ const AddProperty = () => {
 
     return (
       err?.response?.data?.message ||
-      err?.message ||
-      `Upload failed${where}. Please try again.`
+      `That didn't go through${where}. Please check your details and try again — nothing you entered was lost.`
     );
   };
 
