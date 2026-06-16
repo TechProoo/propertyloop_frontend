@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import messagesService from "../services/messages";
 
+export interface DashboardMessage {
+  sender: "you" | "them";
+  text: string;
+  time: string;
+  attachmentUrls: string[];
+}
+
 export interface DashboardConvo {
   id: string;
   name: string;
@@ -10,13 +17,13 @@ export interface DashboardConvo {
   lastMessage: string;
   time: string;
   unread: number;
-  messages: { sender: "you" | "them"; text: string; time: string }[];
+  messages: DashboardMessage[];
 }
 
 export function useConversations() {
   const [conversations, setConversations] = useState<DashboardConvo[]>([]);
   const [activeMessages, setActiveMessages] = useState<
-    Record<string, { sender: "you" | "them"; text: string; time: string }[]>
+    Record<string, DashboardMessage[]>
   >({});
   const [loading, setLoading] = useState(true);
   const [messagesLoadingId, setMessagesLoadingId] = useState<string | null>(null);
@@ -81,6 +88,7 @@ export function useConversations() {
         [convoId]: msgs.map((m) => ({
           sender: m.isYou ? ("you" as const) : ("them" as const),
           text: m.text,
+          attachmentUrls: m.attachmentUrls ?? [],
           time: new Date(m.createdAt).toLocaleTimeString("en-NG", {
             hour: "numeric",
             minute: "2-digit",
@@ -96,26 +104,30 @@ export function useConversations() {
     }
   }, []);
 
-  const sendMessage = useCallback(async (convoId: string, text: string) => {
-    const msg = {
-      sender: "you" as const,
-      text,
-      time: new Date().toLocaleTimeString("en-NG", {
-        hour: "numeric",
-        minute: "2-digit",
-      }),
-    };
-    // Optimistic update
-    setActiveMessages((prev) => ({
-      ...prev,
-      [convoId]: [...(prev[convoId] || []), msg],
-    }));
-    try {
-      await messagesService.sendMessage(convoId, text);
-    } catch {
-      /* keep optimistic */
-    }
-  }, []);
+  const sendMessage = useCallback(
+    async (convoId: string, text: string, attachmentUrls?: string[]) => {
+      const msg: DashboardMessage = {
+        sender: "you" as const,
+        text,
+        attachmentUrls: attachmentUrls ?? [],
+        time: new Date().toLocaleTimeString("en-NG", {
+          hour: "numeric",
+          minute: "2-digit",
+        }),
+      };
+      // Optimistic update
+      setActiveMessages((prev) => ({
+        ...prev,
+        [convoId]: [...(prev[convoId] || []), msg],
+      }));
+      try {
+        await messagesService.sendMessage(convoId, text, attachmentUrls);
+      } catch {
+        /* keep optimistic */
+      }
+    },
+    [],
+  );
 
   return {
     conversations,

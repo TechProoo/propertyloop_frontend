@@ -173,10 +173,10 @@ const ServiceLoop = () => {
   return (
     <section
       ref={sectionRef}
-      className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg"
+      className="w-full px-6 md:px-12 lg:px-20 py-10 sm:py-14 lg:py-28 bg-bg"
     >
       <div className="max-w-7xl mx-auto">
-       <div className="rounded-[32px] bg-gradient-to-b from-[#eef3ee] to-bg px-5 sm:px-10 lg:px-16 py-12 lg:py-16">
+       <div className="rounded-[32px] bg-gradient-to-b from-[#eef3ee] to-bg px-5 sm:px-10 lg:px-16 py-8 sm:py-10 lg:py-16">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
           <div>

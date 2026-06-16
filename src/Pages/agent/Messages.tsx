@@ -1,6 +1,16 @@
-import { useEffect, useState } from "react";
-import { Search, Send, ArrowLeft } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Search,
+  Send,
+  ArrowLeft,
+  Paperclip,
+  X,
+  FileText,
+  Image as ImageIcon,
+} from "lucide-react";
 import { useConversations } from "../../api/hooks";
+import messagesService from "../../api/services/messages";
+import MessageAttachments from "../../components/Messages/MessageAttachments";
 import { C, PageHeader, BouncyLoader, initials } from "../../components/agent/ui";
 
 const QUICK = ["Yes, it's available", "Share the address", "Suggest a time"];
@@ -24,6 +34,10 @@ export default function AgentMessages() {
   const [input, setInput] = useState("");
   // On small screens we show the list OR the conversation (master-detail).
   const [mobileThreadOpen, setMobileThreadOpen] = useState(false);
+  // Attachments
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Derive the active conversation: explicit pick, else the first one.
   const selected = picked || conversations[0]?.id || "";
@@ -43,11 +57,43 @@ export default function AgentMessages() {
     c.name.toLowerCase().includes(query.trim().toLowerCase()),
   );
 
+  // Quick-reply / text-only send.
   const send = (text: string) => {
     const t = text.trim();
     if (!t || !selected) return;
     sendMessage(selected, t);
     setInput("");
+  };
+
+  const canSend =
+    (input.trim().length > 0 || pendingFiles.length > 0) && !uploading;
+
+  // Composer send — uploads any attachments first, then sends.
+  const handleSend = async () => {
+    if (!canSend || !selected) return;
+    let attachmentUrls: string[] = [];
+    if (pendingFiles.length > 0) {
+      setUploading(true);
+      try {
+        const results = await Promise.all(
+          pendingFiles.map((f) => messagesService.uploadAttachment(f)),
+        );
+        attachmentUrls = results.map((r) => r.url);
+      } catch {
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+    sendMessage(selected, input.trim(), attachmentUrls);
+    setInput("");
+    setPendingFiles([]);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length) setPendingFiles((prev) => [...prev, ...files].slice(0, 5));
+    e.target.value = "";
   };
 
   return (
@@ -153,7 +199,8 @@ export default function AgentMessages() {
                           : { alignSelf: "flex-start", background: C.surface2, color: C.ink, borderRadius: "16px 16px 16px 5px" }
                       }
                     >
-                      {m.text}
+                      {m.text && <span className="whitespace-pre-wrap break-words">{m.text}</span>}
+                      <MessageAttachments urls={m.attachmentUrls} isYou={m.sender === "you"} />
                     </div>
                   ))
                 )}
@@ -173,25 +220,82 @@ export default function AgentMessages() {
                 ))}
               </div>
 
+              {/* Pending attachment previews */}
+              {pendingFiles.length > 0 && (
+                <div
+                  className="px-3.5 pt-2 flex flex-wrap gap-2 shrink-0"
+                  style={{ borderTop: `1px solid ${C.line2}` }}
+                >
+                  {pendingFiles.map((f, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs"
+                      style={{ background: C.surface2, color: C.ink }}
+                    >
+                      {f.type.startsWith("image/") ? (
+                        <ImageIcon className="w-3.5 h-3.5 shrink-0" style={{ color: C.primary }} />
+                      ) : (
+                        <FileText className="w-3.5 h-3.5 shrink-0" style={{ color: C.primary }} />
+                      )}
+                      <span className="max-w-[110px] truncate">{f.name}</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPendingFiles((prev) => prev.filter((_, j) => j !== i))
+                        }
+                        className="ml-0.5"
+                        style={{ color: C.ink3 }}
+                        aria-label="Remove attachment"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <form
-                onSubmit={(e) => { e.preventDefault(); send(input); }}
+                onSubmit={(e) => { e.preventDefault(); handleSend(); }}
                 className="px-3.5 pt-2.5 pb-4 flex items-center gap-2 shrink-0"
-                style={{ borderTop: `1px solid ${C.line2}` }}
+                style={{ borderTop: pendingFiles.length > 0 ? "none" : `1px solid ${C.line2}` }}
               >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="image/*,application/pdf"
+                  multiple
+                  onChange={handleFileChange}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-11 h-11 rounded-full grid place-items-center shrink-0"
+                  style={{ background: C.surface2, color: C.ink2 }}
+                  aria-label="Attach file"
+                  title="Attach a photo or PDF"
+                >
+                  <Paperclip className="w-[17px] h-[17px]" />
+                </button>
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Write a reply…"
+                  placeholder={pendingFiles.length > 0 ? "Add a message (optional)…" : "Write a reply…"}
                   className="flex-1 min-w-0 rounded-full px-4 py-2.5 text-sm outline-none"
                   style={{ background: C.surface2, color: C.ink }}
                 />
                 <button
                   type="submit"
-                  className="w-11 h-11 rounded-full grid place-items-center text-white shrink-0"
+                  disabled={!canSend}
+                  className="w-11 h-11 rounded-full grid place-items-center text-white shrink-0 disabled:opacity-50"
                   style={{ background: C.primary }}
                   aria-label="Send"
                 >
-                  <Send className="w-[17px] h-[17px]" />
+                  {uploading ? (
+                    <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Send className="w-[17px] h-[17px]" />
+                  )}
                 </button>
               </form>
             </>

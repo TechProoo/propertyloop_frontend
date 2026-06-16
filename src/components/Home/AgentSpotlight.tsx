@@ -158,7 +158,7 @@ const AgentSpotlight = () => {
   return (
     <section
       ref={sectionRef}
-      className="w-full px-6 md:px-12 lg:px-20 py-20 lg:py-28 bg-bg"
+      className="w-full px-6 md:px-12 lg:px-20 py-10 sm:py-14 lg:py-28 bg-bg"
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}

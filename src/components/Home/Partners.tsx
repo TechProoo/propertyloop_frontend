@@ -208,7 +208,7 @@ const Partners = () => {
   return (
     <section
       ref={sectionRef}
-      className="w-full px-6 md:px-12 lg:px-20 py-16 lg:py-24 bg-bg"
+      className="w-full px-6 md:px-12 lg:px-20 py-10 sm:py-14 lg:py-24 bg-bg"
     >
       <div className="max-w-7xl mx-auto">
         {/* Heading */}

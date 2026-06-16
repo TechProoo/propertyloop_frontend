@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -29,6 +29,8 @@ import {
   Image as ImageIcon,
   Plus,
   Trash2,
+  Paperclip,
+  FileText,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
@@ -38,6 +40,7 @@ import vendorsService from "../api/services/vendors";
 import vendorJobsService from "../api/services/vendorJobs";
 import vendorEarningsService from "../api/services/vendorEarnings";
 import messagesService from "../api/services/messages";
+import MessageAttachments from "../components/Messages/MessageAttachments";
 import uploadService from "../api/services/upload";
 import type { VendorStats } from "../api/types";
 import { useConversations } from "../api/hooks";
@@ -132,6 +135,9 @@ const VendorDashboard = () => {
   );
   const [chatInput, setChatInput] = useState("");
   const [mobileChat, setMobileChat] = useState(false);
+  const [chatFiles, setChatFiles] = useState<File[]>([]);
+  const [chatUploading, setChatUploading] = useState(false);
+  const chatFileInputRef = useRef<HTMLInputElement>(null);
   const {
     conversations: vendorConversations,
     activeMessages: localMessages,
@@ -1431,10 +1437,38 @@ const VendorDashboard = () => {
                 loadConvoMessages(convoId);
               }
 
-              const handleSend = () => {
-                if (!chatInput.trim() || !convoId) return;
-                sendConvoMessage(convoId, chatInput.trim());
+              const canSend =
+                (chatInput.trim().length > 0 || chatFiles.length > 0) &&
+                !chatUploading;
+
+              const handleSend = async () => {
+                if (!canSend || !convoId) return;
+                let attachmentUrls: string[] = [];
+                if (chatFiles.length > 0) {
+                  setChatUploading(true);
+                  try {
+                    const results = await Promise.all(
+                      chatFiles.map((f) => messagesService.uploadAttachment(f)),
+                    );
+                    attachmentUrls = results.map((r) => r.url);
+                  } catch {
+                    setChatUploading(false);
+                    return;
+                  }
+                  setChatUploading(false);
+                }
+                sendConvoMessage(convoId, chatInput.trim(), attachmentUrls);
                 setChatInput("");
+                setChatFiles([]);
+              };
+
+              const handleChatFiles = (
+                e: React.ChangeEvent<HTMLInputElement>,
+              ) => {
+                const files = Array.from(e.target.files || []);
+                if (files.length)
+                  setChatFiles((prev) => [...prev, ...files].slice(0, 5));
+                e.target.value = "";
               };
 
               return (
@@ -1570,9 +1604,15 @@ const VendorDashboard = () => {
                                       <div
                                         className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.sender === "you" ? "bg-primary text-white rounded-br-md shadow-sm" : "bg-white/70 backdrop-blur-sm border border-white/40 text-primary-dark rounded-bl-md shadow-sm"}`}
                                       >
-                                        <p className="text-sm leading-relaxed">
-                                          {msg.text}
-                                        </p>
+                                        {msg.text && (
+                                          <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                                            {msg.text}
+                                          </p>
+                                        )}
+                                        <MessageAttachments
+                                          urls={msg.attachmentUrls}
+                                          isYou={msg.sender === "you"}
+                                        />
                                         <p
                                           className={`text-[10px] mt-1 ${msg.sender === "you" ? "text-white/60" : "text-text-subtle"}`}
                                         >
@@ -1585,7 +1625,52 @@ const VendorDashboard = () => {
                               )}
                             </div>
                             <div className="px-4 py-3 border-t border-white/30 bg-white/20 backdrop-blur-sm">
+                              {chatFiles.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                  {chatFiles.map((f, i) => (
+                                    <div
+                                      key={i}
+                                      className="flex items-center gap-1.5 bg-white/60 border border-white/40 rounded-lg px-2.5 py-1.5 text-xs text-primary-dark"
+                                    >
+                                      {f.type.startsWith("image/") ? (
+                                        <ImageIcon className="w-3.5 h-3.5 text-primary shrink-0" />
+                                      ) : (
+                                        <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
+                                      )}
+                                      <span className="max-w-[100px] truncate">
+                                        {f.name}
+                                      </span>
+                                      <button
+                                        onClick={() =>
+                                          setChatFiles((prev) =>
+                                            prev.filter((_, j) => j !== i),
+                                          )
+                                        }
+                                        className="ml-0.5 text-text-subtle hover:text-red-500 transition-colors"
+                                        aria-label="Remove attachment"
+                                      >
+                                        <X className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
                               <div className="flex items-center gap-2">
+                                <input
+                                  ref={chatFileInputRef}
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/*,application/pdf"
+                                  multiple
+                                  onChange={handleChatFiles}
+                                />
+                                <button
+                                  onClick={() => chatFileInputRef.current?.click()}
+                                  className="w-10 h-10 rounded-full bg-white/60 border border-white/40 flex items-center justify-center text-text-secondary hover:text-primary hover:border-primary transition-all shrink-0"
+                                  title="Attach a photo or PDF"
+                                >
+                                  <Paperclip className="w-4 h-4" />
+                                </button>
                                 <input
                                   type="text"
                                   value={chatInput}
@@ -1593,15 +1678,23 @@ const VendorDashboard = () => {
                                   onKeyDown={(e) =>
                                     e.key === "Enter" && handleSend()
                                   }
-                                  placeholder="Type a message..."
+                                  placeholder={
+                                    chatFiles.length > 0
+                                      ? "Add a message (optional)..."
+                                      : "Type a message..."
+                                  }
                                   className="flex-1 h-10 px-4 rounded-full bg-white/60 backdrop-blur-sm border border-white/40 text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                 />
                                 <button
                                   onClick={handleSend}
-                                  disabled={!chatInput.trim()}
+                                  disabled={!canSend}
                                   className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 shadow-sm"
                                 >
-                                  <Send className="w-4 h-4" />
+                                  {chatUploading ? (
+                                    <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                                  ) : (
+                                    <Send className="w-4 h-4" />
+                                  )}
                                 </button>
                               </div>
                             </div>
