@@ -9,9 +9,11 @@ import {
   PrimaryButton,
   GhostButton,
   BouncyLoader,
+  naira,
 } from "../../components/agent/ui";
 import subscriptionsService, {
   type SubscriptionInfo,
+  type SubscriptionPayment,
   type SubTier,
 } from "../../api/services/subscriptions";
 
@@ -94,11 +96,16 @@ function fmtDate(iso: string | null): string {
 export default function AgentSubscription() {
   const { user, refreshUser } = useAuth();
   const [sub, setSub] = useState<SubscriptionInfo | null>(null);
+  const [payments, setPayments] = useState<SubscriptionPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    subscriptionsService
+      .payments()
+      .then(setPayments)
+      .catch(() => setPayments([]));
     try {
       const data = await subscriptionsService.get();
       setSub(data);
@@ -236,11 +243,49 @@ export default function AgentSubscription() {
             <h3 className="m-0 text-base font-extrabold mb-2" style={{ color: C.ink }}>
               Payment history
             </h3>
-            <EmptyState
-              icon={<Receipt className="w-[26px] h-[26px]" />}
-              title="No receipts yet"
-              body="Your subscription charges and receipts will appear here after your first payment."
-            />
+            {payments.length === 0 ? (
+              <EmptyState
+                icon={<Receipt className="w-[26px] h-[26px]" />}
+                title="No receipts yet"
+                body="Your subscription charges and receipts will appear here after your first payment."
+              />
+            ) : (
+              <div className="flex flex-col">
+                {payments.map((pay, i) => (
+                  <div
+                    key={pay.id}
+                    className="flex items-center justify-between py-3"
+                    style={{
+                      borderTop: i === 0 ? "none" : `1px solid ${C.line2}`,
+                    }}
+                  >
+                    <div>
+                      <b className="text-[13.5px] font-bold block" style={{ color: C.ink }}>
+                        {TIER_LABEL[pay.tier] ?? pay.tier}
+                        <span className="font-semibold" style={{ color: C.ink3 }}>
+                          {" · "}
+                          {fmtDate(pay.createdAt)}
+                        </span>
+                      </b>
+                      <span className="text-[11.5px]" style={{ color: C.ink3 }}>
+                        {fmtDate(pay.billingPeriodStart)} – {fmtDate(pay.billingPeriodEnd)}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <b className="font-heading text-[15px] font-bold" style={{ color: C.ink }}>
+                        {naira(pay.amountKobo / 100)}
+                      </b>
+                      <span
+                        className="block text-[11px] font-bold capitalize"
+                        style={{ color: pay.status === "success" ? C.primary : C.danger }}
+                      >
+                        {pay.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
 

@@ -10,6 +10,16 @@ export interface SubscriptionInfo {
   paystackSubscriptionCode: string | null;
 }
 
+export interface SubscriptionPayment {
+  id: string;
+  tier: SubTier;
+  amountKobo: number;
+  status: string; // "success" | "failed" | "pending"
+  billingPeriodStart: string;
+  billingPeriodEnd: string;
+  createdAt: string;
+}
+
 const subscriptionsService = {
   /** Current agent's live subscription state. */
   async get(): Promise<SubscriptionInfo> {
@@ -31,6 +41,14 @@ const subscriptionsService = {
   /** Cancel the active subscription — the agent drops to the Free plan. */
   async cancel(): Promise<{ success: boolean }> {
     const { data } = await api.post("/agents/me/subscription/cancel", {});
+    return data;
+  },
+
+  /** Past subscription charges, newest first. */
+  async payments(): Promise<SubscriptionPayment[]> {
+    const { data } = await api.get<SubscriptionPayment[]>(
+      "/agents/me/subscription/payments",
+    );
     return data;
   },
 };

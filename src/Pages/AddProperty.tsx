@@ -222,6 +222,7 @@ const AddProperty = () => {
   };
 
   const [, setSubmitError] = useState("");
+  const [capError, setCapError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   // Turn an axios/network error into a sentence the user can act on.
@@ -271,8 +272,14 @@ const AddProperty = () => {
     const status = err?.response?.status as number | undefined;
     if (status === 401)
       return `Your session timed out${where}. Please sign in again — your details are saved, so you can pick up right where you left off.`;
-    if (status === 403)
+    if (status === 403) {
+      // Subscription / listing-cap rejections come back as a friendly 403
+      // message from the backend — surface it instead of the file-type hint.
+      const backendMsg = err?.response?.data?.message;
+      if (backendMsg)
+        return Array.isArray(backendMsg) ? backendMsg.join(", ") : backendMsg;
       return `We couldn't accept that${where}. The file type may not be supported — try a JPG, PNG, or MP4.`;
+    }
     if (status === 413)
       return `That file is a little too large${where}. Please use a smaller photo or video and try again.`;
     if (status === 400 || status === 422) {
@@ -375,6 +382,16 @@ const AddProperty = () => {
         setSubmitted(true);
       } catch (err: any) {
         const reason = describeUploadError(err);
+        // A 403 about listings/plan is the subscription cap — surface a
+        // dedicated upgrade banner rather than burying it in a toast.
+        const msg = err?.response?.data?.message;
+        if (
+          err?.response?.status === 403 &&
+          typeof msg === "string" &&
+          /listing|subscription|plan|upgrade|subscribe/i.test(msg)
+        ) {
+          setCapError(msg);
+        }
         setSubmitError(reason);
         toast.error(reason);
       } finally {
@@ -692,6 +709,41 @@ const AddProperty = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
+      {capError && (
+        <div className="max-w-3xl mx-auto px-4 pt-4">
+          <div
+            className="rounded-2xl border p-4 flex items-start gap-3"
+            style={{ background: "#fbeee6", borderColor: "#f0d6c4" }}
+          >
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#b4632a" }} />
+            <div className="flex-1 min-w-0">
+              <b className="block text-[14px] font-bold" style={{ color: "#7a3f1a" }}>
+                Listing limit reached
+              </b>
+              <span className="text-[13px]" style={{ color: "#8a5638" }}>
+                {capError}
+              </span>
+              <div className="mt-2.5">
+                <Link
+                  to="/agent-dashboard/subscription"
+                  className="inline-block px-4 h-9 leading-9 rounded-full text-[13px] font-bold text-white"
+                  style={{ background: "#1f6f43" }}
+                >
+                  View plans
+                </Link>
+              </div>
+            </div>
+            <button
+              onClick={() => setCapError(null)}
+              className="text-[20px] leading-none px-1"
+              style={{ color: "#b4632a" }}
+              aria-label="Dismiss"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
       {submitting && (
         <div className="fixed inset-0 z-100 bg-black/40 backdrop-blur-sm flex items-center justify-center px-6">
           <div className="bg-white rounded-3xl shadow-2xl px-8 sm:px-10 py-8 flex flex-col items-center gap-5 max-w-sm">

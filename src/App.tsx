@@ -34,6 +34,7 @@ import AgentNotifications from "./Pages/agent/Notifications";
 import AgentLogbook from "./Pages/agent/Logbook";
 import AgentSubscription from "./Pages/agent/Subscription";
 import SubscriptionCallback from "./Pages/agent/SubscriptionCallback";
+import Pricing from "./Pages/Pricing";
 import AgentSettings from "./Pages/agent/Settings";
 import ServiceEscrow from "./Pages/ServiceEscrow";
 import ShortletBooking from "./Pages/ShortletBooking";
@@ -163,6 +164,7 @@ function AppContent() {
             }
           />
           <Route path="/about" element={<About />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/services" element={<Services />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
           <Route path="/featured" element={<FeaturedProperties />} />

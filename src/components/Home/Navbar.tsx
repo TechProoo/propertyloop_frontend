@@ -189,6 +189,9 @@ const Navbar = () => {
               <FlipLink label="Sell" href="/sell" isActive={path === "/sell"} />
             </li>
             <li data-nav-link>
+              <FlipLink label="Pricing" href="/pricing" isActive={path === "/pricing"} />
+            </li>
+            <li data-nav-link>
               <FlipLink
                 label="Service Loop"
                 href="/services"
