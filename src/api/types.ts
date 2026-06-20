@@ -131,6 +131,9 @@ export interface AgentProfile {
   listingsCount: number;
   soldRentedCount: number;
   verified: boolean;
+  subscriptionTier?: "FREE" | "FOUNDING" | "STANDARD" | "PRO" | null;
+  subscriptionStatus?: "ACTIVE" | "LAPSED" | "CANCELLED" | null;
+  subscriptionRenewsAt?: string | null;
 }
 
 export interface VendorProfile {

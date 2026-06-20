@@ -89,10 +89,7 @@ export default function AgentLayout() {
       return next;
     });
 
-  const tier = user?.agentProfile
-    ? // @ts-expect-error subscriptionTier may not be typed on AgentProfile yet
-      (user.agentProfile.subscriptionTier as string | undefined)
-    : undefined;
+  const tier = user?.agentProfile?.subscriptionTier ?? undefined;
 
   // `isCollapsed` only applies to the desktop rail; the mobile drawer is
   // always full-width.

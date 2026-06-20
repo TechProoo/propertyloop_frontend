@@ -33,6 +33,7 @@ import AgentMessagesPage from "./Pages/agent/Messages";
 import AgentNotifications from "./Pages/agent/Notifications";
 import AgentLogbook from "./Pages/agent/Logbook";
 import AgentSubscription from "./Pages/agent/Subscription";
+import SubscriptionCallback from "./Pages/agent/SubscriptionCallback";
 import AgentSettings from "./Pages/agent/Settings";
 import ServiceEscrow from "./Pages/ServiceEscrow";
 import ShortletBooking from "./Pages/ShortletBooking";
@@ -150,6 +151,14 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={["AGENT"]}>
                 <AddProperty />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agent/subscription/callback"
+            element={
+              <ProtectedRoute allowedRoles={["AGENT"]}>
+                <SubscriptionCallback />
               </ProtectedRoute>
             }
           />
