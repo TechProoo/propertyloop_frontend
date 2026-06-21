@@ -221,7 +221,7 @@ const AddProperty = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const [, setSubmitError] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const [capError, setCapError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -2038,6 +2038,30 @@ const AddProperty = () => {
                           <p className="text-red-600 text-xs font-medium">
                             {errors.terms}
                           </p>
+                        </div>
+                      )}
+
+                      {/* Publish error — stays on screen so the reason is
+                          readable (the toast is only momentary). */}
+                      {submitError && (
+                        <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl bg-red-50 border border-red-200">
+                          <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                          <div className="flex-1 min-w-0">
+                            <b className="block text-[13px] font-bold text-red-700">
+                              Couldn’t publish your listing
+                            </b>
+                            <span className="text-[12.5px] text-red-600">
+                              {submitError}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSubmitError("")}
+                            className="text-red-400 hover:text-red-600 text-[18px] leading-none px-1"
+                            aria-label="Dismiss"
+                          >
+                            ×
+                          </button>
                         </div>
                       )}
 
