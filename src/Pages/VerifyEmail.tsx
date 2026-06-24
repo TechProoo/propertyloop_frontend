@@ -5,6 +5,7 @@ import { CheckCircle, AlertCircle, Mail, ArrowRight } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import authService from "../api/services/auth";
+import { useAuth } from "../context/AuthContext";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 type VerificationStatus = "verifying" | "success" | "error" | "invalid";
@@ -12,6 +13,7 @@ type VerificationStatus = "verifying" | "success" | "error" | "invalid";
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const [status, setStatus] = useState<VerificationStatus>("verifying");
   const [errorMessage, setErrorMessage] = useState("");
   const token = searchParams.get("token");
@@ -53,6 +55,12 @@ const VerifyEmail = () => {
     const verifyToken = async () => {
       try {
         await authService.verifyEmail(token);
+        // Pull the now-verified user into auth state + cache. The SPA route
+        // guards read emailVerifiedAt from in-memory state, so without this a
+        // still-signed-in user keeps getting bounced back to "verify your
+        // email" even though the server marked them verified. Harmless (no-op
+        // on 401) when the link is opened on a device that isn't signed in.
+        await refreshUser();
         setStatus("success");
         setTimeout(() => { navigate("/login"); }, 3000);
       } catch (error: any) {
@@ -65,7 +73,7 @@ const VerifyEmail = () => {
     };
 
     verifyToken();
-  }, [token, navigate]);
+  }, [token, navigate, refreshUser]);
 
   return (
     <div className="min-h-screen bg-[#f5f0eb] flex flex-col">
