@@ -119,7 +119,7 @@ const formatCurrency = (v: number) => "₦" + v.toLocaleString("en-NG");
 const vendorActivity: { text: string; time: string; type: string }[] = [];
 
 const VendorDashboard = () => {
-  const { user, logoutWithRedirect } = useAuth();
+  const { user, logoutWithRedirect, refreshUser } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeNav, setActiveNav] = useState("overview");
@@ -274,7 +274,7 @@ const VendorDashboard = () => {
     try {
       const { url } = await uploadService.uploadProfilePicture(file);
       await vendorsService.updateMe({ avatarUrl: url });
-      setTimeout(() => window.location.reload(), 800);
+      await refreshUser();
       return url;
     } catch (error) {
       throw new Error(
@@ -290,7 +290,7 @@ const VendorDashboard = () => {
     try {
       const { url } = await uploadService.uploadProfilePicture(file);
       await vendorsService.updateMe({ bannerImage: url });
-      setTimeout(() => window.location.reload(), 800);
+      await refreshUser();
       return url;
     } catch (error) {
       throw new Error(
@@ -338,7 +338,7 @@ const VendorDashboard = () => {
       }
       const next = [...portfolioImages, ...newUrls];
       await vendorsService.updateMe({ portfolioImages: next });
-      setTimeout(() => window.location.reload(), 600);
+      await refreshUser();
     } catch (err: any) {
       setPortfolioError(
         err?.message ?? "Couldn't upload one of those photos. Try again.",
@@ -354,7 +354,7 @@ const VendorDashboard = () => {
     try {
       const next = portfolioImages.filter((u) => u !== url);
       await vendorsService.updateMe({ portfolioImages: next });
-      setTimeout(() => window.location.reload(), 400);
+      await refreshUser();
     } catch (err: any) {
       setPortfolioError(
         err?.message ?? "Couldn't remove that photo. Try again.",
