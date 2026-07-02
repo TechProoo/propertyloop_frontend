@@ -334,7 +334,7 @@ const Partners = () => {
                     href="mailto:support.propertyloop@propertyloop.ng"
                     className="h-11 px-7 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white/20 transition-colors inline-flex items-center gap-2"
                   >
-                    support@propertyloop.ng
+                    support.propertyloop@propertyloop.ng
                   </a>
                 </div>
               </div>

@@ -25,7 +25,7 @@ const WHATSAPP = "2347053053040";
 const PHONE = "2347053053040";
 // Public-facing label uses the friendly address; messages route to the
 // actual mailbox alias behind the scenes.
-const SUPPORT_EMAIL_DISPLAY = "support@propertyloop.ng";
+const SUPPORT_EMAIL_DISPLAY = "support.propertyloop@propertyloop.ng";
 const SUPPORT_EMAIL_TARGET = "support.propertyloop@propertyloop.ng";
 
 export default function FeaturedPropertyDetail() {
@@ -41,7 +41,9 @@ export default function FeaturedPropertyDetail() {
   const openLightbox = (idx: number) => setLightboxIndex(idx);
   const closeLightbox = () => setLightboxIndex(null);
   const prevLightbox = () =>
-    setLightboxIndex((i) => (i === null ? 0 : (i - 1 + allImages.length) % allImages.length));
+    setLightboxIndex((i) =>
+      i === null ? 0 : (i - 1 + allImages.length) % allImages.length,
+    );
   const nextLightbox = () =>
     setLightboxIndex((i) => (i === null ? 0 : (i + 1) % allImages.length));
 
@@ -49,7 +51,9 @@ export default function FeaturedPropertyDetail() {
     ? encodeURIComponent(
         `Hi PropertyLoop! I'm interested in: *${property.title}* — ${property.location} (${property.priceLabel}). Please share more details.`,
       )
-    : encodeURIComponent("Hi PropertyLoop! I'm interested in a property I saw on your site.");
+    : encodeURIComponent(
+        "Hi PropertyLoop! I'm interested in a property I saw on your site.",
+      );
 
   const waListMessage = encodeURIComponent(
     "Hi PropertyLoop! I'd like to feature my property on your platform. Please let me know the details.",
@@ -77,7 +81,10 @@ export default function FeaturedPropertyDetail() {
           onClick={closeLightbox}
         >
           <button
-            onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              closeLightbox();
+            }}
             className="absolute top-4 right-4 text-white/70 hover:text-white p-2"
           >
             <X size={28} />
@@ -85,13 +92,19 @@ export default function FeaturedPropertyDetail() {
           {allImages.length > 1 && (
             <>
               <button
-                onClick={(e) => { e.stopPropagation(); prevLightbox(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  prevLightbox();
+                }}
                 className="absolute left-4 text-white/70 hover:text-white p-2"
               >
                 <ChevronLeft size={36} />
               </button>
               <button
-                onClick={(e) => { e.stopPropagation(); nextLightbox(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextLightbox();
+                }}
                 className="absolute right-14 text-white/70 hover:text-white p-2"
               >
                 <ChevronRight size={36} />
@@ -129,7 +142,10 @@ export default function FeaturedPropertyDetail() {
 
               {/* Back button */}
               <button
-                onClick={(e) => { e.stopPropagation(); navigate(-1); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(-1);
+                }}
                 className="absolute top-4 left-4 flex items-center gap-2 text-white bg-black/30 hover:bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium transition-all"
               >
                 <ArrowLeft size={15} />
@@ -185,7 +201,12 @@ export default function FeaturedPropertyDetail() {
                         : "border-transparent opacity-70 hover:opacity-100"
                     }`}
                   >
-                    <img src={url} alt="" onError={handleBannerError} className="w-full h-full object-cover" />
+                    <img
+                      src={url}
+                      alt=""
+                      onError={handleBannerError}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>
@@ -194,33 +215,49 @@ export default function FeaturedPropertyDetail() {
 
           {/* ── Body ────────────────────────────────────────────────── */}
           <div className="max-w-7xl mx-auto px-4 md:px-10 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-
             {/* Left column — details + video + description */}
             <div className="lg:col-span-2 space-y-6 min-w-0">
-
               {/* Quick stats */}
               <div className="bg-white rounded-2xl border border-border-light p-5 flex flex-wrap gap-x-8 gap-y-3">
                 {property.beds > 0 && (
                   <div className="flex items-center gap-2 text-text-secondary text-sm">
                     <Bed size={16} className="text-primary" />
-                    <span><strong className="text-primary-dark">{property.beds}</strong> Bed{property.beds !== 1 ? "s" : ""}</span>
+                    <span>
+                      <strong className="text-primary-dark">
+                        {property.beds}
+                      </strong>{" "}
+                      Bed{property.beds !== 1 ? "s" : ""}
+                    </span>
                   </div>
                 )}
                 {property.baths > 0 && (
                   <div className="flex items-center gap-2 text-text-secondary text-sm">
                     <Bath size={16} className="text-primary" />
-                    <span><strong className="text-primary-dark">{property.baths}</strong> Bath{property.baths !== 1 ? "s" : ""}</span>
+                    <span>
+                      <strong className="text-primary-dark">
+                        {property.baths}
+                      </strong>{" "}
+                      Bath{property.baths !== 1 ? "s" : ""}
+                    </span>
                   </div>
                 )}
                 {property.sqft && (
                   <div className="flex items-center gap-2 text-text-secondary text-sm">
                     <Maximize size={16} className="text-primary" />
-                    <span><strong className="text-primary-dark">{property.sqft}</strong></span>
+                    <span>
+                      <strong className="text-primary-dark">
+                        {property.sqft}
+                      </strong>
+                    </span>
                   </div>
                 )}
                 <div className="flex items-center gap-2 text-text-secondary text-sm">
                   <Tag size={16} className="text-primary" />
-                  <span><strong className="text-primary-dark">{property.propertyType}</strong></span>
+                  <span>
+                    <strong className="text-primary-dark">
+                      {property.propertyType}
+                    </strong>
+                  </span>
                 </div>
               </div>
 
@@ -242,7 +279,9 @@ export default function FeaturedPropertyDetail() {
                         <div className="flex items-center gap-2 px-5 py-3 border-b border-border-light">
                           <Play size={14} className="text-primary" />
                           <span className="text-sm font-semibold text-primary-dark">
-                            {vids.length > 1 ? `Property Video ${idx + 1}` : "Property Video"}
+                            {vids.length > 1
+                              ? `Property Video ${idx + 1}`
+                              : "Property Video"}
                           </span>
                         </div>
                         <video
@@ -273,7 +312,6 @@ export default function FeaturedPropertyDetail() {
 
             {/* Right column — contact + list CTA */}
             <div className="space-y-5 lg:sticky lg:top-24 self-start">
-
               {/* Contact card */}
               <div className="bg-white rounded-2xl border border-border-light p-5 shadow-sm">
                 <h2 className="font-heading font-bold text-primary-dark text-base mb-1">
@@ -294,10 +332,17 @@ export default function FeaturedPropertyDetail() {
                       <MessageCircle size={18} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-green-700 uppercase tracking-widest">WhatsApp · Fastest</p>
-                      <p className="text-green-900 font-semibold text-sm truncate">+{WHATSAPP}</p>
+                      <p className="text-[10px] font-bold text-green-700 uppercase tracking-widest">
+                        WhatsApp · Fastest
+                      </p>
+                      <p className="text-green-900 font-semibold text-sm truncate">
+                        +{WHATSAPP}
+                      </p>
                     </div>
-                    <ChevronRight size={15} className="text-green-400 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight
+                      size={15}
+                      className="text-green-400 group-hover:translate-x-0.5 transition-transform"
+                    />
                   </a>
 
                   <a
@@ -308,10 +353,17 @@ export default function FeaturedPropertyDetail() {
                       <Phone size={18} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-blue-700 uppercase tracking-widest">Call Us</p>
-                      <p className="text-blue-900 font-semibold text-sm truncate">{formatPhoneDisplay(PHONE)}</p>
+                      <p className="text-[10px] font-bold text-blue-700 uppercase tracking-widest">
+                        Call Us
+                      </p>
+                      <p className="text-blue-900 font-semibold text-sm truncate">
+                        {formatPhoneDisplay(PHONE)}
+                      </p>
                     </div>
-                    <ChevronRight size={15} className="text-blue-400 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight
+                      size={15}
+                      className="text-blue-400 group-hover:translate-x-0.5 transition-transform"
+                    />
                   </a>
 
                   <a
@@ -322,10 +374,17 @@ export default function FeaturedPropertyDetail() {
                       <Mail size={18} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-bold text-purple-700 uppercase tracking-widest">Email</p>
-                      <p className="text-purple-900 font-semibold text-sm truncate">{SUPPORT_EMAIL_DISPLAY}</p>
+                      <p className="text-[10px] font-bold text-purple-700 uppercase tracking-widest">
+                        Email
+                      </p>
+                      <p className="text-purple-900 font-semibold text-sm truncate">
+                        {SUPPORT_EMAIL_DISPLAY}
+                      </p>
                     </div>
-                    <ChevronRight size={15} className="text-purple-400 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight
+                      size={15}
+                      className="text-purple-400 group-hover:translate-x-0.5 transition-transform"
+                    />
                   </a>
                 </div>
               </div>
@@ -338,7 +397,10 @@ export default function FeaturedPropertyDetail() {
 
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-2">
-                    <Star size={15} className="text-yellow-300 fill-yellow-300" />
+                    <Star
+                      size={15}
+                      className="text-yellow-300 fill-yellow-300"
+                    />
                     <p className="text-white/90 text-xs font-bold uppercase tracking-widest">
                       Feature Your Property
                     </p>
@@ -347,7 +409,8 @@ export default function FeaturedPropertyDetail() {
                     Want your property to stand out like this?
                   </h3>
                   <p className="text-white/75 text-xs leading-relaxed mb-4">
-                    Get your listing featured on our homepage and reach thousands of serious buyers and renters every day.
+                    Get your listing featured on our homepage and reach
+                    thousands of serious buyers and renters every day.
                   </p>
                   <a
                     href={`https://wa.me/${WHATSAPP}?text=${waListMessage}`}
@@ -368,7 +431,9 @@ export default function FeaturedPropertyDetail() {
           <div className="w-16 h-16 rounded-2xl bg-white border border-border-light flex items-center justify-center mb-4 shadow-sm">
             <MapPin size={24} className="text-text-subtle" />
           </div>
-          <p className="text-primary-dark font-heading font-bold text-xl mb-2">Property not found</p>
+          <p className="text-primary-dark font-heading font-bold text-xl mb-2">
+            Property not found
+          </p>
           <p className="text-text-secondary text-sm max-w-xs">
             Please go back and select a property from the gallery.
           </p>
