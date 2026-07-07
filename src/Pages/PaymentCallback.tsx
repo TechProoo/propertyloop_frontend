@@ -1,106 +1,120 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ShieldCheck, AlertCircle, Loader2 } from "lucide-react";
 import paymentsService from "../api/services/payments";
-import { CheckCircle, XCircle, Loader } from "lucide-react";
 
-const PaymentCallback: React.FC = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState<"loading" | "success" | "failure">("loading");
-  const [jobId, setJobId] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
+const ease = [0.23, 1, 0.32, 1] as const;
+
+type State = "verifying" | "secured" | "pending";
+
+/**
+ * Paystack redirects the buyer here after a web escrow checkout
+ * (`FRONTEND_URL/payment-callback?jobId=…&reference=…`). We actively verify the
+ * charge with the backend (which locks escrow — idempotent with the webhook) so
+ * the buyer sees "secured" immediately instead of waiting on the webhook.
+ */
+const PaymentCallback = () => {
+  const [params] = useSearchParams();
+  const [state, setState] = useState<State>("verifying");
+  // Paystack appends `reference` (and legacy `trxref`) to the callback URL.
+  const reference = params.get("reference") ?? params.get("trxref") ?? "";
 
   useEffect(() => {
-    const verifyPayment = async () => {
-      const reference = searchParams.get("reference");
-
+    let cancelled = false;
+    const verify = async () => {
       if (!reference) {
-        setStatus("failure");
-        setErrorMessage("No payment reference found");
+        setState("pending");
         return;
       }
-
-      try {
-        const result = await paymentsService.verifyPayment(reference);
-        setJobId(result.jobId);
-
-        if (result.escrowStatus === "LOCKED") {
-          setStatus("success");
-        } else {
-          setStatus("failure");
-          setErrorMessage(`Payment verification failed. Status: ${result.escrowStatus}`);
+      // Retry a few times — the charge can take a beat to settle on Paystack's side.
+      for (let attempt = 0; attempt < 4; attempt++) {
+        try {
+          const res = await paymentsService.verifyPayment(reference);
+          if (cancelled) return;
+          if (res.escrowStatus === "LOCKED" || res.escrowStatus === "RELEASED") {
+            setState("secured");
+            return;
+          }
+        } catch {
+          /* transient — retry */
         }
-      } catch (error) {
-        setStatus("failure");
-        setErrorMessage(
-          error instanceof Error ? error.message : "Payment verification failed"
-        );
+        await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+        if (cancelled) return;
       }
+      if (!cancelled) setState("pending");
     };
-
-    verifyPayment();
-  }, [searchParams]);
+    verify();
+    return () => {
+      cancelled = true;
+    };
+  }, [reference]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-        {status === "loading" && (
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <Loader className="w-12 h-12 text-blue-600 animate-spin" />
-            <h1 className="text-xl font-semibold text-gray-900">Verifying Payment</h1>
-            <p className="text-gray-600 text-center">
-              Please wait while we confirm your payment...
-            </p>
-          </div>
-        )}
-
-        {status === "success" && (
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <CheckCircle className="w-16 h-16 text-green-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Payment Confirmed!</h1>
-            <p className="text-gray-600 text-center">
-              Your payment has been successfully received and is being held in escrow.
-              Your vendor will be in touch shortly to discuss the job details.
-            </p>
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-700 transition"
-            >
-              Go to Dashboard
-            </button>
-          </div>
-        )}
-
-        {status === "failure" && (
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <XCircle className="w-16 h-16 text-red-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Payment Failed</h1>
-            <p className="text-gray-600 text-center">
-              {errorMessage || "Your payment could not be processed. Please try again."}
-            </p>
-            <div className="flex gap-3 w-full">
-              <button
-                onClick={() => navigate("/dashboard")}
-                className="flex-1 bg-gray-300 text-gray-900 py-2 px-4 rounded-lg font-medium hover:bg-gray-400 transition"
-              >
-                Go Back
-              </button>
-              <button
-                onClick={() => {
-                  if (jobId) {
-                    navigate(`/book-service?jobId=${jobId}`);
-                  } else {
-                    navigate("/");
-                  }
-                }}
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition"
-              >
-                Retry
-              </button>
+    <div className="min-h-screen bg-[#f5f0eb] flex items-center justify-center px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 16, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.45, ease }}
+        className="w-full max-w-md bg-white/80 backdrop-blur-md border border-white/50 rounded-[24px] shadow-[0_8px_40px_rgba(0,0,0,0.08)] p-8 sm:p-10 text-center"
+      >
+        {state === "verifying" && (
+          <>
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
-          </div>
+            <h1 className="font-heading font-bold text-primary-dark text-2xl">
+              Confirming your payment…
+            </h1>
+            <p className="text-text-secondary text-sm mt-2 leading-relaxed">
+              Hold on a moment while we confirm the transaction with Paystack.
+            </p>
+          </>
         )}
-      </div>
+
+        {state === "secured" && (
+          <>
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
+              <ShieldCheck className="w-8 h-8 text-primary" />
+            </div>
+            <h1 className="font-heading font-bold text-primary-dark text-2xl">
+              Payment secured
+            </h1>
+            <p className="text-text-secondary text-sm mt-2 leading-relaxed">
+              Your money is held safely in escrow. The vendor can now start the
+              job, and nothing is released until you confirm the work is done.
+            </p>
+            <Link
+              to="/dashboard"
+              className="mt-6 inline-flex items-center justify-center h-11 px-8 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-glow/30"
+            >
+              Back to my bookings
+            </Link>
+          </>
+        )}
+
+        {state === "pending" && (
+          <>
+            <div className="w-16 h-16 rounded-full bg-[#FFF8ED] flex items-center justify-center mx-auto mb-5">
+              <AlertCircle className="w-8 h-8 text-[#F5A623]" />
+            </div>
+            <h1 className="font-heading font-bold text-primary-dark text-2xl">
+              Still confirming
+            </h1>
+            <p className="text-text-secondary text-sm mt-2 leading-relaxed">
+              If you completed the payment, your booking will show as secured in
+              a moment or two — check your dashboard. You haven't been charged
+              twice.
+            </p>
+            <Link
+              to="/dashboard"
+              className="mt-6 inline-flex items-center justify-center h-11 px-8 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-glow/30"
+            >
+              Back to my bookings
+            </Link>
+          </>
+        )}
+      </motion.div>
     </div>
   );
 };

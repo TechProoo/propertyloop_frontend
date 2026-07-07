@@ -32,13 +32,18 @@ import {
   Building2,
   Pencil,
   Trash2,
+  AlertCircle,
+  Loader2,
+  Flag,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import listingsService from "../api/services/listings";
 import vendorsService from "../api/services/vendors";
 import productsService from "../api/services/products";
 import vendorJobsService from "../api/services/vendorJobs";
+import paymentsService from "../api/services/payments";
 import viewingsService from "../api/services/viewings";
+import { toast } from "../lib/toast";
 import type {
   Listing as ApiListing,
   VendorPublic,
@@ -196,6 +201,81 @@ const Dashboard = () => {
 
   const getProductById = (id: string) =>
     products.find((p) => p.id === id) || null;
+
+  // ─── Service booking actions (escrow lifecycle, mirrors the mobile app) ───
+  const [payingJobId, setPayingJobId] = useState<string | null>(null);
+  const [confirmingJobId, setConfirmingJobId] = useState<string | null>(null);
+  const [disputeJobId, setDisputeJobId] = useState<string | null>(null);
+  const [disputeReason, setDisputeReason] = useState("");
+  const [disputeSubmitting, setDisputeSubmitting] = useState(false);
+
+  /** Fund the job's escrow via Paystack — redirects to checkout, returns to /payment-callback. */
+  const handlePayEscrow = async (job: VendorJob) => {
+    if (payingJobId) return;
+    setPayingJobId(job.id);
+    try {
+      const { paymentUrl } = await paymentsService.initializePayment(job.id);
+      window.location.href = paymentUrl;
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message ??
+          "Couldn't start the payment. Please try again.",
+      );
+      setPayingJobId(null);
+    }
+  };
+
+  /** Buyer confirms the work — releases the escrow to the vendor. */
+  const handleConfirmJob = async (job: VendorJob) => {
+    const amount = (job.escrowAmount || job.amount).toLocaleString();
+    if (
+      !window.confirm(
+        `Release ₦${amount} from escrow to ${job.vendor?.name ?? "the vendor"}? Only confirm once you're happy with the work — this can't be undone.`,
+      )
+    )
+      return;
+    setConfirmingJobId(job.id);
+    try {
+      const updated = await vendorJobsService.confirm(job.id);
+      setJobs((prev) =>
+        prev.map((j) => (j.id === job.id ? { ...j, ...updated } : j)),
+      );
+      toast.success("Payment released to the vendor. Thanks for closing the loop!");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Couldn't confirm. Please try again.");
+    } finally {
+      setConfirmingJobId(null);
+    }
+  };
+
+  /** Buyer raises a dispute — pauses the escrow release for admin review. */
+  const handleSubmitDispute = async () => {
+    if (!disputeJobId) return;
+    if (disputeReason.trim().length < 10) {
+      toast.error("Please describe the issue (at least 10 characters).");
+      return;
+    }
+    setDisputeSubmitting(true);
+    try {
+      const updated = await vendorJobsService.dispute(disputeJobId, {
+        disputeReason: disputeReason.trim(),
+      });
+      setJobs((prev) =>
+        prev.map((j) => (j.id === disputeJobId ? { ...j, ...updated } : j)),
+      );
+      setDisputeJobId(null);
+      setDisputeReason("");
+      toast.success(
+        "Dispute raised — the escrow release is paused while our team reviews it.",
+      );
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message ?? "Couldn't raise the dispute. Please try again.",
+      );
+    } finally {
+      setDisputeSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     if (authUser?.role !== "AGENT") return;
@@ -785,7 +865,7 @@ const Dashboard = () => {
                         </div>
                         <div className="p-4 flex flex-col gap-3">
                           {jobs.length > 0 ? (
-                            jobs.slice(0, 5).map((job) => {
+                            jobs.slice(0, 8).map((job) => {
                               const vendorName =
                                 job.vendor?.name || "Unknown Vendor";
                               const vendorAvatar =
@@ -794,67 +874,184 @@ const Dashboard = () => {
                               const scheduledDate = job.scheduledFor
                                 ? new Date(job.scheduledFor)
                                 : null;
+                              // What the buyer pays = the vendor's listed price
+                              // (escrowAmount); `amount` is the vendor's net.
+                              const price = job.escrowAmount || job.amount;
+                              const disputed =
+                                job.status === "DISPUTED" ||
+                                job.escrowStatus === "DISPUTED";
+                              const needsPayment =
+                                !disputed &&
+                                job.escrowStatus === "NONE" &&
+                                ["ACCEPTED", "IN_PROGRESS", "COMPLETED"].includes(
+                                  job.status,
+                                );
+                              const awaitingConfirm =
+                                !disputed &&
+                                job.status === "COMPLETED" &&
+                                job.escrowStatus === "LOCKED";
+                              const released =
+                                job.status === "CONFIRMED" ||
+                                job.status === "PAID" ||
+                                job.escrowStatus === "RELEASED";
+                              const badge = disputed
+                                ? { label: "Disputed · under review", cls: "bg-amber-50 text-amber-700" }
+                                : released
+                                  ? { label: "Released · paid", cls: "bg-primary/10 text-primary" }
+                                  : awaitingConfirm
+                                    ? { label: "Done · confirm to release", cls: "bg-[#FFF8ED] text-[#F5A623]" }
+                                    : needsPayment
+                                      ? { label: "Accepted · pay to start", cls: "bg-[#FFF8ED] text-[#F5A623]" }
+                                      : job.status === "IN_PROGRESS"
+                                        ? { label: "In progress", cls: "bg-blue-50 text-blue-600" }
+                                        : job.status === "ACCEPTED"
+                                          ? { label: "In escrow · starting soon", cls: "bg-blue-50 text-blue-600" }
+                                          : job.status === "COMPLETED"
+                                            ? { label: "Completed", cls: "bg-primary/10 text-primary" }
+                                            : { label: "Awaiting vendor", cls: "bg-[#FFF8ED] text-[#F5A623]" };
 
                               return (
                                 <div
                                   key={job.id}
-                                  className="flex gap-4 bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3"
+                                  className="bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-3"
                                 >
-                                  <img
-                                    src={vendorAvatar}
-                                    alt={vendorName}
-                                    onError={(e) => { e.currentTarget.src = FallbackImg; }}
-                                    className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
-                                  />
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between">
-                                      <p className="font-heading font-bold text-primary-dark text-sm truncate">
-                                        {vendorName}
+                                  <div className="flex gap-4">
+                                    <img
+                                      src={vendorAvatar}
+                                      alt={vendorName}
+                                      onError={(e) => { e.currentTarget.src = FallbackImg; }}
+                                      className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center justify-between">
+                                        <p className="font-heading font-bold text-primary-dark text-sm truncate">
+                                          {vendorName}
+                                        </p>
+                                        <span
+                                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${badge.cls}`}
+                                        >
+                                          {badge.label}
+                                        </span>
+                                      </div>
+                                      <p className="text-text-secondary text-xs mt-0.5">
+                                        {job.category} · ₦{price.toLocaleString()}
                                       </p>
-                                      <span
-                                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
-                                          job.status === "COMPLETED" ||
-                                          job.status === "PAID"
-                                            ? "bg-primary/10 text-primary"
-                                            : job.status === "ACCEPTED" ||
-                                                job.status === "IN_PROGRESS"
-                                              ? "bg-blue-50 text-blue-600"
-                                              : "bg-[#FFF8ED] text-[#F5A623]"
-                                        }`}
-                                      >
-                                        {job.status === "COMPLETED"
-                                          ? "Completed"
-                                          : job.status === "PAID"
-                                            ? "Paid"
-                                            : job.status === "IN_PROGRESS"
-                                              ? "In Progress"
-                                              : job.status === "ACCEPTED"
-                                                ? "Accepted"
-                                                : "Awaiting confirmation"}
-                                      </span>
+                                      {scheduledDate && (
+                                        <p className="text-text-subtle text-[11px] mt-0.5">
+                                          {scheduledDate.toLocaleDateString(
+                                            "en-NG",
+                                            {
+                                              weekday: "short",
+                                              month: "short",
+                                              day: "numeric",
+                                            },
+                                          )}
+                                        </p>
+                                      )}
+                                      {job.description && (
+                                        <p className="text-text-subtle text-[11px] mt-1 line-clamp-1">
+                                          {job.description}
+                                        </p>
+                                      )}
                                     </div>
-                                    <p className="text-text-secondary text-xs mt-0.5">
-                                      {job.category} · ₦
-                                      {job.amount.toLocaleString()}
-                                    </p>
-                                    {scheduledDate && (
-                                      <p className="text-text-subtle text-[11px] mt-0.5">
-                                        {scheduledDate.toLocaleDateString(
-                                          "en-NG",
-                                          {
-                                            weekday: "short",
-                                            month: "short",
-                                            day: "numeric",
-                                          },
-                                        )}
-                                      </p>
-                                    )}
-                                    {job.description && (
-                                      <p className="text-text-subtle text-[11px] mt-1 line-clamp-1">
-                                        {job.description}
-                                      </p>
-                                    )}
                                   </div>
+
+                                  {/* Escrow actions — pay / confirm / dispute */}
+                                  {needsPayment && (
+                                    <div className="mt-3 pt-3 border-t border-white/60">
+                                      <button
+                                        onClick={() => handlePayEscrow(job)}
+                                        disabled={payingJobId === job.id}
+                                        className="w-full h-9 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
+                                      >
+                                        {payingJobId === job.id ? (
+                                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        ) : (
+                                          <ShieldCheck className="w-3.5 h-3.5" />
+                                        )}
+                                        Pay ₦{price.toLocaleString()} into escrow
+                                      </button>
+                                      <p className="text-text-subtle text-[10.5px] text-center mt-1.5">
+                                        Held safely until you confirm the job is
+                                        done · Paystack
+                                      </p>
+                                    </div>
+                                  )}
+
+                                  {awaitingConfirm && (
+                                    <div className="mt-3 pt-3 border-t border-white/60">
+                                      {disputeJobId === job.id ? (
+                                        <div>
+                                          <textarea
+                                            value={disputeReason}
+                                            onChange={(e) =>
+                                              setDisputeReason(e.target.value)
+                                            }
+                                            rows={3}
+                                            placeholder="Describe what went wrong…"
+                                            className="w-full px-3 py-2 rounded-xl bg-white/80 border border-border-light text-xs text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+                                          />
+                                          <div className="flex gap-2 mt-2">
+                                            <button
+                                              onClick={() => {
+                                                setDisputeJobId(null);
+                                                setDisputeReason("");
+                                              }}
+                                              className="flex-1 h-8 rounded-full bg-white border border-border-light text-text-secondary text-xs font-medium hover:bg-gray-50 transition-colors"
+                                            >
+                                              Cancel
+                                            </button>
+                                            <button
+                                              onClick={handleSubmitDispute}
+                                              disabled={disputeSubmitting}
+                                              className="flex-1 h-8 rounded-full bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition-colors disabled:opacity-60"
+                                            >
+                                              {disputeSubmitting
+                                                ? "Submitting…"
+                                                : "Submit dispute"}
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="flex gap-2">
+                                          <button
+                                            onClick={() => handleConfirmJob(job)}
+                                            disabled={confirmingJobId === job.id}
+                                            className="flex-1 h-9 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
+                                          >
+                                            {confirmingJobId === job.id ? (
+                                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                            ) : (
+                                              <CheckCircle className="w-3.5 h-3.5" />
+                                            )}
+                                            Confirm &amp; release ₦
+                                            {price.toLocaleString()}
+                                          </button>
+                                          <button
+                                            onClick={() => {
+                                              setDisputeJobId(job.id);
+                                              setDisputeReason("");
+                                            }}
+                                            className="h-9 px-3.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700 text-xs font-medium hover:bg-amber-100 transition-colors inline-flex items-center gap-1.5"
+                                          >
+                                            <Flag className="w-3.5 h-3.5" />
+                                            Dispute
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {disputed && (
+                                    <div className="mt-3 pt-3 border-t border-white/60 flex items-start gap-2">
+                                      <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                                      <p className="text-amber-700 text-[11px] leading-snug">
+                                        We've paused the escrow release. Our team
+                                        will review evidence from both sides and
+                                        reach out.
+                                      </p>
+                                    </div>
+                                  )}
                                 </div>
                               );
                             })

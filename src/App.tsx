@@ -50,6 +50,7 @@ import Cart from "./Pages/Cart";
 import BookService from "./Pages/BookService";
 import VendorDashboard from "./Pages/VendorDashboard";
 import VendorProfile from "./Pages/VendorProfile";
+import PaymentCallback from "./Pages/PaymentCallback";
 import BlogPost from "./Pages/BlogPost";
 import JobDetail from "./Pages/JobDetail";
 import Settings from "./Pages/Settings";
@@ -212,6 +213,7 @@ function AppContent() {
             }
           />
           <Route path="/escrow" element={<ServiceEscrow />} />
+          <Route path="/payment-callback" element={<PaymentCallback />} />
           <Route path="/shortlet-booking" element={<ShortletBooking />} />
           <Route path="/rental-escrow" element={<RentalEscrow />} />
           <Route path="/contact" element={<Contact />} />

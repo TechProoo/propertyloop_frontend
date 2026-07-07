@@ -84,6 +84,12 @@ const vendorsService = {
     return data;
   },
 
+  /** Vendor posts a public reply to one of their own reviews. */
+  async replyToReview(reviewId: string, reply: string): Promise<VendorReview> {
+    const { data } = await api.post<VendorReview>(`/vendors/me/reviews/${reviewId}/reply`, { reply });
+    return data;
+  },
+
   /**
    * Direct-to-R2 upload for a vendor portfolio image (or banner). Asks the
    * backend for a presigned PUT URL, uploads the bytes straight to R2, and

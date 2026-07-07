@@ -31,6 +31,14 @@ import {
   Trash2,
   Paperclip,
   FileText,
+  Wallet,
+  Landmark,
+  Loader2,
+  Search,
+  ShieldCheck,
+  Play,
+  Lock,
+  MessageSquare,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
@@ -39,10 +47,18 @@ import { formatTel } from "../lib/phone";
 import vendorsService from "../api/services/vendors";
 import vendorJobsService from "../api/services/vendorJobs";
 import vendorEarningsService from "../api/services/vendorEarnings";
+import paymentsService from "../api/services/payments";
 import messagesService from "../api/services/messages";
 import MessageAttachments from "../components/Messages/MessageAttachments";
 import uploadService from "../api/services/upload";
-import type { VendorStats } from "../api/types";
+import { toast } from "../lib/toast";
+import type {
+  Bank,
+  JobDispute,
+  VendorBankAccount,
+  VendorEarningSummary,
+  VendorStats,
+} from "../api/types";
 import { useConversations } from "../api/hooks";
 import { StatSkeleton } from "../components/ui/Skeleton";
 import MessagesSkeleton, {
@@ -61,6 +77,7 @@ const navItems = [
     id: "overview",
   },
   { icon: <Briefcase className="w-5 h-5" />, label: "My Jobs", id: "jobs" },
+  { icon: <Wallet className="w-5 h-5" />, label: "Earnings", id: "earnings" },
   {
     icon: <MessageCircle className="w-5 h-5" />,
     label: "Messages",
@@ -165,6 +182,40 @@ const VendorDashboard = () => {
 
   const [dashLoading, setDashLoading] = useState(true);
 
+  // ─── Earnings / payout state (mirrors the mobile Earnings tab) ───────────
+  const [earningsSummary, setEarningsSummary] =
+    useState<VendorEarningSummary | null>(null);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [bankAccount, setBankAccount] = useState<VendorBankAccount | null>(null);
+  const [showBankForm, setShowBankForm] = useState(false);
+  const [banks, setBanks] = useState<Bank[]>([]);
+  const [bankQuery, setBankQuery] = useState("");
+  const [bankCode, setBankCode] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [acctNumber, setAcctNumber] = useState("");
+  const [resolvedName, setResolvedName] = useState("");
+  const [resolving, setResolving] = useState(false);
+  const [savingBank, setSavingBank] = useState(false);
+
+  // ─── Mark-complete modal (notes + proof photos, like the app) ────────────
+  const [completeTarget, setCompleteTarget] = useState<any | null>(null);
+  const [completeNotes, setCompleteNotes] = useState("");
+  const [completeFiles, setCompleteFiles] = useState<File[]>([]);
+  const [completing, setCompleting] = useState(false);
+
+  // ─── Dispute response modal (thread + evidence, like the app) ────────────
+  const [disputeTarget, setDisputeTarget] = useState<any | null>(null);
+  const [disputeData, setDisputeData] = useState<JobDispute | null>(null);
+  const [disputeLoading, setDisputeLoading] = useState(false);
+  const [disputeReply, setDisputeReply] = useState("");
+  const [disputeFiles, setDisputeFiles] = useState<File[]>([]);
+  const [disputeSending, setDisputeSending] = useState(false);
+
+  // ─── Review reply state ───────────────────────────────────────────────────
+  const [replyingReviewId, setReplyingReviewId] = useState<string | null>(null);
+  const [reviewReplyText, setReviewReplyText] = useState("");
+  const [sendingReviewReply, setSendingReviewReply] = useState(false);
+
   // ─── Profile form state ──────────────────────────────────────────────────
   const [profileName, setProfileName] = useState("");
   const [profilePhone, setProfilePhone] = useState("");
@@ -183,16 +234,21 @@ const VendorDashboard = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const [statsRes, jobsRes, earningsRes, reviewsRes] = await Promise.all([
-          vendorsService.getStats().catch(() => null),
-          vendorJobsService.list({ limit: 50 }).catch(() => ({ items: [] })),
-          vendorEarningsService
-            .list({ limit: 50 })
-            .catch(() => ({ items: [] })),
-          user?.id
-            ? vendorsService.listReviews(user.id).catch(() => [])
-            : Promise.resolve([]),
-        ]);
+        const [statsRes, jobsRes, earningsRes, reviewsRes, summaryRes, bankRes] =
+          await Promise.all([
+            vendorsService.getStats().catch(() => null),
+            vendorJobsService.list({ limit: 50 }).catch(() => ({ items: [] })),
+            vendorEarningsService
+              .list({ limit: 50 })
+              .catch(() => ({ items: [] })),
+            user?.id
+              ? vendorsService.listReviews(user.id).catch(() => [])
+              : Promise.resolve([]),
+            vendorEarningsService.getSummary().catch(() => null),
+            paymentsService.getBankAccount().catch(() => null),
+          ]);
+        setEarningsSummary(summaryRes);
+        setBankAccount(bankRes);
         if (statsRes) {
           setApiStats(statsRes);
           setVendorStats([
@@ -423,8 +479,11 @@ const VendorDashboard = () => {
       setVendorJobs((prev) =>
         prev.map((j) => (j.id === jobId ? { ...j, status: "accepted" } : j)),
       );
-    } catch {
-      /* ignore */
+      toast.success(
+        "Job accepted — the customer has been asked to secure payment in escrow.",
+      );
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Couldn't accept. Please try again.");
     }
   };
 
@@ -432,19 +491,245 @@ const VendorDashboard = () => {
     try {
       await vendorJobsService.decline(jobId);
       setVendorJobs((prev) => prev.filter((j) => j.id !== jobId));
-    } catch {
-      /* ignore */
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Couldn't decline. Please try again.");
     }
   };
 
-  const handleCompleteJob = async (jobId: string) => {
+  /** Start only unlocks once the customer's money is locked in escrow. */
+  const handleStartJob = async (jobId: string) => {
     try {
-      await vendorJobsService.complete(jobId);
+      await vendorJobsService.start(jobId);
       setVendorJobs((prev) =>
-        prev.map((j) => (j.id === jobId ? { ...j, status: "completed" } : j)),
+        prev.map((j) => (j.id === jobId ? { ...j, status: "in-progress" } : j)),
       );
+      toast.success("Job started — good luck!");
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message ?? "Couldn't start the job. Please try again.",
+      );
+    }
+  };
+
+  /** Submit the mark-complete modal: upload proof photos, then complete. */
+  const handleCompleteSubmit = async () => {
+    if (!completeTarget || completing) return;
+    setCompleting(true);
+    try {
+      let proofUrls: string[] = [];
+      if (completeFiles.length > 0) {
+        const uploads = await Promise.all(
+          completeFiles.map((f) =>
+            uploadService.uploadJobAttachment(f).then((r) => r.url),
+          ),
+        );
+        proofUrls = uploads;
+      }
+      await vendorJobsService.complete(completeTarget.id, {
+        completionNotes: completeNotes.trim() || undefined,
+        completionProofImages: proofUrls.length ? proofUrls : undefined,
+      });
+      setVendorJobs((prev) =>
+        prev.map((j) =>
+          j.id === completeTarget.id ? { ...j, status: "completed" } : j,
+        ),
+      );
+      setCompleteTarget(null);
+      setCompleteNotes("");
+      setCompleteFiles([]);
+      toast.success(
+        "Marked complete — the customer will confirm to release your share from escrow.",
+      );
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message ?? "Couldn't mark complete. Please try again.",
+      );
+    } finally {
+      setCompleting(false);
+    }
+  };
+
+  /* ─── Withdraw + payout bank (mirrors the mobile Earnings tab) ─── */
+  const refreshEarnings = async () => {
+    const [summaryRes, listRes] = await Promise.all([
+      vendorEarningsService.getSummary().catch(() => null),
+      vendorEarningsService.list({ limit: 50 }).catch(() => ({ items: [] })),
+    ]);
+    if (summaryRes) setEarningsSummary(summaryRes);
+    setVendorEarnings(
+      (listRes.items as any[]).map((e: any) => ({
+        ...e,
+        client: e.clientName,
+        date: new Date(e.createdAt).toLocaleDateString(),
+        status: e.status.toLowerCase(),
+      })),
+    );
+  };
+
+  const handleWithdraw = async () => {
+    const available = earningsSummary?.available ?? 0;
+    if (available <= 0 || withdrawing) return;
+    if (
+      !window.confirm(
+        `Send your available balance of ₦${available.toLocaleString()} to your payout account?`,
+      )
+    )
+      return;
+    setWithdrawing(true);
+    try {
+      const res = await paymentsService.withdraw();
+      await refreshEarnings();
+      toast.success(
+        `₦${res.amount.toLocaleString()} is on its way to ${res.bankName} ••${res.accountNumber.slice(-4)}. It usually lands within 24 hours.`,
+      );
+    } catch (e: any) {
+      const msg = e?.response?.data?.message ?? "Please try again.";
+      if (typeof msg === "string" && msg.toLowerCase().includes("bank")) {
+        setShowBankForm(true);
+        toast.error(msg);
+      } else {
+        toast.error(Array.isArray(msg) ? msg.join(", ") : msg);
+      }
+    } finally {
+      setWithdrawing(false);
+    }
+  };
+
+  // Load the bank list the first time the setup form opens.
+  useEffect(() => {
+    if (showBankForm && banks.length === 0) {
+      paymentsService
+        .listBanks()
+        .then(setBanks)
+        .catch(() => {});
+    }
+  }, [showBankForm, banks.length]);
+
+  // Auto-verify the account holder whenever a full account number + bank are set.
+  useEffect(() => {
+    if (!/^[0-9]{10}$/.test(acctNumber) || !bankCode) {
+      setResolvedName("");
+      return;
+    }
+    let cancelled = false;
+    setResolving(true);
+    paymentsService
+      .resolveAccount(acctNumber, bankCode)
+      .then((r) => {
+        if (!cancelled) setResolvedName(r.accountName);
+      })
+      .catch(() => {
+        if (!cancelled) setResolvedName("");
+      })
+      .finally(() => {
+        if (!cancelled) setResolving(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [acctNumber, bankCode]);
+
+  const handleSaveBank = async () => {
+    if (!bankCode || !/^[0-9]{10}$/.test(acctNumber) || !resolvedName || savingBank)
+      return;
+    setSavingBank(true);
+    try {
+      const saved = await paymentsService.saveBankAccount({
+        accountName: resolvedName,
+        accountNumber: acctNumber,
+        bankCode,
+        bankName,
+      });
+      setBankAccount(saved);
+      setShowBankForm(false);
+      setAcctNumber("");
+      setBankCode("");
+      setBankName("");
+      setResolvedName("");
+      toast.success(
+        `Payout account saved — ${saved.accountName} · ${saved.bankName}.`,
+      );
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message ?? "Couldn't save the account. Check the details.",
+      );
+    } finally {
+      setSavingBank(false);
+    }
+  };
+
+  /* ─── Dispute response (thread + evidence) ─── */
+  const openDispute = async (job: any) => {
+    setDisputeTarget(job);
+    setDisputeData(null);
+    setDisputeReply("");
+    setDisputeFiles([]);
+    setDisputeLoading(true);
+    try {
+      setDisputeData(await vendorJobsService.getDispute(job.id));
     } catch {
-      /* ignore */
+      toast.error("Couldn't load the dispute. Please try again.");
+      setDisputeTarget(null);
+    } finally {
+      setDisputeLoading(false);
+    }
+  };
+
+  const handleDisputeSend = async () => {
+    if (!disputeTarget || disputeSending) return;
+    if (!disputeReply.trim() && disputeFiles.length === 0) {
+      toast.error("Write a message or attach evidence first.");
+      return;
+    }
+    setDisputeSending(true);
+    try {
+      let urls: string[] = [];
+      if (disputeFiles.length > 0) {
+        urls = await Promise.all(
+          disputeFiles.map((f) =>
+            uploadService.uploadJobAttachment(f).then((r) => r.url),
+          ),
+        );
+      }
+      const updated = await vendorJobsService.addDisputeMessage(
+        disputeTarget.id,
+        disputeReply.trim() || "Evidence attached.",
+        urls.length ? urls : undefined,
+      );
+      setDisputeData(updated);
+      setDisputeReply("");
+      setDisputeFiles([]);
+      toast.success("Response sent — our team and the customer can see it.");
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message ?? "Couldn't send the response. Please try again.",
+      );
+    } finally {
+      setDisputeSending(false);
+    }
+  };
+
+  /* ─── Review reply ─── */
+  const handleReviewReply = async (reviewId: string) => {
+    if (reviewReplyText.trim().length < 2 || sendingReviewReply) return;
+    setSendingReviewReply(true);
+    try {
+      const updated = await vendorsService.replyToReview(
+        reviewId,
+        reviewReplyText.trim(),
+      );
+      setVendorReviews((prev) =>
+        prev.map((r) => (r.id === reviewId ? { ...r, reply: updated.reply } : r)),
+      );
+      setReplyingReviewId(null);
+      setReviewReplyText("");
+      toast.success("Reply posted publicly.");
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message ?? "Couldn't post the reply. Please try again.",
+      );
+    } finally {
+      setSendingReviewReply(false);
     }
   };
 
@@ -470,7 +755,11 @@ const VendorDashboard = () => {
     (j: any) => j.status === "accepted" || j.status === "in-progress",
   );
   const completedJobs = vendorJobs.filter(
-    (j: any) => j.status === "completed" || j.status === "paid",
+    (j: any) =>
+      j.status === "completed" ||
+      j.status === "confirmed" ||
+      j.status === "paid" ||
+      j.status === "disputed",
   );
 
   const filteredJobs =
@@ -485,11 +774,6 @@ const VendorDashboard = () => {
     (sum, c) => sum + (c.unread || 0),
     0,
   );
-
-  /* Earnings summary */
-  const totalEarnings = apiStats?.earnings.total ?? 0;
-  const paidEarnings = apiStats?.earnings.paid ?? 0;
-  const pendingEarnings = apiStats?.earnings.pending ?? 0;
 
   /* Review summary */
   const avgRating = apiStats?.reviews.averageRating?.toFixed(1) || "0";
@@ -1185,8 +1469,18 @@ const VendorDashboard = () => {
                             )}
                           <div className="flex items-center gap-4 mt-2">
                             <span className="font-heading font-bold text-primary text-sm">
-                              {formatCurrency(job.amount)}
+                              You earn {formatCurrency(job.vendorFee ?? job.amount)}
                             </span>
+                            {!!job.platformFee && (
+                              <span className="text-text-subtle text-[11px]">
+                                after 10% fee · customer pays{" "}
+                                {formatCurrency(
+                                  job.escrowAmount ??
+                                    (job.vendorFee ?? job.amount) +
+                                      job.platformFee,
+                                )}
+                              </span>
+                            )}
                             <span className="text-text-subtle text-[11px] flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               {job.date}
@@ -1198,9 +1492,16 @@ const VendorDashboard = () => {
                       {/* Action Buttons */}
                       <div className="flex sm:flex-col items-center sm:items-end gap-2 shrink-0 sm:pt-1">
                         {job.escrowStatus === "DISPUTED" && (
-                          <span className="flex items-center gap-1 text-amber-600 text-xs font-medium bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
-                            <AlertCircle className="w-3.5 h-3.5" /> Disputed
-                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openDispute(job);
+                            }}
+                            className="h-8 px-4 rounded-full bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition-colors shadow-sm flex items-center gap-1.5"
+                          >
+                            <AlertCircle className="w-3.5 h-3.5" /> Respond to
+                            dispute
+                          </button>
                         )}
                         {job.escrowStatus !== "DISPUTED" &&
                           job.status === "pending" && (
@@ -1225,13 +1526,33 @@ const VendorDashboard = () => {
                               </button>
                             </>
                           )}
+                        {/* Start only unlocks once the customer's money is in escrow */}
                         {job.escrowStatus !== "DISPUTED" &&
-                          (job.status === "accepted" ||
-                            job.status === "in-progress") && (
+                          job.status === "accepted" &&
+                          (job.escrowStatus === "LOCKED" ? (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleCompleteJob(job.id);
+                                handleStartJob(job.id);
+                              }}
+                              className="h-8 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-1.5"
+                            >
+                              <Play className="w-3.5 h-3.5" /> Start job
+                            </button>
+                          ) : (
+                            <span className="flex items-center gap-1 text-text-secondary text-xs font-medium bg-gray-100 px-3 py-1 rounded-full">
+                              <Lock className="w-3 h-3" /> Waiting for escrow
+                              payment
+                            </span>
+                          ))}
+                        {job.escrowStatus !== "DISPUTED" &&
+                          job.status === "in-progress" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setCompleteTarget(job);
+                                setCompleteNotes("");
+                                setCompleteFiles([]);
                               }}
                               className="h-8 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-1.5"
                             >
@@ -1243,14 +1564,16 @@ const VendorDashboard = () => {
                           job.status === "completed" && (
                             <span className="flex items-center gap-1 text-purple-600 text-xs font-medium">
                               <AlertCircle className="w-3.5 h-3.5" /> Awaiting
-                              payment
+                              customer confirmation
                             </span>
                           )}
                         {job.escrowStatus !== "DISPUTED" &&
-                          job.status === "paid" && (
+                          (job.status === "confirmed" ||
+                            job.status === "paid") && (
                             <span className="flex items-center gap-1 text-green-600 text-xs font-medium">
-                              <CheckCircle className="w-3.5 h-3.5" /> Payment
-                              received
+                              <CheckCircle className="w-3.5 h-3.5" />{" "}
+                              {formatCurrency(job.vendorFee ?? job.amount)}{" "}
+                              released to your balance
                             </span>
                           )}
                         <button
@@ -1341,45 +1664,180 @@ const VendorDashboard = () => {
               transition={{ duration: 0.4, ease }}
               className="flex flex-col gap-6"
             >
-              {/* Summary Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[
-                  {
-                    label: "Total Earnings",
-                    value: formatCurrency(totalEarnings),
-                    color: "text-primary",
-                    bg: "bg-primary/10",
-                  },
-                  {
-                    label: "Paid Out",
-                    value: formatCurrency(paidEarnings),
-                    color: "text-green-600",
-                    bg: "bg-green-50",
-                  },
-                  {
-                    label: "Pending / Processing",
-                    value: formatCurrency(pendingEarnings),
-                    color: "text-[#F5A623]",
-                    bg: "bg-[#FFF8ED]",
-                  },
-                ].map((card, i) => (
-                  <div
-                    key={i}
-                    className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6"
-                  >
-                    <div
-                      className={`w-10 h-10 rounded-2xl ${card.bg} flex items-center justify-center ${card.color} mb-3`}
-                    >
-                      <DollarSign className="w-5 h-5" />
+              {/* Balance hero — available to withdraw (matches the app) */}
+              <div
+                className="rounded-[20px] p-6 sm:p-8 text-white"
+                style={{ background: "hsl(160, 30%, 12%)" }}
+              >
+                <p className="text-white/60 text-[11px] font-bold tracking-widest uppercase">
+                  Available to withdraw
+                </p>
+                <p className="font-heading font-bold text-[2.4rem] leading-tight mt-1">
+                  {formatCurrency(earningsSummary?.available ?? 0)}
+                </p>
+                <button
+                  onClick={handleWithdraw}
+                  disabled={(earningsSummary?.available ?? 0) <= 0 || withdrawing}
+                  className="mt-4 h-11 px-8 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {withdrawing ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Wallet className="w-4 h-4" />
+                  )}
+                  Withdraw {formatCurrency(earningsSummary?.available ?? 0)}
+                </button>
+                <div className="grid grid-cols-3 gap-4 mt-6 pt-5 border-t border-white/15">
+                  {[
+                    {
+                      label: "In escrow",
+                      value: formatCurrency(
+                        (earningsSummary?.pending ?? 0) +
+                          (earningsSummary?.processing ?? 0),
+                      ),
+                    },
+                    {
+                      label: "This month",
+                      value: formatCurrency(earningsSummary?.thisMonth ?? 0),
+                    },
+                    {
+                      label: "Total",
+                      value: formatCurrency(earningsSummary?.total ?? 0),
+                    },
+                  ].map((s) => (
+                    <div key={s.label}>
+                      <p className="text-white/50 text-[10px] font-bold tracking-widest uppercase">
+                        {s.label}
+                      </p>
+                      <p className="font-heading font-bold text-base mt-0.5">
+                        {s.value}
+                      </p>
                     </div>
-                    <p className="font-heading font-bold text-primary-dark text-xl">
-                      {card.value}
-                    </p>
-                    <p className="text-text-secondary text-xs mt-0.5">
-                      {card.label}
-                    </p>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payout account */}
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                      <Landmark className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-heading font-bold text-primary-dark text-sm">
+                        Payout account
+                      </h3>
+                      {bankAccount ? (
+                        <p className="text-text-secondary text-xs mt-0.5">
+                          {bankAccount.accountName} · {bankAccount.bankName} ··
+                          {bankAccount.accountNumber.slice(-4)}
+                        </p>
+                      ) : (
+                        <p className="text-text-secondary text-xs mt-0.5">
+                          Add a bank account to receive withdrawals.
+                        </p>
+                      )}
+                    </div>
                   </div>
-                ))}
+                  <button
+                    onClick={() => setShowBankForm((v) => !v)}
+                    className="h-9 px-4 rounded-full border border-border-light bg-white text-primary-dark text-xs font-bold hover:border-primary hover:text-primary transition-colors shrink-0"
+                  >
+                    {showBankForm ? "Close" : bankAccount ? "Change" : "Add bank"}
+                  </button>
+                </div>
+
+                {showBankForm && (
+                  <div className="mt-5 pt-5 border-t border-border-light">
+                    <label className="block text-xs font-bold text-primary-dark mb-1.5">
+                      Bank
+                    </label>
+                    <div className="relative">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-subtle" />
+                      <input
+                        type="text"
+                        value={bankQuery}
+                        onChange={(e) => setBankQuery(e.target.value)}
+                        placeholder="Search banks"
+                        className="w-full h-10 pl-10 pr-4 rounded-xl bg-white/80 border border-border-light text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2.5 max-h-28 overflow-y-auto">
+                      {banks
+                        .filter((b) =>
+                          b.name
+                            .toLowerCase()
+                            .includes(bankQuery.trim().toLowerCase()),
+                        )
+                        .slice(0, 40)
+                        .map((b) => {
+                          const on = bankCode === b.code;
+                          return (
+                            <button
+                              key={b.code}
+                              onClick={() => {
+                                setBankCode(b.code);
+                                setBankName(b.name);
+                              }}
+                              className={`h-8 px-3.5 rounded-full text-xs font-bold transition-colors ${
+                                on
+                                  ? "bg-primary-dark text-white"
+                                  : "bg-white border border-border-light text-text-secondary hover:border-primary"
+                              }`}
+                            >
+                              {b.name}
+                            </button>
+                          );
+                        })}
+                      {banks.length === 0 && (
+                        <p className="text-text-subtle text-xs py-2">
+                          Loading banks…
+                        </p>
+                      )}
+                    </div>
+
+                    <label className="block text-xs font-bold text-primary-dark mt-4 mb-1.5">
+                      Account number
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={acctNumber}
+                      onChange={(e) =>
+                        setAcctNumber(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))
+                      }
+                      placeholder="10-digit account number"
+                      className="w-full h-10 px-4 rounded-xl bg-white/80 border border-border-light text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                    />
+
+                    <div className="mt-2.5 min-h-6">
+                      {resolving ? (
+                        <p className="text-text-subtle text-xs flex items-center gap-1.5">
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" /> Verifying
+                          account…
+                        </p>
+                      ) : resolvedName ? (
+                        <p className="text-primary text-xs font-bold flex items-center gap-1.5">
+                          <ShieldCheck className="w-3.5 h-3.5" /> {resolvedName}
+                        </p>
+                      ) : acctNumber.length === 10 && bankCode ? (
+                        <p className="text-red-500 text-xs">
+                          Couldn't verify this account. Check the number and bank.
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <button
+                      onClick={handleSaveBank}
+                      disabled={!resolvedName || savingBank}
+                      className="mt-3 h-10 px-6 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                    >
+                      {savingBank && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      Save payout account
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* History Table */}
@@ -1812,6 +2270,56 @@ const VendorDashboard = () => {
                           <p className="text-text-secondary text-sm mt-1.5 leading-relaxed">
                             {review.comment}
                           </p>
+
+                          {/* Public reply — vendors get a single, visible response */}
+                          {review.reply ? (
+                            <div className="mt-3 pl-3 border-l-2 border-primary/30">
+                              <p className="text-[11px] font-bold text-primary">
+                                Your public reply
+                              </p>
+                              <p className="text-text-secondary text-xs mt-0.5 leading-relaxed">
+                                {review.reply}
+                              </p>
+                            </div>
+                          ) : replyingReviewId === review.id ? (
+                            <div className="mt-3">
+                              <textarea
+                                value={reviewReplyText}
+                                onChange={(e) => setReviewReplyText(e.target.value)}
+                                rows={2}
+                                placeholder="Thank them, or add helpful context — this reply is public."
+                                className="w-full px-3 py-2 rounded-xl bg-white/80 border border-border-light text-xs text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+                              />
+                              <div className="flex gap-2 mt-2">
+                                <button
+                                  onClick={() => {
+                                    setReplyingReviewId(null);
+                                    setReviewReplyText("");
+                                  }}
+                                  className="h-8 px-4 rounded-full bg-white border border-border-light text-text-secondary text-xs font-medium hover:bg-gray-50 transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => handleReviewReply(review.id)}
+                                  disabled={sendingReviewReply}
+                                  className="h-8 px-4 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors disabled:opacity-60"
+                                >
+                                  {sendingReviewReply ? "Posting…" : "Post reply"}
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setReplyingReviewId(review.id);
+                                setReviewReplyText("");
+                              }}
+                              className="mt-2.5 text-primary text-xs font-bold hover:underline inline-flex items-center gap-1"
+                            >
+                              <MessageSquare className="w-3 h-3" /> Reply publicly
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -2095,6 +2603,291 @@ const VendorDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* ─── Mark-complete modal — notes + proof photos (matches the app) ─── */}
+      <AnimatePresence>
+        {completeTarget && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => !completing && setCompleteTarget(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.97 }}
+              transition={{ duration: 0.25, ease }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-white rounded-[20px] shadow-2xl p-6"
+            >
+              <h3 className="font-heading font-bold text-primary-dark text-lg">
+                Mark "{completeTarget.title}" complete?
+              </h3>
+              <p className="text-text-secondary text-xs mt-1">
+                The customer will be asked to confirm. Once they do, your{" "}
+                {formatCurrency(completeTarget.vendorFee ?? completeTarget.amount)}{" "}
+                is released from escrow.
+              </p>
+
+              <label className="block text-xs font-bold text-primary-dark mt-4 mb-1.5">
+                Note for the customer (optional)
+              </label>
+              <textarea
+                value={completeNotes}
+                onChange={(e) => setCompleteNotes(e.target.value)}
+                rows={3}
+                placeholder="What was done, anything they should know…"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-border-light text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+              />
+
+              <label className="block text-xs font-bold text-primary-dark mt-3 mb-1.5">
+                Proof photos (optional)
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {completeFiles.map((f, i) => (
+                  <div
+                    key={`${f.name}-${i}`}
+                    className="relative w-16 h-16 rounded-xl overflow-hidden border border-border-light"
+                  >
+                    <img
+                      src={URL.createObjectURL(f)}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() =>
+                        setCompleteFiles((prev) => prev.filter((_, x) => x !== i))
+                      }
+                      className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                {completeFiles.length < 5 && (
+                  <label className="w-16 h-16 rounded-xl border-2 border-dashed border-border-light hover:border-primary flex items-center justify-center cursor-pointer transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (files.length)
+                          setCompleteFiles((prev) =>
+                            [...prev, ...files].slice(0, 5),
+                          );
+                        e.currentTarget.value = "";
+                      }}
+                    />
+                    <Plus className="w-4 h-4 text-primary" />
+                  </label>
+                )}
+              </div>
+
+              <div className="flex gap-2.5 mt-5">
+                <button
+                  onClick={() => setCompleteTarget(null)}
+                  disabled={completing}
+                  className="flex-1 h-10 rounded-full bg-white border border-border-light text-text-secondary text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCompleteSubmit}
+                  disabled={completing}
+                  className="flex-1 h-10 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {completing && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Mark complete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── Dispute response modal — reason, thread, reply + evidence ─── */}
+      <AnimatePresence>
+        {disputeTarget && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => !disputeSending && setDisputeTarget(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.97 }}
+              transition={{ duration: 0.25, ease }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg bg-white rounded-[20px] shadow-2xl p-6 max-h-[85vh] flex flex-col"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="font-heading font-bold text-primary-dark text-lg">
+                    Dispute · {disputeTarget.title}
+                  </h3>
+                  {disputeData && (
+                    <p className="text-amber-700 text-xs font-medium mt-0.5">
+                      {formatCurrency(disputeData.amountHeldNaira)} on hold ·{" "}
+                      {disputeData.jobRef}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setDisputeTarget(null)}
+                  className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors shrink-0"
+                >
+                  <X className="w-4 h-4 text-text-secondary" />
+                </button>
+              </div>
+
+              {disputeLoading ? (
+                <div className="py-12 flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                </div>
+              ) : disputeData ? (
+                <>
+                  {!!disputeData.reason && (
+                    <div className="mt-4 p-3.5 rounded-xl bg-amber-50 border border-amber-100">
+                      <p className="text-[11px] font-bold text-amber-700 uppercase tracking-wide">
+                        Customer's complaint
+                      </p>
+                      <p className="text-amber-800 text-sm mt-1 leading-relaxed">
+                        "{disputeData.reason}"
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Thread */}
+                  <div className="mt-4 flex-1 overflow-y-auto flex flex-col gap-3 min-h-24">
+                    {disputeData.thread.map((m) => {
+                      const mine = m.role === "VENDOR";
+                      return (
+                        <div
+                          key={m.id}
+                          className={`max-w-[85%] ${mine ? "self-end" : "self-start"}`}
+                        >
+                          <p
+                            className={`text-[10px] font-bold mb-0.5 ${mine ? "text-right text-primary" : "text-text-subtle"}`}
+                          >
+                            {mine ? "You" : m.author}
+                          </p>
+                          <div
+                            className={`rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                              mine
+                                ? "bg-primary text-white"
+                                : "bg-gray-100 text-primary-dark"
+                            }`}
+                          >
+                            {m.body}
+                            {m.attachments.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {m.attachments.map((url) => (
+                                  <a
+                                    key={url}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block w-14 h-14 rounded-lg overflow-hidden border border-white/30"
+                                  >
+                                    <img
+                                      src={url}
+                                      alt="evidence"
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {disputeData.thread.length === 0 && (
+                      <p className="text-text-subtle text-xs text-center py-4">
+                        No messages yet — respond with your side and any evidence.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Evidence previews */}
+                  {disputeFiles.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {disputeFiles.map((f, i) => (
+                        <div
+                          key={`${f.name}-${i}`}
+                          className="relative w-12 h-12 rounded-lg overflow-hidden border border-border-light"
+                        >
+                          <img
+                            src={URL.createObjectURL(f)}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            onClick={() =>
+                              setDisputeFiles((prev) =>
+                                prev.filter((_, x) => x !== i),
+                              )
+                            }
+                            className="absolute top-0 right-0 w-4 h-4 rounded-full bg-black/60 text-white flex items-center justify-center"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Reply row */}
+                  <div className="flex items-end gap-2 mt-3 pt-3 border-t border-border-light">
+                    <label className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center cursor-pointer transition-colors shrink-0">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          if (files.length)
+                            setDisputeFiles((prev) =>
+                              [...prev, ...files].slice(0, 5),
+                            );
+                          e.currentTarget.value = "";
+                        }}
+                      />
+                      <Paperclip className="w-4 h-4 text-text-secondary" />
+                    </label>
+                    <textarea
+                      value={disputeReply}
+                      onChange={(e) => setDisputeReply(e.target.value)}
+                      rows={2}
+                      placeholder="Explain your side of the story…"
+                      className="flex-1 px-3.5 py-2.5 rounded-2xl bg-white border border-border-light text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+                    />
+                    <button
+                      onClick={handleDisputeSend}
+                      disabled={disputeSending}
+                      className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-60 shrink-0"
+                    >
+                      {disputeSending ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </>
+              ) : null}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

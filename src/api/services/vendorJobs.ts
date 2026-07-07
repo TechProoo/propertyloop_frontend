@@ -1,5 +1,5 @@
 import api from "../client";
-import type { JobStatus, Paginated, SuccessResponse, VendorJob } from "../types";
+import type { JobDispute, JobStatus, Paginated, SuccessResponse, VendorJob } from "../types";
 
 export interface CreateBookingPayload {
   vendorId: string;
@@ -80,6 +80,25 @@ const vendorJobsService = {
 
   async dispute(id: string, payload: DisputeJobPayload): Promise<VendorJob> {
     const { data } = await api.post<VendorJob>(`/vendor-jobs/${id}/dispute`, payload);
+    return data;
+  },
+
+  // ─── Dispute thread (both parties) ─────────────────────────────────────
+
+  async getDispute(id: string): Promise<JobDispute> {
+    const { data } = await api.get<JobDispute>(`/vendor-jobs/${id}/dispute`);
+    return data;
+  },
+
+  async addDisputeMessage(
+    id: string,
+    body: string,
+    attachments?: string[],
+  ): Promise<JobDispute> {
+    const { data } = await api.post<JobDispute>(`/vendor-jobs/${id}/dispute/messages`, {
+      body,
+      attachments,
+    });
     return data;
   },
 };

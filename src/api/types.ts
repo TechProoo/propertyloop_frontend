@@ -35,12 +35,16 @@ export type DocumentType =
 
 export type BookmarkType = "PROPERTY" | "SERVICE" | "PRODUCT";
 
+// The API projects two extra client-facing states on top of the DB enum:
+// PAID serializes as CONFIRMED, and escrowStatus DISPUTED overrides to DISPUTED.
 export type JobStatus =
   | "PENDING"
   | "ACCEPTED"
   | "IN_PROGRESS"
   | "COMPLETED"
-  | "PAID";
+  | "CONFIRMED"
+  | "PAID"
+  | "DISPUTED";
 
 export type EscrowStatus =
   | "NONE"
@@ -432,9 +436,51 @@ export interface VendorEarningSummary {
   paid: number;
   pending: number;
   processing: number;
+  /** Released from escrow, sitting in the vendor's wallet, withdrawable. */
+  available: number;
   thisMonth: number;
   thisYear: number;
   count: number;
+}
+
+export interface WithdrawResult {
+  success: boolean;
+  amount: number;
+  count: number;
+  bankName: string;
+  accountNumber: string;
+}
+
+// ─── Job Disputes ───────────────────────────────────────────────────────────
+
+export type DisputeAuthorRole = "CUSTOMER" | "VENDOR" | "SYSTEM" | "ADMIN";
+
+export interface DisputeMessage {
+  id: string;
+  role: DisputeAuthorRole;
+  author: string;
+  body: string;
+  attachments: string[];
+  createdAt: string;
+}
+
+export interface JobDispute {
+  jobId: string;
+  jobRef: string;
+  status: string;
+  reason?: string | null;
+  disputedAt?: string | null;
+  responseDeadline?: string | null;
+  amountHeldNaira: number;
+  amountTotalNaira: number;
+  service?: string | null;
+  title?: string | null;
+  address?: string | null;
+  scheduledFor?: string | null;
+  completedAt?: string | null;
+  customer: { name?: string | null; avatar?: string | null };
+  vendor?: { id: string; name: string; avatar?: string | null } | null;
+  thread: DisputeMessage[];
 }
 
 // ─── Vendor / Agent Reviews ─────────────────────────────────────────────────
@@ -458,6 +504,8 @@ export interface VendorReview {
   rating: number;
   comment: string;
   jobTitle: string;
+  /** Vendor's public reply, if they've responded. */
+  reply?: string | null;
   createdAt: string;
 }
 
