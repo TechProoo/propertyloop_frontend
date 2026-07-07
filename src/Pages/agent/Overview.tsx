@@ -10,11 +10,14 @@ import {
   UserCircle2,
   X,
   Check,
+  FileSignature,
+  ArrowRight,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import agentsService from "../../api/services/agents";
 import listingsService from "../../api/services/listings";
 import leadsService from "../../api/services/leads";
+import offersService from "../../api/services/offers";
 import type { AgentStats, Lead, Listing } from "../../api/types";
 import {
   C,
@@ -39,6 +42,7 @@ export default function AgentOverview() {
   const [stats, setStats] = useState<AgentStats | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [offersToReview, setOffersToReview] = useState(0);
   const [loading, setLoading] = useState(true);
   const [nudgeOpen, setNudgeOpen] = useState(!user?.avatarUrl);
 
@@ -55,17 +59,41 @@ export default function AgentOverview() {
       agentsService.getStats(),
       listingsService.listMine({ limit: 6 }),
       leadsService.list({ limit: 3 }),
-    ]).then(([s, l, ld]) => {
+      offersService.listReceived(),
+    ]).then(([s, l, ld, of]) => {
       if (!active) return;
       if (s.status === "fulfilled") setStats(s.value);
       if (l.status === "fulfilled") setListings(l.value.items);
       if (ld.status === "fulfilled") setLeads(ld.value.items);
+      if (of.status === "fulfilled") {
+        // Offers waiting on the agent = the buyer made the last move.
+        setOffersToReview(
+          of.value.items.filter(
+            (o) =>
+              (o.status === "PENDING" || o.status === "COUNTERED") &&
+              o.lastActor === "BUYER",
+          ).length,
+        );
+      }
       setLoading(false);
     });
     return () => {
       active = false;
     };
   }, []);
+
+  const [busyLeadId, setBusyLeadId] = useState<string | null>(null);
+  const markContacted = async (lead: Lead) => {
+    setBusyLeadId(lead.id);
+    try {
+      const updated = await leadsService.update(lead.id, { status: "CONTACTED" });
+      setLeads((prev) => prev.map((l) => (l.id === lead.id ? updated : l)));
+    } catch {
+      /* ignore — non-critical */
+    } finally {
+      setBusyLeadId(null);
+    }
+  };
 
   const checklist = [
     { label: "Verify your identity (KYC)", done: !!user?.agentProfile?.verified },
@@ -216,6 +244,34 @@ export default function AgentOverview() {
           </>
         }
       />
+
+      {/* Offers-to-review nudge — highest-priority action, mirrors the app */}
+      {offersToReview > 0 && (
+        <button
+          onClick={() => navigate("/agent-dashboard/offers")}
+          className="mt-[22px] w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl text-left transition-transform hover:-translate-y-px"
+          style={{
+            background: "linear-gradient(100deg, #f5ead4, #fbf3e2)",
+            border: "1px solid #e7d4a8",
+          }}
+        >
+          <div
+            className="w-11 h-11 rounded-full grid place-items-center flex-shrink-0"
+            style={{ background: "#eccf91", color: "#6b4a16" }}
+          >
+            <FileSignature className="w-[21px] h-[21px]" />
+          </div>
+          <div className="flex-1">
+            <b className="text-sm font-bold" style={{ color: "#6b4a16" }}>
+              {offersToReview} offer{offersToReview === 1 ? "" : "s"} to review
+            </b>
+            <span className="block text-[12.5px] mt-px" style={{ color: "#7a5a25" }}>
+              A buyer is waiting on your response — accept, counter or decline.
+            </span>
+          </div>
+          <ArrowRight className="w-5 h-5 flex-shrink-0" style={{ color: "#6b4a16" }} />
+        </button>
+      )}
 
       {/* Profile nudge */}
       {nudgeOpen && (
@@ -390,7 +446,7 @@ export default function AgentOverview() {
               </p>
             ) : (
               leads.map((ld) => (
-                <div key={ld.id} className="flex items-center gap-3 py-3 border-t first:border-t-0" style={{ borderColor: C.line2 }}>
+                <div key={ld.id} className="flex items-center gap-3 py-3 border-t first:border-t-0" style={{ borderColor: C.line2, opacity: busyLeadId === ld.id ? 0.5 : 1 }}>
                   <div className="w-10 h-10 rounded-full grid place-items-center font-bold text-[13px] flex-shrink-0" style={{ background: C.primarySoft, color: C.primaryInk }}>
                     {initials(ld.name)}
                   </div>
@@ -401,9 +457,18 @@ export default function AgentOverview() {
                       {ld.message ? ` · "${ld.message}"` : ""}
                     </span>
                   </div>
-                  {ld.status === "NEW" && (
-                    <span className="text-[10px] font-extrabold px-2 py-1 rounded-full uppercase tracking-wide flex-shrink-0" style={{ background: C.primarySoft, color: C.primaryInk }}>
-                      New
+                  {ld.status === "NEW" ? (
+                    <button
+                      onClick={() => markContacted(ld)}
+                      disabled={busyLeadId === ld.id}
+                      className="text-[11px] font-bold px-2.5 h-7 rounded-full flex-shrink-0"
+                      style={{ background: C.primary, color: "#fff" }}
+                    >
+                      Mark contacted
+                    </button>
+                  ) : (
+                    <span className="text-[10px] font-extrabold px-2 py-1 rounded-full uppercase tracking-wide flex-shrink-0" style={{ background: C.surface2, color: C.ink2 }}>
+                      {ld.status.replace(/_/g, " ").toLowerCase()}
                     </span>
                   )}
                 </div>

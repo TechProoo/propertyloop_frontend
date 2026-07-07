@@ -25,10 +25,20 @@ function timeLabel(iso: string): string {
   return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
 }
 
+function toLocalInput(iso: string): string {
+  // Format an ISO date for a <input type="datetime-local"> (local time, no TZ).
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export default function AgentViewings() {
   const [items, setItems] = useState<Viewing[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [rescheduleFor, setRescheduleFor] = useState<Viewing | null>(null);
+  const [rescheduleWhen, setRescheduleWhen] = useState("");
+  const [rescheduling, setRescheduling] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -94,6 +104,31 @@ export default function AgentViewings() {
     }
   };
 
+  const openReschedule = (v: Viewing) => {
+    setRescheduleFor(v);
+    setRescheduleWhen(toLocalInput(v.scheduledFor));
+  };
+
+  const submitReschedule = async () => {
+    if (!rescheduleFor || !rescheduleWhen) return;
+    setRescheduling(true);
+    try {
+      // Rescheduling re-opens the slot for the buyer to reconfirm (status PENDING).
+      patch(
+        await viewingsService.update(rescheduleFor.id, {
+          scheduledFor: new Date(rescheduleWhen).toISOString(),
+          status: "PENDING",
+        }),
+      );
+      setRescheduleFor(null);
+      toast.success("Viewing rescheduled — the buyer has been notified.");
+    } catch {
+      toast.error("Couldn't reschedule");
+    } finally {
+      setRescheduling(false);
+    }
+  };
+
   return (
     <div>
       <PageHeader
@@ -137,6 +172,14 @@ export default function AgentViewings() {
                       <div className="flex items-center gap-2">
                         <StatusPill status={v.status} />
                         <button
+                          onClick={() => openReschedule(v)}
+                          disabled={busyId === v.id}
+                          className="px-3.5 h-9 rounded-full text-[12.5px] font-bold"
+                          style={{ background: C.card, border: `1px solid ${C.line}`, color: C.ink }}
+                        >
+                          Reschedule
+                        </button>
+                        <button
                           onClick={() => cancel(v)}
                           disabled={busyId === v.id}
                           className="px-3.5 h-9 rounded-full text-[12.5px] font-bold"
@@ -154,6 +197,14 @@ export default function AgentViewings() {
                           style={{ background: C.primary }}
                         >
                           Confirm
+                        </button>
+                        <button
+                          onClick={() => openReschedule(v)}
+                          disabled={busyId === v.id}
+                          className="px-3.5 h-9 rounded-full text-[12.5px] font-bold"
+                          style={{ background: C.card, border: `1px solid ${C.line}`, color: C.ink }}
+                        >
+                          Reschedule
                         </button>
                         <button
                           onClick={() => cancel(v)}
@@ -200,6 +251,58 @@ export default function AgentViewings() {
           </div>
         </Card>
       </div>
+
+      {/* Reschedule modal */}
+      {rescheduleFor && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          style={{ background: "rgba(15,20,17,0.55)" }}
+          onClick={() => !rescheduling && setRescheduleFor(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm rounded-[20px] p-6"
+            style={{ background: C.card }}
+          >
+            <h3 className="font-heading font-bold" style={{ color: C.ink, fontSize: 18 }}>
+              Reschedule viewing
+            </h3>
+            <p className="text-xs mt-1" style={{ color: C.ink2 }}>
+              {rescheduleFor.clientName} · {rescheduleFor.listing?.title ?? "Listing"}
+            </p>
+
+            <label className="block text-xs font-bold mt-4 mb-1.5" style={{ color: C.ink }}>
+              New date &amp; time
+            </label>
+            <input
+              type="datetime-local"
+              value={rescheduleWhen}
+              onChange={(e) => setRescheduleWhen(e.target.value)}
+              className="w-full h-11 px-4 rounded-xl text-sm outline-none"
+              style={{ background: C.surface, border: `1px solid ${C.line}`, color: C.ink }}
+            />
+
+            <div className="flex gap-2.5 mt-5">
+              <button
+                onClick={() => setRescheduleFor(null)}
+                disabled={rescheduling}
+                className="flex-1 h-10 rounded-full text-sm font-medium"
+                style={{ background: C.surface2, color: C.ink }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitReschedule}
+                disabled={rescheduling || !rescheduleWhen}
+                className="flex-1 h-10 rounded-full text-sm font-bold text-white disabled:opacity-60"
+                style={{ background: C.primary }}
+              >
+                {rescheduling ? "Saving…" : "Reschedule"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
