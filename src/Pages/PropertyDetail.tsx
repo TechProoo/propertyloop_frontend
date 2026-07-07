@@ -34,6 +34,7 @@ import listingsService from "../api/services/listings";
 import api from "../api/client";
 import messagesService from "../api/services/messages";
 import viewingsService from "../api/services/viewings";
+import offersService from "../api/services/offers";
 import type { Listing as ApiListing } from "../api/types";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import { DetailSkeleton } from "../components/ui/Skeleton";
@@ -232,23 +233,40 @@ const PropertyDetail = () => {
       setOfferError("Agent details unavailable for this listing.");
       return;
     }
-    if (!offerAmount.replace(/[^\d]/g, "")) {
+    const cleanAmount = offerAmount.replace(/[^\d]/g, "");
+    if (!cleanAmount || Number(cleanAmount) <= 0) {
       setOfferError("Please enter your offer amount.");
       return;
     }
     setOfferError("");
     setOfferStatus("sending");
+
+    // Shortlets negotiate a nightly rate over chat (they book via the shortlet
+    // flow, not the sale offers pipeline). Everything else files a real,
+    // trackable offer the agent can accept, counter or decline.
+    const isShortlet = listing.type === "SHORTLET";
     try {
-      const text = buildOfferMessage();
-      const { conversationId } = await messagesService.createOrFind({
-        recipientId: agent.id,
-        recipientRole: "AGENT",
-        senderRole: (user.role as "BUYER" | "AGENT" | "VENDOR") || "BUYER",
+      if (isShortlet) {
+        const text = buildOfferMessage();
+        const { conversationId } = await messagesService.createOrFind({
+          recipientId: agent.id,
+          recipientRole: "AGENT",
+          senderRole: (user.role as "BUYER" | "AGENT" | "VENDOR") || "BUYER",
+          listingId: listing.id,
+        });
+        await messagesService.sendMessage(conversationId, text);
+        setOfferStatus("sent");
+        setTimeout(() => navigate(`/messages?with=${conversationId}`), 1800);
+        return;
+      }
+
+      await offersService.create({
         listingId: listing.id,
+        amountNaira: Number(cleanAmount),
+        note: offerNote.trim() || undefined,
       });
-      await messagesService.sendMessage(conversationId, text);
       setOfferStatus("sent");
-      setTimeout(() => navigate(`/messages?with=${conversationId}`), 1800);
+      setTimeout(() => navigate("/dashboard?tab=offers"), 1800);
     } catch (err: any) {
       setOfferError(
         err?.response?.data?.message ||

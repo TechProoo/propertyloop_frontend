@@ -35,6 +35,8 @@ import {
   AlertCircle,
   Loader2,
   Flag,
+  FileSignature,
+  TrendingDown,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import listingsService from "../api/services/listings";
@@ -43,6 +45,7 @@ import productsService from "../api/services/products";
 import vendorJobsService from "../api/services/vendorJobs";
 import paymentsService from "../api/services/payments";
 import viewingsService from "../api/services/viewings";
+import offersService from "../api/services/offers";
 import { toast } from "../lib/toast";
 import type {
   Listing as ApiListing,
@@ -50,6 +53,8 @@ import type {
   Product as ApiProduct,
   VendorJob,
   Viewing,
+  Offer,
+  PropertyPurchase,
 } from "../api/types";
 import { useAuth } from "../context/AuthContext";
 import { useFirstLoginTour } from "../lib/tour/useFirstLoginTour";
@@ -87,6 +92,11 @@ const navItems = [
     id: "messages",
   },
   {
+    icon: <FileSignature className="w-5 h-5" />,
+    label: "Offers",
+    id: "offers",
+  },
+  {
     icon: <CalendarDays className="w-5 h-5" />,
     label: "Viewings",
     id: "viewings",
@@ -112,7 +122,70 @@ const Dashboard = () => {
   const { user: authUser, logoutWithRedirect } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeNav, setActiveNav] = useState("overview");
+  const [activeNav, setActiveNav] = useState(() => {
+    // Deep-link to a section, e.g. after filing an offer (?tab=offers).
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    return tab || "overview";
+  });
+
+  // ─── Offers + purchases (buyer's negotiations and tracked purchases) ──────
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [purchases, setPurchases] = useState<PropertyPurchase[]>([]);
+  const [offersLoading, setOffersLoading] = useState(false);
+  const [withdrawingOfferId, setWithdrawingOfferId] = useState<string | null>(null);
+
+  const loadOffers = async () => {
+    setOffersLoading(true);
+    try {
+      const [offersRes, purchasesRes] = await Promise.all([
+        offersService.listMine().catch(() => ({ items: [] as Offer[] })),
+        offersService.listPurchases().catch(() => [] as PropertyPurchase[]),
+      ]);
+      setOffers(offersRes.items);
+      setPurchases(purchasesRes);
+    } finally {
+      setOffersLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeNav === "offers" && offers.length === 0 && purchases.length === 0) {
+      loadOffers();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeNav]);
+
+  const handleWithdrawOffer = async (offer: Offer) => {
+    if (!window.confirm("Withdraw this offer? The agent will be notified.")) return;
+    setWithdrawingOfferId(offer.id);
+    try {
+      const updated = await offersService.withdraw(offer.id);
+      setOffers((prev) => prev.map((o) => (o.id === offer.id ? updated : o)));
+      toast.success("Offer withdrawn.");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Couldn't withdraw. Please try again.");
+    } finally {
+      setWithdrawingOfferId(null);
+    }
+  };
+
+  const handleAcceptCounter = async (offer: Offer) => {
+    // Buyer accepts the agent's counter — same accept endpoint, seals the deal.
+    if (
+      !window.confirm(
+        `Accept the agent's counter of ${offer.currentAmountLabel}? This creates a purchase you can both track.`,
+      )
+    )
+      return;
+    try {
+      const updated = await offersService.accept(offer.id);
+      setOffers((prev) => prev.map((o) => (o.id === offer.id ? updated : o)));
+      await loadOffers();
+      toast.success("Deal agreed! Track the purchase steps below.");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Couldn't accept. Please try again.");
+    }
+  };
 
   // First-login walkthrough for buyers
   useFirstLoginTour({
@@ -1999,6 +2072,250 @@ const Dashboard = () => {
                     </div>
                   </motion.div>
                 )}
+
+              {/* ─── Offers Panel ─── */}
+              {activeNav === "offers" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease }}
+                  className="flex flex-col gap-6"
+                >
+                  {offersLoading ? (
+                    <div className="py-16 flex justify-center">
+                      <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                    </div>
+                  ) : (
+                    <>
+                      {/* Active purchases with step tracker */}
+                      {purchases.filter((p) => p.status === "IN_PROGRESS").length >
+                        0 && (
+                        <div>
+                          <h2 className="font-heading font-bold text-primary-dark text-lg mb-3">
+                            Purchases in progress
+                          </h2>
+                          <div className="flex flex-col gap-4">
+                            {purchases
+                              .filter((p) => p.status === "IN_PROGRESS")
+                              .map((p) => (
+                                <div
+                                  key={p.id}
+                                  className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6"
+                                >
+                                  <div className="flex items-center gap-4">
+                                    <img
+                                      src={p.listing?.coverImage || FallbackImg}
+                                      alt={p.listing?.title}
+                                      onError={(e) => {
+                                        e.currentTarget.src = FallbackImg;
+                                      }}
+                                      className="w-16 h-16 rounded-xl object-cover border border-white shrink-0"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-heading font-bold text-primary-dark text-sm truncate">
+                                        {p.listing?.title}
+                                      </p>
+                                      <p className="text-text-secondary text-xs mt-0.5">
+                                        {p.listing?.location}
+                                      </p>
+                                      <p className="text-primary font-heading font-bold text-sm mt-1">
+                                        Agreed: {p.agreedAmountLabel}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {/* Step tracker */}
+                                  <div className="mt-5 flex flex-col gap-3">
+                                    {(p.steps || []).map((step) => (
+                                      <div
+                                        key={step.id}
+                                        className="flex items-start gap-3"
+                                      >
+                                        <div
+                                          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                                            step.state === "DONE"
+                                              ? "bg-primary text-white"
+                                              : step.state === "ACTIVE"
+                                                ? "bg-primary/15 text-primary border-2 border-primary"
+                                                : "bg-gray-100 text-text-subtle"
+                                          }`}
+                                        >
+                                          {step.state === "DONE" ? (
+                                            <CheckCircle className="w-3.5 h-3.5" />
+                                          ) : (
+                                            <span className="text-[10px] font-bold">
+                                              {step.order}
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <p
+                                            className={`text-sm font-bold ${
+                                              step.state === "TODO"
+                                                ? "text-text-subtle"
+                                                : "text-primary-dark"
+                                            }`}
+                                          >
+                                            {step.title}
+                                          </p>
+                                          <p className="text-text-secondary text-xs mt-0.5">
+                                            {step.detail}
+                                          </p>
+                                          {step.eta && step.state !== "DONE" && (
+                                            <p className="text-text-subtle text-[11px] mt-0.5">
+                                              ETA: {step.eta}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Offers list */}
+                      <div>
+                        <h2 className="font-heading font-bold text-primary-dark text-lg mb-3">
+                          My offers
+                        </h2>
+                        {offers.length === 0 ? (
+                          <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] py-14 text-center">
+                            <FileSignature className="w-10 h-10 text-text-subtle mx-auto mb-3" />
+                            <h3 className="font-heading font-bold text-primary-dark text-lg">
+                              No offers yet
+                            </h3>
+                            <p className="text-text-secondary text-sm mt-1">
+                              Find a home you love and make an offer — you'll
+                              track it here.
+                            </p>
+                            <Link
+                              to="/buy"
+                              className="mt-4 inline-flex h-9 px-5 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors items-center gap-1.5"
+                            >
+                              Browse homes <ArrowRight className="w-3.5 h-3.5" />
+                            </Link>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col gap-3">
+                            {offers.map((offer) => {
+                              const STATUS: Record<
+                                string,
+                                { label: string; cls: string }
+                              > = {
+                                PENDING: {
+                                  label: "Awaiting agent",
+                                  cls: "bg-[#FFF8ED] text-[#F5A623]",
+                                },
+                                COUNTERED: {
+                                  label:
+                                    offer.lastActor === "AGENT"
+                                      ? "Agent countered"
+                                      : "Countered",
+                                  cls: "bg-blue-50 text-blue-600",
+                                },
+                                ACCEPTED: {
+                                  label: "Accepted",
+                                  cls: "bg-primary/10 text-primary",
+                                },
+                                DECLINED: {
+                                  label: "Declined",
+                                  cls: "bg-red-50 text-red-500",
+                                },
+                                WITHDRAWN: {
+                                  label: "Withdrawn",
+                                  cls: "bg-gray-100 text-gray-500",
+                                },
+                                EXPIRED: {
+                                  label: "Expired",
+                                  cls: "bg-gray-100 text-gray-500",
+                                },
+                              };
+                              const s = STATUS[offer.status] ?? STATUS.PENDING;
+                              const agentCountered =
+                                offer.status === "COUNTERED" &&
+                                offer.lastActor === "AGENT";
+                              return (
+                                <div
+                                  key={offer.id}
+                                  className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-4"
+                                >
+                                  <div className="flex gap-4">
+                                    <img
+                                      src={offer.listing?.coverImage || FallbackImg}
+                                      alt={offer.listing?.title}
+                                      onError={(e) => {
+                                        e.currentTarget.src = FallbackImg;
+                                      }}
+                                      className="w-14 h-14 rounded-xl object-cover border border-white shrink-0"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <p className="font-heading font-bold text-primary-dark text-sm truncate">
+                                          {offer.listing?.title}
+                                        </p>
+                                        <span
+                                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${s.cls}`}
+                                        >
+                                          {s.label}
+                                        </span>
+                                      </div>
+                                      <p className="text-text-secondary text-xs mt-0.5">
+                                        {offer.listing?.location}
+                                      </p>
+                                      <div className="flex items-center gap-3 mt-1.5 text-xs">
+                                        <span className="text-text-subtle">
+                                          Asking{" "}
+                                          {offer.listing?.priceLabel ??
+                                            `₦${offer.listing?.priceNaira?.toLocaleString()}`}
+                                        </span>
+                                        <span className="font-heading font-bold text-primary">
+                                          {agentCountered
+                                            ? `Counter: ${offer.currentAmountLabel}`
+                                            : `Your offer: ${offer.currentAmountLabel}`}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {(agentCountered ||
+                                    offer.status === "PENDING") && (
+                                    <div className="flex gap-2 mt-3 pt-3 border-t border-white/60">
+                                      {agentCountered && (
+                                        <button
+                                          onClick={() => handleAcceptCounter(offer)}
+                                          className="flex-1 h-9 rounded-full bg-primary text-white text-xs font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-1.5"
+                                        >
+                                          <CheckCircle className="w-3.5 h-3.5" />
+                                          Accept {offer.currentAmountLabel}
+                                        </button>
+                                      )}
+                                      <button
+                                        onClick={() => handleWithdrawOffer(offer)}
+                                        disabled={withdrawingOfferId === offer.id}
+                                        className="h-9 px-4 rounded-full border border-border-light bg-white text-text-secondary text-xs font-medium hover:bg-gray-50 transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
+                                      >
+                                        {withdrawingOfferId === offer.id ? (
+                                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        ) : (
+                                          <TrendingDown className="w-3.5 h-3.5" />
+                                        )}
+                                        Withdraw
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </motion.div>
+              )}
 
               {/* ─── Viewings Panel ─── */}
               {activeNav === "viewings" && (

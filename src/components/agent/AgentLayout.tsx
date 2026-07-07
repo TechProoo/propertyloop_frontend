@@ -17,6 +17,7 @@ import {
   X,
   ChevronLeft,
   Newspaper,
+  FileSignature,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { C, initials } from "./ui";
@@ -25,6 +26,7 @@ import Logo from "../../assets/logo.png";
 const NAV = [
   { to: "overview", label: "Overview", icon: LayoutGrid },
   { to: "listings", label: "My Listings", icon: Home },
+  { to: "offers", label: "Offers", icon: FileSignature },
   { to: "analytics", label: "Analytics", icon: BarChart3 },
   { to: "viewings", label: "Viewings", icon: CalendarDays },
   { to: "logbook", label: "Logbook", icon: ClipboardList },
