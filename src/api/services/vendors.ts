@@ -1,7 +1,11 @@
 import axios from "axios";
 import api from "../client";
 import type {
+  AvailabilityDay,
   Paginated,
+  SuccessResponse,
+  VendorAvailability,
+  VendorBlackout,
   VendorPublic,
   VendorReview,
   VendorStats,
@@ -87,6 +91,41 @@ const vendorsService = {
   /** Vendor posts a public reply to one of their own reviews. */
   async replyToReview(reviewId: string, reply: string): Promise<VendorReview> {
     const { data } = await api.post<VendorReview>(`/vendors/me/reviews/${reviewId}/reply`, { reply });
+    return data;
+  },
+
+  // ─── Availability + blackouts (owner) ─────────────────────────────────────
+
+  async getAvailability(): Promise<VendorAvailability> {
+    const { data } = await api.get<VendorAvailability>("/vendors/me/availability");
+    return data;
+  },
+
+  async updateAvailability(payload: {
+    acceptingBookings?: boolean;
+    maxJobsPerDay?: number;
+    responseCommitment?: string;
+    schedule?: AvailabilityDay[];
+  }): Promise<VendorAvailability> {
+    const { data } = await api.patch<VendorAvailability>(
+      "/vendors/me/availability",
+      payload,
+    );
+    return data;
+  },
+
+  async addBlackouts(dates: string[], reason?: string): Promise<VendorBlackout[]> {
+    const { data } = await api.post<VendorBlackout[]>("/vendors/me/blackouts", {
+      dates,
+      reason,
+    });
+    return data;
+  },
+
+  async removeBlackout(date: string): Promise<SuccessResponse> {
+    const { data } = await api.delete<SuccessResponse>(
+      `/vendors/me/blackouts/${date}`,
+    );
     return data;
   },
 

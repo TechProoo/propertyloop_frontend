@@ -39,6 +39,12 @@ import {
   Play,
   Lock,
   MessageSquare,
+  ClipboardList,
+  CalendarDays,
+  Pencil,
+  Archive,
+  RotateCcw,
+  Power,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
@@ -47,16 +53,21 @@ import { formatTel } from "../lib/phone";
 import vendorsService from "../api/services/vendors";
 import vendorJobsService from "../api/services/vendorJobs";
 import vendorEarningsService from "../api/services/vendorEarnings";
+import vendorServicesService from "../api/services/vendorServices";
 import paymentsService from "../api/services/payments";
 import messagesService from "../api/services/messages";
 import MessageAttachments from "../components/Messages/MessageAttachments";
 import uploadService from "../api/services/upload";
 import { toast } from "../lib/toast";
 import type {
+  AvailabilityDay,
   Bank,
   JobDispute,
+  VendorAvailability,
   VendorBankAccount,
+  VendorBlackout,
   VendorEarningSummary,
+  VendorService,
   VendorStats,
 } from "../api/types";
 import { useConversations } from "../api/hooks";
@@ -77,6 +88,16 @@ const navItems = [
     id: "overview",
   },
   { icon: <Briefcase className="w-5 h-5" />, label: "My Jobs", id: "jobs" },
+  {
+    icon: <ClipboardList className="w-5 h-5" />,
+    label: "Services",
+    id: "services",
+  },
+  {
+    icon: <CalendarDays className="w-5 h-5" />,
+    label: "Availability",
+    id: "availability",
+  },
   { icon: <Wallet className="w-5 h-5" />, label: "Earnings", id: "earnings" },
   {
     icon: <MessageCircle className="w-5 h-5" />,
@@ -215,6 +236,27 @@ const VendorDashboard = () => {
   const [replyingReviewId, setReplyingReviewId] = useState<string | null>(null);
   const [reviewReplyText, setReviewReplyText] = useState("");
   const [sendingReviewReply, setSendingReviewReply] = useState(false);
+
+  // ─── Service menu (bookable services CRUD) ────────────────────────────────
+  const [services, setServices] = useState<VendorService[]>([]);
+  const [servicesLoading, setServicesLoading] = useState(false);
+  const [serviceModal, setServiceModal] = useState<null | { mode: "add" | "edit"; service?: VendorService }>(null);
+  const [svcName, setSvcName] = useState("");
+  const [svcDesc, setSvcDesc] = useState("");
+  const [svcPrice, setSvcPrice] = useState("");
+  const [svcMode, setSvcMode] = useState<"FIXED" | "FROM">("FIXED");
+  const [svcDuration, setSvcDuration] = useState("");
+  const [savingService, setSavingService] = useState(false);
+
+  // ─── Availability (hours / limits / blackouts) ────────────────────────────
+  const [availability, setAvailability] = useState<VendorAvailability | null>(null);
+  const [avSchedule, setAvSchedule] = useState<AvailabilityDay[]>([]);
+  const [avAccepting, setAvAccepting] = useState(true);
+  const [avMaxJobs, setAvMaxJobs] = useState(3);
+  const [avBlackouts, setAvBlackouts] = useState<VendorBlackout[]>([]);
+  const [avLoading, setAvLoading] = useState(false);
+  const [avSaving, setAvSaving] = useState(false);
+  const [blackoutDate, setBlackoutDate] = useState("");
 
   // ─── Profile form state ──────────────────────────────────────────────────
   const [profileName, setProfileName] = useState("");
@@ -730,6 +772,148 @@ const VendorDashboard = () => {
       );
     } finally {
       setSendingReviewReply(false);
+    }
+  };
+
+  /* ─── Service menu (bookable services CRUD) ─── */
+  const loadServices = async () => {
+    setServicesLoading(true);
+    try {
+      setServices(await vendorServicesService.list());
+    } catch {
+      /* ignore */
+    } finally {
+      setServicesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeNav === "services" && services.length === 0 && !servicesLoading) {
+      loadServices();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeNav]);
+
+  const openServiceModal = (mode: "add" | "edit", service?: VendorService) => {
+    setServiceModal({ mode, service });
+    setSvcName(service?.name ?? "");
+    setSvcDesc(service?.description ?? "");
+    setSvcPrice(service ? String(service.priceNaira) : "");
+    setSvcMode((service?.priceMode as "FIXED" | "FROM") === "FROM" ? "FROM" : "FIXED");
+    setSvcDuration(service?.duration ?? "");
+  };
+
+  const handleSaveService = async () => {
+    const priceNum = Number(svcPrice) || 0;
+    if (svcName.trim().length < 2 || svcDesc.trim().length < 5 || priceNum <= 0) {
+      toast.error("Add a name, a short description, and a price above zero.");
+      return;
+    }
+    setSavingService(true);
+    try {
+      const payload = {
+        name: svcName.trim(),
+        description: svcDesc.trim(),
+        priceNaira: priceNum,
+        priceMode: svcMode,
+        duration: svcDuration.trim() || undefined,
+      };
+      if (serviceModal?.mode === "edit" && serviceModal.service) {
+        await vendorServicesService.update(serviceModal.service.id, payload);
+        toast.success("Service updated.");
+      } else {
+        await vendorServicesService.create(payload);
+        toast.success("Service added — customers can book it now.");
+      }
+      setServiceModal(null);
+      await loadServices();
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message ?? "Couldn't save the service. Please try again.",
+      );
+    } finally {
+      setSavingService(false);
+    }
+  };
+
+  const handleToggleServiceActive = async (service: VendorService) => {
+    try {
+      await vendorServicesService.update(service.id, { active: !service.active });
+      await loadServices();
+      toast.success(service.active ? "Service archived." : "Service restored.");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Couldn't update. Please try again.");
+    }
+  };
+
+  /* ─── Availability ─── */
+  const loadAvailability = async () => {
+    setAvLoading(true);
+    try {
+      const a = await vendorsService.getAvailability();
+      setAvailability(a);
+      setAvSchedule(Array.isArray(a.schedule) ? a.schedule : []);
+      setAvAccepting(a.acceptingBookings);
+      setAvMaxJobs(a.maxJobsPerDay ?? 3);
+      setAvBlackouts(a.blackouts ?? []);
+    } catch {
+      /* ignore */
+    } finally {
+      setAvLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeNav === "availability" && !availability && !avLoading) {
+      loadAvailability();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeNav]);
+
+  const toggleAvDay = (day: string) =>
+    setAvSchedule((arr) =>
+      arr.map((r) =>
+        r.day === day
+          ? { ...r, on: !r.on, hours: !r.on ? "8:00 AM – 6:00 PM" : "Off" }
+          : r,
+      ),
+    );
+
+  const handleSaveAvailability = async () => {
+    setAvSaving(true);
+    try {
+      const a = await vendorsService.updateAvailability({
+        acceptingBookings: avAccepting,
+        maxJobsPerDay: avMaxJobs,
+        schedule: avSchedule,
+      });
+      setAvailability(a);
+      toast.success("Availability saved — customers see the new hours immediately.");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Couldn't save. Please try again.");
+    } finally {
+      setAvSaving(false);
+    }
+  };
+
+  const handleAddBlackout = async () => {
+    if (!blackoutDate) return;
+    try {
+      const updated = await vendorsService.addBlackouts([blackoutDate]);
+      setAvBlackouts(updated);
+      setBlackoutDate("");
+      toast.success("Date blocked — you won't get bookings then.");
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Couldn't block the date.");
+    }
+  };
+
+  const handleRemoveBlackout = async (date: string) => {
+    try {
+      await vendorsService.removeBlackout(date);
+      setAvBlackouts((prev) => prev.filter((b) => b.date !== date));
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message ?? "Couldn't unblock the date.");
     }
   };
 
@@ -1653,6 +1837,306 @@ const VendorDashboard = () => {
                   )}
                 </div>
               </div>
+            </motion.div>
+          )}
+
+          {/* ─── Services Panel (bookable menu CRUD) ─── */}
+          {activeNav === "services" && (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease }}
+              className="flex flex-col gap-6"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-heading font-bold text-primary-dark text-lg">
+                    Service menu
+                  </h2>
+                  <p className="text-text-secondary text-xs mt-0.5">
+                    The services customers can book you for. Archived ones are
+                    hidden from the marketplace.
+                  </p>
+                </div>
+                <button
+                  onClick={() => openServiceModal("add")}
+                  className="h-10 px-5 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 shrink-0"
+                >
+                  <Plus className="w-4 h-4" /> Add service
+                </button>
+              </div>
+
+              {servicesLoading ? (
+                <div className="py-16 flex justify-center">
+                  <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                </div>
+              ) : services.length === 0 ? (
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] py-14 text-center">
+                  <ClipboardList className="w-10 h-10 text-text-subtle mx-auto mb-3" />
+                  <h3 className="font-heading font-bold text-primary-dark text-lg">
+                    No services yet
+                  </h3>
+                  <p className="text-text-secondary text-sm mt-1">
+                    Add your first bookable service so customers can hire you.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-6">
+                  {(["active", "archived"] as const).map((bucket) => {
+                    const items = services.filter((s) =>
+                      bucket === "active" ? s.active : !s.active,
+                    );
+                    if (items.length === 0) return null;
+                    return (
+                      <div key={bucket}>
+                        <p className="text-[11px] font-bold text-text-subtle tracking-widest uppercase mb-2">
+                          {bucket === "active" ? "Active" : "Archived"} ·{" "}
+                          {items.length}
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {items.map((s) => {
+                            const net = Math.round(s.priceNaira * 0.9);
+                            return (
+                              <div
+                                key={s.id}
+                                className={`bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-5 ${
+                                  s.active ? "" : "opacity-60"
+                                }`}
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="min-w-0">
+                                    <p className="font-heading font-bold text-primary-dark text-sm">
+                                      {s.name}
+                                    </p>
+                                    <p className="text-text-secondary text-xs mt-1 line-clamp-2">
+                                      {s.description}
+                                    </p>
+                                  </div>
+                                  <div className="text-right shrink-0">
+                                    <p className="font-heading font-bold text-primary-dark text-base">
+                                      {s.priceLabel}
+                                    </p>
+                                    {!!s.duration && (
+                                      <p className="text-text-subtle text-[11px] mt-0.5">
+                                        {s.duration}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <p className="text-text-subtle text-[11px] mt-2">
+                                  You keep {formatCurrency(net)} after 10% fee
+                                </p>
+                                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/50">
+                                  <button
+                                    onClick={() => openServiceModal("edit", s)}
+                                    className="h-8 px-3.5 rounded-full bg-white border border-border-light text-primary-dark text-xs font-bold hover:border-primary hover:text-primary transition-colors inline-flex items-center gap-1.5"
+                                  >
+                                    <Pencil className="w-3 h-3" /> Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleToggleServiceActive(s)}
+                                    className="h-8 px-3.5 rounded-full bg-white border border-border-light text-text-secondary text-xs font-medium hover:bg-gray-50 transition-colors inline-flex items-center gap-1.5"
+                                  >
+                                    {s.active ? (
+                                      <>
+                                        <Archive className="w-3 h-3" /> Archive
+                                      </>
+                                    ) : (
+                                      <>
+                                        <RotateCcw className="w-3 h-3" /> Restore
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* ─── Availability Panel (hours / limits / blackouts) ─── */}
+          {activeNav === "availability" && (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease }}
+              className="flex flex-col gap-6 max-w-2xl"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-heading font-bold text-primary-dark text-lg">
+                    Availability
+                  </h2>
+                  <p className="text-text-secondary text-xs mt-0.5">
+                    Control when you appear in search and how much work you take.
+                  </p>
+                </div>
+                <button
+                  onClick={handleSaveAvailability}
+                  disabled={avSaving || avLoading}
+                  className="h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2 disabled:opacity-60 shrink-0"
+                >
+                  {avSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Save
+                </button>
+              </div>
+
+              {avLoading ? (
+                <div className="py-16 flex justify-center">
+                  <Loader2 className="w-6 h-6 text-primary animate-spin" />
+                </div>
+              ) : (
+                <>
+                  {/* Accepting toggle */}
+                  <div
+                    className="rounded-[20px] p-5 flex items-center gap-4"
+                    style={{ background: "hsl(150, 40%, 94%)" }}
+                  >
+                    <Power
+                      className={`w-5 h-5 ${avAccepting ? "text-primary" : "text-text-subtle"}`}
+                    />
+                    <div className="flex-1">
+                      <p className="font-heading font-bold text-primary-dark text-sm">
+                        {avAccepting ? "Accepting bookings" : "Not accepting"}
+                      </p>
+                      <p className="text-text-secondary text-xs mt-0.5">
+                        {avAccepting
+                          ? "You appear in search and can receive requests."
+                          : "You're hidden from search until you turn this back on."}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setAvAccepting((v) => !v)}
+                      className={`relative w-12 h-7 rounded-full transition-colors shrink-0 ${
+                        avAccepting ? "bg-primary" : "bg-gray-300"
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow transition-all ${
+                          avAccepting ? "left-6" : "left-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {/* Working hours */}
+                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
+                    <h3 className="font-heading font-bold text-primary-dark text-sm mb-3">
+                      Working hours
+                    </h3>
+                    <div className="divide-y divide-border-light">
+                      {avSchedule.map((row) => (
+                        <div
+                          key={row.day}
+                          className="flex items-center gap-3 py-2.5"
+                        >
+                          <button
+                            onClick={() => toggleAvDay(row.day)}
+                            className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
+                              row.on ? "bg-primary" : "bg-gray-300"
+                            }`}
+                          >
+                            <span
+                              className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${
+                                row.on ? "left-6" : "left-1"
+                              }`}
+                            />
+                          </button>
+                          <span
+                            className={`flex-1 text-sm font-bold ${row.on ? "text-primary-dark" : "text-text-subtle"}`}
+                          >
+                            {row.day}
+                          </span>
+                          <span
+                            className={`text-xs font-medium ${row.on ? "text-text-secondary" : "text-text-subtle"}`}
+                          >
+                            {row.hours}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Max jobs / day */}
+                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 flex items-center justify-between">
+                    <div>
+                      <h3 className="font-heading font-bold text-primary-dark text-sm">
+                        Max jobs per day
+                      </h3>
+                      <p className="text-text-secondary text-xs mt-0.5">
+                        We stop new bookings once you hit this.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setAvMaxJobs((n) => Math.max(1, n - 1))}
+                        className="w-8 h-8 rounded-full border border-border-light bg-white flex items-center justify-center hover:border-primary transition-colors"
+                      >
+                        <span className="text-lg leading-none text-text-secondary">
+                          −
+                        </span>
+                      </button>
+                      <span className="font-heading font-bold text-primary-dark text-lg w-6 text-center">
+                        {avMaxJobs}
+                      </span>
+                      <button
+                        onClick={() => setAvMaxJobs((n) => n + 1)}
+                        className="w-8 h-8 rounded-full border border-border-light bg-white flex items-center justify-center hover:border-primary transition-colors"
+                      >
+                        <Plus className="w-3.5 h-3.5 text-text-secondary" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Blackouts */}
+                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">
+                    <h3 className="font-heading font-bold text-primary-dark text-sm">
+                      Time off
+                    </h3>
+                    <p className="text-text-secondary text-xs mt-0.5 mb-3">
+                      Block specific dates you're not available.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {avBlackouts.map((b) => (
+                        <span
+                          key={b.id}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-primary-dark text-white text-xs font-bold px-3 py-1.5"
+                        >
+                          {b.date}
+                          <button
+                            onClick={() => handleRemoveBlackout(b.date)}
+                            className="hover:text-red-300 transition-colors"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-2 mt-3">
+                      <input
+                        type="date"
+                        value={blackoutDate}
+                        min={new Date().toISOString().slice(0, 10)}
+                        onChange={(e) => setBlackoutDate(e.target.value)}
+                        className="h-10 px-3 rounded-xl bg-white border border-border-light text-sm text-primary-dark focus:outline-none focus:border-primary transition-colors"
+                      />
+                      <button
+                        onClick={handleAddBlackout}
+                        disabled={!blackoutDate}
+                        className="h-10 px-4 rounded-full bg-white border border-border-light text-primary-dark text-xs font-bold hover:border-primary hover:text-primary transition-colors disabled:opacity-50 inline-flex items-center gap-1.5"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Block date
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </motion.div>
           )}
 
@@ -2603,6 +3087,123 @@ const VendorDashboard = () => {
           )}
         </div>
       </div>
+
+      {/* ─── Service add/edit modal ─── */}
+      <AnimatePresence>
+        {serviceModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => !savingService && setServiceModal(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.97 }}
+              transition={{ duration: 0.25, ease }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md bg-white rounded-[20px] shadow-2xl p-6 max-h-[88vh] overflow-y-auto"
+            >
+              <h3 className="font-heading font-bold text-primary-dark text-lg">
+                {serviceModal.mode === "edit" ? "Edit service" : "Add a service"}
+              </h3>
+
+              <label className="block text-xs font-bold text-primary-dark mt-4 mb-1.5">
+                Service name
+              </label>
+              <input
+                type="text"
+                value={svcName}
+                onChange={(e) => setSvcName(e.target.value)}
+                placeholder="e.g. Deep clean (2-bed apartment)"
+                className="w-full h-11 px-4 rounded-xl bg-white border border-border-light text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+              />
+
+              <label className="block text-xs font-bold text-primary-dark mt-3 mb-1.5">
+                What's included
+              </label>
+              <textarea
+                value={svcDesc}
+                onChange={(e) => setSvcDesc(e.target.value)}
+                rows={3}
+                placeholder="What does the customer get for this price?"
+                className="w-full px-4 py-2.5 rounded-xl bg-white border border-border-light text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
+              />
+
+              <label className="block text-xs font-bold text-primary-dark mt-3 mb-1.5">
+                Pricing
+              </label>
+              <div className="flex gap-2 mb-2">
+                {(["FIXED", "FROM"] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setSvcMode(m)}
+                    className={`flex-1 h-9 rounded-full text-xs font-bold transition-colors ${
+                      svcMode === m
+                        ? "bg-primary text-white"
+                        : "bg-white border border-border-light text-text-secondary hover:border-primary"
+                    }`}
+                  >
+                    {m === "FIXED" ? "Fixed price" : "From (varies)"}
+                  </button>
+                ))}
+              </div>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary text-sm">
+                  ₦
+                </span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={svcPrice}
+                  onChange={(e) =>
+                    setSvcPrice(e.target.value.replace(/[^0-9]/g, ""))
+                  }
+                  placeholder="0"
+                  className="w-full h-11 pl-8 pr-4 rounded-xl bg-white border border-border-light text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+                />
+              </div>
+              {Number(svcPrice) > 0 && (
+                <p className="text-text-subtle text-[11px] mt-1.5">
+                  You keep {formatCurrency(Math.round(Number(svcPrice) * 0.9))}{" "}
+                  after 10% fee
+                </p>
+              )}
+
+              <label className="block text-xs font-bold text-primary-dark mt-3 mb-1.5">
+                Typical duration (optional)
+              </label>
+              <input
+                type="text"
+                value={svcDuration}
+                onChange={(e) => setSvcDuration(e.target.value)}
+                placeholder="e.g. 2–3 hours"
+                className="w-full h-11 px-4 rounded-xl bg-white border border-border-light text-sm text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors"
+              />
+
+              <div className="flex gap-2.5 mt-5">
+                <button
+                  onClick={() => setServiceModal(null)}
+                  disabled={savingService}
+                  className="flex-1 h-10 rounded-full bg-white border border-border-light text-text-secondary text-sm font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveService}
+                  disabled={savingService}
+                  className="flex-1 h-10 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {savingService && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {serviceModal.mode === "edit" ? "Save changes" : "Add service"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ─── Mark-complete modal — notes + proof photos (matches the app) ─── */}
       <AnimatePresence>

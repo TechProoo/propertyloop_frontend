@@ -509,6 +509,55 @@ export interface VendorReview {
   createdAt: string;
 }
 
+// ─── Vendor Services (bookable menu) ────────────────────────────────────────
+
+export type VendorServicePriceMode = "FIXED" | "FROM";
+
+export interface VendorService {
+  id: string;
+  name: string;
+  description: string;
+  priceNaira: number;
+  priceMode: VendorServicePriceMode | string;
+  priceLabel: string;
+  duration?: string | null;
+  active: boolean;
+  archived: boolean;
+  displayOrder: number;
+}
+
+export interface CreateVendorServicePayload {
+  name: string;
+  description: string;
+  priceNaira: number;
+  priceMode?: VendorServicePriceMode;
+  duration?: string;
+  displayOrder?: number;
+}
+
+// ─── Vendor Availability ────────────────────────────────────────────────────
+
+export interface AvailabilityDay {
+  day: string;
+  on: boolean;
+  hours: string;
+}
+
+export interface VendorBlackout {
+  id: string;
+  date: string; // YYYY-MM-DD
+  reason?: string | null;
+}
+
+export interface VendorAvailability {
+  acceptingBookings: boolean;
+  maxJobsPerDay: number;
+  responseCommitment: string;
+  schedule: AvailabilityDay[];
+  blackouts: VendorBlackout[];
+  updatedAt: string;
+}
+
 // ─── Shortlet Bookings ─────────────────────────────────────────────────────
 
 export interface ShortletBooking {
