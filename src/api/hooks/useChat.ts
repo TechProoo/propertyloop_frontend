@@ -29,6 +29,8 @@ export interface UseChatReturn {
   setTyping: (isTyping: boolean) => void;
   /** Other user's typing state for the active conversation */
   otherTyping: boolean;
+  /** Whether a given user id is currently online (presence). */
+  isOnline: (userId?: string | null) => boolean;
 }
 
 export function useChat(): UseChatReturn {
@@ -42,10 +44,17 @@ export function useChat(): UseChatReturn {
     string | null
   >(null);
   const [otherTyping, setOtherTyping] = useState(false);
+  // userId → online. Bumped by presence events from the gateway.
+  const [onlineUsers, setOnlineUsers] = useState<Record<string, boolean>>({});
   const socketRef = useRef<Socket | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
   );
+  // Live ref so socket listeners (registered once) always see the current
+  // active conversation without re-subscribing — fixes the stale-closure that
+  // made typing indicators only work for the first-opened conversation.
+  const activeIdRef = useRef<string | null>(null);
+  activeIdRef.current = activeConversationId;
 
   // ─── Connect socket + load initial data ────────────────────────────────
 
@@ -115,11 +124,11 @@ export function useChat(): UseChatReturn {
       },
     );
 
-    // Typing indicator
+    // Typing indicator — compare against the live ref, not a stale closure.
     socket.on(
       "user_typing",
       (data: { conversationId: string; isTyping: boolean }) => {
-        if (data.conversationId === activeConversationId) {
+        if (data.conversationId === activeIdRef.current) {
           setOtherTyping(data.isTyping);
           // Auto-clear after 3 seconds
           if (data.isTyping) {
@@ -130,6 +139,28 @@ export function useChat(): UseChatReturn {
             );
           }
         }
+      },
+    );
+
+    // Presence — the gateway announces when a chat partner comes online/offline
+    // (on connect/disconnect and when you open a conversation).
+    socket.on("presence", (data: { userId: string; online: boolean }) => {
+      setOnlineUsers((prev) => ({ ...prev, [data.userId]: data.online }));
+    });
+
+    // Read receipts — the other party read the thread; flip your sent ticks
+    // (✓) to read ticks (✓✓) on all your messages in that conversation.
+    socket.on(
+      "messages_read",
+      (data: { conversationId: string; readerUserId: string }) => {
+        setMessages((prev) => {
+          if (prev[0]?.conversationId !== data.conversationId) return prev;
+          return prev.map((m) =>
+            m.isYou && m.senderUserId !== data.readerUserId
+              ? { ...m, read: true }
+              : m,
+          );
+        });
       },
     );
 
@@ -177,6 +208,8 @@ export function useChat(): UseChatReturn {
       socket.off("new_message");
       socket.off("unread_update");
       socket.off("user_typing");
+      socket.off("presence");
+      socket.off("messages_read");
       socket.off("conversation_read");
       socket.off("new_conversation");
     };
@@ -243,6 +276,11 @@ export function useChat(): UseChatReturn {
     [activeConversationId],
   );
 
+  const isOnline = useCallback(
+    (userId?: string | null) => (userId ? !!onlineUsers[userId] : false),
+    [onlineUsers],
+  );
+
   return {
     conversations,
     messages,
@@ -255,5 +293,6 @@ export function useChat(): UseChatReturn {
     sendMessage,
     setTyping,
     otherTyping,
+    isOnline,
   };
 }

@@ -10,6 +10,7 @@ import {
   Wrench,
   ArrowLeft,
   MessageCircle,
+  Check,
   CheckCheck,
   MoreHorizontal,
   Paperclip,
@@ -36,26 +37,47 @@ interface LocalConvo {
   avatar: string;
   role: string;
   phone: string;
-  messages: { sender: "you" | "them"; text: string; time: string; attachmentUrls: string[] }[];
+  otherUserId: string | null;
+  messages: {
+    sender: "you" | "them";
+    text: string;
+    time: string;
+    attachmentUrls: string[];
+    read?: boolean;
+  }[];
 }
 
 function isImageUrl(url: string) {
   return /\.(jpg|jpeg|png|gif|webp|svg)(\?|$)/i.test(url);
 }
 
-function AttachmentBubble({ urls, isYou }: { urls: string[]; isYou: boolean }) {
+function AttachmentBubble({
+  urls,
+  isYou,
+  onOpen,
+}: {
+  urls: string[];
+  isYou: boolean;
+  onOpen?: (url: string) => void;
+}) {
   if (!urls.length) return null;
   return (
     <div className="flex flex-wrap gap-1.5 mt-1.5">
       {urls.map((url, i) =>
         isImageUrl(url) ? (
-          <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+          <button
+            key={i}
+            type="button"
+            onClick={() => onOpen?.(url)}
+            className="block"
+            title="View image"
+          >
             <img
               src={url}
               alt="attachment"
-              className="max-w-[180px] max-h-[180px] rounded-xl object-cover border border-white/30 hover:opacity-90 transition-opacity"
+              className="max-w-[180px] max-h-[180px] rounded-xl object-cover border border-white/30 hover:opacity-90 transition-opacity cursor-zoom-in"
             />
-          </a>
+          </button>
         ) : (
           <a
             key={i}
@@ -94,6 +116,8 @@ const Messages = () => {
   // Attachment state
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  // Full-screen image viewer (tap-to-expand), like the app's PhotoViewer.
+  const [lightbox, setLightbox] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !isLoggedIn) navigate("/onboarding");
@@ -124,6 +148,7 @@ const Messages = () => {
         avatar: c.avatar || FallbackImg,
         role: roleDisplay,
         phone: c.phone || "",
+        otherUserId: c.otherUserId ?? null,
         messages: [],
       };
     }
@@ -145,6 +170,7 @@ const Messages = () => {
         sender: m.isYou ? ("you" as const) : ("them" as const),
         text: m.text,
         attachmentUrls: m.attachmentUrls ?? [],
+        read: m.read,
         time: new Date(m.createdAt).toLocaleTimeString("en-NG", {
           hour: "numeric",
           minute: "2-digit",
@@ -272,6 +298,9 @@ const Messages = () => {
                           <span className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${c.role === "Agent" ? "bg-primary" : "bg-blue-500"}`}>
                             {c.role === "Agent" ? <Briefcase className="w-2 h-2 text-white" /> : <Wrench className="w-2 h-2 text-white" />}
                           </span>
+                          {chat.isOnline(c.otherUserId) && (
+                            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
@@ -309,13 +338,26 @@ const Messages = () => {
                     >
                       <ArrowLeft className="w-4 h-4" />
                     </button>
-                    <img src={active?.avatar} alt={active?.name || "User"} onError={(e) => { e.currentTarget.src = FallbackImg; }} className="w-10 h-10 rounded-full object-cover" />
+                    <div className="relative shrink-0">
+                      <img src={active?.avatar} alt={active?.name || "User"} onError={(e) => { e.currentTarget.src = FallbackImg; }} className="w-10 h-10 rounded-full object-cover" />
+                      {chat.isOnline(active?.otherUserId) && (
+                        <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-white" />
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-heading font-bold text-primary-dark text-sm truncate">{active?.name || "User"}</p>
-                      <span className={`inline-flex items-center gap-1 text-xs ${active?.role === "Agent" ? "text-primary" : "text-blue-500"}`}>
-                        {active?.role === "Agent" ? <Briefcase className="w-3 h-3" /> : <Wrench className="w-3 h-3" />}
-                        {active?.role || "User"}
-                      </span>
+                      {chat.otherTyping ? (
+                        <span className="text-xs text-primary font-medium">typing…</span>
+                      ) : chat.isOnline(active?.otherUserId) ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500" /> Online
+                        </span>
+                      ) : (
+                        <span className={`inline-flex items-center gap-1 text-xs ${active?.role === "Agent" ? "text-primary" : "text-blue-500"}`}>
+                          {active?.role === "Agent" ? <Briefcase className="w-3 h-3" /> : <Wrench className="w-3 h-3" />}
+                          {active?.role || "User"}
+                        </span>
+                      )}
                     </div>
                     <a
                       href={formatTel(active?.phone)}
@@ -356,14 +398,28 @@ const Messages = () => {
                                   <p className="whitespace-pre-wrap break-words">{m.text}</p>
                                 )
                               )}
-                              <AttachmentBubble urls={m.attachmentUrls} isYou={m.sender === "you"} />
+                              <AttachmentBubble urls={m.attachmentUrls} isYou={m.sender === "you"} onOpen={setLightbox} />
                               <div className={`flex items-center gap-1 mt-1 text-[10px] ${m.sender === "you" ? "text-white/70 justify-end" : "text-text-subtle"}`}>
                                 {m.time}
-                                {m.sender === "you" && <CheckCheck className="w-3 h-3" />}
+                                {m.sender === "you" &&
+                                  (m.read ? (
+                                    <CheckCheck className="w-3.5 h-3.5 text-sky-200" />
+                                  ) : (
+                                    <Check className="w-3.5 h-3.5" />
+                                  ))}
                               </div>
                             </div>
                           </motion.div>
                         ))}
+                        {chat.otherTyping && (
+                          <div className="flex justify-start">
+                            <div className="bg-white border border-border-light rounded-2xl rounded-bl-md px-4 py-3 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-text-subtle/60 animate-bounce [animation-delay:-0.3s]" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-text-subtle/60 animate-bounce [animation-delay:-0.15s]" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-text-subtle/60 animate-bounce" />
+                            </div>
+                          </div>
+                        )}
                         <div ref={messagesEndRef} />
                       </div>
                     )}
@@ -446,6 +502,28 @@ const Messages = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Image lightbox — tap-to-expand, like the app's PhotoViewer */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[200] bg-black/85 flex items-center justify-center p-4"
+          onClick={() => setLightbox(null)}
+        >
+          <button
+            onClick={() => setLightbox(null)}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img
+            src={lightbox}
+            alt="attachment"
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-full max-h-full rounded-lg object-contain"
+          />
+        </div>
+      )}
     </div>
   );
 };

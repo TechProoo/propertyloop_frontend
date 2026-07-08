@@ -26,6 +26,8 @@ export interface ChatMessage {
   text: string;
   attachmentUrls: string[];
   createdAt: string;
+  /** For your own messages: true once the other side has read the thread. */
+  read?: boolean;
 }
 
 export interface CreateConversationPayload {
