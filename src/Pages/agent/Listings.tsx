@@ -5,10 +5,7 @@ import listingsService from "../../api/services/listings";
 import leadsService from "../../api/services/leads";
 import type { Listing, ListingStatus } from "../../api/types";
 import { toast } from "../../lib/toast";
-import { useAuth } from "../../context/AuthContext";
 
-// Active-listing caps per tier; FOUNDING/PRO are unlimited (no entry).
-const TIER_CAPS: Record<string, number> = { FREE: 3, STANDARD: 10 };
 import {
   C,
   Card,
@@ -29,7 +26,6 @@ const FILTERS: { id: string; label: string; match: (s: ListingStatus) => boolean
 
 export default function AgentListings() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [items, setItems] = useState<Listing[]>([]);
   const [leadCounts, setLeadCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -67,11 +63,7 @@ export default function AgentListings() {
   const activeCount = items.filter((l) => l.status === "ACTIVE").length;
   const pendingCount = items.filter((l) => l.status === "PENDING_REVIEW").length;
 
-  const tier = user?.agentProfile?.subscriptionTier ?? null;
-  const cap = tier ? (TIER_CAPS[tier] ?? Infinity) : Infinity;
-  const capped = Number.isFinite(cap);
-  const atCap = capped && activeCount >= cap;
-
+  // PropertyLoop is free for all agents — listings are unlimited.
   const shown = items.filter((l) => FILTERS.find((f) => f.id === filter)!.match(l.status));
 
   const manage = (id: string) => navigate(`/agent-dashboard/listings/${id}`);
@@ -88,37 +80,20 @@ export default function AgentListings() {
         }
       />
 
-      {/* Quota */}
+      {/* Quota — free for all agents, unlimited listings */}
       <Card className="mt-4 !py-4">
         <div className="flex justify-between text-[13px] font-semibold" style={{ color: C.ink2 }}>
           <span>Active listings</span>
-          <span style={{ color: atCap ? C.danger : C.ink, fontWeight: 700 }}>
-            {capped ? `${activeCount} / ${cap}` : `${activeCount} · Unlimited`}
+          <span style={{ color: C.ink, fontWeight: 700 }}>
+            {activeCount} · Unlimited
           </span>
         </div>
         <div className="h-[7px] rounded-full overflow-hidden mt-2.5" style={{ background: C.surface2 }}>
           <i
             className="block h-full rounded-full"
-            style={{
-              width: capped ? `${Math.min(100, (activeCount / cap) * 100)}%` : "100%",
-              background: atCap ? C.danger : C.primary,
-            }}
+            style={{ width: "100%", background: C.primary }}
           />
         </div>
-        {atCap && (
-          <div className="mt-3 flex items-center justify-between gap-3 flex-wrap">
-            <span className="text-[12.5px]" style={{ color: C.ink2 }}>
-              You've hit your plan's active-listing limit. Upgrade to add more.
-            </span>
-            <button
-              onClick={() => navigate("/agent-dashboard/subscription")}
-              className="px-3.5 h-9 rounded-full text-[12.5px] font-bold text-white whitespace-nowrap"
-              style={{ background: C.primary }}
-            >
-              Upgrade plan
-            </button>
-          </div>
-        )}
       </Card>
 
       {/* Filter tabs */}

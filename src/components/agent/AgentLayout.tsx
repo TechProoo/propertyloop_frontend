@@ -11,7 +11,6 @@ import {
   CalendarDays,
   ClipboardList,
   MessageCircle,
-  CreditCard,
   Settings as SettingsIcon,
   Menu,
   X,
@@ -34,8 +33,8 @@ const NAV = [
   { to: "/feed", label: "Community Feed", icon: Newspaper },
 ];
 
+// PropertyLoop is free for all agents — no subscription entry here.
 const ACCOUNT_NAV = [
-  { to: "subscription", label: "Subscription", icon: CreditCard },
   { to: "settings", label: "Settings", icon: SettingsIcon },
 ];
 
