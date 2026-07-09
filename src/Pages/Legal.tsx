@@ -13,6 +13,7 @@ const legalContent: Record<string, { title: string; icon: React.ReactNode; updat
     title: "Privacy Policy",
     icon: <ShieldCheck className="w-6 h-6" />,
     updated: "March 1, 2026",
+    download: { href: "/privacy-policy.pdf", label: "Download PDF" },
     sections: [
       { id: "collection", title: "1. Information We Collect", content: [
         "We collect information you provide directly: name, email, phone number, and address when you create an account. For agents and vendors, we also collect business details and KYC verification data through Smile Identity.",
@@ -41,6 +42,7 @@ const legalContent: Record<string, { title: string; icon: React.ReactNode; updat
     title: "Terms of Service",
     icon: <FileText className="w-6 h-6" />,
     updated: "March 1, 2026",
+    download: { href: "/terms-of-service.pdf", label: "Download PDF" },
     sections: [
       { id: "acceptance", title: "1. Acceptance of Terms", content: [
         "By accessing or using PropertyLoop, you agree to be bound by these Terms of Service. If you do not agree, you may not use the platform. These terms apply to all users: buyers, renters, agents, and vendors.",
@@ -250,7 +252,7 @@ const Legal = () => {
                 <div className="h-px bg-border-light my-8" />
                 <p className="text-text-subtle text-xs">
                   If you have questions about this policy, contact us at{" "}
-                  <Link to="/contact" className="text-primary hover:underline">hello@propertyloop.ng</Link>.
+                  <Link to="/contact" className="text-primary hover:underline">support.propertyloop@propertyloop.ng</Link>.
                 </p>
               </div>
             </motion.div>
