@@ -1,14 +1,14 @@
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShieldCheck, FileText, Handshake } from "lucide-react";
+import { ShieldCheck, FileText, Handshake, Scale, Download } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
-interface Section { id: string; title: string; content: string[] }
+interface Section { id: string; title: string; content: string[]; list?: string[]; after?: string[] }
 
-const legalContent: Record<string, { title: string; icon: React.ReactNode; updated: string; sections: Section[] }> = {
+const legalContent: Record<string, { title: string; icon: React.ReactNode; updated: string; sections: Section[]; download?: { href: string; label: string } }> = {
   privacy: {
     title: "Privacy Policy",
     icon: <ShieldCheck className="w-6 h-6" />,
@@ -58,6 +58,75 @@ const legalContent: Record<string, { title: string; icon: React.ReactNode; updat
       ]},
       { id: "termination", title: "5. Termination", content: [
         "Either party may terminate the relationship at any time. Upon termination, your data will be handled according to our Privacy Policy.",
+      ]},
+    ],
+  },
+  "refund-policy": {
+    title: "Refund & Escrow Policy",
+    icon: <Scale className="w-6 h-6" />,
+    updated: "July 9, 2026",
+    download: { href: "/refund-policy.pdf", label: "Download PDF" },
+    sections: [
+      { id: "escrow-payment", title: "1. Escrow Payment", content: [
+        "When a customer books a service through PropertyLoop, payment is made upfront and securely held in escrow. The vendor is notified immediately that payment has been secured and may commence the agreed service.",
+        "Funds held in escrow remain under PropertyLoop's control until the transaction is successfully completed or resolved through our dispute process.",
+      ]},
+      { id: "completion", title: "2. Completion of Service", content: [
+        "After the vendor completes the requested service, the customer will be asked to confirm one of the following:",
+      ], list: [
+        "Accept that the service has been completed satisfactorily and authorize the release of funds to the vendor.",
+        "Raise a dispute if the customer believes the service was not delivered as agreed.",
+      ], after: ["Until one of these actions occurs, the payment remains in escrow."]},
+      { id: "release", title: "3. Release of Funds", content: [
+        "PropertyLoop will release escrow funds to the vendor when:",
+      ], list: [
+        "The customer confirms satisfactory completion of the service.",
+        "A dispute investigation concludes that the vendor fulfilled the agreed service obligations.",
+        "The customer does not respond within the specified confirmation period after receiving reminders, where applicable under PropertyLoop's operating procedures.",
+      ]},
+      { id: "disputes", title: "4. Dispute Resolution", content: [
+        "If a customer is dissatisfied with the service provided, they may submit a dispute through the PropertyLoop platform or website before the escrow funds are released.",
+        "Both the customer and vendor may be required to provide supporting evidence, including but not limited to:",
+      ], list: [
+        "Photographs or videos",
+        "Written communication",
+        "Proof of work completed",
+        "Any other relevant documentation",
+      ], after: ["PropertyLoop will review all available evidence fairly and impartially before making a decision."]},
+      { id: "eligibility", title: "5. Refund Eligibility", content: [
+        "A customer may be eligible for a full or partial refund if PropertyLoop determines that:",
+      ], list: [
+        "The agreed service was not delivered.",
+        "The vendor failed to perform the work within the agreed scope without reasonable justification.",
+        "The completed work significantly failed to meet the agreed specifications.",
+        "The vendor abandoned the project without acceptable cause.",
+        "Fraudulent or misleading conduct occurred.",
+      ], after: ["Approved refunds will be returned to the customer's original payment method, where applicable."]},
+      { id: "not-granted", title: "6. When Refunds Will Not Be Granted", content: [
+        "Refund requests may be declined where:",
+      ], list: [
+        "The customer approved the release of escrow funds before raising concerns.",
+        "The dispute evidence shows that the vendor completed the agreed service satisfactorily.",
+        "The dissatisfaction relates to issues outside the original scope of work.",
+        "The customer prevented or delayed completion of the service.",
+        "The dispute is submitted after the applicable dispute period has expired.",
+      ]},
+      { id: "role", title: "7. PropertyLoop's Role", content: [
+        "PropertyLoop acts solely as a neutral escrow and dispute resolution platform. While we carefully review evidence submitted by both parties, we do not perform or supervise the services ourselves and cannot guarantee the quality of any vendor's work.",
+        "Our responsibility is to facilitate secure payments and provide a fair process for resolving disputes.",
+      ]},
+      { id: "decisions", title: "8. Dispute Decisions", content: [
+        "After reviewing all submitted evidence, PropertyLoop may decide to:",
+      ], list: [
+        "Release the full escrow payment to the vendor.",
+        "Refund the full escrow amount to the customer.",
+        "Issue a partial refund and release the remaining balance to the vendor where appropriate and supported by the evidence.",
+      ], after: ["All decisions are made in good faith based on the information available."]},
+      { id: "processing", title: "9. Processing Time", content: [
+        "Dispute reviews generally begin once all required information has been received. Refunds, where approved, will be processed within a reasonable timeframe, although the exact time for funds to appear may depend on the customer's payment provider or financial institution.",
+      ]},
+      { id: "contact", title: "10. Contact Us", content: [
+        "For questions regarding refunds or escrow transactions, please contact PropertyLoop Customer Support through the contact details provided on our website or mobile application.",
       ]},
     ],
   },
@@ -143,7 +212,18 @@ const Legal = () => {
             {/* Content */}
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.4, ease }} className="flex-1">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8 lg:p-10">
-                <h1 className="font-heading font-bold text-primary-dark text-2xl mb-2">{page.title}</h1>
+                <div className="flex flex-wrap items-start justify-between gap-4 mb-2">
+                  <h1 className="font-heading font-bold text-primary-dark text-2xl">{page.title}</h1>
+                  {page.download && (
+                    <a
+                      href={page.download.href}
+                      download
+                      className="inline-flex items-center gap-2 h-10 px-5 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors"
+                    >
+                      <Download className="w-4 h-4" /> {page.download.label}
+                    </a>
+                  )}
+                </div>
                 <p className="text-text-subtle text-xs mb-8">Last updated: {page.updated} · PropertyLoop Ltd.</p>
 
                 <div className="flex flex-col gap-8">
@@ -151,6 +231,16 @@ const Legal = () => {
                     <div key={section.id} id={section.id}>
                       <h2 className="font-heading font-bold text-primary-dark text-base mb-3">{section.title}</h2>
                       {section.content.map((para, i) => (
+                        <p key={i} className="text-text-secondary text-sm leading-relaxed mb-3 last:mb-0">{para}</p>
+                      ))}
+                      {section.list && (
+                        <ul className="list-disc pl-5 mt-1 mb-3 flex flex-col gap-1.5">
+                          {section.list.map((item, i) => (
+                            <li key={i} className="text-text-secondary text-sm leading-relaxed marker:text-primary">{item}</li>
+                          ))}
+                        </ul>
+                      )}
+                      {section.after?.map((para, i) => (
                         <p key={i} className="text-text-secondary text-sm leading-relaxed mb-3 last:mb-0">{para}</p>
                       ))}
                     </div>
