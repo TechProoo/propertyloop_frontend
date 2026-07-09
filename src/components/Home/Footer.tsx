@@ -165,6 +165,9 @@ const Footer = () => {
                         {link.href.startsWith("/") ? (
                           <Link
                             to={link.href}
+                            // ScrollToTop only fires on pathname *change*; this
+                            // covers re-clicking a link to the page you're on.
+                            onClick={() => window.scrollTo({ top: 0, left: 0 })}
                             className="text-text-secondary text-sm hover:text-primary transition-colors"
                           >
                             {link.label}
