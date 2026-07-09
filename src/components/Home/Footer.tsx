@@ -82,6 +82,7 @@ const footerLinks = {
     { label: "How It Works", href: "/how-it-works" },
     { label: "Careers", href: "/careers" },
     { label: "Blog", href: "/blog" },
+    { label: "Advertise with Us", href: "/advertise" },
     { label: "Contact", href: "/contact" },
   ],
   Legal: [
