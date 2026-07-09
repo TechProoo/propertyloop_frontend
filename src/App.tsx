@@ -69,6 +69,7 @@ import LogbookInfo from "./Pages/LogbookInfo";
 import LogbookList from "./Pages/LogbookList";
 import FeaturedPropertyDetail from "./Pages/FeaturedPropertyDetail";
 import FeaturedProperties from "./Pages/FeaturedProperties";
+import Advertise from "./Pages/Advertise";
 import NotFound from "./Pages/NotFound";
 import NetworkError from "./Pages/NetworkError";
 import ScrollToTop from "./components/ScrollToTop";
@@ -166,6 +167,7 @@ function AppContent() {
             }
           />
           <Route path="/about" element={<About />} />
+          <Route path="/advertise" element={<Advertise />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/services" element={<Services />} />
           <Route path="/property/:id" element={<PropertyDetail />} />

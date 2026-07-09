@@ -15,6 +15,7 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import EmptyState from "../components/ui/EmptyState";
+import AdSlot from "../components/ui/AdSlot";
 
 const SearchResults = () => {
   const navigate = useNavigate();
@@ -122,9 +123,14 @@ const SearchResults = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
               >
+                {/* Sponsored card interleaved into the results grid */}
+                {currentListings.length > 2 && (
+                  <AdSlot placement="SEARCH_INLINE" variant="card" className="order-3" />
+                )}
                 {currentListings.map((listing, i) => (
                   <motion.div
                     key={i}
+                    style={{ order: i >= 2 ? i + 2 : i + 1 }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}

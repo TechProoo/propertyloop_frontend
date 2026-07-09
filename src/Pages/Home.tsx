@@ -13,6 +13,7 @@ import ShortletSpotlight from "../components/Home/ShortletSpotlight";
 import CtaBanner from "../components/Home/CtaBanner";
 import Footer from "../components/Home/Footer";
 import Partners from "@/components/Home/Partners";
+import AdSlot from "../components/ui/AdSlot";
 
 const Home = () => {
   return (
@@ -26,6 +27,10 @@ const Home = () => {
       />
       <Navbar />
       <Hero />
+      {/* Paid brand placement — renders nothing when no campaign is live */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <AdSlot placement="HOME_BANNER" className="mt-6" />
+      </div>
       <TrustedSection />
       <FeaturedHomes />
       <ServiceLoop />

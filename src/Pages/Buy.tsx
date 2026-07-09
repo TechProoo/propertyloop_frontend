@@ -23,6 +23,7 @@ import PropertyMap from "../components/ui/PropertyMap";
 import type { MapListing } from "../components/ui/PropertyMap";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import EmptyState from "../components/ui/EmptyState";
+import AdSlot from "../components/ui/AdSlot";
 import { BouncyLoader } from "../components/agent/ui";
 
 /* ── helpers ─────────────────────────────────────────────────────────── */
@@ -597,6 +598,10 @@ const Buy = () => {
               </div>
             ) : (
               <div className="flex flex-col gap-5 mt-6">
+                {/* Sponsored brand card — interleaved after the third listing */}
+                {allListings.length > 3 && (
+                  <AdSlot placement="HOME_FEED" className="order-4" />
+                )}
                 {allListings.map((l, i) => {
                   const tag = listingTag(l);
                   const agentName = l.agent?.name || l.agent?.agency || "Agent";
@@ -604,6 +609,7 @@ const Buy = () => {
                   return (
                     <div
                       key={l.id}
+                      style={{ order: i >= 3 ? i + 2 : i + 1 }}
                       onClick={() => goToListing(l.id)}
                       onMouseEnter={() => setActivePin(i)}
                       onMouseLeave={() => setActivePin(null)}
