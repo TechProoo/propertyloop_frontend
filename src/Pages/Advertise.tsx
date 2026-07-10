@@ -1,20 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
+  ArrowLeft,
+  ArrowRight,
   BadgeCheck,
-  Banknote,
   CalendarDays,
+  Check,
   CheckCircle,
   Clock,
   ExternalLink,
   Eye,
   ImagePlus,
   Loader2,
+  Lock,
   Megaphone,
   MousePointerClick,
   PauseCircle,
   ShieldCheck,
+  Banknote,
   XCircle,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
@@ -23,24 +27,21 @@ import { useAuth } from "../context/AuthContext";
 import adsService, {
   type AdPlacement,
   type AdStatus,
-  type CreateAdPayload,
   type MyAd,
 } from "../api/services/ads";
 
-const PLACEMENTS: {
-  key: AdPlacement;
-  name: string;
-  blurb: string;
-}[] = [
-  {
-    key: "SPLASH",
-    name: "App open (splash)",
-    blurb: "Full-screen moment when the app opens — maximum visibility.",
-  },
+// ─── Static config ───────────────────────────────────────────────────────────
+
+const PLACEMENTS: { key: AdPlacement; name: string; blurb: string }[] = [
   {
     key: "HOME_BANNER",
     name: "Home banner",
     blurb: "Wide banner at the top of the home screen, web + app.",
+  },
+  {
+    key: "SPLASH",
+    name: "App open (splash)",
+    blurb: "Full-screen moment when the app opens — maximum visibility.",
   },
   {
     key: "SEARCH_INLINE",
@@ -55,40 +56,18 @@ const PLACEMENTS: {
 ];
 
 const STATUS_META: Record<AdStatus, { label: string; cls: string; icon: React.ReactNode }> = {
-  DRAFT: {
-    label: "Awaiting payment",
-    cls: "bg-gray-100 text-gray-600",
-    icon: <Banknote className="w-3.5 h-3.5" />,
-  },
-  PENDING_REVIEW: {
-    label: "In review",
-    cls: "bg-amber-100 text-amber-700",
-    icon: <Clock className="w-3.5 h-3.5" />,
-  },
-  ACTIVE: {
-    label: "Live",
-    cls: "bg-green-100 text-green-700",
-    icon: <BadgeCheck className="w-3.5 h-3.5" />,
-  },
-  PAUSED: {
-    label: "Paused",
-    cls: "bg-blue-100 text-blue-700",
-    icon: <PauseCircle className="w-3.5 h-3.5" />,
-  },
-  REJECTED: {
-    label: "Not approved",
-    cls: "bg-rose-100 text-rose-700",
-    icon: <XCircle className="w-3.5 h-3.5" />,
-  },
-  EXPIRED: {
-    label: "Finished",
-    cls: "bg-gray-100 text-gray-500",
-    icon: <CheckCircle className="w-3.5 h-3.5" />,
-  },
+  DRAFT: { label: "Awaiting payment", cls: "bg-gray-100 text-gray-600", icon: <Banknote className="w-3.5 h-3.5" /> },
+  PENDING_REVIEW: { label: "In review", cls: "bg-amber-100 text-amber-700", icon: <Clock className="w-3.5 h-3.5" /> },
+  ACTIVE: { label: "Live", cls: "bg-green-100 text-green-700", icon: <BadgeCheck className="w-3.5 h-3.5" /> },
+  PAUSED: { label: "Paused", cls: "bg-blue-100 text-blue-700", icon: <PauseCircle className="w-3.5 h-3.5" /> },
+  REJECTED: { label: "Not approved", cls: "bg-rose-100 text-rose-700", icon: <XCircle className="w-3.5 h-3.5" /> },
+  EXPIRED: { label: "Finished", cls: "bg-gray-100 text-gray-500", icon: <CheckCircle className="w-3.5 h-3.5" /> },
 };
 
 const INPUT_CLS =
   "w-full text-sm border border-gray-200 rounded-xl px-3.5 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 placeholder:text-gray-300";
+
+const DRAFT_KEY = "pl_ad_draft_v1";
 
 function naira(n: number) {
   return `₦${Math.round(n).toLocaleString("en-NG")}`;
@@ -100,36 +79,71 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function Advertise() {
-  const { user, isLoggedIn } = useAuth();
-  const [params, setParams] = useSearchParams();
+// Text fields worth keeping if the visitor bounces mid-flow. The creative file
+// can't be serialised, so it's re-picked on return (rare and cheap).
+type Draft = {
+  placement: AdPlacement;
+  weeks: number;
+  startAt: string;
+  headline: string;
+  body: string;
+  ctaLabel: string;
+  ctaUrl: string;
+  brandName: string;
+  contactEmail: string;
+  contactPhone: string;
+};
 
+function loadDraft(): Partial<Draft> {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    return raw ? (JSON.parse(raw) as Partial<Draft>) : {};
+  } catch {
+    return {};
+  }
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
+
+export default function Advertise() {
+  const { user, isLoggedIn, login, signup } = useAuth();
+  const [params, setParams] = useSearchParams();
+  const draft = useRef(loadDraft()).current;
+
+  // Wizard
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  // Step 1 — placement & schedule
   const [rates, setRates] = useState<Record<AdPlacement, number> | null>(null);
+  const [placement, setPlacement] = useState<AdPlacement>(draft.placement ?? "HOME_BANNER");
+  const [weeks, setWeeks] = useState(draft.weeks ?? 1);
+  const [startAt, setStartAt] = useState(draft.startAt && draft.startAt >= todayISO() ? draft.startAt : todayISO());
+
+  // Step 2 — creative (file stays local until pay; upload needs an account)
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [headline, setHeadline] = useState(draft.headline ?? "");
+  const [body, setBody] = useState(draft.body ?? "");
+  const [ctaLabel, setCtaLabel] = useState(draft.ctaLabel ?? "Learn more");
+  const [ctaUrl, setCtaUrl] = useState(draft.ctaUrl ?? "");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  // Step 3 — contact + inline auth + pay
+  const [brandName, setBrandName] = useState(draft.brandName ?? "");
+  const [contactEmail, setContactEmail] = useState(draft.contactEmail ?? "");
+  const [contactPhone, setContactPhone] = useState(draft.contactPhone ?? "");
+  const [authMode, setAuthMode] = useState<"signup" | "signin">("signup");
+  const [authPassword, setAuthPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Campaigns list (signed-in only)
   const [myAds, setMyAds] = useState<MyAd[]>([]);
   const [loadingMine, setLoadingMine] = useState(false);
 
-  // Form state
-  const [brandName, setBrandName] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [contactPhone, setContactPhone] = useState("");
-  const [headline, setHeadline] = useState("");
-  const [body, setBody] = useState("");
-  const [ctaLabel, setCtaLabel] = useState("Learn more");
-  const [ctaUrl, setCtaUrl] = useState("");
-  const [placement, setPlacement] = useState<AdPlacement>("HOME_BANNER");
-  const [startAt, setStartAt] = useState(todayISO());
-  const [weeks, setWeeks] = useState(1);
-  const [imageUrl, setImageUrl] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const quote = useMemo(() => (rates ? rates[placement] * weeks : null), [rates, placement, weeks]);
 
-  const quote = useMemo(
-    () => (rates ? rates[placement] * weeks : null),
-    [rates, placement, weeks],
-  );
-
+  // ── Effects ──
   useEffect(() => {
     adsService.pricing().then((p) => setRates(p.weeklyRates)).catch(() => {});
   }, []);
@@ -138,12 +152,18 @@ export default function Advertise() {
     if (!isLoggedIn) return;
     setContactEmail((e) => e || user?.email || "");
     setLoadingMine(true);
-    adsService
-      .listMine()
-      .then(setMyAds)
-      .catch(() => {})
-      .finally(() => setLoadingMine(false));
+    adsService.listMine().then(setMyAds).catch(() => {}).finally(() => setLoadingMine(false));
   }, [isLoggedIn, user?.email]);
+
+  // Autosave the draft so a bounce (grabbing a logo, signing in) loses nothing.
+  useEffect(() => {
+    const d: Draft = { placement, weeks, startAt, headline, body, ctaLabel, ctaUrl, brandName, contactEmail, contactPhone };
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+    } catch {
+      /* storage full/blocked — drafts are best-effort */
+    }
+  }, [placement, weeks, startAt, headline, body, ctaLabel, ctaUrl, brandName, contactEmail, contactPhone]);
 
   // Paystack return: ?paid=<adId> → verify and refresh the list.
   useEffect(() => {
@@ -158,34 +178,99 @@ export default function Advertise() {
         params.delete("trxref");
         params.delete("reference");
         setParams(params, { replace: true });
+        try {
+          localStorage.removeItem(DRAFT_KEY);
+        } catch {
+          /* ignore */
+        }
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.get("paid"), isLoggedIn]);
 
-  const onPickImage = async (file: File | undefined) => {
+  // Object URL for the local preview.
+  useEffect(() => {
     if (!file) return;
-    setUploading(true);
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  // ── Step gating ──
+  const step2Ready = !!file && headline.trim().length >= 4 && /^https?:\/\/.+/.test(ctaUrl.trim());
+  const step3Ready =
+    brandName.trim().length >= 2 &&
+    /.+@.+\..+/.test(contactEmail.trim()) &&
+    (isLoggedIn || authPassword.length >= 8);
+
+  const goNext = () => {
     setError(null);
-    try {
-      setImageUrl(await adsService.uploadImage(file));
-    } catch {
-      setError("Couldn't upload the image. Please try a smaller file.");
-    } finally {
-      setUploading(false);
+    if (step === 1) return setStep(2);
+    if (step === 2) {
+      if (!file) return setError("Add your creative image to continue.");
+      if (headline.trim().length < 4) return setError("Give your ad a headline (at least 4 characters).");
+      if (!/^https?:\/\/.+/.test(ctaUrl.trim()))
+        return setError("Enter the landing page URL, starting with https://");
+      return setStep(3);
     }
   };
 
+  // ── Final submit: (auth if needed) → upload → create → pay ──
   const submit = async () => {
     setError(null);
-    if (!brandName.trim() || !headline.trim() || !ctaUrl.trim() || !imageUrl) {
-      setError("Please fill in the brand name, headline, landing URL and upload a creative.");
+    if (!step3Ready) {
+      setError(
+        isLoggedIn
+          ? "Fill in your brand name and a valid contact email."
+          : authMode === "signup"
+            ? "Fill in brand name, a valid email, and a password of at least 8 characters."
+            : "Fill in brand name, your account email, and your password.",
+      );
+      return;
+    }
+    if (!file) {
+      setStep(2);
+      setError("Your creative image needs to be re-added.");
       return;
     }
     setSubmitting(true);
     try {
-      const payload: CreateAdPayload = {
+      // 1. Make sure we have an account — inline, no page hop.
+      if (!isLoggedIn) {
+        try {
+          if (authMode === "signup") {
+            await signup({
+              name: brandName.trim(),
+              email: contactEmail.trim(),
+              password: authPassword,
+              phone: contactPhone.trim() || undefined,
+              role: "BUYER",
+            });
+          } else {
+            await login({ email: contactEmail.trim(), password: authPassword });
+          }
+        } catch (e: unknown) {
+          const err = e as { response?: { data?: { message?: string | string[] } } };
+          const msg = err.response?.data?.message;
+          const text = Array.isArray(msg) ? msg.join(", ") : msg;
+          // A friendlier nudge for the most common miss: account already exists.
+          if (authMode === "signup" && text?.toLowerCase().includes("already")) {
+            setAuthMode("signin");
+            setError("You already have an account with this email — enter your password to sign in instead.");
+          } else {
+            setError(text || "Couldn't sign you in. Check your details and try again.");
+          }
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      // 2. Upload the creative (needs the account from step 1).
+      const imageUrl = await adsService.uploadImage(file);
+
+      // 3. Create the campaign and hand over to Paystack.
+      const ad = await adsService.create({
         brandName: brandName.trim(),
-        contactEmail: contactEmail.trim() || user?.email || "",
+        contactEmail: contactEmail.trim(),
         contactPhone: contactPhone.trim() || undefined,
         imageUrl,
         headline: headline.trim(),
@@ -195,10 +280,9 @@ export default function Advertise() {
         placement,
         startAt: new Date(`${startAt}T09:00:00`).toISOString(),
         weeks,
-      };
-      const ad = await adsService.create(payload);
+      });
       const { paymentUrl } = await adsService.pay(ad.id);
-      window.location.href = paymentUrl; // Paystack hosted checkout
+      window.location.href = paymentUrl;
     } catch (e: unknown) {
       const err = e as { response?: { data?: { message?: string | string[] } } };
       const msg = err.response?.data?.message;
@@ -216,157 +300,104 @@ export default function Advertise() {
     }
   };
 
+  const placementName = PLACEMENTS.find((p) => p.key === placement)?.name ?? "";
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-28">
       <Navbar />
 
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-primary-dark via-primary to-emerald-700 text-white pt-28 pb-16">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+      {/* Hero — tighter than before; the wizard is the star. */}
+      <section className="bg-gradient-to-br from-primary-dark via-primary to-emerald-700 text-white pt-24 pb-14">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <span className="inline-flex items-center gap-2 bg-white/15 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
               <Megaphone className="w-3.5 h-3.5" /> Advertise on PropertyLoop
             </span>
-            <h1 className="text-3xl sm:text-5xl font-bold mt-4 max-w-2xl leading-tight">
-              Put your brand in front of Nigeria's home movers
+            <h1 className="text-3xl sm:text-4xl font-bold mt-4 leading-tight">
+              Launch your campaign in 3 quick steps
             </h1>
-            <p className="text-white/85 mt-3 max-w-xl text-sm sm:text-base">
-              Buyers, renters, agents and homeowners use PropertyLoop every day. Book a
-              placement, upload your creative, pay securely with Paystack — live after a
-              quick review.
+            <p className="text-white/85 mt-2 text-sm sm:text-base">
+              Pick a spot → add your ad → pay. Live after a quick review — no account needed until the last step.
             </p>
           </motion.div>
         </div>
       </section>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 -mt-8 pb-20 space-y-10">
-        {/* Rate card */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {PLACEMENTS.map((p) => (
-            <button
-              key={p.key}
-              onClick={() => setPlacement(p.key)}
-              className={`text-left bg-white rounded-2xl border p-5 shadow-sm transition-all ${
-                placement === p.key
-                  ? "border-primary ring-2 ring-primary/20"
-                  : "border-gray-100 hover:border-gray-200"
-              }`}
-            >
-              <p className="font-semibold text-gray-800">{p.name}</p>
-              <p className="text-xs text-gray-500 mt-1 leading-relaxed">{p.blurb}</p>
-              <p className="text-primary font-bold mt-3">
-                {rates ? `${naira(rates[p.key])}/week` : "…"}
-              </p>
-            </button>
-          ))}
-        </div>
-
-        {/* Booking form */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
-          <h2 className="text-xl font-bold text-gray-800">Book your campaign</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Flat weekly rate — the price you see is the price you pay. Every ad is
-            reviewed by our team before it goes live.
-          </p>
-
-          {!isLoggedIn ? (
-            <div className="mt-6 rounded-xl bg-gray-50 border border-gray-100 p-6 text-center">
-              <p className="text-gray-600 text-sm">
-                Sign in (or create a free account) to book a campaign and track its
-                performance.
-              </p>
-              <Link
-                to="/login"
-                className="inline-block mt-3 bg-primary text-white text-sm font-semibold px-6 py-2.5 rounded-full hover:bg-primary/90"
-              >
-                Sign in to continue
-              </Link>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 -mt-6 space-y-8">
+        {/* Wizard card */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          {/* Stepper */}
+          <div className="px-6 pt-5">
+            <div className="flex items-center gap-2">
+              {[1, 2, 3].map((s) => (
+                <div key={s} className="flex items-center gap-2 flex-1 last:flex-none">
+                  <button
+                    onClick={() => s < step && setStep(s as 1 | 2 | 3)}
+                    className={`flex items-center gap-2 shrink-0 ${s < step ? "cursor-pointer" : "cursor-default"}`}
+                  >
+                    <span
+                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors ${
+                        s < step
+                          ? "bg-primary border-primary text-white"
+                          : s === step
+                            ? "border-primary text-primary bg-primary/5"
+                            : "border-gray-200 text-gray-400"
+                      }`}
+                    >
+                      {s < step ? <Check className="w-3.5 h-3.5" /> : s}
+                    </span>
+                    <span
+                      className={`text-xs font-semibold hidden sm:block ${
+                        s === step ? "text-primary-dark" : s < step ? "text-gray-600" : "text-gray-400"
+                      }`}
+                    >
+                      {s === 1 ? "Spot & dates" : s === 2 ? "Your ad" : "Contact & pay"}
+                    </span>
+                  </button>
+                  {s < 3 && <div className={`h-0.5 flex-1 rounded ${s < step ? "bg-primary" : "bg-gray-200"}`} />}
+                </div>
+              ))}
             </div>
-          ) : (
-            <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left: fields */}
-              <div className="space-y-4">
-                <Field label="Brand name *">
-                  <input
-                    value={brandName}
-                    onChange={(e) => setBrandName(e.target.value)}
-                    placeholder="e.g. Sterling Homes Ltd"
-                    className={INPUT_CLS}
-                  />
-                </Field>
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Contact email *">
-                    <input
-                      value={contactEmail}
-                      onChange={(e) => setContactEmail(e.target.value)}
-                      type="email"
-                      className={INPUT_CLS}
-                    />
-                  </Field>
-                  <Field label="Phone (optional)">
-                    <input
-                      value={contactPhone}
-                      onChange={(e) => setContactPhone(e.target.value)}
-                      className={INPUT_CLS}
-                    />
-                  </Field>
+          </div>
+
+          <div className="p-6 sm:p-8">
+            {/* ── STEP 1 — placement + schedule ── */}
+            {step === 1 && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-800">Where should your brand show?</h2>
+                  <p className="text-sm text-gray-500 mt-0.5">Flat weekly rate — the price you see is the price you pay.</p>
                 </div>
-                <Field label="Headline * (max 90 chars)">
-                  <input
-                    value={headline}
-                    maxLength={90}
-                    onChange={(e) => setHeadline(e.target.value)}
-                    placeholder="e.g. Furnish your new home for less"
-                    className={INPUT_CLS}
-                  />
-                </Field>
-                <Field label="Supporting text (optional)">
-                  <textarea
-                    value={body}
-                    maxLength={200}
-                    onChange={(e) => setBody(e.target.value)}
-                    rows={2}
-                    className={`${INPUT_CLS} resize-none`}
-                  />
-                </Field>
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Button label">
-                    <input
-                      value={ctaLabel}
-                      maxLength={24}
-                      onChange={(e) => setCtaLabel(e.target.value)}
-                      className={INPUT_CLS}
-                    />
-                  </Field>
-                  <Field label="Landing page URL *">
-                    <input
-                      value={ctaUrl}
-                      onChange={(e) => setCtaUrl(e.target.value)}
-                      placeholder="https://yourbrand.com/offer"
-                      className={INPUT_CLS}
-                    />
-                  </Field>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {PLACEMENTS.map((p) => (
+                    <button
+                      key={p.key}
+                      onClick={() => setPlacement(p.key)}
+                      className={`relative text-left rounded-xl border p-4 transition-all ${
+                        placement === p.key
+                          ? "border-primary ring-2 ring-primary/20 bg-primary/[0.03]"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      {placement === p.key && (
+                        <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                          <Check className="w-3 h-3 text-white" />
+                        </span>
+                      )}
+                      <p className="font-semibold text-gray-800 pr-6">{p.name}</p>
+                      <p className="text-xs text-gray-500 mt-1 leading-relaxed">{p.blurb}</p>
+                      <p className="text-primary font-bold mt-2 text-sm">
+                        {rates ? `${naira(rates[p.key])}/week` : "…"}
+                      </p>
+                    </button>
+                  ))}
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 max-w-md">
                   <Field label="Start date">
-                    <input
-                      type="date"
-                      min={todayISO()}
-                      value={startAt}
-                      onChange={(e) => setStartAt(e.target.value)}
-                      className={INPUT_CLS}
-                    />
+                    <input type="date" min={todayISO()} value={startAt} onChange={(e) => setStartAt(e.target.value)} className={INPUT_CLS} />
                   </Field>
                   <Field label="Duration">
-                    <select
-                      value={weeks}
-                      onChange={(e) => setWeeks(Number(e.target.value))}
-                      className={INPUT_CLS}
-                    >
+                    <select value={weeks} onChange={(e) => setWeeks(Number(e.target.value))} className={INPUT_CLS}>
                       {[1, 2, 4, 8, 12].map((w) => (
                         <option key={w} value={w}>
                           {w} week{w > 1 ? "s" : ""}
@@ -376,90 +407,157 @@ export default function Advertise() {
                   </Field>
                 </div>
               </div>
+            )}
 
-              {/* Right: creative + summary */}
-              <div className="space-y-4">
-                <Field label="Creative image * (landscape works best)">
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => onPickImage(e.target.files?.[0])}
-                  />
-                  <button
-                    onClick={() => fileRef.current?.click()}
-                    className="w-full rounded-xl border-2 border-dashed border-gray-200 hover:border-primary/40 transition-colors overflow-hidden"
-                  >
-                    {imageUrl ? (
-                      <img src={imageUrl} alt="creative" className="w-full h-44 object-cover" />
-                    ) : (
-                      <div className="h-44 flex flex-col items-center justify-center text-gray-400">
-                        {uploading ? (
-                          <Loader2 className="w-6 h-6 animate-spin" />
-                        ) : (
-                          <>
-                            <ImagePlus className="w-7 h-7" />
-                            <span className="text-xs mt-2 font-medium">
-                              Click to upload (JPG/PNG, max 10MB)
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </button>
-                </Field>
-
-                <div className="rounded-xl bg-gray-50 border border-gray-100 p-5 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Placement</span>
-                    <span className="font-medium text-gray-800">
-                      {PLACEMENTS.find((p) => p.key === placement)?.name}
-                    </span>
+            {/* ── STEP 2 — creative + live preview ── */}
+            {step === 2 && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-800">Build your ad</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">Watch the preview update as you type.</p>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Run</span>
-                    <span className="font-medium text-gray-800">
-                      {weeks} week{weeks > 1 ? "s" : ""} from {shortDate(`${startAt}T09:00:00`)}
-                    </span>
+                  <Field label="Creative image * (landscape works best)">
+                    <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+                    <button
+                      onClick={() => fileRef.current?.click()}
+                      className="w-full rounded-xl border-2 border-dashed border-gray-200 hover:border-primary/40 transition-colors overflow-hidden"
+                    >
+                      {previewUrl ? (
+                        <img src={previewUrl} alt="creative" className="w-full h-36 object-cover" />
+                      ) : (
+                        <div className="h-36 flex flex-col items-center justify-center text-gray-400">
+                          <ImagePlus className="w-7 h-7" />
+                          <span className="text-xs mt-2 font-medium">Click to add your image (JPG/PNG, max 10MB)</span>
+                        </div>
+                      )}
+                    </button>
+                  </Field>
+                  <Field label="Headline * (max 90 chars)">
+                    <input value={headline} maxLength={90} onChange={(e) => setHeadline(e.target.value)} placeholder="e.g. Furnish your new home for less" className={INPUT_CLS} />
+                  </Field>
+                  <Field label="Supporting text (optional)">
+                    <textarea value={body} maxLength={200} onChange={(e) => setBody(e.target.value)} rows={2} className={`${INPUT_CLS} resize-none`} />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Button label">
+                      <input value={ctaLabel} maxLength={24} onChange={(e) => setCtaLabel(e.target.value)} className={INPUT_CLS} />
+                    </Field>
+                    <Field label="Landing page URL *">
+                      <input value={ctaUrl} onChange={(e) => setCtaUrl(e.target.value)} placeholder="https://yourbrand.com/offer" className={INPUT_CLS} />
+                    </Field>
                   </div>
-                  <div className="flex justify-between text-base pt-2 border-t border-gray-200">
-                    <span className="font-semibold text-gray-700">Total</span>
-                    <span className="font-bold text-primary">
-                      {quote != null ? naira(quote) : "…"}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-gray-400 flex items-center gap-1 pt-1">
-                    <ShieldCheck className="w-3.5 h-3.5" /> Secure card/bank payment via
-                    Paystack. Goes live after review (same business day).
-                  </p>
                 </div>
 
-                {error && (
-                  <p className="text-sm text-rose-600 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2">
-                    {error}
+                {/* Live preview */}
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                    Live preview · {placementName}
                   </p>
-                )}
-
-                <button
-                  onClick={submit}
-                  disabled={submitting || uploading}
-                  className="w-full bg-primary text-white font-semibold py-3.5 rounded-full hover:bg-primary/90 disabled:opacity-60 flex items-center justify-center gap-2"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" /> Redirecting to Paystack…
-                    </>
-                  ) : (
-                    <>Pay {quote != null ? naira(quote) : ""} & submit for review</>
-                  )}
-                </button>
+                  <AdPreview
+                    imageUrl={previewUrl}
+                    brandName={brandName || "Your brand"}
+                    headline={headline || "Your headline appears here"}
+                    body={body}
+                    ctaLabel={ctaLabel || "Learn more"}
+                    variant={placement === "HOME_FEED" || placement === "SEARCH_INLINE" ? "card" : "banner"}
+                  />
+                  <p className="text-[11px] text-gray-400 mt-3 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                    This is how it will look on the app and website.
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* ── STEP 3 — contact, inline auth, summary ── */}
+            {step === 3 && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-800">Almost there</h2>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      {isLoggedIn
+                        ? "Confirm your details and pay — your ad goes straight to review."
+                        : "Your details below double as your PropertyLoop account, so you can track views and clicks."}
+                    </p>
+                  </div>
+                  <Field label="Brand name *">
+                    <input value={brandName} onChange={(e) => setBrandName(e.target.value)} placeholder="e.g. Sterling Homes Ltd" className={INPUT_CLS} />
+                  </Field>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Field label="Email *">
+                      <input value={contactEmail} onChange={(e) => setContactEmail(e.target.value)} type="email" placeholder="you@brand.com" className={INPUT_CLS} disabled={isLoggedIn && !!user?.email} />
+                    </Field>
+                    <Field label="Phone (optional)">
+                      <input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} className={INPUT_CLS} />
+                    </Field>
+                  </div>
+
+                  {/* Inline auth — no page hop, no losing the draft. */}
+                  {!isLoggedIn && (
+                    <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold text-gray-600 flex items-center gap-1.5">
+                          <Lock className="w-3.5 h-3.5" />
+                          {authMode === "signup" ? "Choose a password for your account" : "Sign in to your account"}
+                        </p>
+                        <button
+                          onClick={() => { setAuthMode(authMode === "signup" ? "signin" : "signup"); setError(null); }}
+                          className="text-xs font-medium text-primary hover:underline"
+                        >
+                          {authMode === "signup" ? "I already have an account" : "I'm new here"}
+                        </button>
+                      </div>
+                      <input
+                        type="password"
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        placeholder={authMode === "signup" ? "Create a password (8+ characters)" : "Your password"}
+                        className={INPUT_CLS}
+                      />
+                    </div>
+                  )}
+                  {isLoggedIn && (
+                    <p className="text-xs text-gray-400 flex items-center gap-1.5">
+                      <CheckCircle className="w-3.5 h-3.5 text-green-600" />
+                      Signed in as {user?.email}
+                    </p>
+                  )}
+                </div>
+
+                {/* Order summary */}
+                <div className="space-y-4">
+                  <AdPreview
+                    imageUrl={previewUrl}
+                    brandName={brandName || "Your brand"}
+                    headline={headline || "Your headline"}
+                    body={body}
+                    ctaLabel={ctaLabel || "Learn more"}
+                    variant={placement === "HOME_FEED" || placement === "SEARCH_INLINE" ? "card" : "banner"}
+                  />
+                  <div className="rounded-xl bg-gray-50 border border-gray-100 p-5 space-y-2">
+                    <Row k="Placement" v={placementName} />
+                    <Row k="Run" v={`${weeks} week${weeks > 1 ? "s" : ""} from ${shortDate(`${startAt}T09:00:00`)}`} />
+                    <div className="flex justify-between text-base pt-2 border-t border-gray-200">
+                      <span className="font-semibold text-gray-700">Total</span>
+                      <span className="font-bold text-primary">{quote != null ? naira(quote) : "…"}</span>
+                    </div>
+                    <p className="text-[11px] text-gray-400 flex items-center gap-1 pt-1">
+                      <ShieldCheck className="w-3.5 h-3.5" /> Secure Paystack checkout · reviewed and live the same business day.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <p className="mt-5 text-sm text-rose-600 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2">{error}</p>
+            )}
+          </div>
         </div>
 
-        {/* My campaigns */}
+        {/* Your campaigns */}
         {isLoggedIn && (
           <div>
             <h2 className="text-xl font-bold text-gray-800 mb-4">Your campaigns</h2>
@@ -469,68 +567,41 @@ export default function Advertise() {
               </div>
             ) : myAds.length === 0 ? (
               <p className="text-sm text-gray-400 bg-white border border-gray-100 rounded-2xl p-6">
-                No campaigns yet — your first one will show up here with live view and
-                click counts.
+                No campaigns yet — your first one will show up here with live view and click counts.
               </p>
             ) : (
               <div className="space-y-3">
                 {myAds.map((ad) => {
                   const meta = STATUS_META[ad.status];
                   return (
-                    <div
-                      key={ad.id}
-                      className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col sm:flex-row sm:items-center gap-4"
-                    >
-                      <img
-                        src={ad.imageUrl}
-                        alt={ad.brandName}
-                        className="w-full sm:w-28 h-20 rounded-lg object-cover border border-gray-100"
-                      />
+                    <div key={ad.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                      <img src={ad.imageUrl} alt={ad.brandName} className="w-full sm:w-28 h-20 rounded-lg object-cover border border-gray-100" />
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${meta.cls}`}
-                          >
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${meta.cls}`}>
                             {meta.icon} {meta.label}
                           </span>
                           <span className="text-xs text-gray-400">
-                            {PLACEMENTS.find((p) => p.key === ad.placement)?.name} ·{" "}
-                            {shortDate(ad.startAt)} → {shortDate(ad.endAt)}
+                            {PLACEMENTS.find((p) => p.key === ad.placement)?.name} · {shortDate(ad.startAt)} → {shortDate(ad.endAt)}
                           </span>
                         </div>
-                        <p className="text-sm font-semibold text-gray-800 mt-1 truncate">
-                          {ad.headline}
-                        </p>
+                        <p className="text-sm font-semibold text-gray-800 mt-1 truncate">{ad.headline}</p>
                         <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-3">
-                          <span className="inline-flex items-center gap-1">
-                            <Eye className="w-3 h-3" /> {ad.impressions.toLocaleString()} views
-                          </span>
-                          <span className="inline-flex items-center gap-1">
-                            <MousePointerClick className="w-3 h-3" /> {ad.clicks.toLocaleString()} clicks
-                          </span>
-                          <span className="inline-flex items-center gap-1">
-                            <CalendarDays className="w-3 h-3" /> {naira(ad.amountNaira)}
-                          </span>
+                          <span className="inline-flex items-center gap-1"><Eye className="w-3 h-3" /> {ad.impressions.toLocaleString()} views</span>
+                          <span className="inline-flex items-center gap-1"><MousePointerClick className="w-3 h-3" /> {ad.clicks.toLocaleString()} clicks</span>
+                          <span className="inline-flex items-center gap-1"><CalendarDays className="w-3 h-3" /> {naira(ad.amountNaira)}</span>
                         </p>
                         {ad.status === "REJECTED" && ad.adminNote && (
                           <p className="text-xs text-rose-600 mt-1">Reason: {ad.adminNote}</p>
                         )}
                       </div>
                       {ad.status === "DRAFT" && (
-                        <button
-                          onClick={() => payDraft(ad.id)}
-                          className="shrink-0 bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-primary/90"
-                        >
+                        <button onClick={() => payDraft(ad.id)} className="shrink-0 bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-primary/90">
                           Pay {naira(ad.amountNaira)}
                         </button>
                       )}
                       {ad.status === "ACTIVE" && (
-                        <a
-                          href={ad.ctaUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium"
-                        >
+                        <a href={ad.ctaUrl} target="_blank" rel="noreferrer" className="shrink-0 inline-flex items-center gap-1 text-sm text-primary font-medium">
                           View landing <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       )}
@@ -543,18 +614,135 @@ export default function Advertise() {
         )}
       </main>
 
+      {/* Sticky action bar — the next step is always one tap away. */}
+      <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
+          {step > 1 && (
+            <button
+              onClick={() => { setError(null); setStep((s) => (s - 1) as 1 | 2 | 3); }}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium border border-gray-200 text-gray-600 hover:bg-gray-50"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back
+            </button>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] text-gray-400 leading-tight">
+              {placementName} · {weeks}wk
+            </p>
+            <p className="text-base font-bold text-primary-dark leading-tight">{quote != null ? naira(quote) : "…"}</p>
+          </div>
+          {step < 3 ? (
+            <button
+              onClick={goNext}
+              disabled={step === 2 && !step2Ready}
+              className="flex items-center gap-2 bg-primary text-white font-semibold text-sm px-6 py-3 rounded-full hover:bg-primary/90 disabled:opacity-50"
+            >
+              Continue <ArrowRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={submit}
+              disabled={submitting}
+              className="flex items-center gap-2 bg-primary text-white font-semibold text-sm px-6 py-3 rounded-full hover:bg-primary/90 disabled:opacity-60"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Redirecting to Paystack…
+                </>
+              ) : (
+                <>Pay {quote != null ? naira(quote) : ""} & submit</>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
       <Footer />
     </div>
   );
 }
 
+// ─── Bits ────────────────────────────────────────────────────────────────────
+
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1.5">
-        {label}
-      </span>
+      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1.5">{label}</span>
       {children}
     </label>
+  );
+}
+
+function Row({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex justify-between text-sm">
+      <span className="text-gray-500">{k}</span>
+      <span className="font-medium text-gray-800 text-right">{v}</span>
+    </div>
+  );
+}
+
+/** Mirrors the real AdSlot visuals so the preview is honest. */
+function AdPreview({
+  imageUrl,
+  brandName,
+  headline,
+  body,
+  ctaLabel,
+  variant,
+}: {
+  imageUrl: string | null;
+  brandName: string;
+  headline: string;
+  body?: string;
+  ctaLabel: string;
+  variant: "banner" | "card";
+}) {
+  if (variant === "card") {
+    return (
+      <div className="max-w-xs rounded-2xl overflow-hidden border border-gray-100 bg-white shadow-sm">
+        <div className="relative h-40 overflow-hidden bg-gray-100">
+          {imageUrl ? (
+            <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300">
+              <ImagePlus className="w-8 h-8" />
+            </div>
+          )}
+          <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-black/60 text-white px-2 py-0.5 rounded-full">
+            Sponsored
+          </span>
+        </div>
+        <div className="p-4">
+          <p className="text-xs text-gray-400 font-medium">{brandName}</p>
+          <p className="text-sm font-semibold text-gray-800 mt-0.5 line-clamp-2">{headline}</p>
+          <span className="inline-flex items-center gap-1 text-sm font-medium text-primary mt-2">
+            {ctaLabel} <ExternalLink className="w-3.5 h-3.5" />
+          </span>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="relative rounded-2xl overflow-hidden bg-gray-200">
+      {imageUrl ? (
+        <img src={imageUrl} alt="preview" className="w-full h-44 object-cover" />
+      ) : (
+        <div className="w-full h-44 flex items-center justify-center text-gray-300">
+          <ImagePlus className="w-10 h-10" />
+        </div>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+      <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-sm text-white px-2 py-0.5 rounded-full">
+        Sponsored · {brandName}
+      </span>
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <p className="text-white font-bold text-base leading-snug">{headline}</p>
+        {body && <p className="text-white/80 text-xs mt-1 line-clamp-2">{body}</p>}
+        <span className="inline-flex items-center gap-1.5 mt-2 bg-white text-gray-900 text-xs font-semibold px-3.5 py-1.5 rounded-full">
+          {ctaLabel} <ExternalLink className="w-3.5 h-3.5" />
+        </span>
+      </div>
+    </div>
   );
 }
