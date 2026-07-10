@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
 import Logo from "../../assets/logo.png";
@@ -50,8 +50,8 @@ const FlipLink = ({
   const [hovered, setHovered] = useState(false);
 
   return (
-    <a
-      href={href}
+    <Link
+      to={href}
       className={`relative inline-flex items-center py-2 px-1 ${isActive ? "after:absolute after:bottom-0 after:left-1 after:right-1 after:h-0.5 after:bg-primary after:rounded-full" : ""}`}
       style={{ perspective: "500px" }}
       onMouseEnter={() => setHovered(true)}
@@ -90,12 +90,13 @@ const FlipLink = ({
           {label}
         </motion.span>
       </div>
-    </a>
+    </Link>
   );
 };
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const closeMobileMenu = () => setMobileMenuOpen(false);
   const location = useLocation();
   const path = location.pathname;
   const { user, isLoggedIn, logoutWithRedirect, loggingOut } = useAuth();
@@ -175,9 +176,9 @@ const Navbar = () => {
       >
         {/* Left group: Logo + Nav Links */}
         <div className="flex items-center gap-10">
-          <a href="/" data-nav-logo>
+          <Link to="/" data-nav-logo>
             <img className="w-30" src={Logo} alt="Logo" />
-          </a>
+          </Link>
           <ul className="hidden lg:flex items-center gap-7">
             <li data-nav-link>
               <FlipLink label="Buy" href="/buy" isActive={path === "/buy"} />
@@ -228,8 +229,8 @@ const Navbar = () => {
                 </li>
               )}
               <li data-nav-action>
-                <a
-                  href={dashboardHref}
+                <Link
+                  to={dashboardHref}
                   className={`text-sm font-semibold px-4 py-2 rounded-full transition-colors ${
                     path === "/dashboard" || path === "/agent-dashboard"
                       ? "bg-primary text-white"
@@ -237,7 +238,7 @@ const Navbar = () => {
                   }`}
                 >
                   Dashboard
-                </a>
+                </Link>
               </li>
               <li data-nav-action>
                 <button
@@ -252,20 +253,20 @@ const Navbar = () => {
           ) : (
             <>
               <li data-nav-action>
-                <a
-                  href="/login"
+                <Link
+                  to="/login"
                   className="text-sm font-medium text-primary-dark hover:text-primary transition-colors"
                 >
                   Login
-                </a>
+                </Link>
               </li>
               <li data-nav-action>
-                <a
-                  href="/onboarding"
+                <Link
+                  to="/onboarding"
                   className="text-sm font-medium text-white bg-primary px-6 py-2 rounded-4xl hover:bg-primary-dark transition-colors"
                 >
                   Join
-                </a>
+                </Link>
               </li>
             </>
           )}
@@ -297,58 +298,66 @@ const Navbar = () => {
             exit={{ opacity: 0, y: -10 }}
             className="fixed inset-x-0 top-16 z-40 backdrop-blur-xl bg-white/60 border-b border-white/30 shadow-lg lg:hidden py-4 px-6 flex flex-col gap-3 text-sm font-medium text-primary-dark"
           >
-            <a
-              href="/buy"
+            <Link
+              to="/buy"
+              onClick={closeMobileMenu}
               className={`py-2 hover:text-primary ${path === "/buy" ? "text-primary font-semibold" : ""}`}
             >
               Buy
-            </a>
-            <a
-              href="/rent"
+            </Link>
+            <Link
+              to="/rent"
+              onClick={closeMobileMenu}
               className={`py-2 hover:text-primary ${path === "/rent" ? "text-primary font-semibold" : ""}`}
             >
               Rent
-            </a>
-            <a
-              href="/sell"
+            </Link>
+            <Link
+              to="/sell"
+              onClick={closeMobileMenu}
               className={`py-2 hover:text-primary ${path === "/sell" ? "text-primary font-semibold" : ""}`}
             >
               Sell
-            </a>
-            <a
-              href="/services"
+            </Link>
+            <Link
+              to="/services"
+              onClick={closeMobileMenu}
               className={`py-2 hover:text-primary ${path === "/services" ? "text-primary font-semibold" : ""}`}
             >
               Service Loop
-            </a>
-            <a
-              href="/feed"
+            </Link>
+            <Link
+              to="/feed"
+              onClick={closeMobileMenu}
               className={`py-2 hover:text-primary flex items-center gap-2 ${path === "/feed" ? "text-primary font-semibold" : ""}`}
             >
               Feed
               <span className="bg-primary text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full">
                 New
               </span>
-            </a>
+            </Link>
             <hr className="border-border-light" />
             {isLoggedIn && user?.role === "AGENT" && (
-              <a
-                href="/add-property"
+              <Link
+                to="/add-property"
+                onClick={closeMobileMenu}
                 className={`py-2 hover:text-primary ${path === "/add-property" ? "text-primary font-semibold" : ""}`}
               >
                 Add Property
-              </a>
+              </Link>
             )}
-            <a
-              href="/about"
+            <Link
+              to="/about"
+              onClick={closeMobileMenu}
               className={`py-2 hover:text-primary ${path === "/about" ? "text-primary font-semibold" : ""}`}
             >
               About Us
-            </a>
+            </Link>
             {isLoggedIn ? (
               <>
-                <a
-                  href={dashboardHref}
+                <Link
+                  to={dashboardHref}
+                  onClick={closeMobileMenu}
                   className={`py-2 px-4 rounded-full font-semibold transition-colors ${
                     path === "/dashboard" || path === "/agent-dashboard"
                       ? "bg-primary text-white"
@@ -356,7 +365,7 @@ const Navbar = () => {
                   }`}
                 >
                   Dashboard
-                </a>
+                </Link>
                 <button
                   onClick={logoutWithRedirect}
                   disabled={loggingOut}
@@ -367,18 +376,20 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <a
-                  href="/login"
+                <Link
+                  to="/login"
+                  onClick={closeMobileMenu}
                   className={`py-2 hover:text-primary ${path === "/login" ? "text-primary font-semibold" : ""}`}
                 >
                   Login
-                </a>
-                <a
-                  href="/onboarding"
+                </Link>
+                <Link
+                  to="/onboarding"
+                  onClick={closeMobileMenu}
                   className="py-2 hover:text-primary font-semibold"
                 >
                   Join
-                </a>
+                </Link>
               </>
             )}
           </motion.div>

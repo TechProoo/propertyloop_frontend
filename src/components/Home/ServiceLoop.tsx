@@ -263,12 +263,12 @@ const ServiceLoop = () => {
               We're onboarding verified vendors. Browse our full services
               catalog to see what's available.
             </p>
-            <a
-              href="/services"
+            <Link
+              to="/services"
               className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center"
             >
               Browse All Services
-            </a>
+            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
