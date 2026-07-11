@@ -34,14 +34,14 @@ import adsService, {
 
 const PLACEMENTS: { key: AdPlacement; name: string; blurb: string }[] = [
   {
-    key: "HOME_BANNER",
-    name: "Home banner",
-    blurb: "Wide banner at the top of the home screen, web + app.",
-  },
-  {
     key: "SPLASH",
     name: "App open (splash)",
     blurb: "Full-screen moment when the app opens — maximum visibility.",
+  },
+  {
+    key: "HOME_BANNER",
+    name: "Home banner",
+    blurb: "Wide banner at the top of the home screen, web + app.",
   },
   {
     key: "SEARCH_INLINE",
@@ -115,7 +115,7 @@ export default function Advertise() {
 
   // Step 1 — placement & schedule
   const [rates, setRates] = useState<Record<AdPlacement, number> | null>(null);
-  const [placement, setPlacement] = useState<AdPlacement>(draft.placement ?? "HOME_BANNER");
+  const [placement, setPlacement] = useState<AdPlacement>(draft.placement ?? "SPLASH");
   const [weeks, setWeeks] = useState(draft.weeks ?? 1);
   const [startAt, setStartAt] = useState(draft.startAt && draft.startAt >= todayISO() ? draft.startAt : todayISO());
 
