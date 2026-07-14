@@ -1,0 +1,8 @@
+# Security headers for the public website (served by Netlify).
+# Mirrors the admin console's hardening, minus noindex — the website WANTS SEO.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Permissions-Policy: geolocation=(self), camera=(), microphone=(), payment=()

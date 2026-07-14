@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DOMPurify from "dompurify";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   MessageCircle,
@@ -304,7 +305,9 @@ export default function FeaturedPropertyDetail() {
                   </h2>
                   <div
                     className="prose prose-sm prose-green max-w-none text-text-secondary leading-relaxed overflow-hidden"
-                    dangerouslySetInnerHTML={{ __html: property.description }}
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(property.description),
+                    }}
                   />
                 </div>
               )}
