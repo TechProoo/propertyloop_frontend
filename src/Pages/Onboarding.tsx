@@ -117,7 +117,7 @@ const Onboarding = () => {
         ...(data.role === "agent" && {
           agent: {
             agencyName: data.agencyName!,
-            licenseNumber: data.licenseNumber!,
+            licenseNumber: data.licenseNumber?.trim() || undefined,
             businessAddress: data.businessAddress!,
           },
         }),

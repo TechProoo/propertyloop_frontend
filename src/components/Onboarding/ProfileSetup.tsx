@@ -84,8 +84,7 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
     if (data.role === "agent") {
       if (!data.agencyName?.trim())
         newErrors.agencyName = "Agency name is required";
-      if (!data.licenseNumber?.trim())
-        newErrors.licenseNumber = "Company registration number is required";
+      // Company registration (RC) number is optional — no validation.
       if (!data.businessAddress?.trim())
         newErrors.businessAddress = "Business address is required";
     }
@@ -306,18 +305,16 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
               )}
             </div>
 
-            {/* Company Registration Number — required */}
+            {/* Company Registration Number — optional */}
             <div>
               <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
                 Company Registration Number{" "}
-                <span className="text-red-500" aria-hidden="true">*</span>
+                <span className="text-text-subtle font-normal">(optional)</span>
               </label>
               <div className={wrapperClass("licenseNumber")}>
                 <FileText className="absolute left-3.5 w-4 h-4 text-text-subtle" />
                 <input
                   type="text"
-                  required
-                  aria-required="true"
                   placeholder="e.g. RC1234567 or NIESV/2024/001234"
                   value={data.licenseNumber || ""}
                   onChange={(e) => {
@@ -330,7 +327,7 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
               </div>
               <p className="text-text-subtle text-[11px] mt-1 ml-1">
                 Your CAC RC number, or an equivalent professional registration
-                (e.g. NIESV, REDAN). Required to activate an agent account.
+                (e.g. NIESV, REDAN). You can add this later from your profile.
               </p>
               {errors.licenseNumber && (
                 <p className="text-red-500 text-xs mt-1 ml-1">
