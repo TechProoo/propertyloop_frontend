@@ -37,6 +37,9 @@ import {
   Flag,
   FileSignature,
   TrendingDown,
+  Gift,
+  Copy,
+  Check,
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import listingsService from "../api/services/listings";
@@ -46,6 +49,7 @@ import vendorJobsService from "../api/services/vendorJobs";
 import paymentsService from "../api/services/payments";
 import viewingsService from "../api/services/viewings";
 import offersService from "../api/services/offers";
+import usersService, { type ReferralInfo } from "../api/services/users";
 import { toast } from "../lib/toast";
 import type {
   Listing as ApiListing,
@@ -122,6 +126,26 @@ const Dashboard = () => {
   const { user: authUser, logoutWithRedirect } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Referral program — personalized link + tally.
+  const [referralInfo, setReferralInfo] = useState<ReferralInfo | null>(null);
+  const [referralCopied, setReferralCopied] = useState(false);
+
+  useEffect(() => {
+    usersService.getMyReferrals().then(setReferralInfo).catch(() => {});
+  }, []);
+
+  const copyReferralLink = async () => {
+    if (!referralInfo) return;
+    try {
+      await navigator.clipboard.writeText(referralInfo.referralLink);
+      setReferralCopied(true);
+      setTimeout(() => setReferralCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable — link is still visible/selectable */
+    }
+  };
+
   const [activeNav, setActiveNav] = useState(() => {
     // Deep-link to a section, e.g. after filing an offer (?tab=offers).
     const tab = new URLSearchParams(window.location.search).get("tab");
@@ -2834,6 +2858,73 @@ const Dashboard = () => {
                         </label>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Refer & Earn */}
+                  <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
+                    <h3 className="font-heading font-bold text-primary-dark text-base mb-1 flex items-center gap-2">
+                      <Gift className="w-4 h-4 text-primary" />
+                      Refer &amp; Earn
+                    </h3>
+                    <p className="text-text-secondary text-sm mb-4">
+                      Share your personal link — every signup through it is
+                      tracked to your account for rewards.
+                    </p>
+                    {!referralInfo ? (
+                      <p className="text-text-subtle text-sm">Loading…</p>
+                    ) : (
+                      <>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            readOnly
+                            value={referralInfo.referralLink}
+                            onFocus={(e) => e.currentTarget.select()}
+                            className="flex-1 h-11 px-4 rounded-xl bg-white/50 border border-white/40 text-sm text-primary-dark focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                          />
+                          <button
+                            onClick={copyReferralLink}
+                            className="h-11 px-5 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-glow/30 inline-flex items-center justify-center gap-2 shrink-0"
+                          >
+                            {referralCopied ? (
+                              <>
+                                <Check className="w-4 h-4" /> Copied
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" /> Copy link
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 mt-3">
+                          <span className="text-xs text-text-secondary">
+                            Code:{" "}
+                            <span className="font-mono font-bold text-primary-dark tracking-widest">
+                              {referralInfo.referralCode}
+                            </span>
+                          </span>
+                          <a
+                            href={`https://wa.me/?text=${encodeURIComponent(
+                              `Join me on PropertyLoop — find homes, agents and trusted artisans in one place. Sign up with my link: ${referralInfo.referralLink}`,
+                            )}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs font-bold text-primary hover:text-primary-dark transition-colors"
+                          >
+                            Share on WhatsApp →
+                          </a>
+                          <span className="text-xs text-text-secondary">
+                            <b className="text-primary-dark">
+                              {referralInfo.totalReferrals}
+                            </b>{" "}
+                            {referralInfo.totalReferrals === 1
+                              ? "person has"
+                              : "people have"}{" "}
+                            joined
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Account / Danger zone */}

@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ShieldCheck, Gift, Copy, Check } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import agentsService from "../../api/services/agents";
 import uploadService from "../../api/services/upload";
+import usersService, { type ReferralInfo } from "../../api/services/users";
 import ProfilePictureUpload from "../../components/Settings/ProfilePictureUpload";
 import { toast } from "../../lib/toast";
 import { C, Card, PageHeader, PrimaryButton, StatusPill } from "../../components/agent/ui";
@@ -47,6 +48,24 @@ export default function AgentSettings() {
 
   const [notif, setNotif] = useState({ leads: true, viewings: true, weekly: false });
   const [twoFa, setTwoFa] = useState(false);
+
+  const [referralInfo, setReferralInfo] = useState<ReferralInfo | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    usersService.getMyReferrals().then(setReferralInfo).catch(() => {});
+  }, []);
+
+  const copyReferralLink = async () => {
+    if (!referralInfo) return;
+    try {
+      await navigator.clipboard.writeText(referralInfo.referralLink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable — link is still visible/selectable */
+    }
+  };
 
   const handlePhoto = async (file: File): Promise<string> => {
     const { url } = await uploadService.uploadProfilePicture(file);
@@ -155,6 +174,41 @@ export default function AgentSettings() {
               </div>
               <StatusPill status={ap?.verified ? "ACTIVE" : "PENDING"} />
             </div>
+          </Card>
+
+          <Card>
+            <h3 className="m-0 mb-1.5 text-base font-extrabold flex items-center gap-2" style={{ color: C.ink }}>
+              <Gift className="w-4 h-4" style={{ color: C.primary }} /> Refer & Earn
+            </h3>
+            <p className="text-xs mt-1 mb-3" style={{ color: C.ink3 }}>
+              Share your link — every signup through it is tracked for rewards.
+            </p>
+            {!referralInfo ? (
+              <p className="text-xs" style={{ color: C.ink3 }}>Loading…</p>
+            ) : (
+              <>
+                <div className="flex gap-2">
+                  <input
+                    readOnly
+                    value={referralInfo.referralLink}
+                    onFocus={(e) => e.currentTarget.select()}
+                    className={inputCls}
+                    style={{ background: C.surface2, border: `1px solid ${C.line}`, color: C.ink2, height: 40 }}
+                  />
+                  <button
+                    onClick={copyReferralLink}
+                    className="px-3.5 h-10 inline-flex items-center gap-1.5 rounded-xl text-[12.5px] font-bold flex-shrink-0"
+                    style={{ background: C.primary, color: "#fff" }}
+                  >
+                    {linkCopied ? <><Check className="w-3.5 h-3.5" /> Copied</> : <><Copy className="w-3.5 h-3.5" /> Copy</>}
+                  </button>
+                </div>
+                <p className="text-xs mt-3" style={{ color: C.ink3 }}>
+                  <b style={{ color: C.ink }}>{referralInfo.totalReferrals}</b>{" "}
+                  {referralInfo.totalReferrals === 1 ? "person has" : "people have"} joined with your link
+                </p>
+              </>
+            )}
           </Card>
 
           <Card>
