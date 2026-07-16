@@ -22,7 +22,25 @@ export interface UpdateSettingsPayload {
   twoFactorEnabled?: boolean;
 }
 
+export interface ReferralInfo {
+  referralCode: string;
+  referralLink: string;
+  totalReferrals: number;
+  referrals: {
+    id: string;
+    name: string;
+    role: string;
+    avatarUrl?: string | null;
+    createdAt: string;
+  }[];
+}
+
 const usersService = {
+  async getMyReferrals(): Promise<ReferralInfo> {
+    const { data } = await api.get<ReferralInfo>("/users/me/referrals");
+    return data;
+  },
+
   async getProfile(): Promise<User> {
     const { data } = await api.get<User>("/users/me");
     return data;

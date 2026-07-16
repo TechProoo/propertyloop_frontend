@@ -107,6 +107,7 @@ export interface User {
   bio?: string | null;
   avatarUrl?: string | null;
   emailVerifiedAt?: string | null;
+  referralCode?: string | null;
   createdAt: string;
   buyerProfile?: BuyerProfile | null;
   agentProfile?: AgentProfile | null;

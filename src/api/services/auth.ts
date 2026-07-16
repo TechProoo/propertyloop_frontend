@@ -7,6 +7,8 @@ export interface SignupPayload {
   password: string;
   phone?: string;
   role: "BUYER" | "AGENT" | "VENDOR";
+  /** Referral code from a shared link (onboarding?ref=CODE) — optional. */
+  referralCode?: string;
   buyer?: { preferredLocations?: string };
   agent?: { agencyName: string; licenseNumber: string; businessAddress: string };
   vendor?: { serviceCategory: string; yearsExperience: string; serviceArea: string };

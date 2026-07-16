@@ -60,6 +60,15 @@ const Onboarding = () => {
     password: "",
   });
 
+  // Capture the referral code from a shared link (onboarding?ref=CODE) as
+  // early as possible and stash it in localStorage — the user may wander off
+  // to browse listings and come back before finishing signup, and the query
+  // param would be gone by then.
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) localStorage.setItem("pl_ref", ref.trim().toUpperCase());
+  }, []);
+
   useEffect(() => {
     const token = searchParams.get("wl");
     if (!token) return;
@@ -91,12 +100,17 @@ const Onboarding = () => {
     setIsSigningUp(true);
     const apiRole = roleMap[data.role];
     try {
+      const referralCode =
+        searchParams.get("ref")?.trim().toUpperCase() ||
+        localStorage.getItem("pl_ref") ||
+        undefined;
       await signup({
         name: data.fullName,
         email: data.email,
         password: data.password,
         phone: data.phone || undefined,
         role: apiRole,
+        referralCode,
         ...(data.role === "buyer" && {
           buyer: { preferredLocations: data.preferredLocation },
         }),
@@ -160,6 +174,10 @@ const Onboarding = () => {
           console.error("Waitlist activation failed:", activateErr);
         }
       }
+
+      // The referral has been recorded server-side — don't credit the same
+      // referrer again if another account signs up from this browser.
+      localStorage.removeItem("pl_ref");
 
       setCurrentStep("welcome");
     } catch (err: any) {

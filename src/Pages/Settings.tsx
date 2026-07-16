@@ -21,6 +21,9 @@ import {
   Wrench,
   ChevronRight,
   Save,
+  Gift,
+  Copy,
+  Users,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -28,6 +31,7 @@ import { useAuth } from "../context/AuthContext";
 import api from "../api/client";
 import authService from "../api/services/auth";
 import uploadService from "../api/services/upload";
+import usersService, { type ReferralInfo } from "../api/services/users";
 import type { Session } from "../api/types";
 import ProfilePictureUpload from "../components/Settings/ProfilePictureUpload";
 import FallbackImg from "../assets/fallback.png";
@@ -39,6 +43,7 @@ type Tab =
   | "security"
   | "notifications"
   | "payments"
+  | "referrals"
   | "privacy"
   | "preferences";
 
@@ -108,6 +113,30 @@ const Settings = () => {
 
   const [language, setLanguage] = useState("English");
   const [currency, setCurrency] = useState("NGN (₦)");
+
+  // Referral program
+  const [referralInfo, setReferralInfo] = useState<ReferralInfo | null>(null);
+  const [referralError, setReferralError] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    if (tab !== "referrals" || referralInfo) return;
+    usersService
+      .getMyReferrals()
+      .then(setReferralInfo)
+      .catch(() => setReferralError(true));
+  }, [tab, referralInfo]);
+
+  const copyReferralLink = async () => {
+    if (!referralInfo) return;
+    try {
+      await navigator.clipboard.writeText(referralInfo.referralLink);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      /* clipboard unavailable — the link is visible and selectable anyway */
+    }
+  };
 
   useEffect(() => {
     if (!loading && !isLoggedIn) {
@@ -226,6 +255,11 @@ const Settings = () => {
       key: "notifications",
       label: "Notifications",
       icon: <Bell className="w-4 h-4" />,
+    },
+    {
+      key: "referrals",
+      label: "Refer & Earn",
+      icon: <Gift className="w-4 h-4" />,
     },
     { key: "privacy", label: "Privacy", icon: <Shield className="w-4 h-4" /> },
     {
@@ -1120,6 +1154,128 @@ const Settings = () => {
                           <Trash2 className="w-4 h-4" /> Delete account
                         </button>
                       </div>
+                    </>
+                  )}
+
+                  {/* REFERRALS */}
+                  {tab === "referrals" && (
+                    <>
+                      <h2 className="font-heading font-bold text-primary-dark text-xl mb-1">
+                        Refer & Earn
+                      </h2>
+                      <p className="text-text-secondary text-sm mb-6">
+                        Share your personal link with friends. Every signup
+                        through it is tracked to your account for rewards.
+                      </p>
+
+                      {referralError ? (
+                        <p className="text-red-500 text-sm">
+                          Couldn't load your referral details. Please refresh
+                          and try again.
+                        </p>
+                      ) : !referralInfo ? (
+                        <p className="text-text-secondary text-sm">Loading…</p>
+                      ) : (
+                        <>
+                          {/* Link + copy */}
+                          <div className="px-5 py-4 rounded-2xl bg-bg-accent border border-border-light mb-4">
+                            <p className="text-xs font-heading font-semibold text-primary-dark mb-2">
+                              Your referral link
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <input
+                                readOnly
+                                value={referralInfo.referralLink}
+                                onFocus={(e) => e.currentTarget.select()}
+                                className="flex-1 h-11 px-4 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                              />
+                              <button
+                                onClick={copyReferralLink}
+                                className="h-11 px-5 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2 shrink-0"
+                              >
+                                {linkCopied ? (
+                                  <>
+                                    <CheckCircle className="w-4 h-4" /> Copied
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="w-4 h-4" /> Copy link
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3 mt-3">
+                              <span className="text-xs text-text-secondary">
+                                Code:{" "}
+                                <span className="font-mono font-bold text-primary-dark tracking-widest">
+                                  {referralInfo.referralCode}
+                                </span>
+                              </span>
+                              <a
+                                href={`https://wa.me/?text=${encodeURIComponent(
+                                  `Join me on PropertyLoop — find homes, agents and trusted artisans in one place. Sign up with my link: ${referralInfo.referralLink}`,
+                                )}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-xs font-bold text-primary hover:text-primary-dark transition-colors"
+                              >
+                                Share on WhatsApp →
+                              </a>
+                            </div>
+                          </div>
+
+                          {/* Stats + referred users */}
+                          <div className="px-5 py-4 rounded-2xl bg-bg-accent border border-border-light">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Users className="w-4 h-4 text-primary" />
+                              <p className="text-sm font-heading font-bold text-primary-dark">
+                                {referralInfo.totalReferrals}{" "}
+                                {referralInfo.totalReferrals === 1
+                                  ? "person has"
+                                  : "people have"}{" "}
+                                joined with your link
+                              </p>
+                            </div>
+                            {referralInfo.referrals.length === 0 ? (
+                              <p className="text-text-secondary text-xs">
+                                No referrals yet — share your link to start
+                                earning rewards.
+                              </p>
+                            ) : (
+                              <div className="flex flex-col divide-y divide-border-light">
+                                {referralInfo.referrals.map((r) => (
+                                  <div
+                                    key={r.id}
+                                    className="flex items-center gap-3 py-2.5"
+                                  >
+                                    <img
+                                      src={r.avatarUrl || FallbackImg}
+                                      alt=""
+                                      onError={(e) => {
+                                        e.currentTarget.src = FallbackImg;
+                                      }}
+                                      className="w-8 h-8 rounded-full object-cover border border-border-light"
+                                    />
+                                    <div className="min-w-0 flex-1">
+                                      <p className="text-sm font-medium text-primary-dark truncate">
+                                        {r.name}
+                                      </p>
+                                      <p className="text-[11px] text-text-secondary">
+                                        {r.role.charAt(0) +
+                                          r.role.slice(1).toLowerCase()}{" "}
+                                        · joined{" "}
+                                        {new Date(
+                                          r.createdAt,
+                                        ).toLocaleDateString()}
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
                     </>
                   )}
 
