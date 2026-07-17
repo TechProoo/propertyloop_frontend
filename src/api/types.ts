@@ -127,7 +127,7 @@ export interface AgentProfile {
   id: string;
   userId: string;
   agencyName: string;
-  licenseNumber: string;
+  licenseNumber: string | null;
   businessAddress: string;
   yearsExperience: number;
   specialty: string[];
