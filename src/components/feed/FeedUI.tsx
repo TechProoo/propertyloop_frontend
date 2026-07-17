@@ -45,6 +45,8 @@ import {
   Mail,
   Plus,
   Camera,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 /* ── tokens / helpers ────────────────────────────────────────────────── */
@@ -413,6 +415,90 @@ export const FeedToast = ({ message }: { message: string | null }) => (
 
 /* ── post card ───────────────────────────────────────────────────────── */
 
+/* ── image lightbox ──────────────────────────────────────────────────── */
+
+export const ImageLightbox = ({
+  images,
+  index,
+  onIndex,
+  onClose,
+}: {
+  images: string[];
+  index: number;
+  onIndex: (i: number) => void;
+  onClose: () => void;
+}) => {
+  const many = images.length > 1;
+  const step = useCallback(
+    (dir: number) => onIndex((index + dir + images.length) % images.length),
+    [index, images.length, onIndex],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (many && e.key === "ArrowLeft") step(-1);
+      if (many && e.key === "ArrowRight") step(1);
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [onClose, step, many]);
+
+  const navCls =
+    "absolute top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 hover:bg-black/70 grid place-items-center text-white transition-colors";
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/90 z-[140] grid place-items-center p-4 sm:p-8"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <button
+        onClick={onClose}
+        aria-label="Close image"
+        className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 hover:bg-black/70 grid place-items-center text-white transition-colors"
+      >
+        <X className="w-5 h-5" />
+      </button>
+
+      {many && (
+        <>
+          <button
+            onClick={() => step(-1)}
+            aria-label="Previous image"
+            className={`${navCls} left-3 sm:left-6`}
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => step(1)}
+            aria-label="Next image"
+            className={`${navCls} right-3 sm:right-6`}
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
+
+      <img
+        src={images[index]}
+        alt=""
+        className="max-w-full max-h-[88vh] object-contain rounded-lg select-none"
+      />
+
+      {many && (
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-black/55 text-white text-[13px] font-semibold">
+          {index + 1} / {images.length}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const PostCard = ({
   post,
   onLike,
@@ -433,6 +519,7 @@ export const PostCard = ({
   onMore: (e: React.MouseEvent) => void;
 }) => {
   const tag = TYPE_TAG[post.type];
+  const [lightbox, setLightbox] = useState<number | null>(null);
   const pollEnded =
     post.poll?.endsAt != null && new Date(post.poll.endsAt) < new Date();
 
@@ -512,7 +599,8 @@ export const PostCard = ({
           {post.images.slice(0, 3).map((src, i) => (
             <div
               key={i}
-              className={`relative bg-[#16321f] overflow-hidden ${
+              onClick={() => setLightbox(i)}
+              className={`relative bg-[#16321f] overflow-hidden cursor-zoom-in ${
                 post.images.length === 1
                   ? "h-[340px]"
                   : post.images.length >= 3 && i === 0
@@ -529,6 +617,15 @@ export const PostCard = ({
             </div>
           ))}
         </div>
+      )}
+
+      {lightbox !== null && (
+        <ImageLightbox
+          images={post.images}
+          index={lightbox}
+          onIndex={setLightbox}
+          onClose={() => setLightbox(null)}
+        />
       )}
 
       {post.insight && (
