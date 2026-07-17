@@ -8,7 +8,9 @@ import {
   Shield,
   Settings,
   BarChart3,
+  LogOut,
 } from "lucide-react";
+import { toast } from "../lib/toast";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import { useListings } from "../api/hooks";
@@ -33,6 +35,8 @@ const AdminPanel = () => {
   const [orders, setOrders] = useState<any>(null);
   const [disputes, setDisputes] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  // User id whose force-logout request is in flight ("*" = everyone).
+  const [loggingOutId, setLoggingOutId] = useState<string | null>(null);
   const {
     items: listings,
     total: listingTotal,
@@ -81,6 +85,44 @@ const AdminPanel = () => {
         .finally(() => setLoading(false));
     }
   }, [activeTab]);
+
+  const handleForceLogout = async (u: { id: string; name: string }) => {
+    if (
+      !window.confirm(
+        `Log ${u.name} out of all their devices? They'll need to sign in again.`,
+      )
+    )
+      return;
+    setLoggingOutId(u.id);
+    try {
+      const res = await adminService.forceLogoutUser(u.id);
+      toast.success(
+        `${u.name} logged out (${res.revokedSessions} device${res.revokedSessions === 1 ? "" : "s"})`,
+      );
+    } catch {
+      toast.error("Couldn't log the user out — try again");
+    } finally {
+      setLoggingOutId(null);
+    }
+  };
+
+  const handleForceLogoutEveryone = async () => {
+    if (
+      !window.confirm(
+        "Log EVERY user out of the website? Everyone except you will have to sign in again.",
+      )
+    )
+      return;
+    setLoggingOutId("*");
+    try {
+      const res = await adminService.forceLogoutEveryone();
+      toast.success(`Everyone logged out (${res.revokedSessions} sessions)`);
+    } catch {
+      toast.error("Couldn't log everyone out — try again");
+    } finally {
+      setLoggingOutId(null);
+    }
+  };
 
   const tabs = [
     {
@@ -243,10 +285,21 @@ const AdminPanel = () => {
               {/* USERS */}
               {activeTab === "users" && (
                 <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                  <div className="px-6 py-5 border-b border-white/30">
+                  <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between gap-4">
                     <h3 className="font-heading font-bold text-primary-dark text-base">
                       All Users
                     </h3>
+                    <button
+                      onClick={handleForceLogoutEveryone}
+                      disabled={loggingOutId !== null}
+                      className="flex items-center gap-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
+                      title="Revoke every user's sessions — everyone except you must sign in again"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      {loggingOutId === "*"
+                        ? "Logging everyone out…"
+                        : "Log everyone out"}
+                    </button>
                   </div>
                   {loading ? (
                     <ListRowSkeleton />
@@ -280,6 +333,15 @@ const AdminPanel = () => {
                           >
                             {u.isActive ? "Active" : "Inactive"}
                           </span>
+                          <button
+                            onClick={() => handleForceLogout(u)}
+                            disabled={loggingOutId !== null}
+                            className="flex items-center gap-1 text-[11px] font-medium text-text-secondary hover:text-red-600 hover:bg-red-50 disabled:opacity-50 px-2 py-1.5 rounded-lg transition-colors shrink-0"
+                            title="Log this user out of all their devices"
+                          >
+                            <LogOut className="w-3.5 h-3.5" />
+                            {loggingOutId === u.id ? "Logging out…" : "Log out"}
+                          </button>
                         </div>
                       ))}
                     </div>
