@@ -1,7 +1,7 @@
 import Seo from "../components/Seo";
 import Navbar from "../components/Home/Navbar";
 import Hero from "../components/Home/Hero";
-import TrustedSection from "../components/Home/TrustedSection";
+// import TrustedSection from "../components/Home/TrustedSection";
 import FeaturedHomes from "../components/Home/FeaturedHomes";
 import VideoListings from "../components/Home/VideoListings";
 import ServiceLoop from "../components/Home/ServiceLoop";
