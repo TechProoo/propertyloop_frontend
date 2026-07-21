@@ -37,6 +37,7 @@ import viewingsService from "../api/services/viewings";
 import offersService from "../api/services/offers";
 import type { Listing as ApiListing } from "../api/types";
 import BookmarkButton from "../components/ui/BookmarkButton";
+import { toast } from "../lib/toast";
 import { DetailSkeleton } from "../components/ui/Skeleton";
 import FallbackImg from "../assets/fallback.png";
 import { handleBannerError } from "../lib/bannerFallback";
@@ -222,6 +223,43 @@ const PropertyDetail = () => {
       buyerName,
     );
     return lines.join("\n");
+  };
+
+  const handleShare = async () => {
+    if (!listing) return;
+    const url = `${window.location.origin}/property/${listing.id}`;
+
+    // Native share sheet on mobile / supported browsers.
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: listing.title, url });
+        return;
+      } catch (err: any) {
+        // User dismissed the sheet — not an error worth surfacing.
+        if (err?.name === "AbortError") return;
+        // Anything else falls through to the clipboard copy below.
+      }
+    }
+
+    // Fallback: copy the link to the clipboard.
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard");
+    } catch {
+      // Last-resort fallback for browsers without the async clipboard API
+      // (or when it's blocked outside a secure context).
+      const input = document.createElement("input");
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      try {
+        document.execCommand("copy");
+        toast.success("Link copied to clipboard");
+      } catch {
+        toast.error("Couldn't copy — copy it manually: " + url);
+      }
+      document.body.removeChild(input);
+    }
   };
 
   const handleSubmitOffer = async () => {
@@ -417,7 +455,12 @@ const PropertyDetail = () => {
 
               {/* Top right actions */}
               <div className="absolute top-4 right-4 flex gap-2">
-                <button className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-white/40 transition-all">
+                <button
+                  onClick={handleShare}
+                  aria-label="Share this property"
+                  title="Share this property"
+                  className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-white/40 transition-all"
+                >
                   <Share2 className="w-4 h-4" />
                 </button>
                 <BookmarkButton id={listing.id} type="property" />
