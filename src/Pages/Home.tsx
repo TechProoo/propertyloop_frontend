@@ -33,7 +33,7 @@ const Home = () => {
         <AdSlot placement="HOME_BANNER" className="mt-6" />
       </div>
       <AdvertiseSpotlight />
-      <TrustedSection />
+      {/* <TrustedSection /> */}
       <FeaturedHomes />
       <ServiceLoop />
       <ShortletSpotlight />
