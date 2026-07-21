@@ -47,7 +47,7 @@ const VideoListings = () => {
       scrollTrigger: { trigger: el, start: "top 75%", once: true },
     });
 
-    // Heading — clip-path wipe
+    // Heading - clip-path wipe
     if (heading) {
       tl.fromTo(
         heading,
@@ -61,7 +61,7 @@ const VideoListings = () => {
       );
     }
 
-    // Subtitle — fade up
+    // Subtitle - fade up
     if (subtitle) {
       tl.fromTo(
         subtitle,
@@ -81,7 +81,7 @@ const VideoListings = () => {
       );
     }
 
-    // Cards — cinematic stagger from bottom with scale
+    // Cards - cinematic stagger from bottom with scale
     if (cards.length) {
       tl.fromTo(
         cards,
@@ -134,7 +134,7 @@ const VideoListings = () => {
           </AuthGate>
         </div>
 
-        {/* Cards grid — 3 per row */}
+        {/* Cards grid - 3 per row */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
@@ -274,7 +274,7 @@ const VideoListings = () => {
                     {home.address}
                   </p>
 
-                  {/* Spec row — 3 columns */}
+                  {/* Spec row - 3 columns */}
                   <div className="flex gap-2 mt-4 pt-4 border-t border-border-light">
                     {[
                       { Icon: Bed, value: home.beds, label: "Beds" },

@@ -50,7 +50,7 @@ const paymentsService = {
   async listBanks(): Promise<Bank[]> {
     const { data } = await api.get<Bank[]>("/payments/banks");
     const list = Array.isArray(data) ? data : ((data as any)?.banks ?? (data as any)?.data ?? []);
-    // Paystack's bank list can repeat the same code — dedupe so list keys stay unique.
+    // Paystack's bank list can repeat the same code - dedupe so list keys stay unique.
     const seen = new Set<string>();
     return (list as Bank[]).filter((b) => {
       if (seen.has(b.code)) return false;

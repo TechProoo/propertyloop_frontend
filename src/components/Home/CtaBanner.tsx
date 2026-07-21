@@ -189,7 +189,7 @@ const CtaBanner = () => {
             <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-primary/5" />
 
             <div className="relative z-10 px-5 sm:px-10 lg:px-16 py-10 sm:py-14 lg:py-20">
-              {/* Top — content */}
+              {/* Top - content */}
               <div className="flex flex-col lg:flex-row lg:items-center gap-10 sm:gap-12 lg:gap-20">
                 {/* Left text */}
                 <div className="flex-1">
@@ -211,7 +211,7 @@ const CtaBanner = () => {
                     data-cb-desc
                     className="text-text-secondary text-sm leading-relaxed mt-5 max-w-md"
                   >
-                    From first search to signed contract — and everything after
+                    From first search to signed contract - and everything after
                     the keys are handed over. Download the app or sign up to get
                     started.
                   </p>
@@ -237,7 +237,7 @@ const CtaBanner = () => {
                   </div>
                 </div>
 
-                {/* Right — phone mockup */}
+                {/* Right - phone mockup */}
                 <div
                   data-cb-phone
                   className="shrink-0 hidden lg:flex items-center justify-center"
@@ -264,7 +264,7 @@ const CtaBanner = () => {
                 </div>
               </div>
 
-              {/* Bottom — stats row */}
+              {/* Bottom - stats row */}
               <div className="mt-10 sm:mt-14 pt-6 sm:pt-8 border-t border-border-light">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
                   {stats.map((stat, i) => (
@@ -345,7 +345,7 @@ const CtaBanner = () => {
                 </div>
               ) : (
                 <>
-                  {/* Email input — stacks on mobile, row on sm+ so the
+                  {/* Email input - stacks on mobile, row on sm+ so the
                       button isn't squeezed against the input */}
                   <form
                     onSubmit={handleAppWaitlistSubmit}

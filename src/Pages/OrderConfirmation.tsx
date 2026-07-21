@@ -204,7 +204,7 @@ const OrderConfirmation = () => {
               Order confirmed!
             </h1>
             <p className="relative text-text-secondary text-sm sm:text-base mt-3 max-w-md mx-auto">
-              Thanks {order.delivery.name.split(" ")[0]} — your payment was
+              Thanks {order.delivery.name.split(" ")[0]} - your payment was
               successful and your order is on its way.
             </p>
 

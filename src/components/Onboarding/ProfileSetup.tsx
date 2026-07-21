@@ -42,7 +42,7 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // A vendor whose saved category isn't in the predefined list means they
-  // picked "Other" previously — keep the picker on "Other" and reveal the
+  // picked "Other" previously - keep the picker on "Other" and reveal the
   // free-text field pre-filled with their value so they can keep editing it.
   const presetCategories = vendorCategories.filter((c) => c !== "Other");
   const isCustomCategory =
@@ -84,7 +84,7 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
     if (data.role === "agent") {
       if (!data.agencyName?.trim())
         newErrors.agencyName = "Agency name is required";
-      // Company registration (RC) number is optional — no validation.
+      // Company registration (RC) number is optional - no validation.
       if (!data.businessAddress?.trim())
         newErrors.businessAddress = "Business address is required";
     }
@@ -102,7 +102,7 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
     return Object.keys(newErrors).length === 0;
   };
 
-  // Agents must upload a profile photo — buyers and vendors can skip and
+  // Agents must upload a profile photo - buyers and vendors can skip and
   // add one later from settings.
   const photoRequired = data.role === "agent";
   const photoMissing = photoRequired && !data.profilePhotoFile && !data.profilePhoto;
@@ -188,7 +188,7 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
             {photoRequired ? (
               <>
                 Profile picture <span className="text-red-500">*</span>{" "}
-                <span className="text-text-subtle/80">— required for agents</span>
+                <span className="text-text-subtle/80">- required for agents</span>
               </>
             ) : (
               <>Profile picture (optional)</>
@@ -305,7 +305,7 @@ const ProfileSetup = ({ data, updateData, onBack, onContinue, error, isLoading }
               )}
             </div>
 
-            {/* Company Registration Number — optional */}
+            {/* Company Registration Number - optional */}
             <div>
               <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
                 Company Registration Number{" "}

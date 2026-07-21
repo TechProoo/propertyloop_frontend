@@ -44,7 +44,7 @@ const flowSteps = [
     subtitle: "Tell the vendor what you need",
     icon: <ClipboardList className="w-6 h-6" />,
     description:
-      "Describe the work needed, agree on a price with the vendor, and select a date. The agreed price becomes the escrow amount — no surprise charges.",
+      "Describe the work needed, agree on a price with the vendor, and select a date. The agreed price becomes the escrow amount - no surprise charges.",
   },
   {
     id: "pay",
@@ -305,7 +305,7 @@ const ServiceEscrow = () => {
 
           {/* ─── Main Content ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
-            {/* Left — Active Step Detail */}
+            {/* Left - Active Step Detail */}
             <div className="flex-1">
               <AnimatePresence mode="wait">
                 {completed ? (
@@ -577,7 +577,7 @@ const ServiceEscrow = () => {
                               Confirm Completion
                             </p>
                             <p className="text-text-secondary text-xs">
-                              Job was done satisfactorily — release payment
+                              Job was done satisfactorily - release payment
                             </p>
                           </div>
                         </button>
@@ -590,7 +590,7 @@ const ServiceEscrow = () => {
                               Raise a Dispute
                             </p>
                             <p className="text-text-secondary text-xs">
-                              Something isn't right — PropertyLoop will mediate
+                              Something isn't right - PropertyLoop will mediate
                             </p>
                           </div>
                         </button>
@@ -664,7 +664,7 @@ const ServiceEscrow = () => {
               </AnimatePresence>
             </div>
 
-            {/* Right — Transaction Summary */}
+            {/* Right - Transaction Summary */}
             <div className="lg:w-90 shrink-0 flex flex-col gap-6">
               {/* Transaction card */}
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6">

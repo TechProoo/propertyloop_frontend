@@ -53,7 +53,7 @@ export interface VendorConversation {
   messages: { sender: "them" | "you"; text: string; time: string }[];
 }
 
-// Placeholder data — replaced by API calls once the dashboard is wired
+// Placeholder data - replaced by API calls once the dashboard is wired
 export const vendorStats: { value: string; label: string; change: string; color: string; bg: string }[] = [];
 export const vendorJobs: VendorJob[] = [];
 export const vendorEarnings: VendorEarning[] = [];

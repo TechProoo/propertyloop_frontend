@@ -18,7 +18,7 @@ import subscriptionsService, {
 } from "../../api/services/subscriptions";
 
 // Selectable plans. Premium maps to the backend "PRO" tier. FOUNDING is a
-// grandfathered free-forever tier — it's never shown as an option, only as the
+// grandfathered free-forever tier - it's never shown as an option, only as the
 // current plan for the early agents who hold it.
 const PLANS: {
   id: "FREE" | "STANDARD" | "PRO";
@@ -81,11 +81,11 @@ const STATUS_LABEL: Record<string, string> = {
 
 function priceForTier(tier: string | null): string {
   if (tier === "FOUNDING") return "₦0";
-  return PLANS.find((p) => p.id === tier)?.price ?? "—";
+  return PLANS.find((p) => p.id === tier)?.price ?? "-";
 }
 
 function fmtDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   return new Date(iso).toLocaleDateString("en-NG", {
     day: "numeric",
     month: "short",
@@ -147,7 +147,7 @@ export default function AgentSubscription() {
   const cancel = async () => {
     if (
       !window.confirm(
-        "Cancel your subscription? You'll move to the Free plan — your 3 most recent listings stay active and the rest are paused.",
+        "Cancel your subscription? You'll move to the Free plan - your 3 most recent listings stay active and the rest are paused.",
       )
     )
       return;
@@ -217,10 +217,10 @@ export default function AgentSubscription() {
                 </div>
                 <p className="text-[13px] mt-2 mb-0" style={{ opacity: 0.85 }}>
                   {tier === "FOUNDING"
-                    ? "You're on the free-forever Founding plan — unlimited listings, no charge."
+                    ? "You're on the free-forever Founding plan - unlimited listings, no charge."
                     : isPaid
                       ? `Renews ${fmtDate(sub?.renewsAt ?? null)}.`
-                      : "You're on the Free plan — 3 active listings. Upgrade for more."}
+                      : "You're on the Free plan - 3 active listings. Upgrade for more."}
                 </p>
                 {isPaid && (
                   <div className="flex gap-2 mt-4">

@@ -8,7 +8,7 @@ export function reportNetworkError() {
   window.dispatchEvent(new Event(NETWORK_ERROR_EVENT));
 }
 
-/** Fire when an axios request succeeds — clears any sticky offline state. */
+/** Fire when an axios request succeeds - clears any sticky offline state. */
 export function reportNetworkRecover() {
   window.dispatchEvent(new Event(NETWORK_RECOVER_EVENT));
 }

@@ -109,7 +109,7 @@ const VerifyEmailRequired = () => {
                 className="w-full h-11 px-6 rounded-full border border-border-light bg-white/80 text-primary-dark text-sm font-medium hover:border-primary hover:text-primary transition-colors inline-flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 <RefreshCw className="w-4 h-4" />
-                I've Verified — Login
+                I've Verified - Login
               </button>
               <button
                 onClick={handleLogout}

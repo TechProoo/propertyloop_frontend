@@ -87,7 +87,7 @@ const AgentSpotlight = () => {
       );
     }
 
-    // Heading — clip-path wipe
+    // Heading - clip-path wipe
     if (heading) {
       tl.fromTo(
         heading,
@@ -122,7 +122,7 @@ const AgentSpotlight = () => {
       );
     }
 
-    // Agent cards — cinematic stagger rise with 3D tilt
+    // Agent cards - cinematic stagger rise with 3D tilt
     if (cards.length) {
       tl.fromTo(
         cards,
@@ -140,7 +140,7 @@ const AgentSpotlight = () => {
       );
     }
 
-    // Trust banner — slide up
+    // Trust banner - slide up
     if (banner) {
       tl.fromTo(
         banner,
@@ -181,7 +181,7 @@ const AgentSpotlight = () => {
               className="text-text-secondary text-sm leading-relaxed mt-3 max-w-lg"
             >
               Every listing on PropertyLoop is managed by a KYC-verified agent.
-              No individual landlord posts — just professionals you can trust.
+              No individual landlord posts - just professionals you can trust.
             </p>
           </div>
           <AuthGate
@@ -192,7 +192,7 @@ const AgentSpotlight = () => {
           </AuthGate>
         </div>
 
-        {/* Agent cards — 3 per row */}
+        {/* Agent cards - 3 per row */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
@@ -229,7 +229,7 @@ const AgentSpotlight = () => {
                 data-as-card
                 className="group bg-white border border-border-light rounded-[24px] p-6 shadow-[0_2px_14px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.09)] hover:-translate-y-1 transition-all duration-300 block"
               >
-                {/* Top — avatar + name + agency */}
+                {/* Top - avatar + name + agency */}
                 <div className="flex items-center gap-4">
                   <div className="w-[68px] h-[68px] rounded-full overflow-hidden bg-bg-accent shrink-0">
                     <img
@@ -264,7 +264,7 @@ const AgentSpotlight = () => {
                   </span>
                 )}
 
-                {/* Stats — or "new agent" badge */}
+                {/* Stats - or "new agent" badge */}
                 {agent.listingsCount === 0 &&
                 agent.soldRentedCount === 0 &&
                 !agent.rating ? (
@@ -290,7 +290,7 @@ const AgentSpotlight = () => {
                     </div>
                     <div>
                       <b className="font-heading text-[20px] font-bold text-primary-dark block tracking-tight">
-                        {agent.rating > 0 ? agent.rating.toFixed(1) : "—"}
+                        {agent.rating > 0 ? agent.rating.toFixed(1) : "-"}
                       </b>
                       <span className="text-[11px] text-text-subtle">Rating</span>
                     </div>

@@ -243,7 +243,7 @@ const Shortlet = () => {
                   max: 10,
                   color: "#1f6f43",
                   bg: "bg-primary/5",
-                  desc: "Excellent — 22-24hrs daily",
+                  desc: "Excellent - 22-24hrs daily",
                 },
                 {
                   icon: <Droplets className="w-4 h-4" />,
@@ -252,7 +252,7 @@ const Shortlet = () => {
                   max: 10,
                   color: "#F5A623",
                   bg: "bg-[#FFF8ED]",
-                  desc: "Low — minor seasonal",
+                  desc: "Low - minor seasonal",
                 },
                 {
                   icon: <Car className="w-4 h-4" />,
@@ -342,7 +342,7 @@ const Shortlet = () => {
 
           {/* ─── Category sidebar + listings ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
-            {/* Left — category nav */}
+            {/* Left - category nav */}
             <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-light">
@@ -453,7 +453,7 @@ const Shortlet = () => {
               </div>
             </div>
 
-            {/* Right — listing cards */}
+            {/* Right - listing cards */}
             <div className="flex-1">
               {/* Results header */}
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">

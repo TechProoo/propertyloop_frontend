@@ -212,7 +212,7 @@ const Rent = () => {
     });
   }, [apiListings, page]);
 
-  // Furnished is not a server filter — apply it client-side over loaded pages.
+  // Furnished is not a server filter - apply it client-side over loaded pages.
   const listings = useMemo(
     () =>
       furnished
@@ -223,7 +223,7 @@ const Rent = () => {
 
   const hasMore = !furnished && !!page && !!pages && page < pages;
 
-  // Infinite scroll — auto-load the next page when the sentinel nears view.
+  // Infinite scroll - auto-load the next page when the sentinel nears view.
   useEffect(() => {
     if (!hasMore || listingsLoading) return;
     const el = loadMoreRef.current;
@@ -297,7 +297,7 @@ const Rent = () => {
     <div className="min-h-screen bg-[#f5f0eb] font-heading">
       <Seo
         title="Properties for Rent in Nigeria"
-        description="Find apartments, duplexes and houses for rent across Nigeria. Every rental is inspected and listed by a KYC-verified agent — talk straight to the person who manages it."
+        description="Find apartments, duplexes and houses for rent across Nigeria. Every rental is inspected and listed by a KYC-verified agent - talk straight to the person who manages it."
         path="/rent"
         keywords="rent property Nigeria, apartments for rent Lagos, houses for rent Nigeria, rent in Lekki, PropertyLoop rentals"
       />
@@ -326,10 +326,10 @@ const Rent = () => {
         </div>
 
         <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-16 mt-12 lg:mt-16 items-center">
-          {/* Left — copy + editorial search */}
+          {/* Left - copy + editorial search */}
           <div>
             <div className="font-display text-[15px] text-primary font-semibold tracking-wide">
-              № 01 — Renting, done right
+              № 01 - Renting, done right
             </div>
             <h1 className="font-display font-medium text-[2.6rem] sm:text-[3.4rem] lg:text-[4.125rem] leading-[0.98] tracking-[-0.03em] text-ink mt-3.5">
               Your next <span className="italic text-primary">home</span> is
@@ -342,7 +342,7 @@ const Rent = () => {
               away.
             </h1>
             <p className="text-[16.5px] text-ink-2/90 leading-relaxed max-w-[480px] mt-6">
-              Every rental is inspected and listed by a KYC-verified agent — no
+              Every rental is inspected and listed by a KYC-verified agent - no
               fake listings, no runaround. Find a place, then talk straight to
               the person who manages it.
             </p>
@@ -394,7 +394,7 @@ const Rent = () => {
             </div>
           </div>
 
-          {/* Right — photo collage */}
+          {/* Right - photo collage */}
           <div className="relative h-[340px] lg:h-[440px]">
             <div className="absolute top-0 right-0 w-[74%] h-[260px] lg:h-[320px] rounded-[18px_18px_18px_70px] overflow-hidden shadow-[0_24px_50px_rgba(0,0,0,0.16)] bg-[#16321f]">
               <img
@@ -410,7 +410,7 @@ const Rent = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            {/* chip — verified */}
+            {/* chip - verified */}
             <div className="absolute top-6 left-0 z-[4] bg-white rounded-[14px] px-3.5 py-2.5 shadow-[0_12px_30px_rgba(0,0,0,0.16)] flex items-center gap-2.5">
               <span className="w-[34px] h-[34px] rounded-[10px] bg-primary/10 text-primary grid place-items-center">
                 <ShieldCheck className="w-[17px] h-[17px]" />
@@ -424,7 +424,7 @@ const Rent = () => {
                 </small>
               </span>
             </div>
-            {/* chip — from price */}
+            {/* chip - from price */}
             <div className="absolute bottom-8 right-1.5 z-[4] bg-primary text-white rounded-[14px] px-3.5 py-2.5 shadow-[0_12px_30px_rgba(0,0,0,0.16)]">
               <small className="block text-[11px] opacity-80">From</small>
               <b className="font-display text-lg font-bold tracking-tight">
@@ -689,7 +689,7 @@ const Rent = () => {
                       )}
                     </div>
 
-                    {/* footer — agent */}
+                    {/* footer - agent */}
                     <div className="flex items-center gap-2.5 mt-auto pt-4 border-t border-line-2">
                       <div className="w-[30px] h-[30px] rounded-full bg-[#ddd5c9] overflow-hidden shrink-0 grid place-items-center text-[10px] font-bold text-primary-ink">
                         {l.agent?.avatarUrl ? (
@@ -759,7 +759,7 @@ const Rent = () => {
               New to renting on PropertyLoop?
             </h3>
             <p className="text-[15px] text-primary-ink/80 leading-relaxed mt-2 max-w-[540px]">
-              See how viewings, rental applications, and deposits work — and why
+              See how viewings, rental applications, and deposits work - and why
               you'll always deal with a verified agent, never a stranger.
             </p>
           </div>

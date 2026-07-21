@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 
 const GREEN = "#1f6f43";
 
-// PropertyLoop is free for every agent — one plan, everything included.
+// PropertyLoop is free for every agent - one plan, everything included.
 const FREE_FEATURES = [
   "Unlimited active listings",
   "Full agent profile",
@@ -19,7 +19,7 @@ const FREE_FEATURES = [
 export default function Pricing() {
   const { user } = useAuth();
   // Existing agents land on their dashboard; everyone else starts the agent
-  // sign-up flow — no payment step.
+  // sign-up flow - no payment step.
   const ctaHref = user?.role === "AGENT" ? "/agent-dashboard" : "/onboarding";
 
   return (
@@ -42,7 +42,7 @@ export default function Pricing() {
             Free for every agent
           </h1>
           <p className="mt-3 text-[15px] text-[#4d524f]">
-            PropertyLoop is completely free for agents — unlimited listings and
+            PropertyLoop is completely free for agents - unlimited listings and
             every feature, no subscription, no card required.
           </p>
         </div>
@@ -72,7 +72,7 @@ export default function Pricing() {
               </span>
             </div>
             <p className="mt-1.5 text-[13px] text-[#4d524f]">
-              List, get leads, and grow — on the house.
+              List, get leads, and grow - on the house.
             </p>
 
             <Link

@@ -134,7 +134,7 @@ const Settings = () => {
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     } catch {
-      /* clipboard unavailable — the link is visible and selectable anyway */
+      /* clipboard unavailable - the link is visible and selectable anyway */
     }
   };
 
@@ -198,7 +198,7 @@ const Settings = () => {
       setSaved(true);
       setTimeout(() => window.location.reload(), 1200);
     } catch {
-      /* ignore — show error toast in the future */
+      /* ignore - show error toast in the future */
     }
   };
 
@@ -1213,7 +1213,7 @@ const Settings = () => {
                               </span>
                               <a
                                 href={`https://wa.me/?text=${encodeURIComponent(
-                                  `Join me on PropertyLoop — find homes, agents and trusted artisans in one place. Sign up with my link: ${referralInfo.referralLink}`,
+                                  `Join me on PropertyLoop - find homes, agents and trusted artisans in one place. Sign up with my link: ${referralInfo.referralLink}`,
                                 )}`}
                                 target="_blank"
                                 rel="noreferrer"
@@ -1238,7 +1238,7 @@ const Settings = () => {
                             </div>
                             {referralInfo.referrals.length === 0 ? (
                               <p className="text-text-secondary text-xs">
-                                No referrals yet — share your link to start
+                                No referrals yet - share your link to start
                                 earning rewards.
                               </p>
                             ) : (

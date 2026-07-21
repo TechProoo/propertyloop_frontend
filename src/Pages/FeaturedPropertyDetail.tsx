@@ -50,7 +50,7 @@ export default function FeaturedPropertyDetail() {
 
   const waMessage = property
     ? encodeURIComponent(
-        `Hi PropertyLoop! I'm interested in: *${property.title}* — ${property.location} (${property.priceLabel}). Please share more details.`,
+        `Hi PropertyLoop! I'm interested in: *${property.title}* - ${property.location} (${property.priceLabel}). Please share more details.`,
       )
     : encodeURIComponent(
         "Hi PropertyLoop! I'm interested in a property I saw on your site.",
@@ -61,7 +61,7 @@ export default function FeaturedPropertyDetail() {
   );
 
   const emailSubject = property
-    ? encodeURIComponent(`Enquiry: ${property.title} — ${property.location}`)
+    ? encodeURIComponent(`Enquiry: ${property.title} - ${property.location}`)
     : encodeURIComponent("Property Enquiry");
 
   const typeBadge =
@@ -163,7 +163,7 @@ export default function FeaturedPropertyDetail() {
                 </span>
               </div>
 
-              {/* Bottom overlay — title + price */}
+              {/* Bottom overlay - title + price */}
               <div className="absolute bottom-0 left-0 right-0 px-5 md:px-10 pb-6 pt-10">
                 <h1 className="font-heading font-bold text-white text-2xl md:text-3xl leading-tight drop-shadow-lg">
                   {property.title}
@@ -182,7 +182,7 @@ export default function FeaturedPropertyDetail() {
               {/* Image count pill */}
               {allImages.length > 1 && (
                 <span className="absolute bottom-6 right-5 md:right-10 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/50 text-white backdrop-blur-sm">
-                  1 / {allImages.length} — tap to zoom
+                  1 / {allImages.length} - tap to zoom
                 </span>
               )}
             </div>
@@ -216,7 +216,7 @@ export default function FeaturedPropertyDetail() {
 
           {/* ── Body ────────────────────────────────────────────────── */}
           <div className="max-w-7xl mx-auto px-4 md:px-10 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left column — details + video + description */}
+            {/* Left column - details + video + description */}
             <div className="lg:col-span-2 space-y-6 min-w-0">
               {/* Quick stats */}
               <div className="bg-white rounded-2xl border border-border-light p-5 flex flex-wrap gap-x-8 gap-y-3">
@@ -313,7 +313,7 @@ export default function FeaturedPropertyDetail() {
               )}
             </div>
 
-            {/* Right column — contact + list CTA */}
+            {/* Right column - contact + list CTA */}
             <div className="space-y-5 lg:sticky lg:top-24 self-start">
               {/* Contact card */}
               <div className="bg-white rounded-2xl border border-border-light p-5 shadow-sm">
@@ -321,7 +321,7 @@ export default function FeaturedPropertyDetail() {
                   Interested in this property?
                 </h2>
                 <p className="text-text-secondary text-xs mb-4">
-                  Reach out via any channel below — our team responds fast.
+                  Reach out via any channel below - our team responds fast.
                 </p>
 
                 <div className="space-y-2.5">

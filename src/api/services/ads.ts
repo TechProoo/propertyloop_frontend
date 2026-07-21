@@ -61,7 +61,7 @@ const adsService = {
       .get<PublicAd[]>("/ads/serve", { params: { placement } })
       .then((r) => r.data);
   },
-  /** Fire-and-forget beacons — never surface failures to the UI. */
+  /** Fire-and-forget beacons - never surface failures to the UI. */
   impression(id: string): void {
     void api.post(`/ads/${id}/impression`).catch(() => {});
   },

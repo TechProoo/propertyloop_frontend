@@ -325,7 +325,7 @@ const Feed = () => {
               <p className="font-display text-xl text-ink">Nothing here yet</p>
               <p className="text-sm text-ink-3 mt-2 max-w-xs mx-auto">
                 {hashtag
-                  ? `No posts tagged #${hashtag} yet — be the first.`
+                  ? `No posts tagged #${hashtag} yet - be the first.`
                   : filter === "following"
                     ? "Follow agents, vendors and developers to fill this feed."
                     : filter === "saved"

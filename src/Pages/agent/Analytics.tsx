@@ -56,10 +56,10 @@ export default function AgentAnalytics() {
       <PageHeader title="Analytics" subtitle="Your performance across all listings." />
 
       <div className="mt-[18px] grid gap-3.5 grid-cols-2 xl:grid-cols-4">
-        {stat(loading ? "—" : views.toLocaleString(), "Listing views")}
-        {stat(loading ? "—" : leadsTotal.toString(), "Total leads")}
-        {stat(loading ? "—" : `${stats?.leads.conversionRate ?? 0}%`, "View → lead", undefined, "flat")}
-        {stat(loading ? "—" : closed.toString(), "Deals closed", undefined, "flat")}
+        {stat(loading ? "-" : views.toLocaleString(), "Listing views")}
+        {stat(loading ? "-" : leadsTotal.toString(), "Total leads")}
+        {stat(loading ? "-" : `${stats?.leads.conversionRate ?? 0}%`, "View → lead", undefined, "flat")}
+        {stat(loading ? "-" : closed.toString(), "Deals closed", undefined, "flat")}
       </div>
 
       <div className="mt-4 grid gap-4 items-start grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
@@ -86,7 +86,7 @@ export default function AgentAnalytics() {
             </svg>
           </div>
           <p className="text-xs mt-1 mb-0" style={{ color: C.ink3 }}>
-            Trend is illustrative — connect a time-series endpoint to plot real daily figures.
+            Trend is illustrative - connect a time-series endpoint to plot real daily figures.
           </p>
         </Card>
 

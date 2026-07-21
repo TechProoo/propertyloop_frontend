@@ -326,7 +326,7 @@ const AgentDashboard = () => {
         .map((s) => s.trim())
         .filter((s) => s.length > 0);
 
-      // Only send fields with actual values — empty strings fail
+      // Only send fields with actual values - empty strings fail
       // backend validators like @IsUrl() (website) even when @IsOptional.
       const payload: Record<string, unknown> = {
         name: profileName.trim(),
@@ -947,7 +947,7 @@ const AgentDashboard = () => {
 
         {/* Page Content */}
         <div className="p-6 lg:p-8 overflow-x-hidden">
-          {/* Profile-photo nudge — shown only when an agent has no avatar
+          {/* Profile-photo nudge - shown only when an agent has no avatar
               and hasn't dismissed the banner this browser. Buyers leaving
               their photo blank don't see this. */}
           {!user?.avatarUrl && !photoNudgeDismissed && (
@@ -2213,7 +2213,7 @@ const AgentDashboard = () => {
                                 </div>
                               </div>
                               <h3 className="font-heading font-bold text-primary-dark text-xl mb-3">
-                                Your inbox is quiet — for now
+                                Your inbox is quiet - for now
                               </h3>
                               <p className="text-text-secondary text-sm leading-relaxed mb-6">
                                 When a buyer wants to negotiate or ask about one

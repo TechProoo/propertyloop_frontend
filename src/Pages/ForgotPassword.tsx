@@ -132,7 +132,7 @@ const ForgotPassword = () => {
           className="w-full max-w-md"
         >
           <AnimatePresence mode="wait">
-            {/* STEP 1 — EMAIL */}
+            {/* STEP 1 - EMAIL */}
             {step === "email" && (
               <motion.div
                 key="email"
@@ -149,7 +149,7 @@ const ForgotPassword = () => {
                     Forgot password?
                   </h1>
                   <p className="text-text-secondary text-sm mt-2">
-                    No worries — enter the email associated with your account
+                    No worries - enter the email associated with your account
                     and we'll send you a reset code.
                   </p>
                 </div>
@@ -208,7 +208,7 @@ const ForgotPassword = () => {
               </motion.div>
             )}
 
-            {/* STEP 2 — CODE */}
+            {/* STEP 2 - CODE */}
             {step === "code" && (
               <motion.div
                 key="code"
@@ -293,7 +293,7 @@ const ForgotPassword = () => {
               </motion.div>
             )}
 
-            {/* STEP 3 — RESET */}
+            {/* STEP 3 - RESET */}
             {step === "reset" && (
               <motion.div
                 key="reset"
@@ -402,7 +402,7 @@ const ForgotPassword = () => {
               </motion.div>
             )}
 
-            {/* STEP 4 — SUCCESS */}
+            {/* STEP 4 - SUCCESS */}
             {step === "success" && (
               <motion.div
                 key="success"

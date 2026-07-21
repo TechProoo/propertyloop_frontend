@@ -8,7 +8,7 @@ import "leaflet/dist/leaflet.css";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 
-// Brand glyphs — same set used in Footer.tsx (lucide-react too old to ship them)
+// Brand glyphs - same set used in Footer.tsx (lucide-react too old to ship them)
 type IconProps = { className?: string };
 
 const XIcon = ({ className = "" }: IconProps) => (
@@ -142,7 +142,7 @@ const Contact = () => {
 
           {/* Two-column */}
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
-            {/* Left — Form */}
+            {/* Left - Form */}
             <div className="flex-1">
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
@@ -265,7 +265,7 @@ const Contact = () => {
               </motion.div>
             </div>
 
-            {/* Right — Info + Map */}
+            {/* Right - Info + Map */}
             <div className="lg:w-100 shrink-0 flex flex-col gap-6">
               <motion.div
                 initial={{ opacity: 0, y: 15 }}

@@ -11,7 +11,7 @@ type State = "verifying" | "secured" | "pending";
 /**
  * Paystack redirects the buyer here after a web escrow checkout
  * (`FRONTEND_URL/payment-callback?jobId=…&reference=…`). We actively verify the
- * charge with the backend (which locks escrow — idempotent with the webhook) so
+ * charge with the backend (which locks escrow - idempotent with the webhook) so
  * the buyer sees "secured" immediately instead of waiting on the webhook.
  */
 const PaymentCallback = () => {
@@ -27,7 +27,7 @@ const PaymentCallback = () => {
         setState("pending");
         return;
       }
-      // Retry a few times — the charge can take a beat to settle on Paystack's side.
+      // Retry a few times - the charge can take a beat to settle on Paystack's side.
       for (let attempt = 0; attempt < 4; attempt++) {
         try {
           const res = await paymentsService.verifyPayment(reference);
@@ -37,7 +37,7 @@ const PaymentCallback = () => {
             return;
           }
         } catch {
-          /* transient — retry */
+          /* transient - retry */
         }
         await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
         if (cancelled) return;
@@ -103,7 +103,7 @@ const PaymentCallback = () => {
             </h1>
             <p className="text-text-secondary text-sm mt-2 leading-relaxed">
               If you completed the payment, your booking will show as secured in
-              a moment or two — check your dashboard. You haven't been charged
+              a moment or two - check your dashboard. You haven't been charged
               twice.
             </p>
             <Link

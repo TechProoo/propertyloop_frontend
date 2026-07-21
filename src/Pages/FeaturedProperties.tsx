@@ -71,7 +71,7 @@ const FeaturedProperties = () => {
     fetchPage(1);
   }, [fetchPage]);
 
-  // Infinite scroll — load the next page when the sentinel enters the viewport
+  // Infinite scroll - load the next page when the sentinel enters the viewport
   useEffect(() => {
     const node = sentinelRef.current;
     if (!node) return;
@@ -96,7 +96,7 @@ const FeaturedProperties = () => {
     <div className="min-h-screen bg-[#f5f0eb]">
       <Seo
         title="Featured Properties"
-        description="Browse all hand-picked properties on PropertyLoop — verified by our agents with full logbook history and transparent pricing."
+        description="Browse all hand-picked properties on PropertyLoop - verified by our agents with full logbook history and transparent pricing."
         path="/featured"
         keywords="featured properties Nigeria, verified listings, buy property, rent property Lagos"
       />
@@ -267,7 +267,7 @@ const FeaturedProperties = () => {
               )}
               {!hasMore && !loadingMore && (
                 <p className="mt-12 text-center text-text-secondary text-sm">
-                  You’ve reached the end — that’s every featured property.
+                  You’ve reached the end - that’s every featured property.
                 </p>
               )}
             </>

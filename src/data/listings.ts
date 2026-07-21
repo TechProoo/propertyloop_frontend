@@ -134,7 +134,7 @@ export const listings: Listing[] = [
     agentId: "tunde-bakare",
     type: "sale",
     propertyType: "House",
-    description: "A magnificent 6-bedroom waterfront mansion on Banana Island — Lagos's most exclusive address. This estate features a private jetty, infinity pool overlooking the lagoon, home cinema, gym, staff quarters, and lush tropical gardens. Every room is finished to the highest international standards.",
+    description: "A magnificent 6-bedroom waterfront mansion on Banana Island - Lagos's most exclusive address. This estate features a private jetty, infinity pool overlooking the lagoon, home cinema, gym, staff quarters, and lush tropical gardens. Every room is finished to the highest international standards.",
     features: ["Waterfront", "Private Jetty", "Infinity Pool", "Home Cinema", "Gym", "Staff Quarters", "Generator", "Smart Home"],
     yearBuilt: "2021",
     verified: true,

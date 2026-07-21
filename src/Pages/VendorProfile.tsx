@@ -93,7 +93,7 @@ const ReviewDisputeSection = ({
         setDisputeText("");
       }, 2000);
     } catch {
-      // silently ignore — the form stays open so user can retry
+      // silently ignore - the form stays open so user can retry
     }
   };
 
@@ -350,7 +350,7 @@ const VendorProfile = () => {
     <div className="min-h-screen bg-[#f5f0eb]">
       <Seo
         title={`${vendor.name} · ${vendor.category || "Service Vendor"}`}
-        description={`${vendor.name} — verified ${vendor.category || "service"} vendor on PropertyLoop. View portfolio, reviews, and book directly with secure escrow.`}
+        description={`${vendor.name} - verified ${vendor.category || "service"} vendor on PropertyLoop. View portfolio, reviews, and book directly with secure escrow.`}
         path={`/vendor/${vendor.id}`}
         type="profile"
         image={vendor.avatarUrl || vendor.bannerImage || undefined}
@@ -536,7 +536,7 @@ const VendorProfile = () => {
                   </div>
                 </div>
 
-                {/* Contact buttons — desktop */}
+                {/* Contact buttons - desktop */}
                 <div className="hidden lg:flex flex-col gap-3 shrink-0">
                   <Link
                     to={`/book-service/${vendor.id}`}
@@ -577,7 +577,7 @@ const VendorProfile = () => {
 
           {/* ─── Main content grid ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
-            {/* Left — About + Portfolio + Reviews */}
+            {/* Left - About + Portfolio + Reviews */}
             <div className="flex-1">
               {/* About */}
               <motion.div
@@ -751,7 +751,7 @@ const VendorProfile = () => {
               </motion.div>
             </div>
 
-            {/* Right sidebar — Contact + CTA */}
+            {/* Right sidebar - Contact + CTA */}
             <div className="lg:w-80 shrink-0">
               <div className="sticky top-8">
                 {/* Contact card */}

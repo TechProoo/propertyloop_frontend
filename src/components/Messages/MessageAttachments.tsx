@@ -5,7 +5,7 @@ function isImageUrl(url: string) {
 }
 
 /**
- * Renders a message's attachments — images inline (tap to open full size),
+ * Renders a message's attachments - images inline (tap to open full size),
  * other files as a labelled download chip. Themed by sender so it reads on
  * both the emerald "you" bubble and the light "them" bubble.
  */

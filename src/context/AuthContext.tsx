@@ -68,13 +68,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     init();
   }, []);
 
-  // No proactive refresh interval — the access token is refreshed on demand
+  // No proactive refresh interval - the access token is refreshed on demand
   // whenever a request 401s. Both this bootstrap refresh and the 401
   // interceptor go through the SAME single-flight refreshSession() in
   // client.ts, so concurrent refreshes collapse into one token rotation.
   // A second, independent refresh path here previously raced the interceptor
   // and tripped the backend's refresh-token reuse detection, which revoked the
-  // entire session — that path no longer exists.
+  // entire session - that path no longer exists.
 
   const signup = useCallback(async (payload: SignupPayload) => {
     const res = await authService.signup(payload);

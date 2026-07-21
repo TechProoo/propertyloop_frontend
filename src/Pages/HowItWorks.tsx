@@ -19,7 +19,7 @@ const steps = [
     icon: <Search className="w-5 h-5" />,
     title: "Find a Service",
     description:
-      "Browse verified vendors by category — plumbing, electrical, building, cleaning, and more. Filter by location, rating, and price.",
+      "Browse verified vendors by category - plumbing, electrical, building, cleaning, and more. Filter by location, rating, and price.",
     image:
       "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=400&fit=crop",
   },
@@ -35,7 +35,7 @@ const steps = [
     icon: <CalendarCheck className="w-5 h-5" />,
     title: "Message & Schedule",
     description:
-      "Reach out directly through PropertyLoop messaging, share what you need, and agree on timing — all without leaving the platform.",
+      "Reach out directly through PropertyLoop messaging, share what you need, and agree on timing - all without leaving the platform.",
     image:
       "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop",
   },
@@ -59,7 +59,7 @@ const steps = [
     icon: <BookOpen className="w-5 h-5" />,
     title: "Logged to Property Logbook",
     description:
-      "Every completed service is automatically recorded against your property's permanent logbook — building verifiable history.",
+      "Every completed service is automatically recorded against your property's permanent logbook - building verifiable history.",
     image:
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop",
   },
@@ -95,7 +95,7 @@ const faqs = [
   },
   {
     q: "What if I'm not happy with the work?",
-    a: "Reach out to the vendor directly first. If you can't resolve it, leave an honest review and contact our support team — your feedback shapes the network.",
+    a: "Reach out to the vendor directly first. If you can't resolve it, leave an honest review and contact our support team - your feedback shapes the network.",
   },
   {
     q: "How do I find the right vendor?",
@@ -187,7 +187,7 @@ const HowItWorks = () => {
                   key={i}
                   className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 p-6"
                 >
-                  {/* Step number — clipped circle top-right */}
+                  {/* Step number - clipped circle top-right */}
                   <div className="w-16 h-16 bg-primary/10 rounded-full absolute -right-3 -top-3">
                     <span className="absolute bottom-4 left-5 font-heading font-bold text-primary text-lg">
                       {String(i + 1).padStart(2, "0")}
@@ -278,7 +278,7 @@ const HowItWorks = () => {
                   key={i}
                   className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 p-6"
                 >
-                  {/* Q number — clipped circle top-right */}
+                  {/* Q number - clipped circle top-right */}
                   <div className="w-16 h-16 bg-primary/10 rounded-full absolute -right-3 -top-3">
                     <span className="absolute bottom-4 left-5 font-heading font-bold text-primary text-lg">
                       {String(i + 1).padStart(2, "0")}
@@ -311,7 +311,7 @@ const HowItWorks = () => {
                 </h3>
                 <p className="text-text-secondary text-sm mt-2 max-w-lg">
                   Browse our network of KYC-verified plumbers, electricians,
-                  builders, and more — all rated and reviewed by real
+                  builders, and more - all rated and reviewed by real
                   customers.
                 </p>
               </div>

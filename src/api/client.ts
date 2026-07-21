@@ -15,7 +15,7 @@ export const API_BASE =
 
 const api = axios.create({
   baseURL: API_BASE,
-  // 90s default — Render free-tier cold starts can take 40–60s on the first
+  // 90s default - Render free-tier cold starts can take 40–60s on the first
   // request after idle; 30s killed presign/create calls before the dyno had
   // a chance to boot. Per-request overrides (e.g. R2 PUTs at 10min) still apply.
   timeout: 90_000,
@@ -25,7 +25,7 @@ const api = axios.create({
 
 // ─── Token helpers ──────────────────────────────────────────────────────────
 //
-// Refresh token lives in an HttpOnly Secure cookie set by the backend —
+// Refresh token lives in an HttpOnly Secure cookie set by the backend -
 // unreadable from JS, immune to XSS exfiltration. The access token lives
 // only in memory: short-lived, lost on full page reload, recovered by
 // calling /auth/refresh during app bootstrap (see AuthContext).
@@ -90,7 +90,7 @@ const authChannel =
     : null;
 
 authChannel?.addEventListener("message", (e: MessageEvent) => {
-  // A sibling tab refreshed — adopt its access token in memory. We set the
+  // A sibling tab refreshed - adopt its access token in memory. We set the
   // field directly (not via a broadcasting path) so this doesn't echo back.
   if (e.data?.type === "access" && typeof e.data.token === "string") {
     accessToken = e.data.token;
@@ -117,7 +117,7 @@ export function refreshSession(): Promise<string> {
     refreshPromise = p;
     // Clear the slot once settled so the next refresh starts fresh. Attaching
     // handlers here (rather than in callers) keeps a single reset point and
-    // swallows the rejection on this bookkeeping chain — callers still await
+    // swallows the rejection on this bookkeeping chain - callers still await
     // `p` directly and handle the error themselves.
     const clear = () => {
       if (refreshPromise === p) refreshPromise = null;
@@ -135,7 +135,7 @@ api.interceptors.response.use(
     return res;
   },
   async (error: AxiosError) => {
-    // No response means the request never reached the server — offline,
+    // No response means the request never reached the server - offline,
     // DNS failure, CORS preflight blocked, server down, etc. Notify the
     // global offline boundary so it can surface the network-error page.
     if (!error.response) {

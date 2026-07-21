@@ -171,7 +171,7 @@ const Marketplace = () => {
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
                 Source quality building materials from verified Nigerian
-                suppliers. Compare prices, check reviews, and order directly —
+                suppliers. Compare prices, check reviews, and order directly -
                 all within the PropertyLoop ecosystem.
               </p>
 

@@ -52,12 +52,12 @@ export function useConversations() {
   // declare it as a dep and rebuild on every state change.
   const activeMessagesRef = useRef(activeMessages);
   activeMessagesRef.current = activeMessages;
-  // Which conversation ids we've already loaded messages for — so a live
+  // Which conversation ids we've already loaded messages for - so a live
   // incoming message only appends to threads the UI is actually showing.
   const loadedConvosRef = useRef<Set<string>>(new Set());
   // In-flight guard so that callers (e.g. dashboards calling
   // loadMessages from inside render) can't trigger duplicate fetches
-  // before the first one resolves — a single fetch per conversation.
+  // before the first one resolves - a single fetch per conversation.
   const inFlightRef = useRef(new Set<string>());
 
   useEffect(() => {

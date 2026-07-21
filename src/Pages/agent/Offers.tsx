@@ -88,7 +88,7 @@ export default function AgentOffers() {
     try {
       await offersService.accept(offer.id);
       await load();
-      toast.success("Offer accepted — a purchase has been created.");
+      toast.success("Offer accepted - a purchase has been created.");
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Couldn't accept. Please try again.");
     } finally {

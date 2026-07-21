@@ -227,7 +227,7 @@ const NewDevelopments = () => {
 
           {/* ─── Sidebar + Grid ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
-            {/* Left — sidebar */}
+            {/* Left - sidebar */}
             <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               {/* Categories */}
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
@@ -327,7 +327,7 @@ const NewDevelopments = () => {
               </div>
             </div>
 
-            {/* Right — development cards */}
+            {/* Right - development cards */}
             <div className="flex-1">
               {/* Results header */}
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">

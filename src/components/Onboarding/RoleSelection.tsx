@@ -41,7 +41,7 @@ const roles: {
     title: "Buyer / Renter",
     subtitle: "Find your perfect home",
     description:
-      "Search verified listings, view price histories, and close deals — all in one place.",
+      "Search verified listings, view price histories, and close deals - all in one place.",
     icon: <Home className="w-6 h-6" />,
     features: [
       { icon: <Search className="w-3.5 h-3.5" />, text: "Smart property search" },

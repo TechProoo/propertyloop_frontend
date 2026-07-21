@@ -1,4 +1,4 @@
-// Dedicated agent notifications page — the full list behind the bell
+// Dedicated agent notifications page - the full list behind the bell
 // dropdown's "View all". Shares its data + read-state with the dropdown via
 // agentNotifications so the two stay in sync.
 import { useEffect, useState } from "react";
@@ -68,7 +68,7 @@ export default function AgentNotifications() {
           <EmptyState
             icon={<BellOff className="w-6 h-6" />}
             title="No notifications"
-            body="You're all caught up — new activity will show up here."
+            body="You're all caught up - new activity will show up here."
           />
         ) : (
           <div

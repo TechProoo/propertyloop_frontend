@@ -242,7 +242,7 @@ const Messages = () => {
           </div>
 
           <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] overflow-hidden mb-20 h-[640px] flex">
-            {/* LEFT — conversation list */}
+            {/* LEFT - conversation list */}
             <aside className={`w-full md:w-85 shrink-0 border-r border-border-light flex flex-col ${mobileShowChat ? "hidden md:flex" : "flex"}`}>
               <div className="p-4 border-b border-border-light">
                 <div className="relative">
@@ -326,7 +326,7 @@ const Messages = () => {
               </div>
             </aside>
 
-            {/* RIGHT — active chat */}
+            {/* RIGHT - active chat */}
             <section className={`flex-1 min-w-0 flex flex-col ${mobileShowChat ? "flex" : "hidden md:flex"}`}>
               {active ? (
                 <>
@@ -503,7 +503,7 @@ const Messages = () => {
       </main>
       <Footer />
 
-      {/* Image lightbox — tap-to-expand, like the app's PhotoViewer */}
+      {/* Image lightbox - tap-to-expand, like the app's PhotoViewer */}
       {lightbox && (
         <div
           className="fixed inset-0 z-[200] bg-black/85 flex items-center justify-center p-4"

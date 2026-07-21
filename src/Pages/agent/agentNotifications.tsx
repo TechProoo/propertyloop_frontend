@@ -3,7 +3,7 @@
 // their items from here so the two never drift apart.
 //
 // Every notification is built from real account state (profile completeness,
-// verification, leads, viewings, listings) — nothing here is fabricated. The
+// verification, leads, viewings, listings) - nothing here is fabricated. The
 // "Finish your profile" nudge always leads the list while the profile is bare.
 import { useState } from "react";
 import type { ReactNode } from "react";
@@ -52,7 +52,7 @@ export function buildAgentNotifications(
   const list: AgentNotification[] = [];
   const ap = user?.agentProfile ?? null;
 
-  // 1. Profile completion — always leads the list while incomplete.
+  // 1. Profile completion - always leads the list while incomplete.
   if (!user?.avatarUrl || !ap?.agencyName || !user?.bio) {
     list.push({
       id: "finish-profile",
@@ -83,7 +83,7 @@ export function buildAgentNotifications(
       id: `new-leads-${n}`,
       icon: <Users className="w-[18px] h-[18px]" />,
       title: `${plural(n, "new lead", "new leads")} waiting`,
-      desc: "Follow up quickly — fresh leads convert best.",
+      desc: "Follow up quickly - fresh leads convert best.",
       to: "/agent-dashboard/messages",
       tone: "info",
     });

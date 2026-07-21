@@ -246,7 +246,7 @@ const DisputeCenter = () => {
                         {tab === "active" ? "No active disputes" : "No resolved disputes yet"}
                       </h3>
                       <p className="text-text-secondary text-sm mt-1 max-w-sm mx-auto">
-                        {tab === "active" ? "Great news — you have no ongoing disputes." : "Resolved disputes will appear here for your records."}
+                        {tab === "active" ? "Great news - you have no ongoing disputes." : "Resolved disputes will appear here for your records."}
                       </p>
                     </div>
                   ) : (
@@ -294,7 +294,7 @@ const DisputeCenter = () => {
                                       <p className="text-xs font-heading font-semibold text-primary-dark mb-2">Dispute Details</p>
                                       <div className="flex flex-col gap-2 text-xs">
                                         {[
-                                          ["Filed", job.disputedAt ? new Date(job.disputedAt).toLocaleDateString("en-NG", { month: "long", day: "numeric", year: "numeric" }) : "—"],
+                                          ["Filed", job.disputedAt ? new Date(job.disputedAt).toLocaleDateString("en-NG", { month: "long", day: "numeric", year: "numeric" }) : "-"],
                                           ["Job Amount", `₦${(job.vendorFee ?? 0).toLocaleString()}`],
                                           ["Escrow Held", `₦${(job.escrowAmount ?? 0).toLocaleString()}`],
                                           ["Status", config.label],
@@ -581,7 +581,7 @@ const DisputeCenter = () => {
                             >
                               <option value="">Choose a job…</option>
                               {eligibleJobs.map((j) => (
-                                <option key={j.id} value={j.id}>{j.title} — {j.vendor?.name ?? "Vendor"} — ₦{(j.vendorFee ?? 0).toLocaleString()}</option>
+                                <option key={j.id} value={j.id}>{j.title} - {j.vendor?.name ?? "Vendor"} - ₦{(j.vendorFee ?? 0).toLocaleString()}</option>
                               ))}
                             </select>
                           )}

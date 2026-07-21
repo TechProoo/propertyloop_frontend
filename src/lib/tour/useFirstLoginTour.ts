@@ -22,7 +22,7 @@ export function markTourCompleted(role: TourRole, userId: string) {
   localStorage.setItem(STORAGE_KEY(role, userId), "1");
 }
 
-/** Force the next mount to start the tour again — useful from a "Replay tour" button */
+/** Force the next mount to start the tour again - useful from a "Replay tour" button */
 export function replayTour(role: TourRole, userId: string) {
   localStorage.removeItem(STORAGE_KEY(role, userId));
   localStorage.setItem(TOUR_FORCE_KEY, `${role}:${userId}`);
@@ -154,7 +154,7 @@ export function useFirstLoginTour({
         if (s.attachTo) {
           stepOptions.attachTo = s.attachTo;
         } else {
-          // No target — render centered with extra class
+          // No target - render centered with extra class
           stepOptions.classes = "shepherd-centered-step";
         }
 

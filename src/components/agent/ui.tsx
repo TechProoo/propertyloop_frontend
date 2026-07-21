@@ -25,7 +25,7 @@ export const C = {
   danger: "#b4632a",
 };
 
-/** ₦ formatter — whole naira with thousands separators. */
+/** ₦ formatter - whole naira with thousands separators. */
 // eslint-disable-next-line react-refresh/only-export-components
 export function naira(n?: number | null): string {
   if (n == null || Number.isNaN(n)) return "₦0";
@@ -246,7 +246,7 @@ export function StatusPill({ status }: { status: string }) {
   );
 }
 
-/** Three bouncing dots — the dashboard's loading indicator. */
+/** Three bouncing dots - the dashboard's loading indicator. */
 export function BouncyLoader({
   label,
   className = "",

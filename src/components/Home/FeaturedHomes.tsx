@@ -60,7 +60,7 @@ const FeaturedHomes = () => {
       scrollTrigger: { trigger: el, start: "top 75%", once: true },
     });
 
-    // Heading — clip-path wipe
+    // Heading - clip-path wipe
     if (heading) {
       tl.fromTo(
         heading,
@@ -74,7 +74,7 @@ const FeaturedHomes = () => {
       );
     }
 
-    // Subtitle — fade up
+    // Subtitle - fade up
     if (subtitle) {
       tl.fromTo(
         subtitle,
@@ -84,7 +84,7 @@ const FeaturedHomes = () => {
       );
     }
 
-    // View-all button — pop in
+    // View-all button - pop in
     if (viewAll) {
       tl.fromTo(
         viewAll,
@@ -94,7 +94,7 @@ const FeaturedHomes = () => {
       );
     }
 
-    // Cards — stagger rise with slight 3D rotation
+    // Cards - stagger rise with slight 3D rotation
     if (cards.length) {
       tl.fromTo(
         cards,
@@ -151,7 +151,7 @@ const FeaturedHomes = () => {
           </AuthGate>
         </div>
 
-        {/* Cards grid — 3 per row */}
+        {/* Cards grid - 3 per row */}
         {loading ? (
           <CardSkeleton count={3} />
         ) : error ? (
@@ -200,7 +200,7 @@ const FeaturedHomes = () => {
                 data-fh-card
                 className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
               >
-                {/* Image — tall, rounded top */}
+                {/* Image - tall, rounded top */}
                 <div className="h-[320px] overflow-hidden rounded-t-[24px] relative">
                   <img
                     src={home.coverImage}
@@ -233,7 +233,7 @@ const FeaturedHomes = () => {
                     {home.address}
                   </p>
 
-                  {/* Spec row — 3 columns */}
+                  {/* Spec row - 3 columns */}
                   <div className="flex gap-2 mt-4 pt-4 border-t border-border-light">
                     {[
                       { Icon: Bed, value: home.beds, label: "Beds" },

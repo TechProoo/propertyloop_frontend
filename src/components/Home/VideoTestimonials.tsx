@@ -34,7 +34,7 @@ const VideoTestimonials = () => {
       );
     }
 
-    // Heading — clip-path wipe
+    // Heading - clip-path wipe
     if (heading) {
       tl.fromTo(
         heading,
@@ -59,7 +59,7 @@ const VideoTestimonials = () => {
       );
     }
 
-    // Testimonial cards — stagger rise with rotation
+    // Testimonial cards - stagger rise with rotation
     if (cards.length) {
       tl.fromTo(
         cards,

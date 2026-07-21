@@ -127,7 +127,7 @@ const ProductDetail = () => {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
-            {/* Left — Image + Details */}
+            {/* Left - Image + Details */}
             <div className="flex-1">
               {/* Image */}
               <motion.div
@@ -205,7 +205,7 @@ const ProductDetail = () => {
               </motion.div>
             </div>
 
-            {/* Right — Purchase panel */}
+            {/* Right - Purchase panel */}
             <div className="lg:w-100 shrink-0">
               {/* Product info + buy */}
               <motion.div
@@ -306,7 +306,7 @@ const ProductDetail = () => {
                   onClick={handleAddToCart}
                   className="mt-5 w-full h-12 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]"
                 >
-                  <ShoppingCart className="w-4 h-4" /> Add to Cart — ₦
+                  <ShoppingCart className="w-4 h-4" /> Add to Cart - ₦
                   {subtotal.toLocaleString()}
                 </button>
 

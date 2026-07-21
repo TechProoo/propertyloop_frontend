@@ -34,7 +34,7 @@ const deptIcons: Record<string, React.ReactNode> = {
 };
 
 const values = [
-  { icon: <Heart className="w-5 h-5" />, title: "Mission-Driven", desc: "We're transforming Nigerian real estate — every role contributes directly to that mission." },
+  { icon: <Heart className="w-5 h-5" />, title: "Mission-Driven", desc: "We're transforming Nigerian real estate - every role contributes directly to that mission." },
   { icon: <Globe className="w-5 h-5" />, title: "Remote-Friendly", desc: "Work from Lagos, Abuja, or anywhere. We care about output, not office hours." },
   { icon: <TrendingUp className="w-5 h-5" />, title: "Equity & Ownership", desc: "Early employees receive equity. When PropertyLoop wins, you win." },
   { icon: <Users className="w-5 h-5" />, title: "Growth Culture", desc: "Learning budgets, conference access, and mentorship from senior leadership." },

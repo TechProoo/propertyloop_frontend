@@ -190,9 +190,9 @@ export default function ManageListing() {
     { label: "Type", value: `${typeLabel} · ${listing.priceLabel}` },
     { label: "Bedrooms", value: String(listing.beds) },
     { label: "Bathrooms", value: String(listing.baths) },
-    { label: "Floor area", value: listing.sqft ? `${listing.sqft} m²` : "—" },
-    { label: "Year built", value: listing.yearBuilt || "—" },
-    { label: "Property", value: listing.propertyType || "—" },
+    { label: "Floor area", value: listing.sqft ? `${listing.sqft} m²` : "-" },
+    { label: "Year built", value: listing.yearBuilt || "-" },
+    { label: "Property", value: listing.propertyType || "-" },
   ];
 
   return (

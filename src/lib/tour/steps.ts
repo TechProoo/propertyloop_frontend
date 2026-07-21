@@ -52,7 +52,7 @@ const buyerSteps: StepInput[] = [
   {
     id: "logbook",
     title: "Property Logbook",
-    body: "<p>Every repair, service or maintenance you commission gets a permanent record — building trust if you ever sell or rent.</p>",
+    body: "<p>Every repair, service or maintenance you commission gets a permanent record - building trust if you ever sell or rent.</p>",
     attachTo: { element: '[data-tour="nav-logbook"]', on: "right" },
   },
   {
@@ -71,7 +71,7 @@ const agentSteps: StepInput[] = [
   {
     id: "overview",
     title: "Your Overview",
-    body: "<p>Headline numbers — active listings, pending review, recent leads, and revenue snapshots.</p>",
+    body: "<p>Headline numbers - active listings, pending review, recent leads, and revenue snapshots.</p>",
     attachTo: { element: '[data-tour="nav-overview"]', on: "right" },
   },
   {
@@ -156,7 +156,7 @@ const vendorSteps: StepInput[] = [
   {
     id: "done",
     title: "You're set",
-    body: "<p>Make sure your profile is complete and your banner is uploaded — that's the first thing buyers see.</p>",
+    body: "<p>Make sure your profile is complete and your banner is uploaded - that's the first thing buyers see.</p>",
   },
 ];
 

@@ -38,7 +38,7 @@ const subscriptionsService = {
     return data;
   },
 
-  /** Cancel the active subscription — the agent drops to the Free plan. */
+  /** Cancel the active subscription - the agent drops to the Free plan. */
   async cancel(): Promise<{ success: boolean }> {
     const { data } = await api.post("/agents/me/subscription/cancel", {});
     return data;

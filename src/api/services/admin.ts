@@ -20,7 +20,7 @@ const adminService = {
       )
       .then((res) => res.data),
 
-  // Site-wide session reset — logs every user out except the acting admin.
+  // Site-wide session reset - logs every user out except the acting admin.
   forceLogoutEveryone: () =>
     api
       .post<{ revokedTokens: number; revokedSessions: number }>(

@@ -106,7 +106,7 @@ const PropertyLogbook = () => {
       );
     }
 
-    // Heading — clip-path wipe
+    // Heading - clip-path wipe
     if (heading) {
       tl.fromTo(
         heading,
@@ -131,7 +131,7 @@ const PropertyLogbook = () => {
       );
     }
 
-    // Property card — scale-in with spring
+    // Property card - scale-in with spring
     if (propCard) {
       tl.fromTo(
         propCard,
@@ -151,7 +151,7 @@ const PropertyLogbook = () => {
       );
     }
 
-    // Timeline vertical line — grow from top
+    // Timeline vertical line - grow from top
     if (timelineLine) {
       tl.fromTo(
         timelineLine,
@@ -161,7 +161,7 @@ const PropertyLogbook = () => {
       );
     }
 
-    // Timeline entries — stagger slide-in from right
+    // Timeline entries - stagger slide-in from right
     if (timelineCards.length) {
       tl.fromTo(
         timelineCards,
@@ -191,7 +191,7 @@ const PropertyLogbook = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-20">
-          {/* Left — intro (sticky on desktop) */}
+          {/* Left - intro (sticky on desktop) */}
           <div className="lg:w-95 shrink-0 lg:sticky lg:top-8 lg:self-start">
             <p
               data-pl-label
@@ -211,7 +211,7 @@ const PropertyLogbook = () => {
             >
               Every property on PropertyLoop gets a permanent digital logbook.
               All maintenance, repairs, and services are recorded with verified
-              vendor details — building trust and transparency for buyers,
+              vendor details - building trust and transparency for buyers,
               tenants, and owners.
             </p>
 
@@ -264,7 +264,7 @@ const PropertyLogbook = () => {
             </div>
           </div>
 
-          {/* Right — timeline */}
+          {/* Right - timeline */}
           <div className="flex-1 min-w-0 overflow-hidden relative">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">

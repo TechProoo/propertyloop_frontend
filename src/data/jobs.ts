@@ -26,7 +26,7 @@ export const jobs: JobListing[] = [
     salary: "₦180,000 – ₦200,000 / month",
     applyEmail: "oyindamola@propertyloop.ng",
     description:
-      "PropertyLoop is hiring a Business Development Manager to drive partner onboarding, user acquisition, and platform growth across Nigeria. You'll own the full top-of-funnel — from prospecting strategic partners to closing deals and reporting on results.",
+      "PropertyLoop is hiring a Business Development Manager to drive partner onboarding, user acquisition, and platform growth across Nigeria. You'll own the full top-of-funnel - from prospecting strategic partners to closing deals and reporting on results.",
     responsibilities: [
       "Identify and onboard strategic partners (real estate firms, mortgage providers, furniture vendors, home service providers, etc.)",
       "Drive user acquisition through creative, low-cost marketing strategies",

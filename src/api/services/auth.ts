@@ -7,7 +7,7 @@ export interface SignupPayload {
   password: string;
   phone?: string;
   role: "BUYER" | "AGENT" | "VENDOR";
-  /** Referral code from a shared link (onboarding?ref=CODE) — optional. */
+  /** Referral code from a shared link (onboarding?ref=CODE) - optional. */
   referralCode?: string;
   buyer?: { preferredLocations?: string };
   agent?: { agencyName: string; licenseNumber?: string; businessAddress: string };
@@ -22,7 +22,7 @@ export interface LoginPayload {
 const authService = {
   async signup(payload: SignupPayload): Promise<AuthResponse> {
     const { data } = await api.post<AuthResponse>("/auth/signup", payload);
-    // refreshToken is no longer in the response body — the backend sets it
+    // refreshToken is no longer in the response body - the backend sets it
     // as an HttpOnly cookie. Only the access token comes back in JSON.
     tokens.setAccess(data.accessToken);
     tokens.setUser(data.user);

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Logo from "../../assets/logo.png";
 
-// Brand glyphs — installed lucide-react is too old to ship social icons,
+// Brand glyphs - installed lucide-react is too old to ship social icons,
 // so inline the SVGs. All use currentColor to inherit text colour on hover.
 type IconProps = { className?: string };
 
@@ -99,13 +99,13 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto">
         {/* Main footer card */}
         <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-8 sm:p-10 lg:p-14">
-          {/* Top — logo + links grid */}
+          {/* Top - logo + links grid */}
           <div className="flex flex-col lg:flex-row gap-12 lg:gap-20">
             {/* Brand column */}
             <div className="lg:w-70 shrink-0">
               <img className="w-30" src={Logo} alt="PropertyLoop" />
               <p className="text-text-secondary text-sm leading-relaxed mt-4 max-w-xs">
-                From first search to signed contract — and everything that
+                From first search to signed contract - and everything that
                 happens after the keys are handed over.
               </p>
               {/* Social links */}

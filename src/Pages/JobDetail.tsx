@@ -69,7 +69,7 @@ const JobDetail = () => {
                 </h1>
                 <p className="text-text-secondary text-sm sm:text-base mt-4 max-w-lg mx-auto leading-relaxed">
                   The role you were trying to view has either been filled or
-                  hasn't been posted yet. Check back soon — we're growing fast.
+                  hasn't been posted yet. Check back soon - we're growing fast.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10 text-left">
@@ -124,7 +124,7 @@ const JobDetail = () => {
 
   const applyEmail = job.applyEmail || "careers@propertyloop.ng";
   const mailto = `mailto:${applyEmail}?subject=${encodeURIComponent(
-    `Application — ${job.title}`,
+    `Application - ${job.title}`,
   )}`;
 
   return (

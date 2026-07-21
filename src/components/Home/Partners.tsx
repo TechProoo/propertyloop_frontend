@@ -268,7 +268,7 @@ const Partners = () => {
               data-pt-why-subtitle
               className="text-text-secondary text-sm leading-relaxed mt-3 max-w-md mx-auto"
             >
-              Whether you're a bank, fintech, or service provider — there's a
+              Whether you're a bank, fintech, or service provider - there's a
               seat at the table for you.
             </p>
           </div>
@@ -339,7 +339,7 @@ const Partners = () => {
                 </div>
               </div>
 
-              {/* Right side — partner types */}
+              {/* Right side - partner types */}
               <div className="w-full lg:w-auto lg:min-w-70">
                 <p className="text-white/50 text-xs font-medium uppercase tracking-wide mb-4">
                   We work with

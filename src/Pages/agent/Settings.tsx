@@ -63,7 +63,7 @@ export default function AgentSettings() {
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
     } catch {
-      /* clipboard unavailable — link is still visible/selectable */
+      /* clipboard unavailable - link is still visible/selectable */
     }
   };
 
@@ -81,7 +81,7 @@ export default function AgentSettings() {
     }
     setSaving(true);
     try {
-      // Only send non-empty fields — empty strings fail @IsUrl()/@IsOptional.
+      // Only send non-empty fields - empty strings fail @IsUrl()/@IsOptional.
       const payload: Record<string, unknown> = {
         name: name.trim(),
         specialty: specialties.split(",").map((s) => s.trim()).filter(Boolean),
@@ -112,7 +112,7 @@ export default function AgentSettings() {
       <PageHeader title="Settings" subtitle="Manage your profile, security and notifications." />
 
       <div className="mt-[18px] grid gap-4 items-start grid-cols-1 lg:grid-cols-2">
-        {/* Left — profile */}
+        {/* Left - profile */}
         <Card>
           <h3 className="m-0 mb-3.5 text-base font-extrabold" style={{ color: C.ink }}>Profile picture</h3>
           <ProfilePictureUpload currentImage={user?.avatarUrl || null} onUpload={handlePhoto} label="Profile Picture" />
@@ -158,7 +158,7 @@ export default function AgentSettings() {
           </PrimaryButton>
         </Card>
 
-        {/* Right — verification / notifications / security */}
+        {/* Right - verification / notifications / security */}
         <div className="flex flex-col gap-4 min-w-0">
           <Card>
             <h3 className="m-0 mb-1.5 text-base font-extrabold" style={{ color: C.ink }}>Verification</h3>
@@ -181,7 +181,7 @@ export default function AgentSettings() {
               <Gift className="w-4 h-4" style={{ color: C.primary }} /> Refer & Earn
             </h3>
             <p className="text-xs mt-1 mb-3" style={{ color: C.ink3 }}>
-              Share your link — every signup through it is tracked for rewards.
+              Share your link - every signup through it is tracked for rewards.
             </p>
             {!referralInfo ? (
               <p className="text-xs" style={{ color: C.ink3 }}>Loading…</p>

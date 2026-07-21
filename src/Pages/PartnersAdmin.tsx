@@ -22,7 +22,7 @@ interface Partner {
   active: boolean;
 }
 
-/* Seed data — persisted in localStorage, ready for backend swap */
+/* Seed data - persisted in localStorage, ready for backend swap */
 const STORAGE_KEY = "pl_partners";
 
 const defaultPartners: Partner[] = [

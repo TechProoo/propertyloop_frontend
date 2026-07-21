@@ -68,7 +68,7 @@ export default function AgentMessages() {
   const canSend =
     (input.trim().length > 0 || pendingFiles.length > 0) && !uploading;
 
-  // Composer send — uploads any attachments first, then sends.
+  // Composer send - uploads any attachments first, then sends.
   const handleSend = async () => {
     if (!canSend || !selected) return;
     let attachmentUrls: string[] = [];
@@ -100,11 +100,11 @@ export default function AgentMessages() {
     <div>
       <PageHeader
         title="Messages"
-        subtitle="Reply fast — agents who respond within an hour win more deals."
+        subtitle="Reply fast - agents who respond within an hour win more deals."
       />
 
       <div className="mt-[18px] grid gap-4 grid-cols-1 lg:grid-cols-[320px_1fr] lg:items-start">
-        {/* Thread list — sticky on large screens */}
+        {/* Thread list - sticky on large screens */}
         <div
           className={`rounded-[20px] border overflow-hidden flex-col ${PANEL_H} lg:sticky lg:top-6 ${
             mobileThreadOpen ? "hidden lg:flex" : "flex"
@@ -187,7 +187,7 @@ export default function AgentMessages() {
                 {messagesLoadingId === selected && msgs.length === 0 ? (
                   <div className="m-auto"><BouncyLoader /></div>
                 ) : msgs.length === 0 ? (
-                  <p className="text-[13px] m-auto" style={{ color: C.ink3 }}>No messages yet — say hello.</p>
+                  <p className="text-[13px] m-auto" style={{ color: C.ink3 }}>No messages yet - say hello.</p>
                 ) : (
                   msgs.map((m, i) => (
                     <div

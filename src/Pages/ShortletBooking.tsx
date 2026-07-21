@@ -133,7 +133,7 @@ const ShortletBooking = () => {
         }
         setCurrentStep("confirmed");
       } catch {
-        // Fallback — still show confirmed locally
+        // Fallback - still show confirmed locally
         setCurrentStep("confirmed");
       } finally {
         setProcessing(false);
@@ -213,7 +213,7 @@ const ShortletBooking = () => {
 
           {/* Main content */}
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
-            {/* Left — Step content */}
+            {/* Left - Step content */}
             <div className="flex-1">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -598,7 +598,7 @@ const ShortletBooking = () => {
               </AnimatePresence>
             </div>
 
-            {/* Right — Property summary card */}
+            {/* Right - Property summary card */}
             <div className="lg:w-85 shrink-0">
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden sticky top-8">
                 <img

@@ -36,7 +36,7 @@ const LogbookList = () => {
           if (active) setItems(res.items || []);
           return;
         }
-        // ALL — same blend the home-page section uses, so "View more" stays
+        // ALL - same blend the home-page section uses, so "View more" stays
         // consistent with what users saw on the home page:
         //   1. Closed sales (SOLD) and rentals (RENTED)
         //   2. Active listings that have been edited since posting
@@ -82,7 +82,7 @@ const LogbookList = () => {
             new Date(a.updatedAt ?? a.createdAt).getTime(),
         );
 
-        // Last-ditch fallback for fresh deployments — if nothing else matched,
+        // Last-ditch fallback for fresh deployments - if nothing else matched,
         // surface any active listings so the page isn't a wall of empty.
         const final =
           merged.length > 0 ? merged : recent.items || [];
@@ -204,7 +204,7 @@ const LogbookList = () => {
               </h3>
               <p className="text-text-secondary text-sm mt-2 max-w-sm mx-auto">
                 Listings move into the logbook after they're marked sold or
-                rented. Check back soon — this page updates as deals close.
+                rented. Check back soon - this page updates as deals close.
               </p>
             </div>
           ) : (

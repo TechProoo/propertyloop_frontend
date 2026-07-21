@@ -15,7 +15,7 @@ const RichTextEditor = ({
   placeholder = "Write a description…",
   className = "",
 }: Props) => {
-  // Toolbar tuned for property descriptions — no images/video/code blocks.
+  // Toolbar tuned for property descriptions - no images/video/code blocks.
   // Memoised so the modules object isn't recreated on every parent re-render
   // (which causes Quill to re-init and lose focus mid-typing).
   const modules = useMemo(

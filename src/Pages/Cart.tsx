@@ -188,7 +188,7 @@ const Cart = () => {
           )}
 
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
-            {/* Left — Step content */}
+            {/* Left - Step content */}
             <div className="flex-1">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -561,7 +561,7 @@ const Cart = () => {
               </AnimatePresence>
             </div>
 
-            {/* Right — Order Summary */}
+            {/* Right - Order Summary */}
             {step !== "confirmed" && cartProducts.length > 0 && (
               <div className="lg:w-85 shrink-0">
                 <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sticky top-8">

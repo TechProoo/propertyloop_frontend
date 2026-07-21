@@ -261,9 +261,9 @@ const AddProperty = () => {
     const code = err?.code as string | undefined;
     if (code === "ERR_NETWORK" || err?.message === "Network Error") {
       if (typeof navigator !== "undefined" && navigator.onLine === false) {
-        return "You're offline — reconnect to the internet and try again. Nothing you entered was lost.";
+        return "You're offline - reconnect to the internet and try again. Nothing you entered was lost.";
       }
-      return `The connection dropped${where}. Stay on this tab and give it another try — your details are still here.`;
+      return `The connection dropped${where}. Stay on this tab and give it another try - your details are still here.`;
     }
     if (code === "ECONNABORTED") {
       return `That took too long${where}. Try again on a stronger connection, or use a smaller photo/video.`;
@@ -271,14 +271,14 @@ const AddProperty = () => {
 
     const status = err?.response?.status as number | undefined;
     if (status === 401)
-      return `Your session timed out${where}. Please sign in again — your details are saved, so you can pick up right where you left off.`;
+      return `Your session timed out${where}. Please sign in again - your details are saved, so you can pick up right where you left off.`;
     if (status === 403) {
       // Subscription / listing-cap rejections come back as a friendly 403
-      // message from the backend — surface it instead of the file-type hint.
+      // message from the backend - surface it instead of the file-type hint.
       const backendMsg = err?.response?.data?.message;
       if (backendMsg)
         return Array.isArray(backendMsg) ? backendMsg.join(", ") : backendMsg;
-      return `We couldn't accept that${where}. The file type may not be supported — try a JPG, PNG, or MP4.`;
+      return `We couldn't accept that${where}. The file type may not be supported - try a JPG, PNG, or MP4.`;
     }
     if (status === 413)
       return `That file is a little too large${where}. Please use a smaller photo or video and try again.`;
@@ -290,9 +290,9 @@ const AddProperty = () => {
       );
     }
     if (status && status >= 500)
-      return `Something went wrong on our end${where} — don't worry, nothing you entered was lost. Please try again in a moment.`;
+      return `Something went wrong on our end${where} - don't worry, nothing you entered was lost. Please try again in a moment.`;
 
-    // R2 sometimes returns plain XML — the body shows up as a string
+    // R2 sometimes returns plain XML - the body shows up as a string
     const data = err?.response?.data;
     if (typeof data === "string" && data.includes("<Error>")) {
       const codeMatch = data.match(/<Code>([^<]+)<\/Code>/);
@@ -304,7 +304,7 @@ const AddProperty = () => {
 
     return (
       err?.response?.data?.message ||
-      `That didn't go through${where}. Please check your details and try again — nothing you entered was lost.`
+      `That didn't go through${where}. Please check your details and try again - nothing you entered was lost.`
     );
   };
 
@@ -339,7 +339,7 @@ const AddProperty = () => {
               videoErr?.response?.data || videoErr,
             );
             setVideoUploadError(
-              `${reason} — listing was saved without the video.`,
+              `${reason} - listing was saved without the video.`,
             );
             toast.error(`Video upload failed: ${reason}`);
           }
@@ -382,7 +382,7 @@ const AddProperty = () => {
         setSubmitted(true);
       } catch (err: any) {
         const reason = describeUploadError(err);
-        // A 403 about listings/plan is the subscription cap — surface a
+        // A 403 about listings/plan is the subscription cap - surface a
         // dedicated upgrade banner rather than burying it in a toast.
         const msg = err?.response?.data?.message;
         if (
@@ -441,7 +441,7 @@ const AddProperty = () => {
     // can't kill long photo uploads on slow mobile networks.
     //
     // Sequential (not parallel): 3 simultaneous uploads on cellular caused
-    // intermittent ERR_CONNECTION_RESET / "Network was reset" failures —
+    // intermittent ERR_CONNECTION_RESET / "Network was reset" failures -
     // mobile radios don't like multiple concurrent long PUT streams. One
     // at a time is slower but vastly more reliable.
     //
@@ -498,7 +498,7 @@ const AddProperty = () => {
     setPhotoUploadError("");
     if (errors.photos) setErrors((p) => ({ ...p, photos: "" }));
     if (files) {
-      const MAX = 10 * 1024 * 1024; // 10MB — matches backend cap
+      const MAX = 10 * 1024 * 1024; // 10MB - matches backend cap
       const rejected: string[] = [];
       Array.from(files).forEach((file) => {
         if (pendingPhotoFiles.length >= 10) return;
@@ -542,7 +542,7 @@ const AddProperty = () => {
     const files = e.currentTarget.files;
     setDocUploadError("");
     if (files) {
-      const MAX = 10 * 1024 * 1024; // 10MB — matches backend cap
+      const MAX = 10 * 1024 * 1024; // 10MB - matches backend cap
       const accepted: File[] = [];
       const rejected: string[] = [];
       Array.from(files).forEach((file) => {
@@ -677,7 +677,7 @@ const AddProperty = () => {
         continue;
       }
       if (file.size > 50 * 1024 * 1024) {
-        setVideoUploadError(`${file.name} is too large — max 50MB per video.`);
+        setVideoUploadError(`${file.name} is too large - max 50MB per video.`);
         continue;
       }
       valid.push(file);
@@ -761,7 +761,7 @@ const AddProperty = () => {
             </div>
             <p className="text-primary-dark font-heading font-semibold text-sm">
               {videoUploadPct !== null
-                ? `Uploading video — ${videoUploadPct}%`
+                ? `Uploading video - ${videoUploadPct}%`
                 : "Submitting..."}
             </p>
             {pendingVideoFiles.length > 0 && videoUploadPct === null && (
@@ -955,7 +955,7 @@ const AddProperty = () => {
                       </div>
 
                       <div className="flex flex-col gap-5">
-                        {/* Listing type — segmented cards */}
+                        {/* Listing type - segmented cards */}
                         <div>
                           <div className={secTitleClass}>Listing type</div>
                           <div className="grid grid-cols-3 gap-3">
@@ -1257,7 +1257,7 @@ const AddProperty = () => {
                               if (text && errors.description)
                                 setErrors((p) => ({ ...p, description: "" }));
                             }}
-                            placeholder="Describe your property — features, condition, neighbourhood highlights…"
+                            placeholder="Describe your property - features, condition, neighbourhood highlights…"
                           />
                           {errors.description && (
                             <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-xl bg-red-50/80 border border-red-200/70 backdrop-blur-sm">
@@ -1517,7 +1517,7 @@ const AddProperty = () => {
                                 Upload verified documents
                               </p>
                               <p className="text-text-subtle text-xs mt-0.5">
-                                PDF, JPG or PNG — max 10MB per file
+                                PDF, JPG or PNG - max 10MB per file
                               </p>
                             </div>
                           </button>
@@ -1895,7 +1895,7 @@ const AddProperty = () => {
                           )}
                       </div>
 
-                      {/* Listing health — computed from the actual form */}
+                      {/* Listing health - computed from the actual form */}
                       <div className="bg-white border border-[#e1dcd3] rounded-[20px] p-6 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
                         <div className={secTitleClass}>Listing health</div>
                         <div className="flex flex-col">
@@ -1978,7 +1978,7 @@ const AddProperty = () => {
                         </div>
                         <div className="mt-4 px-4 py-3.5 rounded-[14px] bg-[#e3efe7] text-[13px] leading-relaxed text-[#134a2d]">
                           A PropertyLoop inspector verifies the home before it
-                          goes live — usually within <b>2 hours</b> during
+                          goes live - usually within <b>2 hours</b> during
                           business hours.
                         </div>
                       </div>
@@ -2041,7 +2041,7 @@ const AddProperty = () => {
                         </div>
                       )}
 
-                      {/* Publish error — stays on screen so the reason is
+                      {/* Publish error - stays on screen so the reason is
                           readable (the toast is only momentary). */}
                       {submitError && (
                         <div className="flex items-start gap-2.5 px-3.5 py-3 rounded-xl bg-red-50 border border-red-200">

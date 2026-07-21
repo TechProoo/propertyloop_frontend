@@ -1,4 +1,4 @@
-// Shared building blocks for the Social Feed — used by both the main feed
+// Shared building blocks for the Social Feed - used by both the main feed
 // page and the per-user feed profile page so post cards, overlays and the
 // like/save/comment/share/follow interaction logic stay in one place.
 import {
@@ -367,7 +367,7 @@ export function useFeedInteractions(
             if (!requireAuth()) return;
             try {
               await feedService.report(post.id);
-              showToast("Thanks — we'll review this post");
+              showToast("Thanks - we'll review this post");
             } catch {
               showToast("Couldn't submit the report");
             }
@@ -1124,7 +1124,7 @@ export const ComposerModal = ({
               </div>
               {myListings.length === 0 ? (
                 <p className="text-sm text-ink-3 py-2">
-                  No listings yet — publish one first from your dashboard.
+                  No listings yet - publish one first from your dashboard.
                 </p>
               ) : (
                 <div className="flex flex-col gap-2 max-h-[220px] overflow-auto">
@@ -1358,7 +1358,7 @@ const CommentsDrawer = ({
             </div>
           ) : comments.length === 0 ? (
             <p className="text-sm text-ink-3 text-center py-8">
-              No comments yet — start the conversation.
+              No comments yet - start the conversation.
             </p>
           ) : (
             comments.map((c) => (
@@ -1414,7 +1414,7 @@ const ShareSheet = ({
 }) => {
   const url = `${window.location.origin}/feed?post=${post.id}`;
   const text = encodeURIComponent(
-    `${post.body.slice(0, 120)}${post.body.length > 120 ? "…" : ""} — via PropertyLoop`,
+    `${post.body.slice(0, 120)}${post.body.length > 120 ? "…" : ""} - via PropertyLoop`,
   );
   const targets = [
     {

@@ -40,7 +40,7 @@ const problems = [
   {
     problem: "No Transactions",
     reality: "Platforms generate leads then step aside",
-    solution: "Offers and direct messaging — all in-platform",
+    solution: "Offers and direct messaging - all in-platform",
     icon: <FileSignature className="w-5 h-5" />,
   },
   {
@@ -67,7 +67,7 @@ const differentiators = [
   {
     title: "The Service Loop",
     description:
-      "Verified home service vendors — plumbers, electricians, builders — bookable and contactable inside the platform. No more hunting for tradespeople after you move in.",
+      "Verified home service vendors - plumbers, electricians, builders - bookable and contactable inside the platform. No more hunting for tradespeople after you move in.",
     icon: <Wrench className="w-6 h-6" />,
     image:
       "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=600&h=400&fit=crop",
@@ -75,7 +75,7 @@ const differentiators = [
   {
     title: "Verified Vendors",
     description:
-      "Every vendor on the Service Loop is KYC-verified through Smile Identity. Browse ratings, message directly, and book with confidence — all without leaving the platform.",
+      "Every vendor on the Service Loop is KYC-verified through Smile Identity. Browse ratings, message directly, and book with confidence - all without leaving the platform.",
     icon: <Lock className="w-6 h-6" />,
     image:
       "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop",
@@ -106,7 +106,7 @@ const values = [
   {
     title: "Innovation",
     description:
-      "From AI-powered search to predictive pricing and commute-time filters — we're building the future of Nigerian real estate.",
+      "From AI-powered search to predictive pricing and commute-time filters - we're building the future of Nigerian real estate.",
     icon: <Zap className="w-5 h-5" />,
   },
   {
@@ -122,7 +122,7 @@ const timeline = [
     phase: "Phase 1",
     period: "Foundation",
     description:
-      "Core listings platform — Buy, Rent, Shortlet, and New Developments through verified agents. Map search, user accounts, and mobile-responsive frontend.",
+      "Core listings platform - Buy, Rent, Shortlet, and New Developments through verified agents. Map search, user accounts, and mobile-responsive frontend.",
   },
   {
     phase: "Phase 2",
@@ -134,7 +134,7 @@ const timeline = [
     phase: "Phase 3",
     period: "Transactions & Tools",
     description:
-      "Shortlet browsing, agent CRM dashboard, and the Service Loop launch — connecting buyers, agents, and vendors in one place.",
+      "Shortlet browsing, agent CRM dashboard, and the Service Loop launch - connecting buyers, agents, and vendors in one place.",
   },
   {
     phase: "Phase 4",
@@ -158,7 +158,7 @@ const About = () => {
     <div className="min-h-screen bg-[#f5f0eb]">
       <Seo
         title="About PropertyLoop"
-        description="PropertyLoop is Nigeria's modern real estate platform — built for buyers, agents, and service vendors. Verified listings, secure escrow, and a property logbook on every home."
+        description="PropertyLoop is Nigeria's modern real estate platform - built for buyers, agents, and service vendors. Verified listings, secure escrow, and a property logbook on every home."
         path="/about"
         keywords="about PropertyLoop, real estate platform Nigeria, proptech Nigeria"
       />
@@ -197,7 +197,7 @@ const About = () => {
                 <span className="text-white/70">Nigerian real estate</span>
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-4 max-w-xl">
-                From first search to signed contract — and everything that
+                From first search to signed contract - and everything that
                 happens after the keys are handed over. PropertyLoop is the
                 first platform built to handle the entire property journey.
               </p>
@@ -237,7 +237,7 @@ const About = () => {
               </h2>
               <p className="text-text-secondary text-sm mt-3 max-w-lg mx-auto leading-relaxed">
                 Unlike existing platforms that stop at listing and lead
-                generation, PropertyLoop closes the entire loop — from property
+                generation, PropertyLoop closes the entire loop - from property
                 discovery to signed tenancy agreement, and beyond into ongoing
                 home management.
               </p>
@@ -319,7 +319,7 @@ const About = () => {
                   <p className="text-white/70 text-sm leading-relaxed">
                     PropertyLoop does not accept listings from individual
                     landlords. All listings are posted and managed by
-                    KYC-verified real estate agents — raising listing quality
+                    KYC-verified real estate agents - raising listing quality
                     and making agents core platform stakeholders.
                   </p>
                   <Link
@@ -457,7 +457,7 @@ const About = () => {
                 Ready to join PropertyLoop?
               </h2>
               <p className="text-text-secondary text-sm mt-2 max-w-md mx-auto">
-                Whether you're buying, renting, selling, or offering services —
+                Whether you're buying, renting, selling, or offering services -
                 PropertyLoop is built for you.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">

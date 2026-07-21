@@ -1,12 +1,12 @@
 /**
- * <Seo /> — page-level metadata using React 19's native head hoisting.
+ * <Seo /> - page-level metadata using React 19's native head hoisting.
  *
  * React 19 hoists <title>, <meta>, and <link> rendered anywhere in the tree
  * straight into <head>, so we don't need react-helmet-async.
  *
  * Usage:
  *   <Seo title="Buy Property" description="..." path="/buy" />
- *   <Seo title="Listing — Lekki" image="https://..." type="article" />
+ *   <Seo title="Listing - Lekki" image="https://..." type="article" />
  */
 import { useMemo } from "react";
 
@@ -17,7 +17,7 @@ const DEFAULT_DESCRIPTION =
   "Nigeria's all-in-one real estate platform. Buy, rent and sell properties, find verified agents, book shortlets, and hire trusted service vendors with secure escrow.";
 
 export interface SeoProps {
-  /** Page title — gets " — PropertyLoop" appended unless titleSuffix is overridden */
+  /** Page title - gets " - PropertyLoop" appended unless titleSuffix is overridden */
   title: string;
   /** Description (≤ 160 chars ideally) */
   description?: string;
@@ -25,13 +25,13 @@ export interface SeoProps {
   path?: string;
   /** Absolute image URL for og:image */
   image?: string;
-  /** og:type — "website" by default, use "article" for property/agent/vendor pages */
+  /** og:type - "website" by default, use "article" for property/agent/vendor pages */
   type?: "website" | "article" | "profile";
   /** Comma-separated keywords */
   keywords?: string;
   /** Pass false to discourage indexing on this page */
   noIndex?: boolean;
-  /** Override the default " — PropertyLoop" suffix */
+  /** Override the default " - PropertyLoop" suffix */
   titleSuffix?: string;
   /** Optional JSON-LD structured data object */
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
@@ -45,7 +45,7 @@ export default function Seo({
   type = "website",
   keywords,
   noIndex = false,
-  titleSuffix = ` — ${SITE_NAME}`,
+  titleSuffix = ` - ${SITE_NAME}`,
   jsonLd,
 }: SeoProps) {
   const fullTitle = title.endsWith(SITE_NAME) ? title : `${title}${titleSuffix}`;

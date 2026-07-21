@@ -36,7 +36,7 @@ const PLACEMENTS: { key: AdPlacement; name: string; blurb: string }[] = [
   {
     key: "SPLASH",
     name: "App open (splash)",
-    blurb: "Full-screen moment when the app opens — maximum visibility.",
+    blurb: "Full-screen moment when the app opens - maximum visibility.",
   },
   {
     key: "HOME_BANNER",
@@ -113,13 +113,13 @@ export default function Advertise() {
   // Wizard
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
-  // Step 1 — placement & schedule
+  // Step 1 - placement & schedule
   const [rates, setRates] = useState<Record<AdPlacement, number> | null>(null);
   const [placement, setPlacement] = useState<AdPlacement>(draft.placement ?? "SPLASH");
   const [weeks, setWeeks] = useState(draft.weeks ?? 1);
   const [startAt, setStartAt] = useState(draft.startAt && draft.startAt >= todayISO() ? draft.startAt : todayISO());
 
-  // Step 2 — creative (file stays local until pay; upload needs an account)
+  // Step 2 - creative (file stays local until pay; upload needs an account)
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [headline, setHeadline] = useState(draft.headline ?? "");
@@ -128,7 +128,7 @@ export default function Advertise() {
   const [ctaUrl, setCtaUrl] = useState(draft.ctaUrl ?? "");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Step 3 — contact + inline auth + pay
+  // Step 3 - contact + inline auth + pay
   const [brandName, setBrandName] = useState(draft.brandName ?? "");
   const [contactEmail, setContactEmail] = useState(draft.contactEmail ?? "");
   const [contactPhone, setContactPhone] = useState(draft.contactPhone ?? "");
@@ -161,7 +161,7 @@ export default function Advertise() {
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
     } catch {
-      /* storage full/blocked — drafts are best-effort */
+      /* storage full/blocked - drafts are best-effort */
     }
   }, [placement, weeks, startAt, headline, body, ctaLabel, ctaUrl, brandName, contactEmail, contactPhone]);
 
@@ -234,7 +234,7 @@ export default function Advertise() {
     }
     setSubmitting(true);
     try {
-      // 1. Make sure we have an account — inline, no page hop.
+      // 1. Make sure we have an account - inline, no page hop.
       if (!isLoggedIn) {
         try {
           if (authMode === "signup") {
@@ -255,7 +255,7 @@ export default function Advertise() {
           // A friendlier nudge for the most common miss: account already exists.
           if (authMode === "signup" && text?.toLowerCase().includes("already")) {
             setAuthMode("signin");
-            setError("You already have an account with this email — enter your password to sign in instead.");
+            setError("You already have an account with this email - enter your password to sign in instead.");
           } else {
             setError(text || "Couldn't sign you in. Check your details and try again.");
           }
@@ -306,7 +306,7 @@ export default function Advertise() {
     <div className="min-h-screen bg-gray-50 pb-28">
       <Navbar />
 
-      {/* Hero — tighter than before; the wizard is the star. */}
+      {/* Hero - tighter than before; the wizard is the star. */}
       <section className="bg-gradient-to-br from-primary-dark via-primary to-emerald-700 text-white pt-24 pb-14">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -317,7 +317,7 @@ export default function Advertise() {
               Launch your campaign in 3 quick steps
             </h1>
             <p className="text-white/85 mt-2 text-sm sm:text-base">
-              Pick a spot → add your ad → pay. Live after a quick review — no account needed until the last step.
+              Pick a spot → add your ad → pay. Live after a quick review - no account needed until the last step.
             </p>
           </motion.div>
         </div>
@@ -361,12 +361,12 @@ export default function Advertise() {
           </div>
 
           <div className="p-6 sm:p-8">
-            {/* ── STEP 1 — placement + schedule ── */}
+            {/* ── STEP 1 - placement + schedule ── */}
             {step === 1 && (
               <div className="space-y-6">
                 <div>
                   <h2 className="text-lg font-bold text-gray-800">Where should your brand show?</h2>
-                  <p className="text-sm text-gray-500 mt-0.5">Flat weekly rate — the price you see is the price you pay.</p>
+                  <p className="text-sm text-gray-500 mt-0.5">Flat weekly rate - the price you see is the price you pay.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {PLACEMENTS.map((p) => (
@@ -409,7 +409,7 @@ export default function Advertise() {
               </div>
             )}
 
-            {/* ── STEP 2 — creative + live preview ── */}
+            {/* ── STEP 2 - creative + live preview ── */}
             {step === 2 && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-4">
@@ -470,7 +470,7 @@ export default function Advertise() {
               </div>
             )}
 
-            {/* ── STEP 3 — contact, inline auth, summary ── */}
+            {/* ── STEP 3 - contact, inline auth, summary ── */}
             {step === 3 && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div className="space-y-4">
@@ -478,7 +478,7 @@ export default function Advertise() {
                     <h2 className="text-lg font-bold text-gray-800">Almost there</h2>
                     <p className="text-sm text-gray-500 mt-0.5">
                       {isLoggedIn
-                        ? "Confirm your details and pay — your ad goes straight to review."
+                        ? "Confirm your details and pay - your ad goes straight to review."
                         : "Your details below double as your PropertyLoop account, so you can track views and clicks."}
                     </p>
                   </div>
@@ -494,7 +494,7 @@ export default function Advertise() {
                     </Field>
                   </div>
 
-                  {/* Inline auth — no page hop, no losing the draft. */}
+                  {/* Inline auth - no page hop, no losing the draft. */}
                   {!isLoggedIn && (
                     <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-4 space-y-3">
                       <div className="flex items-center justify-between">
@@ -567,7 +567,7 @@ export default function Advertise() {
               </div>
             ) : myAds.length === 0 ? (
               <p className="text-sm text-gray-400 bg-white border border-gray-100 rounded-2xl p-6">
-                No campaigns yet — your first one will show up here with live view and click counts.
+                No campaigns yet - your first one will show up here with live view and click counts.
               </p>
             ) : (
               <div className="space-y-3">
@@ -614,7 +614,7 @@ export default function Advertise() {
         )}
       </main>
 
-      {/* Sticky action bar — the next step is always one tap away. */}
+      {/* Sticky action bar - the next step is always one tap away. */}
       <div className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
           {step > 1 && (

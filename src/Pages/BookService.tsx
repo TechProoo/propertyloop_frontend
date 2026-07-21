@@ -568,7 +568,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
-            {/* Left — step content */}
+            {/* Left - step content */}
             <div className="flex-1">
               <div>
                 <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8">
@@ -618,7 +618,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                       <textarea
                         value={jobDescription}
                         onChange={(e) => setJobDescription(e.target.value)}
-                        placeholder="Describe the job in detail — what needs to be fixed, installed, or repaired..."
+                        placeholder="Describe the job in detail - what needs to be fixed, installed, or repaired..."
                         className="w-full h-28 px-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
                       />
                     </div>
@@ -668,7 +668,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                         <textarea
                           value={propertyAddress}
                           onChange={(e) => setPropertyAddress(e.target.value)}
-                          placeholder="State your negotiation — chat with vendor to agree on scope and pricing before confirming."
+                          placeholder="State your negotiation - chat with vendor to agree on scope and pricing before confirming."
                           className="w-full h-20 pl-11 pr-4 py-3 rounded-2xl bg-white/80 border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
                         />
                       </div>
@@ -678,7 +678,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                       </p>
                     </div>
 
-                    {/* Attachments — let the buyer share photos/videos of the job */}
+                    {/* Attachments - let the buyer share photos/videos of the job */}
                     <div>
                       <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
                         Photos / Videos{" "}
@@ -841,7 +841,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
               </div>
             </div>
 
-            {/* Right — Vendor summary */}
+            {/* Right - Vendor summary */}
             <div className="lg:w-85 shrink-0">
               <div className="sticky top-8 flex flex-col gap-4">
                 <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
@@ -932,7 +932,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
 
                 {/* ─── Mini Chat Widget ─── */}
                 <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
-                  {/* Chat Header — Toggle */}
+                  {/* Chat Header - Toggle */}
                   <button
                     onClick={() => setChatOpen(!chatOpen)}
                     className="w-full px-4 py-3 flex items-center justify-between hover:bg-white/30 transition-colors"

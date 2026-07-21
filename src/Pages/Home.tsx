@@ -20,15 +20,15 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
       <Seo
-        title="PropertyLoop — Buy, Rent & Sell Property in Nigeria"
+        title="PropertyLoop - Buy, Rent & Sell Property in Nigeria"
         titleSuffix=""
-        description="Nigeria's all-in-one real estate platform. Verified agents, secure escrow, shortlets, and a service vendor marketplace — all in one place."
+        description="Nigeria's all-in-one real estate platform. Verified agents, secure escrow, shortlets, and a service vendor marketplace - all in one place."
         path="/"
         keywords="real estate Nigeria, property Lagos, buy property Nigeria, rent Lagos, shortlet Nigeria, verified agents, escrow"
       />
       <Navbar />
       <Hero />
-      {/* Paid brand placement — renders nothing when no campaign is live */}
+      {/* Paid brand placement - renders nothing when no campaign is live */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <AdSlot placement="HOME_BANNER" className="mt-6" />
       </div>

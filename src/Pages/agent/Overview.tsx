@@ -89,7 +89,7 @@ export default function AgentOverview() {
       const updated = await leadsService.update(lead.id, { status: "CONTACTED" });
       setLeads((prev) => prev.map((l) => (l.id === lead.id ? updated : l)));
     } catch {
-      /* ignore — non-critical */
+      /* ignore - non-critical */
     } finally {
       setBusyLeadId(null);
     }
@@ -245,7 +245,7 @@ export default function AgentOverview() {
         }
       />
 
-      {/* Offers-to-review nudge — highest-priority action, mirrors the app */}
+      {/* Offers-to-review nudge - highest-priority action, mirrors the app */}
       {offersToReview > 0 && (
         <button
           onClick={() => navigate("/agent-dashboard/offers")}
@@ -266,7 +266,7 @@ export default function AgentOverview() {
               {offersToReview} offer{offersToReview === 1 ? "" : "s"} to review
             </b>
             <span className="block text-[12.5px] mt-px" style={{ color: "#7a5a25" }}>
-              A buyer is waiting on your response — accept, counter or decline.
+              A buyer is waiting on your response - accept, counter or decline.
             </span>
           </div>
           <ArrowRight className="w-5 h-5 flex-shrink-0" style={{ color: "#6b4a16" }} />
@@ -318,20 +318,20 @@ export default function AgentOverview() {
       <div className="mt-[18px] grid gap-3.5 grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={<Home className="w-5 h-5" />}
-          value={loading ? "—" : stats?.listings.active ?? 0}
+          value={loading ? "-" : stats?.listings.active ?? 0}
           label="Active listings"
           delta={stats ? `▲ ${stats.listings.pendingReview} pending` : undefined}
         />
         <StatCard
           hero
           icon={<MessageCircle className="w-5 h-5" />}
-          value={loading ? "—" : stats?.leads.new ?? 0}
+          value={loading ? "-" : stats?.leads.new ?? 0}
           label="New leads"
           delta={stats ? `${stats.leads.total} total` : undefined}
         />
         <StatCard
           icon={<CalendarDays className="w-5 h-5" />}
-          value={loading ? "—" : stats?.viewings.upcoming ?? 0}
+          value={loading ? "-" : stats?.viewings.upcoming ?? 0}
           label="Upcoming viewings"
           deltaTone="flat"
           delta={stats ? `${stats.viewings.total} all-time` : undefined}
@@ -340,7 +340,7 @@ export default function AgentOverview() {
         />
         <StatCard
           icon={<BarChart3 className="w-5 h-5" />}
-          value={loading ? "—" : (stats?.listings.totalViews ?? 0).toLocaleString()}
+          value={loading ? "-" : (stats?.listings.totalViews ?? 0).toLocaleString()}
           label="Listing views"
           delta={stats ? `${stats.leads.conversionRate}% → lead` : undefined}
         />
@@ -442,7 +442,7 @@ export default function AgentOverview() {
             </div>
             {leads.length === 0 ? (
               <p className="text-[13px] mt-3" style={{ color: C.ink3 }}>
-                No leads yet — they'll appear here as buyers enquire.
+                No leads yet - they'll appear here as buyers enquire.
               </p>
             ) : (
               leads.map((ld) => (
@@ -479,7 +479,7 @@ export default function AgentOverview() {
           <Card>
             <h3 className="m-0 text-base font-extrabold" style={{ color: C.ink }}>Finish your profile</h3>
             <p className="mt-1 mb-0 text-[13px]" style={{ color: C.ink3 }}>
-              {doneCount} of 4 done — verified agents rank higher.
+              {doneCount} of 4 done - verified agents rank higher.
             </p>
             <div className="h-[7px] rounded-full overflow-hidden mt-3" style={{ background: C.surface2 }}>
               <i className="block h-full rounded-full" style={{ width: `${(doneCount / 4) * 100}%`, background: C.primary }} />

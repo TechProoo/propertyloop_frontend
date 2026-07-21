@@ -167,7 +167,7 @@ const FeedProfile = () => {
         title={profile ? `${profile.name} · Feed` : "Profile"}
         description={
           profile?.bio ||
-          "Community profile on PropertyLoop — posts, insights and listings."
+          "Community profile on PropertyLoop - posts, insights and listings."
         }
         path={`/feed/u/${id}`}
       />

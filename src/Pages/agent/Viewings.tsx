@@ -121,7 +121,7 @@ export default function AgentViewings() {
         }),
       );
       setRescheduleFor(null);
-      toast.success("Viewing rescheduled — the buyer has been notified.");
+      toast.success("Viewing rescheduled - the buyer has been notified.");
     } catch {
       toast.error("Couldn't reschedule");
     } finally {

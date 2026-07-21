@@ -127,7 +127,7 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Referral program — personalized link + tally.
+  // Referral program - personalized link + tally.
   const [referralInfo, setReferralInfo] = useState<ReferralInfo | null>(null);
   const [referralCopied, setReferralCopied] = useState(false);
 
@@ -142,7 +142,7 @@ const Dashboard = () => {
       setReferralCopied(true);
       setTimeout(() => setReferralCopied(false), 2000);
     } catch {
-      /* clipboard unavailable — link is still visible/selectable */
+      /* clipboard unavailable - link is still visible/selectable */
     }
   };
 
@@ -194,7 +194,7 @@ const Dashboard = () => {
   };
 
   const handleAcceptCounter = async (offer: Offer) => {
-    // Buyer accepts the agent's counter — same accept endpoint, seals the deal.
+    // Buyer accepts the agent's counter - same accept endpoint, seals the deal.
     if (
       !window.confirm(
         `Accept the agent's counter of ${offer.currentAmountLabel}? This creates a purchase you can both track.`,
@@ -306,7 +306,7 @@ const Dashboard = () => {
   const [disputeReason, setDisputeReason] = useState("");
   const [disputeSubmitting, setDisputeSubmitting] = useState(false);
 
-  /** Fund the job's escrow via Paystack — redirects to checkout, returns to /payment-callback. */
+  /** Fund the job's escrow via Paystack - redirects to checkout, returns to /payment-callback. */
   const handlePayEscrow = async (job: VendorJob) => {
     if (payingJobId) return;
     setPayingJobId(job.id);
@@ -322,12 +322,12 @@ const Dashboard = () => {
     }
   };
 
-  /** Buyer confirms the work — releases the escrow to the vendor. */
+  /** Buyer confirms the work - releases the escrow to the vendor. */
   const handleConfirmJob = async (job: VendorJob) => {
     const amount = (job.escrowAmount || job.amount).toLocaleString();
     if (
       !window.confirm(
-        `Release ₦${amount} from escrow to ${job.vendor?.name ?? "the vendor"}? Only confirm once you're happy with the work — this can't be undone.`,
+        `Release ₦${amount} from escrow to ${job.vendor?.name ?? "the vendor"}? Only confirm once you're happy with the work - this can't be undone.`,
       )
     )
       return;
@@ -345,7 +345,7 @@ const Dashboard = () => {
     }
   };
 
-  /** Buyer raises a dispute — pauses the escrow release for admin review. */
+  /** Buyer raises a dispute - pauses the escrow release for admin review. */
   const handleSubmitDispute = async () => {
     if (!disputeJobId) return;
     if (disputeReason.trim().length < 10) {
@@ -363,7 +363,7 @@ const Dashboard = () => {
       setDisputeJobId(null);
       setDisputeReason("");
       toast.success(
-        "Dispute raised — the escrow release is paused while our team reviews it.",
+        "Dispute raised - the escrow release is paused while our team reviews it.",
       );
     } catch (e: any) {
       toast.error(
@@ -793,7 +793,7 @@ const Dashboard = () => {
                     ))}
                   </div>
 
-                  {/* List Your Property — buyers only */}
+                  {/* List Your Property - buyers only */}
                   {authUser?.role === "BUYER" && (
                     <motion.a
                       href={`https://wa.me/2347053053040?text=${encodeURIComponent("Hi, I'm a registered buyer on PropertyLoop and I'd like to list a property. Can we discuss?")}`}
@@ -812,7 +812,7 @@ const Dashboard = () => {
                           Have a property to list?
                         </p>
                         <p className="text-text-secondary text-xs mt-0.5">
-                          Tap to chat with us on WhatsApp — we'll walk you through getting it listed.
+                          Tap to chat with us on WhatsApp - we'll walk you through getting it listed.
                         </p>
                       </div>
                       <span className="shrink-0 h-9 px-4 rounded-full bg-[#25D366] text-white text-xs font-bold flex items-center gap-1.5 group-hover:bg-[#1ebe5d] transition-colors">
@@ -1053,7 +1053,7 @@ const Dashboard = () => {
                                     </div>
                                   </div>
 
-                                  {/* Escrow actions — pay / confirm / dispute */}
+                                  {/* Escrow actions - pay / confirm / dispute */}
                                   {needsPayment && (
                                     <div className="mt-3 pt-3 border-t border-white/60">
                                       <button
@@ -1247,7 +1247,7 @@ const Dashboard = () => {
                   transition={{ duration: 0.4, ease }}
                   className="flex flex-col gap-6"
                 >
-                  {/* Bookmarked Properties — For Sale */}
+                  {/* Bookmarked Properties - For Sale */}
                   {(() => {
                     const saleSaved = savedProperties.filter(
                       (l) => l.type === "SALE",
@@ -1330,7 +1330,7 @@ const Dashboard = () => {
                     );
                   })()}
 
-                  {/* Bookmarked Properties — For Rent */}
+                  {/* Bookmarked Properties - For Rent */}
                   {(() => {
                     const rentSaved = savedProperties.filter(
                       (l) => l.type === "RENT" || l.type === "SHORTLET",
@@ -1736,7 +1736,7 @@ const Dashboard = () => {
                       (c) => c.id === chat.activeConversationId,
                     ) || chat.conversations[0];
 
-                  // Initial fetch in flight — full layout skeleton
+                  // Initial fetch in flight - full layout skeleton
                   if (chat.loading) {
                     return (
                       <motion.div
@@ -1775,7 +1775,7 @@ const Dashboard = () => {
                     );
                   }
 
-                  // No conversations yet — friendly empty state
+                  // No conversations yet - friendly empty state
                   if (!activeConvo) {
                     return (
                       <motion.div
@@ -2212,7 +2212,7 @@ const Dashboard = () => {
                               No offers yet
                             </h3>
                             <p className="text-text-secondary text-sm mt-1">
-                              Find a home you love and make an offer — you'll
+                              Find a home you love and make an offer - you'll
                               track it here.
                             </p>
                             <Link
@@ -2513,7 +2513,7 @@ const Dashboard = () => {
                           Property Logbook
                         </h2>
                         <p className="text-text-secondary text-xs">
-                          Every repair and service — permanently recorded
+                          Every repair and service - permanently recorded
                         </p>
                       </div>
                     </div>
@@ -2867,7 +2867,7 @@ const Dashboard = () => {
                       Refer &amp; Earn
                     </h3>
                     <p className="text-text-secondary text-sm mb-4">
-                      Share your personal link — every signup through it is
+                      Share your personal link - every signup through it is
                       tracked to your account for rewards.
                     </p>
                     {!referralInfo ? (
@@ -2905,7 +2905,7 @@ const Dashboard = () => {
                           </span>
                           <a
                             href={`https://wa.me/?text=${encodeURIComponent(
-                              `Join me on PropertyLoop — find homes, agents and trusted artisans in one place. Sign up with my link: ${referralInfo.referralLink}`,
+                              `Join me on PropertyLoop - find homes, agents and trusted artisans in one place. Sign up with my link: ${referralInfo.referralLink}`,
                             )}`}
                             target="_blank"
                             rel="noreferrer"

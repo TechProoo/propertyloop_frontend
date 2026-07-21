@@ -277,7 +277,7 @@ const VendorDashboard = () => {
     text: string;
   } | null>(null);
 
-  // Referral program — same personalized link surfaced everywhere.
+  // Referral program - same personalized link surfaced everywhere.
   const [referralInfo, setReferralInfo] = useState<ReferralInfo | null>(null);
   const [referralCopied, setReferralCopied] = useState(false);
 
@@ -292,7 +292,7 @@ const VendorDashboard = () => {
       setReferralCopied(true);
       setTimeout(() => setReferralCopied(false), 2000);
     } catch {
-      /* clipboard unavailable — link is still visible/selectable */
+      /* clipboard unavailable - link is still visible/selectable */
     }
   };
 
@@ -448,7 +448,7 @@ const VendorDashboard = () => {
       for (const file of toUpload) {
         if (file.size > 10 * 1024 * 1024) {
           throw new Error(
-            `"${file.name}" is over 10MB — please choose a smaller image.`,
+            `"${file.name}" is over 10MB - please choose a smaller image.`,
           );
         }
         const url = await vendorsService.uploadPortfolioImage(
@@ -493,7 +493,7 @@ const VendorDashboard = () => {
     setSavingProfile(true);
     setProfileMessage(null);
     try {
-      // Strip empty strings — @IsUrl on website rejects "" even with @IsOptional
+      // Strip empty strings - @IsUrl on website rejects "" even with @IsOptional
       const payload: Record<string, unknown> = { name: profileName.trim() };
       if (profilePhone.trim()) payload.phone = profilePhone.trim();
       if (profileLocation.trim()) payload.location = profileLocation.trim();
@@ -545,7 +545,7 @@ const VendorDashboard = () => {
         prev.map((j) => (j.id === jobId ? { ...j, status: "accepted" } : j)),
       );
       toast.success(
-        "Job accepted — the customer has been asked to secure payment in escrow.",
+        "Job accepted - the customer has been asked to secure payment in escrow.",
       );
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Couldn't accept. Please try again.");
@@ -568,7 +568,7 @@ const VendorDashboard = () => {
       setVendorJobs((prev) =>
         prev.map((j) => (j.id === jobId ? { ...j, status: "in-progress" } : j)),
       );
-      toast.success("Job started — good luck!");
+      toast.success("Job started - good luck!");
     } catch (e: any) {
       toast.error(
         e?.response?.data?.message ?? "Couldn't start the job. Please try again.",
@@ -603,7 +603,7 @@ const VendorDashboard = () => {
       setCompleteNotes("");
       setCompleteFiles([]);
       toast.success(
-        "Marked complete — the customer will confirm to release your share from escrow.",
+        "Marked complete - the customer will confirm to release your share from escrow.",
       );
     } catch (e: any) {
       toast.error(
@@ -712,7 +712,7 @@ const VendorDashboard = () => {
       setBankName("");
       setResolvedName("");
       toast.success(
-        `Payout account saved — ${saved.accountName} · ${saved.bankName}.`,
+        `Payout account saved - ${saved.accountName} · ${saved.bankName}.`,
       );
     } catch (e: any) {
       toast.error(
@@ -764,7 +764,7 @@ const VendorDashboard = () => {
       setDisputeData(updated);
       setDisputeReply("");
       setDisputeFiles([]);
-      toast.success("Response sent — our team and the customer can see it.");
+      toast.success("Response sent - our team and the customer can see it.");
     } catch (e: any) {
       toast.error(
         e?.response?.data?.message ?? "Couldn't send the response. Please try again.",
@@ -846,7 +846,7 @@ const VendorDashboard = () => {
         toast.success("Service updated.");
       } else {
         await vendorServicesService.create(payload);
-        toast.success("Service added — customers can book it now.");
+        toast.success("Service added - customers can book it now.");
       }
       setServiceModal(null);
       await loadServices();
@@ -911,7 +911,7 @@ const VendorDashboard = () => {
         schedule: avSchedule,
       });
       setAvailability(a);
-      toast.success("Availability saved — customers see the new hours immediately.");
+      toast.success("Availability saved - customers see the new hours immediately.");
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Couldn't save. Please try again.");
     } finally {
@@ -925,7 +925,7 @@ const VendorDashboard = () => {
       const updated = await vendorsService.addBlackouts([blackoutDate]);
       setAvBlackouts(updated);
       setBlackoutDate("");
-      toast.success("Date blocked — you won't get bookings then.");
+      toast.success("Date blocked - you won't get bookings then.");
     } catch (e: any) {
       toast.error(e?.response?.data?.message ?? "Couldn't block the date.");
     }
@@ -1019,7 +1019,7 @@ const VendorDashboard = () => {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   src={Logo}
-                  alt="PropertyLoop — back to home"
+                  alt="PropertyLoop - back to home"
                   className="w-28 cursor-pointer"
                 />
               </Link>
@@ -1141,7 +1141,7 @@ const VendorDashboard = () => {
                 <Link to="/" onClick={() => setMobileMenuOpen(false)}>
                   <img
                     src={Logo}
-                    alt="PropertyLoop — back to home"
+                    alt="PropertyLoop - back to home"
                     className="w-28 cursor-pointer"
                   />
                 </Link>
@@ -2171,7 +2171,7 @@ const VendorDashboard = () => {
               transition={{ duration: 0.4, ease }}
               className="flex flex-col gap-6"
             >
-              {/* Balance hero — available to withdraw (matches the app) */}
+              {/* Balance hero - available to withdraw (matches the app) */}
               <div
                 className="rounded-[20px] p-6 sm:p-8 text-white"
                 style={{ background: "hsl(160, 30%, 12%)" }}
@@ -2778,7 +2778,7 @@ const VendorDashboard = () => {
                             {review.comment}
                           </p>
 
-                          {/* Public reply — vendors get a single, visible response */}
+                          {/* Public reply - vendors get a single, visible response */}
                           {review.reply ? (
                             <div className="mt-3 pl-3 border-l-2 border-primary/30">
                               <p className="text-[11px] font-bold text-primary">
@@ -2794,7 +2794,7 @@ const VendorDashboard = () => {
                                 value={reviewReplyText}
                                 onChange={(e) => setReviewReplyText(e.target.value)}
                                 rows={2}
-                                placeholder="Thank them, or add helpful context — this reply is public."
+                                placeholder="Thank them, or add helpful context - this reply is public."
                                 className="w-full px-3 py-2 rounded-xl bg-white/80 border border-border-light text-xs text-primary-dark placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors resize-none"
                               />
                               <div className="flex gap-2 mt-2">
@@ -3097,7 +3097,7 @@ const VendorDashboard = () => {
                   Refer &amp; Earn
                 </h3>
                 <p className="text-text-secondary text-sm mb-4">
-                  Share your personal link — every signup through it is tracked
+                  Share your personal link - every signup through it is tracked
                   to your account for rewards.
                 </p>
                 {!referralInfo ? (
@@ -3135,7 +3135,7 @@ const VendorDashboard = () => {
                       </span>
                       <a
                         href={`https://wa.me/?text=${encodeURIComponent(
-                          `Join me on PropertyLoop — find homes, agents and trusted artisans in one place. Sign up with my link: ${referralInfo.referralLink}`,
+                          `Join me on PropertyLoop - find homes, agents and trusted artisans in one place. Sign up with my link: ${referralInfo.referralLink}`,
                         )}`}
                         target="_blank"
                         rel="noreferrer"
@@ -3295,7 +3295,7 @@ const VendorDashboard = () => {
         )}
       </AnimatePresence>
 
-      {/* ─── Mark-complete modal — notes + proof photos (matches the app) ─── */}
+      {/* ─── Mark-complete modal - notes + proof photos (matches the app) ─── */}
       <AnimatePresence>
         {completeTarget && (
           <motion.div
@@ -3400,7 +3400,7 @@ const VendorDashboard = () => {
         )}
       </AnimatePresence>
 
-      {/* ─── Dispute response modal — reason, thread, reply + evidence ─── */}
+      {/* ─── Dispute response modal - reason, thread, reply + evidence ─── */}
       <AnimatePresence>
         {disputeTarget && (
           <motion.div
@@ -3502,7 +3502,7 @@ const VendorDashboard = () => {
                     })}
                     {disputeData.thread.length === 0 && (
                       <p className="text-text-subtle text-xs text-center py-4">
-                        No messages yet — respond with your side and any evidence.
+                        No messages yet - respond with your side and any evidence.
                       </p>
                     )}
                   </div>

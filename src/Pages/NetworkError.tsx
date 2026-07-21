@@ -24,7 +24,7 @@ const NetworkError = ({ onRetry }: Props) => {
 
           <p className="text-text-secondary text-sm leading-relaxed mb-8">
             We can't reach PropertyLoop right now. This usually means your
-            internet connection dropped — it's not us. Check your Wi-Fi or
+            internet connection dropped - it's not us. Check your Wi-Fi or
             mobile data and try again.
           </p>
 

@@ -37,7 +37,7 @@ export const products: Product[] = [
     location: "Lekki, Lagos",
     rating: 4.9, reviews: 342, verified: true,
     phone: "2348012345678",
-    description: "Premium Portland cement from Dangote, Nigeria's most trusted cement brand. Ideal for all construction projects — foundations, columns, beams, slabs, and plastering. 50kg bags, factory-sealed.",
+    description: "Premium Portland cement from Dangote, Nigeria's most trusted cement brand. Ideal for all construction projects - foundations, columns, beams, slabs, and plastering. 50kg bags, factory-sealed.",
     specs: [
       { label: "Brand", value: "Dangote" },
       { label: "Weight", value: "50kg" },
@@ -187,7 +187,7 @@ export const products: Product[] = [
     location: "Ikoyi, Lagos",
     rating: 4.7, reviews: 142, verified: true,
     phone: "2348078901234",
-    description: "High yield steel reinforcement bars (rebar), 12mm diameter. Manufactured to BS 4449 standards. Ideal for reinforced concrete structures — foundations, columns, beams, and slabs.",
+    description: "High yield steel reinforcement bars (rebar), 12mm diameter. Manufactured to BS 4449 standards. Ideal for reinforced concrete structures - foundations, columns, beams, and slabs.",
     specs: [
       { label: "Diameter", value: "12mm" },
       { label: "Grade", value: "BS 4449 B500B" },

@@ -62,7 +62,7 @@ const ReviewDisputeSection = ({
   const handleReviewSubmit = async () => {
     if (!(reviewRating > 0 && reviewText.trim())) return;
     if (!agentId) {
-      setReviewError("Cannot submit — agent not loaded yet.");
+      setReviewError("Cannot submit - agent not loaded yet.");
       return;
     }
     setReviewError("");
@@ -590,7 +590,7 @@ const AgentProfile = () => {
                   </div>
                 </div>
 
-                {/* Contact buttons — desktop */}
+                {/* Contact buttons - desktop */}
                 <div className="hidden lg:flex flex-col gap-3 shrink-0">
                   <a
                     href={`mailto:${agent.email}`}
@@ -688,7 +688,7 @@ const AgentProfile = () => {
 
           {/* ─── Main content grid ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
-            {/* Left — About + Reviews */}
+            {/* Left - About + Reviews */}
             <div className="flex-1">
               {/* About */}
               <motion.div
@@ -849,7 +849,7 @@ const AgentProfile = () => {
               />
             </div>
 
-            {/* Right — Listings + Similar agents */}
+            {/* Right - Listings + Similar agents */}
             <div className="lg:w-105 shrink-0">
               {/* Active Listings */}
               <motion.div

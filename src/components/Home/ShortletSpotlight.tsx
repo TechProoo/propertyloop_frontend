@@ -61,7 +61,7 @@ const ShortletSpotlight = () => {
       );
     }
 
-    // Heading — clip-path wipe
+    // Heading - clip-path wipe
     if (heading) {
       tl.fromTo(
         heading,
@@ -96,7 +96,7 @@ const ShortletSpotlight = () => {
       );
     }
 
-    // Date picker bar — expand from center
+    // Date picker bar - expand from center
     if (datePicker) {
       tl.fromTo(
         datePicker,
@@ -106,7 +106,7 @@ const ShortletSpotlight = () => {
       );
     }
 
-    // Shortlet cards — stagger rise with scale
+    // Shortlet cards - stagger rise with scale
     if (cards.length) {
       tl.fromTo(
         cards,

@@ -774,7 +774,7 @@ export interface AuthResponse {
   user: User;
   accessToken: string;
   sessionId: string;
-  // refreshToken is intentionally absent — backend ships it as an HttpOnly
+  // refreshToken is intentionally absent - backend ships it as an HttpOnly
   // cookie (pl_refresh_token) on /api/auth, not in the JSON body.
 }
 

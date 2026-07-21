@@ -79,7 +79,7 @@ const TrustedSection = () => {
       },
     });
 
-    // Heading — clip-path wipe reveal
+    // Heading - clip-path wipe reveal
     if (heading) {
       tl.fromTo(
         heading,
@@ -94,7 +94,7 @@ const TrustedSection = () => {
       );
     }
 
-    // Description — fade up
+    // Description - fade up
     if (description) {
       tl.fromTo(
         description,
@@ -104,7 +104,7 @@ const TrustedSection = () => {
       );
     }
 
-    // Avatars — stagger pop-in with scale overshoot
+    // Avatars - stagger pop-in with scale overshoot
     if (avatars.length) {
       tl.fromTo(
         avatars,
@@ -120,7 +120,7 @@ const TrustedSection = () => {
       );
     }
 
-    // Stats — count-up feel with stagger
+    // Stats - count-up feel with stagger
     if (statItems.length) {
       tl.fromTo(
         statItems,
@@ -137,7 +137,7 @@ const TrustedSection = () => {
       );
     }
 
-    // Vertical divider — grow from top
+    // Vertical divider - grow from top
     if (divider) {
       tl.fromTo(
         divider,
@@ -147,7 +147,7 @@ const TrustedSection = () => {
       );
     }
 
-    // Feature cards — cinematic stagger slide-in from right
+    // Feature cards - cinematic stagger slide-in from right
     if (cards.length) {
       tl.fromTo(
         cards,
@@ -227,20 +227,20 @@ const TrustedSection = () => {
           </div>
         </div>
 
-        {/* Vertical divider — desktop */}
+        {/* Vertical divider - desktop */}
         <div
           data-trusted-divider
           className="hidden lg:block w-px bg-border self-stretch"
         />
 
-        {/* Right side — feature cards */}
+        {/* Right side - feature cards */}
         <div className="flex-1 flex flex-col gap-8 pl-4 pt-4">
           {features.map((feature, i) => (
             <div key={i} data-trusted-card className="group relative">
-              {/* Concave notch — page-bg circle behind the icon */}
+              {/* Concave notch - page-bg circle behind the icon */}
               <div className="absolute -top-3.5 -left-3.5 w-17 h-17 rounded-full bg-bg z-1" />
 
-              {/* Icon — sits in the notch */}
+              {/* Icon - sits in the notch */}
               <div className="absolute -top-1.5 -left-1.5 z-2 w-13 h-13 rounded-full bg-[#FFF3E6] flex items-center justify-center shadow-[0_2px_8px_rgba(245,166,35,0.15)]">
                 <div className="w-9 h-9 rounded-full bg-[#FFE4B8] flex items-center justify-center text-[#F5A623]">
                   {feature.icon}

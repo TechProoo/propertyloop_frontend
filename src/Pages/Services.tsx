@@ -192,7 +192,7 @@ const Services = () => {
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
                 Browse verified plumbers, electricians, builders, cleaners, and
-                more — all KYC-verified and rated by real customers.
+                more - all KYC-verified and rated by real customers.
               </p>
               <div className="flex flex-wrap gap-3 mt-6">
                 {[
@@ -457,7 +457,7 @@ const Services = () => {
               </div>
             </div>
 
-            {/* Right — vendor cards */}
+            {/* Right - vendor cards */}
             <div className="flex-1">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
                 <p className="text-text-secondary text-sm">

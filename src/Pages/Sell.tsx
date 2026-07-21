@@ -68,7 +68,7 @@ const benefits = [
       "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
     title: "Full Price History",
     description:
-      "Transparent pricing with complete history. No hidden inflation — buyers see the truth.",
+      "Transparent pricing with complete history. No hidden inflation - buyers see the truth.",
   },
   {
     icon: <Lock className="w-5 h-5" />,
@@ -92,7 +92,7 @@ const benefits = [
       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
     title: "Per-Listing Analytics",
     description:
-      "See exactly how your listing performs — views, enquiries, and offer activity in real time.",
+      "See exactly how your listing performs - views, enquiries, and offer activity in real time.",
   },
   {
     icon: <BookOpen className="w-5 h-5" />,
@@ -249,7 +249,7 @@ const Sell = () => {
     <div className="min-h-screen bg-[#f5f0eb]">
       <Seo
         title="Sell Your Property in Nigeria"
-        description="List your property on PropertyLoop and reach thousands of buyers. Pair with a verified agent or list it yourself — secure escrow on every deal."
+        description="List your property on PropertyLoop and reach thousands of buyers. Pair with a verified agent or list it yourself - secure escrow on every deal."
         path="/sell"
         keywords="sell property Nigeria, list property Lagos, real estate listing, find an agent Nigeria, PropertyLoop sell"
       />
@@ -344,7 +344,7 @@ const Sell = () => {
                 How Selling <span className="text-primary">Works</span>
               </h2>
               <p className="text-text-secondary text-sm mt-3 max-w-md mx-auto">
-                From first contact to signed contract — in four steps
+                From first contact to signed contract - in four steps
               </p>
             </div>
 
@@ -392,7 +392,7 @@ const Sell = () => {
                   Why Sell <span className="text-primary">With Us</span>
                 </h2>
                 <p className="text-text-secondary text-sm leading-relaxed mt-3 max-w-lg">
-                  Every tool a seller needs — verified agents, verified buyers,
+                  Every tool a seller needs - verified agents, verified buyers,
                   transparent pricing, and direct messaging.
                 </p>
               </div>
@@ -538,7 +538,7 @@ const Sell = () => {
                         {/* Rating hidden until platform has enough reviews
                         <span className="flex items-center gap-1">
                           <Star className="w-3.5 h-3.5 text-[#F5A623] fill-[#F5A623]" />
-                          {agent.rating ? agent.rating.toFixed(1) : "—"}
+                          {agent.rating ? agent.rating.toFixed(1) : "-"}
                         </span>
                         */}
                         <span className="flex items-center gap-1">
@@ -590,7 +590,7 @@ const Sell = () => {
                 <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-primary/5" />
 
                 <div className="relative z-10 px-5 sm:px-8 md:px-12 lg:px-16 py-8 sm:py-12 lg:py-14 flex flex-col lg:flex-row gap-10 lg:gap-16">
-                  {/* Left — copy */}
+                  {/* Left - copy */}
                   <div className="flex-1 lg:max-w-md">
                     <p className="text-primary text-sm font-medium tracking-wide uppercase mb-2">
                       Free Property Valuation
@@ -643,7 +643,7 @@ const Sell = () => {
                     </div>
                   </div>
 
-                  {/* Right — form */}
+                  {/* Right - form */}
                   <div className="flex-1">
                     {submitted ? (
                       <div className="h-full flex flex-col items-center justify-center text-center bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] p-10 shadow-[0_4px_16px_rgba(0,0,0,0.06)]">

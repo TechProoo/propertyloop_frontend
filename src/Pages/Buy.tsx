@@ -196,7 +196,7 @@ const Buy = () => {
 
   const hasMore = !!page && !!pages && page < pages;
 
-  // Infinite scroll — auto-load the next page when the sentinel nears view.
+  // Infinite scroll - auto-load the next page when the sentinel nears view.
   useEffect(() => {
     if (!hasMore || listingsLoading) return;
     const el = loadMoreRef.current;
@@ -261,7 +261,7 @@ const Buy = () => {
   const homesCount = stats?.total ?? total;
   const agentsCount = stats?.verifiedAgents;
   const fmtPlus = (n?: number) =>
-    n == null ? "—" : n >= 1000 ? `${(Math.floor(n / 100) / 10).toFixed(1)}k` : `${n}`;
+    n == null ? "-" : n >= 1000 ? `${(Math.floor(n / 100) / 10).toFixed(1)}k` : `${n}`;
 
   const headerArea = debouncedSearch.trim() || "Lagos";
   const resultCount = total || allListings.length;
@@ -312,7 +312,7 @@ const Buy = () => {
     <div className="min-h-screen bg-[#f5f0eb] font-heading">
       <Seo
         title="Properties for Sale in Nigeria"
-        description="Browse verified homes for sale across Lagos, Abuja and Port Harcourt. Every home is walked in person and listed by a KYC-verified agent — message them directly, no middlemen."
+        description="Browse verified homes for sale across Lagos, Abuja and Port Harcourt. Every home is walked in person and listed by a KYC-verified agent - message them directly, no middlemen."
         path="/buy"
         keywords="property for sale Nigeria, houses for sale Lagos, buy property, verified properties, PropertyLoop"
       />
@@ -330,7 +330,7 @@ const Buy = () => {
         </div>
 
         <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-12 mt-8 lg:mt-10 items-end">
-          {/* Left — copy + figures */}
+          {/* Left - copy + figures */}
           <div>
             <h1 className="font-display font-medium text-[2.6rem] sm:text-[3.6rem] lg:text-[4.5rem] leading-[0.96] tracking-[-0.03em] text-ink">
               Find the one
@@ -342,7 +342,7 @@ const Buy = () => {
               <p className="text-base text-ink-2 leading-relaxed">
                 Every home here was walked in person by our team and is listed by
                 a KYC-verified agent. Browse, then message the person who knows
-                the property best — no middlemen.
+                the property best - no middlemen.
               </p>
             </div>
             <div className="flex flex-wrap gap-9 mt-9">
@@ -364,7 +364,7 @@ const Buy = () => {
             </div>
           </div>
 
-          {/* Right — featured photo with detail card */}
+          {/* Right - featured photo with detail card */}
           <div className="relative rounded-[8px_8px_60px_8px] overflow-hidden aspect-[4/5] bg-[#16321f] shadow-[0_30px_60px_rgba(0,0,0,0.16)]">
             <img
               src={featured?.coverImage || FALLBACK_HERO}
@@ -506,7 +506,7 @@ const Buy = () => {
         className="max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pt-8 pb-16 scroll-mt-24"
       >
         <div className="grid lg:grid-cols-[1fr_0.92fr] gap-8 items-start">
-          {/* LEFT — results list */}
+          {/* LEFT - results list */}
           <div>
             <div className="flex items-end justify-between gap-5">
               <div>
@@ -598,7 +598,7 @@ const Buy = () => {
               </div>
             ) : (
               <div className="flex flex-col gap-5 mt-6">
-                {/* Sponsored brand card — interleaved after the third listing */}
+                {/* Sponsored brand card - interleaved after the third listing */}
                 {allListings.length > 3 && (
                   <AdSlot placement="HOME_FEED" className="order-4" />
                 )}
@@ -739,7 +739,7 @@ const Buy = () => {
             )}
           </div>
 
-          {/* RIGHT — sticky map */}
+          {/* RIGHT - sticky map */}
           <div className="hidden lg:block lg:sticky lg:top-24 h-[calc(100vh-7rem)]">
             {allListings.length > 0 ? (
               <PropertyMap

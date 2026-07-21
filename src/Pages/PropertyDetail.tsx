@@ -235,7 +235,7 @@ const PropertyDetail = () => {
         await navigator.share({ title: listing.title, url });
         return;
       } catch (err: any) {
-        // User dismissed the sheet — not an error worth surfacing.
+        // User dismissed the sheet - not an error worth surfacing.
         if (err?.name === "AbortError") return;
         // Anything else falls through to the clipboard copy below.
       }
@@ -256,7 +256,7 @@ const PropertyDetail = () => {
         document.execCommand("copy");
         toast.success("Link copied to clipboard");
       } catch {
-        toast.error("Couldn't copy — copy it manually: " + url);
+        toast.error("Couldn't copy - copy it manually: " + url);
       }
       document.body.removeChild(input);
     }
@@ -397,7 +397,7 @@ const PropertyDetail = () => {
             <div className="relative h-75 sm:h-100 lg:h-125 bg-black">
               {/* Blurred backdrop so sub-resolution images don't get upscaled.
                   The main image then sits centered at its native size via
-                  object-contain — sharp, no stretching artifacts. */}
+                  object-contain - sharp, no stretching artifacts. */}
               <img
                 src={listing.images[activeImage]}
                 alt=""
@@ -512,7 +512,7 @@ const PropertyDetail = () => {
 
           {/* ─── Main content grid ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-20">
-            {/* Left — details */}
+            {/* Left - details */}
             <div className="flex-1">
               {/* Title + specs */}
               <motion.div
@@ -681,7 +681,7 @@ const PropertyDetail = () => {
 
                   <p className="text-text-subtle text-[11px] mt-4 leading-relaxed">
                     Documents are verified by PropertyLoop. For your safety,
-                    original copies are not displayed publicly — request them
+                    original copies are not displayed publicly - request them
                     directly from the listing agent.
                   </p>
                 </motion.div>
@@ -953,7 +953,7 @@ const PropertyDetail = () => {
               </motion.div>
             </div>
 
-            {/* Right — agent + similar */}
+            {/* Right - agent + similar */}
             <div className="lg:w-95 shrink-0">
               {/* Agent card */}
               {agent && (
@@ -1030,7 +1030,7 @@ const PropertyDetail = () => {
                     </a>
                   </div>
 
-                  {/* Make an Offer button — sales + shortlets */}
+                  {/* Make an Offer button - sales + shortlets */}
                   {(listing.type === "SALE" || listing.type === "SHORTLET") &&
                     offerStatus === "idle" && (
                       <button
@@ -1044,7 +1044,7 @@ const PropertyDetail = () => {
                       </button>
                     )}
 
-                  {/* Schedule a Viewing — rentals + sales */}
+                  {/* Schedule a Viewing - rentals + sales */}
                   {listing.type !== "SHORTLET" && viewingStatus === "idle" && (
                     <button
                       onClick={() => setViewingStatus("form")}
@@ -1218,7 +1218,7 @@ const PropertyDetail = () => {
                       </>
                     )}
 
-                    {/* Sending — in flight */}
+                    {/* Sending - in flight */}
                     {offerStatus === "sending" && (
                       <div className="text-center py-4">
                         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 animate-pulse">

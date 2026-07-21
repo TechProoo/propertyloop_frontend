@@ -76,7 +76,7 @@ const ServiceLoop = () => {
       scrollTrigger: { trigger: el, start: "top 75%", once: true },
     });
 
-    // Label — fade in
+    // Label - fade in
     if (label) {
       tl.fromTo(
         label,
@@ -85,7 +85,7 @@ const ServiceLoop = () => {
       );
     }
 
-    // Heading — clip-path wipe
+    // Heading - clip-path wipe
     if (heading) {
       tl.fromTo(
         heading,
@@ -120,7 +120,7 @@ const ServiceLoop = () => {
       );
     }
 
-    // Category pills — stagger pop from left
+    // Category pills - stagger pop from left
     if (pills.length) {
       tl.fromTo(
         pills,
@@ -137,7 +137,7 @@ const ServiceLoop = () => {
       );
     }
 
-    // Vendor cards — cinematic stagger rise
+    // Vendor cards - cinematic stagger rise
     if (cards.length) {
       tl.fromTo(
         cards,
@@ -155,7 +155,7 @@ const ServiceLoop = () => {
       );
     }
 
-    // Escrow banner — slide up with scale
+    // Escrow banner - slide up with scale
     if (banner) {
       tl.fromTo(
         banner,
@@ -223,7 +223,7 @@ const ServiceLoop = () => {
           ))}
         </div>
 
-        {/* Vendor cards — 3 per row */}
+        {/* Vendor cards - 3 per row */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
@@ -320,7 +320,7 @@ const ServiceLoop = () => {
                   )}
                 </div>
 
-                {/* Meta row — avatar + name */}
+                {/* Meta row - avatar + name */}
                 <div className="mt-3.5 bg-bg-accent rounded-2xl p-4 flex items-center gap-3">
                   <img
                     src={vendor.avatarUrl || FallbackImg}
@@ -366,7 +366,7 @@ const ServiceLoop = () => {
             </h3>
             <p className="text-text-secondary text-sm mt-1 leading-relaxed">
               Every vendor is identity-verified and rated by the community.
-              Browse, message, and book directly — no middlemen.
+              Browse, message, and book directly - no middlemen.
             </p>
           </div>
           <Link

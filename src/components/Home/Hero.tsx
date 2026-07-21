@@ -109,7 +109,7 @@ const Hero = () => {
       delay: 0.3,
     });
 
-    // Decorative shape — cinematic scale-in from center
+    // Decorative shape - cinematic scale-in from center
     if (decorBg) {
       tl.fromTo(
         decorBg,
@@ -118,7 +118,7 @@ const Hero = () => {
       );
     }
 
-    // Heading lines — clip-path wipe reveal + stagger
+    // Heading lines - clip-path wipe reveal + stagger
     if (headingLines.length) {
       tl.fromTo(
         headingLines,
@@ -135,7 +135,7 @@ const Hero = () => {
       );
     }
 
-    // Search box — slides up with bounce
+    // Search box - slides up with bounce
     if (searchBox) {
       tl.fromTo(
         searchBox,
@@ -145,7 +145,7 @@ const Hero = () => {
       );
     }
 
-    // Gallery — cinematic scale from far with rotation
+    // Gallery - cinematic scale from far with rotation
     if (galleryBox) {
       tl.fromTo(
         galleryBox,
@@ -155,7 +155,7 @@ const Hero = () => {
       );
     }
 
-    // Quote — fade up
+    // Quote - fade up
     if (quote) {
       tl.fromTo(
         quote,
@@ -165,7 +165,7 @@ const Hero = () => {
       );
     }
 
-    // Property card — slides up from below viewport
+    // Property card - slides up from below viewport
     if (propCard) {
       tl.fromTo(
         propCard,
@@ -234,7 +234,7 @@ const Hero = () => {
       ref={sectionRef}
       className="relative w-full lg:h-[calc(100vh-64px)] overflow-x-hidden"
     >
-      {/* Decorative shape — upper area, green-tinted glass */}
+      {/* Decorative shape - upper area, green-tinted glass */}
       <div
         data-hero-decor
         className="absolute hidden lg:block"
@@ -249,7 +249,7 @@ const Hero = () => {
         }}
       />
 
-      {/* Gallery — right side (desktop) */}
+      {/* Gallery - right side (desktop) */}
       <div
         data-hero-gallery
         className="absolute hidden lg:block"
@@ -449,7 +449,7 @@ const Hero = () => {
             </span>
           </h1>
 
-          {/* Search Box — glassmorphism */}
+          {/* Search Box - glassmorphism */}
           <form
             onSubmit={handleSearch}
             data-hero-search
@@ -505,7 +505,7 @@ const Hero = () => {
           </form>
         </div>
 
-        {/* Bottom row — quote left, property card right */}
+        {/* Bottom row - quote left, property card right */}
         <div className="flex items-end justify-between gap-6 pointer-events-auto">
           {/* Quote */}
           <div data-hero-quote className="max-w-60 relative">
@@ -513,12 +513,12 @@ const Hero = () => {
               &ldquo;
             </span>
             <p className="text-text-secondary text-[13px] leading-relaxed italic pl-3 pt-3">
-              "From first search to signed contract — and everything that
+              "From first search to signed contract - and everything that
               happens after the keys are handed over."
             </p>
           </div>
 
-          {/* Property Card — synced with gallery */}
+          {/* Property Card - synced with gallery */}
           {heroLoading ? (
             <div
               data-hero-card
@@ -570,7 +570,7 @@ const Hero = () => {
                 )}
               </div>
 
-              {/* Navigation Arrows — control the gallery */}
+              {/* Navigation Arrows - control the gallery */}
               <div className="flex gap-2 shrink-0">
                 <button
                   onClick={(e) => {

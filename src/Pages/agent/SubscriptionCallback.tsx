@@ -12,7 +12,7 @@ type Phase = "checking" | "active" | "pending";
  * (FRONTEND_URL/agent/subscription/callback?ref=...). The subscription is
  * activated server-side by the Paystack webhook, so we poll the live
  * subscription a few times until it flips to a paid ACTIVE tier, then refresh
- * the user. If it hasn't landed in time we show an honest "processing" state —
+ * the user. If it hasn't landed in time we show an honest "processing" state -
  * the webhook will still complete it.
  */
 export default function SubscriptionCallback() {
@@ -53,7 +53,7 @@ export default function SubscriptionCallback() {
     };
 
     if (!reference) {
-      // No reference — nothing to confirm; treat as still processing.
+      // No reference - nothing to confirm; treat as still processing.
       setPhase("pending");
     } else {
       void poll();
@@ -114,7 +114,7 @@ export default function SubscriptionCallback() {
               Payment received
             </h2>
             <p className="mt-1.5 mb-5 text-[13px]" style={{ color: C.ink2 }}>
-              We're finalizing your subscription — this can take a minute. It'll
+              We're finalizing your subscription - this can take a minute. It'll
               update automatically; check your billing page shortly.
             </p>
             <PrimaryButton onClick={() => navigate("/agent-dashboard/subscription")}>

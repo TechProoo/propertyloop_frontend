@@ -114,7 +114,7 @@ const FindAgent = () => {
     if (activeSort === "Most listings") return b.listings - a.listings;
     if (activeSort === "Most deals closed") return b.soldRented - a.soldRented;
     if (activeSort === "Top rated") return b.rating - a.rating;
-    return 0; // Newest — keep API order
+    return 0; // Newest - keep API order
   });
 
   const filteredAgents = sortedAgents;
@@ -223,7 +223,7 @@ const FindAgent = () => {
 
           {/* ─── Sidebar + Grid ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
-            {/* Left — filters */}
+            {/* Left - filters */}
             <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
               {/* Specialty filter */}
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
@@ -365,7 +365,7 @@ const FindAgent = () => {
               </div>
             </div>
 
-            {/* Right — agent cards */}
+            {/* Right - agent cards */}
             <div className="flex-1">
               {/* Results header */}
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">

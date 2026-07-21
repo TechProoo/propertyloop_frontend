@@ -61,7 +61,7 @@ const Onboarding = () => {
   });
 
   // Capture the referral code from a shared link (onboarding?ref=CODE) as
-  // early as possible and stash it in localStorage — the user may wander off
+  // early as possible and stash it in localStorage - the user may wander off
   // to browse listings and come back before finishing signup, and the query
   // param would be gone by then.
   useEffect(() => {
@@ -84,7 +84,7 @@ const Onboarding = () => {
       setFromWaitlist(true);
       setCurrentStep("signup");
     }).catch(() => {
-      // Invalid token — fall through to normal flow
+      // Invalid token - fall through to normal flow
     });
   }, []);
 
@@ -131,7 +131,7 @@ const Onboarding = () => {
       });
 
       // Upload profile photo (if provided) now that we have an auth token.
-      // Failures here shouldn't block the signup — user can retry from settings.
+      // Failures here shouldn't block the signup - user can retry from settings.
       if (data.profilePhotoFile) {
         try {
           const { url } = await uploadService.uploadProfilePicture(
@@ -145,7 +145,7 @@ const Onboarding = () => {
       }
 
       // Persist the agent-only extras the design collects (years of experience,
-      // specialty) — these aren't part of the signup DTO, so they go through the
+      // specialty) - these aren't part of the signup DTO, so they go through the
       // agent-profile update once we're authenticated. Best-effort: a failure
       // here shouldn't block onboarding; the agent can edit them later.
       if (data.role === "agent") {
@@ -175,7 +175,7 @@ const Onboarding = () => {
         }
       }
 
-      // The referral has been recorded server-side — don't credit the same
+      // The referral has been recorded server-side - don't credit the same
       // referrer again if another account signs up from this browser.
       localStorage.removeItem("pl_ref");
 

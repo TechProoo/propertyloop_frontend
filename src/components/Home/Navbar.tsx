@@ -113,14 +113,14 @@ const Navbar = () => {
 
     const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
 
-    // Logo — drops in with scale overshoot
+    // Logo - drops in with scale overshoot
     tl.fromTo(
       logo,
       { y: -40, opacity: 0, scale: 0.7 },
       { y: 0, opacity: 1, scale: 1, duration: 0.9 },
     );
 
-    // Nav links — stagger cascade from left with slight rotation
+    // Nav links - stagger cascade from left with slight rotation
     tl.fromTo(
       links,
       { y: -30, opacity: 0, rotateX: -40 },
@@ -134,7 +134,7 @@ const Navbar = () => {
       "-=0.5",
     );
 
-    // Right-side actions — scale up with spring feel
+    // Right-side actions - scale up with spring feel
     tl.fromTo(
       actions,
       { y: -20, opacity: 0, scale: 0.85 },

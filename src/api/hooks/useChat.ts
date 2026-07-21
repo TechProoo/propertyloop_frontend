@@ -21,7 +21,7 @@ export interface UseChatReturn {
   messagesLoading: boolean;
   /** ID of the currently active conversation */
   activeConversationId: string | null;
-  /** Select a conversation — loads messages + marks read */
+  /** Select a conversation - loads messages + marks read */
   openConversation: (id: string) => void;
   /** Send a text message (optionally with attachment URLs) */
   sendMessage: (text: string, attachmentUrls?: string[]) => void;
@@ -51,7 +51,7 @@ export function useChat(): UseChatReturn {
     undefined,
   );
   // Live ref so socket listeners (registered once) always see the current
-  // active conversation without re-subscribing — fixes the stale-closure that
+  // active conversation without re-subscribing - fixes the stale-closure that
   // made typing indicators only work for the first-opened conversation.
   const activeIdRef = useRef<string | null>(null);
   activeIdRef.current = activeConversationId;
@@ -74,7 +74,7 @@ export function useChat(): UseChatReturn {
       // Update messages if it's the active conversation
       setMessages((prev) => {
         if (prev.length > 0 && prev[0]?.conversationId === msg.conversationId) {
-          // Deduplicate — don't add if already exists (from optimistic update)
+          // Deduplicate - don't add if already exists (from optimistic update)
           if (prev.some((m) => m.id === msg.id)) return prev;
           return [...prev, msg];
         }
@@ -124,7 +124,7 @@ export function useChat(): UseChatReturn {
       },
     );
 
-    // Typing indicator — compare against the live ref, not a stale closure.
+    // Typing indicator - compare against the live ref, not a stale closure.
     socket.on(
       "user_typing",
       (data: { conversationId: string; isTyping: boolean }) => {
@@ -142,13 +142,13 @@ export function useChat(): UseChatReturn {
       },
     );
 
-    // Presence — the gateway announces when a chat partner comes online/offline
+    // Presence - the gateway announces when a chat partner comes online/offline
     // (on connect/disconnect and when you open a conversation).
     socket.on("presence", (data: { userId: string; online: boolean }) => {
       setOnlineUsers((prev) => ({ ...prev, [data.userId]: data.online }));
     });
 
-    // Read receipts — the other party read the thread; flip your sent ticks
+    // Read receipts - the other party read the thread; flip your sent ticks
     // (✓) to read ticks (✓✓) on all your messages in that conversation.
     socket.on(
       "messages_read",
@@ -197,7 +197,7 @@ export function useChat(): UseChatReturn {
 
     return () => {
       // Detach this hook's listeners but DON'T disconnect the socket.
-      // The socket is process-wide and shared — disconnecting on cleanup
+      // The socket is process-wide and shared - disconnecting on cleanup
       // races with React StrictMode's double-mount in dev (cleanup fires
       // before the WebSocket handshake completes → "closed before
       // established"). The socket disconnects naturally on logout (when

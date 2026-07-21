@@ -100,7 +100,7 @@ const AdminPanel = () => {
         `${u.name} logged out (${res.revokedSessions} device${res.revokedSessions === 1 ? "" : "s"})`,
       );
     } catch {
-      toast.error("Couldn't log the user out — try again");
+      toast.error("Couldn't log the user out - try again");
     } finally {
       setLoggingOutId(null);
     }
@@ -118,7 +118,7 @@ const AdminPanel = () => {
       const res = await adminService.forceLogoutEveryone();
       toast.success(`Everyone logged out (${res.revokedSessions} sessions)`);
     } catch {
-      toast.error("Couldn't log everyone out — try again");
+      toast.error("Couldn't log everyone out - try again");
     } finally {
       setLoggingOutId(null);
     }
@@ -226,7 +226,7 @@ const AdminPanel = () => {
                       {[
                         {
                           label: "Total Users",
-                          value: overview?.totalUsers || "—",
+                          value: overview?.totalUsers || "-",
                           icon: <Users className="w-5 h-5" />,
                           color: "text-primary",
                           bg: "bg-primary/10",
@@ -242,7 +242,7 @@ const AdminPanel = () => {
                         },
                         {
                           label: "Total Orders",
-                          value: overview?.totalOrders || "—",
+                          value: overview?.totalOrders || "-",
                           icon: <ShoppingCart className="w-5 h-5" />,
                           color: "text-green-600",
                           bg: "bg-green-50",
@@ -250,7 +250,7 @@ const AdminPanel = () => {
                         },
                         {
                           label: "Platform Stats",
-                          value: overview?.totalUsers || "—",
+                          value: overview?.totalUsers || "-",
                           icon: <BarChart3 className="w-5 h-5" />,
                           color: "text-amber-600",
                           bg: "bg-amber-50",
@@ -293,7 +293,7 @@ const AdminPanel = () => {
                       onClick={handleForceLogoutEveryone}
                       disabled={loggingOutId !== null}
                       className="flex items-center gap-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors"
-                      title="Revoke every user's sessions — everyone except you must sign in again"
+                      title="Revoke every user's sessions - everyone except you must sign in again"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       {loggingOutId === "*"
@@ -390,7 +390,7 @@ const AdminPanel = () => {
                               {l.title}
                             </p>
                             <p className="text-text-secondary text-xs">
-                              {l.agent?.name || "—"} · {l.type}
+                              {l.agent?.name || "-"} · {l.type}
                             </p>
                           </div>
                           <span className="font-heading font-bold text-primary text-sm shrink-0 hidden sm:block">

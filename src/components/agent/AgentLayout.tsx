@@ -33,24 +33,24 @@ const NAV = [
   { to: "/feed", label: "Community Feed", icon: Newspaper },
 ];
 
-// PropertyLoop is free for all agents — no subscription entry here.
+// PropertyLoop is free for all agents - no subscription entry here.
 const ACCOUNT_NAV = [
   { to: "settings", label: "Settings", icon: SettingsIcon },
 ];
 
 const STORAGE_KEY = "pl_agent_sidebar_collapsed";
 
-/** propertyloop logo mark — green house tile + (optional) wordmark. */
+/** propertyloop logo mark - green house tile + (optional) wordmark. */
 function Brand({ collapsed, onClick }: { collapsed: boolean; onClick?: () => void }) {
   return (
     <Link
       to="/"
       onClick={onClick}
       className={`flex items-center pt-1 pb-5 ${collapsed ? "justify-center" : "px-2"}`}
-      aria-label="propertyloop — go to homepage"
+      aria-label="propertyloop - go to homepage"
     >
       {collapsed ? (
-        // Compact mark for the icon rail — the logo's house tile.
+        // Compact mark for the icon rail - the logo's house tile.
         <div
           className="w-[34px] h-[34px] rounded-[9px] grid place-items-center shrink-0"
           style={{ background: C.primary }}
@@ -158,7 +158,7 @@ export default function AgentLayout() {
         className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 h-14"
         style={{ background: "#14271c" }}
       >
-        <Link to="/" aria-label="propertyloop — go to homepage" className="inline-flex">
+        <Link to="/" aria-label="propertyloop - go to homepage" className="inline-flex">
           <img src={Logo} alt="propertyloop" className="h-7 w-auto object-contain" />
         </Link>
         <button
