@@ -17,6 +17,12 @@ const VerifyEmail = () => {
   const [status, setStatus] = useState<VerificationStatus>("verifying");
   const [errorMessage, setErrorMessage] = useState("");
   const token = searchParams.get("token");
+  // Tagged on the link by the backend when the account signed up in the
+  // mobile app (see AuthService.sendEmailVerification). This page is what
+  // opens from the emailed link regardless of platform, so a mobile signup
+  // needs to be sent back into the app instead of the website's login page.
+  const isMobileSignup = searchParams.get("platform") === "mobile";
+  const APP_LOGIN_DEEP_LINK = "propertyloopmobile://login";
 
   // ─── Resend-link form (shown on expired/invalid states) ───────────────
   const [resendEmail, setResendEmail] = useState("");
@@ -62,7 +68,16 @@ const VerifyEmail = () => {
         // on 401) when the link is opened on a device that isn't signed in.
         await refreshUser();
         setStatus("success");
-        setTimeout(() => { navigate("/login"); }, 3000);
+        // A mobile signup should land back in the app, not the website's
+        // login page. Attempt the deep link automatically; the button in
+        // the success view below covers it if the auto-attempt is blocked
+        // (some mobile browsers require a user gesture to open a custom
+        // URL scheme).
+        if (isMobileSignup) {
+          window.location.href = APP_LOGIN_DEEP_LINK;
+        } else {
+          setTimeout(() => { navigate("/login"); }, 3000);
+        }
       } catch (error: any) {
         setStatus("error");
         setErrorMessage(
@@ -111,14 +126,28 @@ const VerifyEmail = () => {
                   <CheckCircle className="w-8 h-8 text-green-600" />
                 </motion.div>
                 <h1 className="font-heading font-bold text-primary-dark text-2xl mb-2">Email Verified!</h1>
-                <p className="text-text-secondary text-sm mb-8">Your email has been successfully verified. You can now log in to your account.</p>
+                <p className="text-text-secondary text-sm mb-8">
+                  {isMobileSignup
+                    ? "Your email has been successfully verified. Return to the PropertyLoop app to log in."
+                    : "Your email has been successfully verified. You can now log in to your account."}
+                </p>
                 <div className="p-4 rounded-2xl bg-green-50 border border-green-200 mb-8">
-                  <p className="text-green-700 text-xs font-medium">Redirecting to login in 3 seconds...</p>
+                  <p className="text-green-700 text-xs font-medium">
+                    {isMobileSignup
+                      ? "Opening the PropertyLoop app..."
+                      : "Redirecting to login in 3 seconds..."}
+                  </p>
                 </div>
-                <button onClick={() => navigate("/login")}
+                <button
+                  onClick={() =>
+                    isMobileSignup
+                      ? (window.location.href = APP_LOGIN_DEEP_LINK)
+                      : navigate("/login")
+                  }
                   className="w-full h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
                 >
-                  <ArrowRight className="w-4 h-4" /> Go to Login
+                  <ArrowRight className="w-4 h-4" />
+                  {isMobileSignup ? "Open PropertyLoop app" : "Go to Login"}
                 </button>
               </>
             )}
