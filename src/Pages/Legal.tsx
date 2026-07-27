@@ -12,19 +12,21 @@ const legalContent: Record<string, { title: string; icon: React.ReactNode; updat
   privacy: {
     title: "Privacy Policy",
     icon: <ShieldCheck className="w-6 h-6" />,
-    updated: "March 1, 2026",
+    updated: "July 27, 2026",
     download: { href: "/privacy-policy.pdf", label: "Download PDF" },
     sections: [
       { id: "collection", title: "1. Information We Collect", content: [
-        "We collect information you provide directly: name, email, phone number, and address when you create an account. For agents and vendors, we also collect business details and KYC verification data through Smile Identity.",
+        "We collect information you provide directly: name, email, phone number, and address when you create an account. For agents we also collect business details: agency name, business address and company registration (RC) number.",
         "We automatically collect usage data including IP address, browser type, pages visited, search queries, and property interactions to improve our platform and personalise your experience.",
+        "We do not collect face data. PropertyLoop does not perform facial recognition, face mapping, face matching, liveness checks or any other biometric analysis, and never asks you to photograph your face. Photographs you choose to upload, such as a profile picture or property images, are stored and displayed as ordinary images and are never used for biometric identification. Because no face data is collected, none is stored, shared or retained.",
       ]},
       { id: "usage", title: "2. How We Use Your Information", content: [
         "We use your information to provide and improve PropertyLoop services, match you with verified agents and vendors, send relevant property alerts, and comply with legal obligations.",
-        "Your KYC verification data is used solely for identity verification purposes and is processed by our partner, Smile Identity, under their own privacy policy.",
+        "Agent verification is a business check only. We confirm that an agency is a real, registered business using the agency name, business address and RC registration number the agent provides, checked against public company records. It does not involve biometric or face data.",
       ]},
       { id: "sharing", title: "3. Information Sharing", content: [
         "We share your contact information with agents when you enquire about a listing and with vendors when you book a service. We never sell your personal data to third parties.",
+        "We do not share face data with any third party, because we do not collect it. No biometric or identity-verification vendor receives data from PropertyLoop.",
         "We may disclose information when required by Nigerian law, to protect PropertyLoop's rights, or to prevent fraud and abuse on the platform.",
       ]},
       { id: "cookies", title: "4. Cookies & Tracking", content: [
