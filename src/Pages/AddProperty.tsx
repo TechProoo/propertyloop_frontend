@@ -93,6 +93,11 @@ const initialForm: PropertyForm = {
 
 /* ─── Data ─── */
 
+const formatPriceInput = (value: string) => {
+  const digits = value.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 const listingTypes = [
   { value: "sale" as const, label: "For Sale" },
   { value: "rent" as const, label: "For Rent" },
@@ -1227,10 +1232,13 @@ const AddProperty = () => {
                           <label className={labelClass}>{priceLabel}</label>
                           <input
                             type="text"
+                            inputMode="numeric"
                             placeholder="e.g. 185,000,000"
                             value={form.price}
                             onChange={(e) => {
-                              updateForm({ price: e.target.value });
+                              updateForm({
+                                price: formatPriceInput(e.target.value),
+                              });
                               if (errors.price)
                                 setErrors((p) => ({ ...p, price: "" }));
                             }}
