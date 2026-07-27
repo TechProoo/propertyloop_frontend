@@ -99,7 +99,7 @@ const faqs = [
   },
   {
     q: "How do I find the right vendor?",
-    a: "Browse the Service Loop by category and location. Filter by rating, see job history, and message vendors directly to discuss your needs.",
+    a: "Browse Artisan Corner by category and location. Filter by rating, see job history, and message vendors directly to discuss your needs.",
   },
   {
     q: "Can I see a vendor's past work?",
@@ -131,7 +131,7 @@ const HowItWorks = () => {
 
             <div className="relative z-10 max-w-2xl">
               <p className="text-primary text-sm font-medium tracking-wide uppercase mb-3">
-                Service Loop
+                Artisan Corner
               </p>
               <h1 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3.5rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
                 Trust, <span className="text-primary">Verified</span>
@@ -268,7 +268,7 @@ const HowItWorks = () => {
                 Common Questions
               </h2>
               <p className="text-text-secondary text-sm mt-2">
-                Everything you need to know about the Service Loop
+                Everything you need to know about Artisan Corner
               </p>
             </div>
 

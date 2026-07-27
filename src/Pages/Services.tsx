@@ -171,7 +171,7 @@ const Services = () => {
               Home
             </Link>
             <span>/</span>
-            <span className="text-primary-dark font-medium">Service Loop</span>
+            <span className="text-primary-dark font-medium">Artisan Corner</span>
           </div>
 
           {/* ─── Hero ─── */}
@@ -188,7 +188,7 @@ const Services = () => {
             <div className="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-white/5" />
             <div className="relative z-10 p-8 sm:p-10 lg:p-14">
               <h1 className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3.5rem] leading-[1.1] font-bold text-white tracking-tight">
-                The Service <span className="text-white/70">Loop</span>
+                Artisan <span className="text-white/70">Corner</span>
               </h1>
               <p className="text-white/60 text-sm leading-relaxed mt-3 max-w-xl">
                 Browse verified plumbers, electricians, builders, cleaners, and
@@ -433,7 +433,7 @@ const Services = () => {
 
               <div className="mt-5 bg-white/60 backdrop-blur-sm border border-border-light rounded-[20px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
                 <h4 className="font-heading font-bold text-primary-dark text-sm mb-3">
-                  Service Loop Stats
+                  Artisan Corner Stats
                 </h4>
                 <div className="flex flex-col gap-3">
                   {[

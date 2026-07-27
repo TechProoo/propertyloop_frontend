@@ -144,7 +144,7 @@ const vendorSteps: StepInput[] = [
   {
     id: "reviews",
     title: "Reviews",
-    body: "<p>See what clients are saying. Higher ratings get more visibility on the home page's Service Loop.</p>",
+    body: "<p>See what clients are saying. Higher ratings get more visibility on the home page's Artisan Corner.</p>",
     attachTo: { element: '[data-tour="nav-reviews"]', on: "right" },
   },
   {

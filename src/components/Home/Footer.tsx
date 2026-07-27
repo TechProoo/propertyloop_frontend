@@ -70,7 +70,7 @@ const footerLinks = {
     { label: "Property Logbook", href: "/logbook" },
   ],
   Services: [
-    { label: "Service Loop", href: "/services" },
+    { label: "Artisan Corner", href: "/services" },
     { label: "Plumbing", href: "/services" },
     { label: "Electrical", href: "/services" },
     { label: "Cleaning", href: "/services" },

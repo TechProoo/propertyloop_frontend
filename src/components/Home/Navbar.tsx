@@ -194,7 +194,7 @@ const Navbar = () => {
             </li>
             <li data-nav-link>
               <FlipLink
-                label="Service Loop"
+                label="Artisan Corner"
                 href="/services"
                 isActive={path === "/services"}
               />
@@ -324,7 +324,7 @@ const Navbar = () => {
               onClick={closeMobileMenu}
               className={`py-2 hover:text-primary ${path === "/services" ? "text-primary font-semibold" : ""}`}
             >
-              Service Loop
+              Artisan Corner
             </Link>
             <Link
               to="/feed"

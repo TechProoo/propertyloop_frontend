@@ -68,7 +68,7 @@ const roles: {
     title: "Service Vendor",
     subtitle: "Get hired for jobs",
     description:
-      "Join the Service Loop as a verified plumber, electrician, builder, or other professional.",
+      "Join Artisan Corner as a verified plumber, electrician, builder, or other professional.",
     icon: <Wrench className="w-6 h-6" />,
     features: [
       { icon: <ShieldCheck className="w-3.5 h-3.5" />, text: "Reach KYC-verified clients" },

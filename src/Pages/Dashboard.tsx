@@ -1588,7 +1588,7 @@ const Dashboard = () => {
                         to="/services"
                         className="h-9 px-4 rounded-full bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-1.5"
                       >
-                        View Full Service Loop{" "}
+                        View Full Artisan Corner{" "}
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>

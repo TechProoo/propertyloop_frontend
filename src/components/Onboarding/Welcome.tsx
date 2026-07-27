@@ -63,7 +63,7 @@ const roleConfig = {
   vendor: {
     heading: "Application submitted!",
     subheading:
-      "We'll verify your profile and onboard you to the Service Loop within 24–48 hours.",
+      "We'll verify your profile and onboard you to Artisan Corner within 24–48 hours.",
     cta: "Verify Email",
     ctaHref: "/verify-email-required",
     features: [

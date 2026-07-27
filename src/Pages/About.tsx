@@ -65,7 +65,7 @@ const problems = [
 
 const differentiators = [
   {
-    title: "The Service Loop",
+    title: "Artisan Corner",
     description:
       "Verified home service vendors - plumbers, electricians, builders - bookable and contactable inside the platform. No more hunting for tradespeople after you move in.",
     icon: <Wrench className="w-6 h-6" />,
@@ -75,7 +75,7 @@ const differentiators = [
   {
     title: "Verified Vendors",
     description:
-      "Every vendor on the Service Loop is KYC-verified through Smile Identity. Browse ratings, message directly, and book with confidence - all without leaving the platform.",
+      "Every vendor on Artisan Corner is KYC-verified through Smile Identity. Browse ratings, message directly, and book with confidence - all without leaving the platform.",
     icon: <Lock className="w-6 h-6" />,
     image:
       "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=400&fit=crop",
@@ -134,7 +134,7 @@ const timeline = [
     phase: "Phase 3",
     period: "Transactions & Tools",
     description:
-      "Shortlet browsing, agent CRM dashboard, and the Service Loop launch - connecting buyers, agents, and vendors in one place.",
+      "Shortlet browsing, agent CRM dashboard, and the Artisan Corner launch - connecting buyers, agents, and vendors in one place.",
   },
   {
     phase: "Phase 4",

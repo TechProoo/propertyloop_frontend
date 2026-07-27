@@ -36,7 +36,7 @@ const flowSteps = [
     subtitle: "Choose a verified service professional",
     icon: <UserCheck className="w-6 h-6" />,
     description:
-      "Browse the Service Loop and choose a KYC-verified vendor for your job. All vendors have been identity-verified through Smile Identity before they can accept jobs.",
+      "Browse Artisan Corner and choose a KYC-verified vendor for your job. All vendors have been identity-verified through Smile Identity before they can accept jobs.",
   },
   {
     id: "book",
@@ -172,7 +172,7 @@ const ServiceEscrow = () => {
               to="/services"
               className="hover:text-primary transition-colors"
             >
-              Service Loop
+              Artisan Corner
             </Link>
             <span>/</span>
             <span className="text-primary-dark font-medium">

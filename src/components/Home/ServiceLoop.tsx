@@ -184,7 +184,7 @@ const ServiceLoop = () => {
               data-sl-label
               className="text-primary text-sm font-medium tracking-wide uppercase mb-2"
             >
-              Service Loop
+              Artisan Corner
             </p>
             <h2
               data-sl-heading

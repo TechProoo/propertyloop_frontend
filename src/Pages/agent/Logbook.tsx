@@ -118,7 +118,7 @@ export default function AgentLogbook() {
                 <EmptyState
                   icon={<ClipboardList className="w-[26px] h-[26px]" />}
                   title="No logbook entries yet"
-                  body="Repairs and services logged against this property - by Service Loop vendors or by you - will appear here as a permanent history."
+                  body="Repairs and services logged against this property - by Artisan Corner vendors or by you - will appear here as a permanent history."
                 />
               ) : (
                 <div>

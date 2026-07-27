@@ -537,7 +537,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
             to="/services"
             className="mt-4 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center gap-2"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Service Loop
+            <ArrowLeft className="w-4 h-4" /> Back to Artisan Corner
           </Link>
         </div>
         <Footer />
@@ -559,7 +559,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
               to="/services"
               className="hover:text-primary transition-colors"
             >
-              Service Loop
+              Artisan Corner
             </Link>
             <span>/</span>
             <span className="text-primary-dark font-medium">

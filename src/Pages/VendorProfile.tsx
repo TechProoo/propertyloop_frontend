@@ -338,7 +338,7 @@ const VendorProfile = () => {
             className="h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Service Loop
+            Back to Artisan Corner
           </Link>
         </div>
         <Footer />
@@ -437,7 +437,7 @@ const VendorProfile = () => {
               to="/services"
               className="hover:text-primary transition-colors"
             >
-              Service Loop
+              Artisan Corner
             </Link>
             <span>/</span>
             <span className="text-primary-dark font-medium">{vendor.name}</span>
