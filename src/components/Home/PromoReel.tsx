@@ -1,4 +1,9 @@
-// The PropertyLoop brand film — a full-bleed cinematic band on the home page.
+// Sponsored partner spot — a full-bleed cinematic band on the home page.
+//
+// Currently carrying the Mega Project Nigeria 2026 expo ad, which runs
+// 25–27 Aug 2026. It is third-party creative, so the section is labelled
+// Sponsored; swap the files in /public/ads and the copy below to run a
+// different campaign, and pull the section once the event has passed.
 //
 // Two cuts of the same 68s spot ship in /public/ads: a 16:9 landscape for
 // desktop and a 9:16 portrait for phones. Whichever the viewport calls for is
@@ -170,23 +175,24 @@ export default function PromoReel() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#6ee7b7] opacity-75" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#6ee7b7]" />
             </span>
-            The PropertyLoop film
+            Sponsored
           </div>
 
           <h2
             data-reel-heading
             className="mt-5 font-serif text-[2.1rem] leading-[1.08] text-white sm:text-[2.75rem] lg:text-[3.25rem]"
           >
-            Every move you make on property,{" "}
-            <em className="text-[#f0d69f]">in one loop.</em>
+            Mega Project Nigeria,{" "}
+            <em className="text-[#f0d69f]">25–27 August.</em>
           </h2>
 
           <p
             data-reel-copy
             className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/70 sm:text-base"
           >
-            Buy, rent, shortlet, and hire verified vendors — with escrow holding
-            the money until the job is done. Take a minute and watch how it works.
+            The Construction, HVAC, Energy, Water & Infrastructure Expo,
+            co-located with Mega Ceramica. Organised by Elan Expo, with REDAN,
+            MBAN and the Nigerian Society of Engineers.
           </p>
         </div>
 
@@ -229,7 +235,7 @@ export default function PromoReel() {
               {ready && !playing && (
                 <button
                   onClick={togglePlay}
-                  aria-label="Play the PropertyLoop film"
+                  aria-label="Play the Mega Project Nigeria spot"
                   className="absolute inset-0 grid place-items-center"
                 >
                   <span className="grid h-16 w-16 place-items-center rounded-full bg-white/95 shadow-2xl transition-transform duration-300 hover:scale-105 sm:h-20 sm:w-20">
@@ -282,6 +288,11 @@ export default function PromoReel() {
           {/* Seated glow under the frame. */}
           <div className="pointer-events-none absolute inset-x-8 -bottom-6 h-12 rounded-full bg-[#1f6f43]/40 blur-3xl" />
         </div>
+
+        {/* The spot ends on this URL, so it is worth carrying as plain text. */}
+        <p className="mt-9 text-center text-[12px] font-semibold tracking-wide text-white/45">
+          nigeriamegaproject.com
+        </p>
       </div>
     </section>
   );
