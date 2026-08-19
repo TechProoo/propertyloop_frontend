@@ -724,24 +724,32 @@ function AdPreview({
     );
   }
   return (
-    <div className="relative rounded-2xl overflow-hidden bg-gray-200">
-      {imageUrl ? (
-        <img src={imageUrl} alt="preview" className="w-full h-44 object-cover" />
-      ) : (
-        <div className="w-full h-44 flex items-center justify-center text-gray-300">
-          <ImagePlus className="w-10 h-10" />
+    <div className="grid overflow-hidden rounded-xl bg-[#123d2a] text-[#fbf8f1] shadow-xl sm:grid-cols-[0.92fr_1.48fr]">
+      <div className="relative flex min-h-[260px] flex-col justify-between overflow-hidden px-5 py-5 sm:px-6 sm:py-6">
+        <div className="pointer-events-none absolute inset-0 opacity-50 [background-image:linear-gradient(rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.07)_1px,transparent_1px)] [background-size:20px_20px]" />
+        <div className="relative flex items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-1.5 border border-white/25 bg-white/[0.08] px-2.5 py-1 text-[8px] font-bold uppercase tracking-[0.14em] text-[#f6efd9]">
+            <span className="h-1 w-1 rounded-full bg-[#f1c46e]" /> Sponsored
+          </span>
+          <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-white/45">Partner</span>
         </div>
-      )}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
-      <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-sm text-white px-2 py-0.5 rounded-full">
-        Sponsored · {brandName}
-      </span>
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <p className="text-white font-bold text-base leading-snug">{headline}</p>
-        {body && <p className="text-white/80 text-xs mt-1 line-clamp-2">{body}</p>}
-        <span className="inline-flex items-center gap-1.5 mt-2 bg-white text-gray-900 text-xs font-semibold px-3.5 py-1.5 rounded-full">
-          {ctaLabel} <ExternalLink className="w-3.5 h-3.5" />
+        <div className="relative pt-6">
+          <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.16em] text-[#f1c46e]">{brandName}</p>
+          <p className="font-display text-xl leading-[1.05] tracking-[-0.03em] text-white sm:text-2xl">{headline}</p>
+          {body && <p className="mt-3 line-clamp-2 text-xs leading-5 text-white/70">{body}</p>}
+        </div>
+        <span className="relative mt-5 inline-flex w-fit items-center gap-2 bg-[#f8f2e5] px-3 py-2 text-xs font-bold text-[#123d2a]">
+          {ctaLabel} <ExternalLink className="h-3 w-3" />
         </span>
+      </div>
+      <div className="relative min-h-[210px] overflow-hidden border-t border-white/15 bg-[#0c2519] sm:border-l sm:border-t-0">
+        {imageUrl ? (
+          <img src={imageUrl} alt="preview" className="absolute inset-0 h-full w-full object-cover" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-white/35"><ImagePlus className="h-9 w-9" /></div>
+        )}
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(18,61,42,0.4),transparent_42%)]" />
+        <div className="absolute inset-3 border border-white/35 sm:inset-4" />
       </div>
     </div>
   );

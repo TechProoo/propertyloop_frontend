@@ -29,8 +29,8 @@ const Home = () => {
       <Navbar />
       <Hero />
       {/* Paid brand placement - renders nothing when no campaign is live */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <AdSlot placement="HOME_BANNER" className="mt-6" />
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+        <AdSlot placement="HOME_BANNER" className="mt-8 sm:mt-10" />
       </div>
       <AdvertiseSpotlight />
       {/* <TrustedSection /> */}
