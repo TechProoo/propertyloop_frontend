@@ -11,7 +11,7 @@
 import { useMemo } from "react";
 
 const SITE_NAME = "PropertyLoop";
-const SITE_URL = "https://www.propertyloop.ng";
+const SITE_URL = "https://propertyloop.ng";
 const DEFAULT_IMAGE = `${SITE_URL}/android-chrome-512x512.png`;
 const DEFAULT_DESCRIPTION =
   "Nigeria's all-in-one real estate platform. Buy, rent and sell properties, find verified agents, book shortlets, and hire trusted service vendors with secure escrow.";

@@ -10,4 +10,4 @@ Disallow: /signup
 Disallow: /reset-password
 Disallow: /add-property
 
-Sitemap: https://www.propertyloop.ng/sitemap.xml
+Sitemap: https://propertyloop.ng/sitemap.xml

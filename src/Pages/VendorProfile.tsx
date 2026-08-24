@@ -359,7 +359,7 @@ const VendorProfile = () => {
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
           name: vendor.name,
-          url: `https://www.propertyloop.ng/vendor/${vendor.id}`,
+          url: `https://propertyloop.ng/vendor/${vendor.id}`,
           image: vendor.avatarUrl || vendor.bannerImage,
           description: vendor.bio,
           telephone: vendor.phone,

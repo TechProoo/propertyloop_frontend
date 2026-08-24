@@ -418,7 +418,7 @@ const AgentProfile = () => {
           "@context": "https://schema.org",
           "@type": "RealEstateAgent",
           name: agent.name,
-          url: `https://www.propertyloop.ng/agent/${agent.id}`,
+          url: `https://propertyloop.ng/agent/${agent.id}`,
           image: agent.photo,
           email: agent.email,
           worksFor: agent.agency

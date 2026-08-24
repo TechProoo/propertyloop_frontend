@@ -333,7 +333,7 @@ const PropertyDetail = () => {
           "@context": "https://schema.org",
           "@type": "RealEstateListing",
           name: listing.title,
-          url: `https://www.propertyloop.ng/property/${listing.id}`,
+          url: `https://propertyloop.ng/property/${listing.id}`,
           image: listing.coverImage,
           description: listing.description?.replace(/<[^>]*>/g, "").trim(),
           numberOfBedrooms: listing.beds,
