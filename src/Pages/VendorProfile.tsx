@@ -308,6 +308,13 @@ const VendorProfile = () => {
   // A vendor can't book themselves — the backend rejects it, so don't offer it.
   const isOwnProfile = !!user?.id && user.id === id;
 
+  // "From" has to mean the cheapest service, not whichever the vendor happened
+  // to order first — the directory derives its headline price the same way, and
+  // the two must agree.
+  const cheapestService = services.length
+    ? services.reduce((a, b) => (b.priceNaira < a.priceNaira ? b : a))
+    : null;
+
   useEffect(() => {
     if (!id) {
       setLoadingVendor(false);
@@ -846,13 +853,16 @@ const VendorProfile = () => {
                         services can't be booked, only contacted. */}
                     {!isOwnProfile && (
                       <div className="rounded-2xl border border-border-light bg-primary/[0.04] px-4 py-3.5 mb-5">
-                        {services.length > 0 ? (
+                        {cheapestService ? (
                           <>
                             <p className="text-text-subtle text-[11px] font-semibold uppercase tracking-wide">
                               From
                             </p>
                             <p className="font-heading font-bold text-primary-dark text-xl mt-0.5">
-                              {services[0].priceLabel.replace(/^from\s+/i, "")}
+                              {cheapestService.priceLabel.replace(
+                                /^from\s+/i,
+                                "",
+                              )}
                             </p>
                             <Link
                               to={`/book-service/${vendor.id}`}

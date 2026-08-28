@@ -75,6 +75,7 @@ import NetworkError from "./Pages/NetworkError";
 import ScrollToTop from "./components/ScrollToTop";
 import { Toaster } from "./lib/toast";
 import { useOnlineStatus } from "./hooks/useOnlineStatus";
+import { isOnboardingRouteHeld } from "./lib/onboardingFlag";
 
 const roleDashboard: Record<string, string> = {
   BUYER: "/dashboard",
@@ -99,6 +100,16 @@ function ProtectedRoute({
     return <Navigate to={roleDashboard[user.role] || "/dashboard"} replace />;
   }
   return <>{children}</>;
+}
+
+/**
+ * The signup wizard authenticates the user partway through, so once it holds
+ * the route we render it as-is; otherwise it behaves like any public-only page.
+ * See src/lib/onboardingFlag.ts.
+ */
+function OnboardingRoute({ children }: { children: React.ReactNode }) {
+  if (isOnboardingRouteHeld()) return <>{children}</>;
+  return <PublicOnlyRoute>{children}</PublicOnlyRoute>;
 }
 
 function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
@@ -142,9 +153,9 @@ function AppContent() {
           <Route
             path="/onboarding"
             element={
-              <PublicOnlyRoute>
+              <OnboardingRoute>
                 <Onboarding />
-              </PublicOnlyRoute>
+              </OnboardingRoute>
             }
           />
           <Route path="/find-agent" element={<FindAgent />} />

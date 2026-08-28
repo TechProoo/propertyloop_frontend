@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import RoleSelection from "../components/Onboarding/RoleSelection";
 import Signup from "../components/Onboarding/Signup";
 import ProfileSetup from "../components/Onboarding/ProfileSetup";
+import FirstService, {
+  type FirstServiceDraft,
+} from "../components/Onboarding/FirstService";
 import Welcome from "../components/Onboarding/Welcome";
 import Logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
@@ -11,6 +14,11 @@ import uploadService from "../api/services/upload";
 import usersService from "../api/services/users";
 import waitlistService from "../api/services/waitlist";
 import agentsService from "../api/services/agents";
+import vendorServicesService from "../api/services/vendorServices";
+import {
+  holdOnboardingRoute,
+  releaseOnboardingRoute,
+} from "../lib/onboardingFlag";
 
 export type UserRole = "buyer" | "agent" | "vendor";
 
@@ -39,8 +47,16 @@ export interface OnboardingData {
   serviceArea?: string;
 }
 
-const steps = ["role", "signup", "setup", "welcome"] as const;
-type Step = (typeof steps)[number];
+type Step = "role" | "signup" | "setup" | "service" | "welcome";
+
+/**
+ * Vendors get an extra step to post their first bookable service, matching the
+ * app's setup -> first service flow. Everyone else goes straight to welcome.
+ */
+const stepsForRole = (role: UserRole | null): Step[] =>
+  role === "vendor"
+    ? ["role", "signup", "setup", "service", "welcome"]
+    : ["role", "signup", "setup", "welcome"];
 
 const roleMap = { buyer: "BUYER", agent: "AGENT", vendor: "VENDOR" } as const;
 
@@ -50,6 +66,8 @@ const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState<Step>("role");
   const [signupError, setSignupError] = useState("");
   const [isSigningUp, setIsSigningUp] = useState(false);
+  const [serviceError, setServiceError] = useState("");
+  const [isSavingService, setIsSavingService] = useState(false);
   const [wlId, setWlId] = useState<string | null>(null);
   const [fromWaitlist, setFromWaitlist] = useState(false);
   const [data, setData] = useState<OnboardingData>({
@@ -88,6 +106,10 @@ const Onboarding = () => {
     });
   }, []);
 
+  // Release the route hold as soon as the wizard is left, so a logged-in user
+  // returning to /onboarding is redirected normally.
+  useEffect(() => releaseOnboardingRoute, []);
+
   const updateData = (updates: Partial<OnboardingData>) => {
     setData((prev) => ({ ...prev, ...updates }));
   };
@@ -98,6 +120,9 @@ const Onboarding = () => {
     if (!data.role) return;
     setSignupError("");
     setIsSigningUp(true);
+    // signup() authenticates us mid-wizard; keep the route from bouncing to
+    // /verify-email-required before the remaining steps have rendered.
+    holdOnboardingRoute();
     const apiRole = roleMap[data.role];
     try {
       const referralCode =
@@ -179,7 +204,9 @@ const Onboarding = () => {
       // referrer again if another account signs up from this browser.
       localStorage.removeItem("pl_ref");
 
-      setCurrentStep("welcome");
+      // Vendors post their first service before landing on welcome - the POST
+      // needs the auth token we only have now that signup has succeeded.
+      setCurrentStep(data.role === "vendor" ? "service" : "welcome");
     } catch (err: any) {
       setSignupError(
         err?.response?.data?.message || "Signup failed. Please try again.",
@@ -189,7 +216,34 @@ const Onboarding = () => {
     }
   };
 
-  const stepIndex = steps.indexOf(currentStep);
+  /**
+   * Post the vendor's first service. A failure here must not strand them: the
+   * account already exists, so surface the error and let them skip on to the
+   * dashboard, which prompts for a service too.
+   */
+  const handleFirstService = async (draft: FirstServiceDraft) => {
+    setServiceError("");
+    setIsSavingService(true);
+    try {
+      await vendorServicesService.create(draft);
+      setCurrentStep("welcome");
+    } catch (err) {
+      const msg = (
+        err as { response?: { data?: { message?: string | string[] } } }
+      )?.response?.data?.message;
+      setServiceError(
+        (Array.isArray(msg) ? msg.join(", ") : msg) ||
+          "Couldn't save the service. You can add it from your dashboard.",
+      );
+    } finally {
+      setIsSavingService(false);
+    }
+  };
+
+  const visibleSteps = stepsForRole(data.role);
+  const stepIndex = visibleSteps.indexOf(currentStep);
+  // Dots for everything up to (but not including) the welcome screen.
+  const progressSteps = visibleSteps.slice(0, -1);
 
   return (
     <div className="min-h-screen bg-bg relative overflow-hidden">
@@ -216,7 +270,7 @@ const Onboarding = () => {
         </a>
         {currentStep !== "role" && currentStep !== "welcome" && (
           <div className="flex items-center gap-2">
-            {steps.slice(0, 3).map((s, i) => (
+            {progressSteps.map((s, i) => (
               <div key={s} className="flex items-center gap-2">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-heading font-semibold transition-all ${
@@ -243,7 +297,7 @@ const Onboarding = () => {
                     i + 1
                   )}
                 </div>
-                {i < 2 && (
+                {i < progressSteps.length - 1 && (
                   <div
                     className={`w-12 h-0.5 rounded-full transition-all ${
                       i < stepIndex ? "bg-primary" : "bg-border-light"
@@ -296,6 +350,16 @@ const Onboarding = () => {
                 onContinue={handleSignup}
                 error={signupError}
                 isLoading={isSigningUp}
+              />
+            )}
+            {currentStep === "service" && (
+              <FirstService
+                vendorCategory={data.serviceCategory}
+                onBack={() => goTo("setup")}
+                onSubmit={handleFirstService}
+                onSkip={() => goTo("welcome")}
+                error={serviceError}
+                isLoading={isSavingService}
               />
             )}
             {currentStep === "welcome" && <Welcome data={data} />}
