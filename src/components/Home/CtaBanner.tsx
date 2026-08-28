@@ -1,21 +1,31 @@
-import { useState, useEffect, useRef } from "react";
-import type { FormEvent } from "react";
-import {
-  ArrowRight,
-  Home,
-  UserCheck,
-  Shield,
-  MapPin,
-  Smartphone,
-  X,
-  Bell,
-  CheckCircle,
-} from "lucide-react";
+import { useEffect, useRef } from "react";
+import { ArrowRight, Home, UserCheck, Shield, MapPin, Smartphone } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import appWaitlistService from "../../api/services/appWaitlist";
+import appStoreBadge from "../../assets/appstore.png";
+import playStoreBadge from "../../assets/playstore.png";
 
 gsap.registerPlugin(ScrollTrigger);
+
+export const APP_STORE_URL =
+  "https://apps.apple.com/mx/app/propertyloop/id6790199019?l=en-GB";
+export const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=ng.propertyloop.app&pcampaignid=web_share";
+
+/**
+ * App screenshots are picked up from src/assets by filename (app_ss1, app_ss2,
+ * app_ss3 - any image extension). Resolved at build time, so dropping the files
+ * in is all that's needed; while they're absent this is simply empty and the
+ * showcase falls back to a plain device frame rather than breaking the build.
+ */
+const screenshots = Object.entries(
+  import.meta.glob<string>("../../assets/app_ss*.{png,jpg,jpeg,webp,avif}", {
+    eager: true,
+    import: "default",
+  }),
+)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, src]) => src);
 
 const stats = [
   { icon: <Home className="w-4 h-4" />, value: "20,000+", label: "Listings" },
@@ -36,52 +46,82 @@ const stats = [
   },
 ];
 
+/** A single device frame. `src` omitted renders the branded empty state. */
+const PhoneFrame = ({
+  src,
+  alt,
+  className = "",
+}: {
+  src?: string;
+  alt: string;
+  className?: string;
+}) => (
+  <div
+    className={`relative rounded-[2rem] bg-white/80 backdrop-blur-md border border-border-light p-2 shadow-[0_12px_40px_rgba(0,0,0,0.14)] ${className}`}
+  >
+    <div className="relative overflow-hidden rounded-[1.65rem] bg-bg-accent aspect-[9/19.5]">
+      {src ? (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          className="absolute inset-0 w-full h-full object-cover object-top"
+        />
+      ) : (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4 text-center">
+          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+            <Smartphone className="w-7 h-7 text-primary" />
+          </div>
+          <p className="font-heading font-bold text-primary-dark text-sm">
+            PropertyLoop
+          </p>
+          <p className="text-text-subtle text-xs">Out now on iOS &amp; Android</p>
+        </div>
+      )}
+    </div>
+    {/* Notch */}
+    <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-16 h-4 rounded-full bg-white/90 border border-border-light" />
+  </div>
+);
+
+/** Cycles the available screenshots so 1, 2 or 3 files all lay out sensibly. */
+const shotAt = (i: number) =>
+  screenshots.length ? screenshots[i % screenshots.length] : undefined;
+
+const StoreBadges = ({ className = "" }: { className?: string }) => (
+  <div className={`flex flex-wrap items-center gap-3 ${className}`}>
+    <a
+      data-cb-btn
+      href={APP_STORE_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Download PropertyLoop on the App Store"
+      className="inline-flex rounded-xl transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+    >
+      <img
+        src={appStoreBadge}
+        alt="Download on the App Store"
+        className="h-12 w-auto"
+      />
+    </a>
+    <a
+      data-cb-btn
+      href={PLAY_STORE_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Get PropertyLoop on Google Play"
+      className="inline-flex rounded-xl transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+    >
+      <img
+        src={playStoreBadge}
+        alt="Get it on Google Play"
+        className="h-12 w-auto"
+      />
+    </a>
+  </div>
+);
+
 const CtaBanner = () => {
-  const [showModal, setShowModal] = useState(false);
-
-  // ─── App-waitlist signup state ───────────────────────────────────────
-  const [appEmail, setAppEmail] = useState("");
-  const [appSubmitting, setAppSubmitting] = useState(false);
-  const [appError, setAppError] = useState<string | null>(null);
-  const [appSent, setAppSent] = useState(false);
-  const [appAlready, setAppAlready] = useState(false);
-
-  const handleAppWaitlistSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setAppError(null);
-    const email = appEmail.trim();
-    if (!email) {
-      setAppError("Please enter your email.");
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setAppError("That email doesn't look right.");
-      return;
-    }
-    setAppSubmitting(true);
-    try {
-      const res = await appWaitlistService.subscribe(email, "homepage_cta");
-      setAppSent(true);
-      setAppAlready(!!res.alreadySubscribed);
-    } catch (err: any) {
-      setAppError(
-        err?.response?.data?.message ?? "Something went wrong. Try again.",
-      );
-    } finally {
-      setAppSubmitting(false);
-    }
-  };
-
-  // Reset the form whenever the modal closes
-  useEffect(() => {
-    if (!showModal) {
-      setAppEmail("");
-      setAppSubmitting(false);
-      setAppError(null);
-      setAppSent(false);
-      setAppAlready(false);
-    }
-  }, [showModal]);
   const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -193,12 +233,19 @@ const CtaBanner = () => {
               <div className="flex flex-col lg:flex-row lg:items-center gap-10 sm:gap-12 lg:gap-20">
                 {/* Left text */}
                 <div className="flex-1">
-                  <p
-                    data-cb-label
-                    className="text-primary text-sm font-medium tracking-wide uppercase mb-3"
-                  >
-                    Get Started Today
-                  </p>
+                  <div data-cb-label className="flex items-center gap-3 mb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_2px_10px_rgba(31,111,67,0.35)]">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
+                      </span>
+                      Out now
+                    </span>
+                    <p className="text-primary text-sm font-medium tracking-wide uppercase">
+                      On iOS &amp; Android
+                    </p>
+                  </div>
+
                   <h2
                     data-cb-heading
                     className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
@@ -212,12 +259,21 @@ const CtaBanner = () => {
                     className="text-text-secondary text-sm leading-relaxed mt-5 max-w-md"
                   >
                     From first search to signed contract - and everything after
-                    the keys are handed over. Download the app or sign up to get
-                    started.
+                    the keys are handed over. The PropertyLoop app has landed:
+                    download it free on the App Store or Google Play, or sign up
+                    on the web to get started.
                   </p>
 
-                  {/* CTA buttons */}
-                  <div className="flex flex-wrap gap-4 mt-8">
+                  {/* Store badges */}
+                  <div className="mt-8">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-subtle mb-3">
+                      Download the app
+                    </p>
+                    <StoreBadges />
+                  </div>
+
+                  {/* Secondary CTA */}
+                  <div className="flex flex-wrap items-center gap-4 mt-7 pt-6 border-t border-border-light">
                     <a
                       data-cb-btn
                       href="/onboarding"
@@ -226,40 +282,40 @@ const CtaBanner = () => {
                       Sign up free
                       <ArrowRight className="w-4 h-4" />
                     </a>
-                    <button
-                      data-cb-btn
-                      onClick={() => setShowModal(true)}
-                      className="h-12 px-8 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark font-medium text-sm hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center gap-2"
-                    >
-                      <Smartphone className="w-4 h-4" />
-                      Download app
-                    </button>
+                    <span className="text-text-subtle text-xs">
+                      Prefer the browser? Everything works on the web too.
+                    </span>
                   </div>
                 </div>
 
-                {/* Right - phone mockup */}
-                <div
-                  data-cb-phone
-                  className="shrink-0 hidden lg:flex items-center justify-center"
-                >
-                  <div className="relative w-55 h-95 bg-white/70 backdrop-blur-md border border-border-light rounded-[36px] p-3 shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
-                    <div className="w-full h-full rounded-[28px] bg-bg-accent border border-border-light flex flex-col items-center justify-center gap-4">
-                      {/* Notch */}
-                      <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-5 bg-white rounded-full border border-border-light" />
-                      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Home className="w-7 h-7 text-primary" />
-                      </div>
-                      <div className="text-center px-4">
-                        <p className="font-heading font-bold text-primary-dark text-sm">
-                          PropertyLoop
-                        </p>
-                        <p className="text-text-subtle text-xs mt-1">
-                          Coming soon on
-                          <br />
-                          iOS & Android
-                        </p>
-                      </div>
-                    </div>
+                {/* Right - app screenshots */}
+                <div data-cb-phone className="shrink-0">
+                  {/* Fanned trio on desktop */}
+                  <div className="relative hidden lg:block w-[27rem] h-[31rem]">
+                    <PhoneFrame
+                      src={shotAt(1)}
+                      alt="PropertyLoop app - property search"
+                      className="absolute left-0 top-12 w-40 -rotate-[8deg]"
+                    />
+                    <PhoneFrame
+                      src={shotAt(2)}
+                      alt="PropertyLoop app - listing details"
+                      className="absolute right-0 top-12 w-40 rotate-[8deg]"
+                    />
+                    <PhoneFrame
+                      src={shotAt(0)}
+                      alt="PropertyLoop app - home screen"
+                      className="absolute left-1/2 -translate-x-1/2 top-0 w-52 z-10"
+                    />
+                  </div>
+
+                  {/* Single phone on mobile / tablet */}
+                  <div className="lg:hidden flex justify-center">
+                    <PhoneFrame
+                      src={shotAt(0)}
+                      alt="PropertyLoop app - home screen"
+                      className="w-44 sm:w-52"
+                    />
                   </div>
                 </div>
               </div>
@@ -292,108 +348,6 @@ const CtaBanner = () => {
           </div>
         </div>
       </div>
-
-      {/* Coming Soon Modal */}
-      {showModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4"
-          onClick={() => setShowModal(false)}
-        >
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
-
-          {/* Modal card */}
-          <div
-            className="relative w-full max-w-sm overflow-hidden bg-white/85 backdrop-blur-md border border-border-light rounded-3xl shadow-[0_8px_40px_rgba(0,0,0,0.12)] p-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close button */}
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-bg flex items-center justify-center text-text-subtle hover:bg-border-light hover:text-primary-dark transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            {/* Content */}
-            <div className="flex flex-col items-center text-center">
-              {/* Phone icon */}
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-5">
-                <Smartphone className="w-8 h-8 text-primary" />
-              </div>
-
-              <h3 className="font-heading font-bold text-primary-dark text-xl">
-                Coming Soon
-              </h3>
-              <p className="text-text-secondary text-sm leading-relaxed mt-2 max-w-xs">
-                The PropertyLoop mobile app is currently in development. Leave
-                your email to get notified when it launches on iOS and Android.
-              </p>
-
-              {appSent ? (
-                /* Success state */
-                <div className="w-full mt-6 flex flex-col items-center gap-2 px-4 py-5 rounded-2xl bg-primary/5 border border-primary/15">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <CheckCircle className="w-5 h-5" />
-                  </div>
-                  <p className="font-heading font-semibold text-primary-dark text-sm">
-                    {appAlready ? "You're already on the list" : "You're on the list!"}
-                  </p>
-                  <p className="text-text-secondary text-xs">
-                    We'll email you the moment the app drops.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  {/* Email input - stacks on mobile, row on sm+ so the
-                      button isn't squeezed against the input */}
-                  <form
-                    onSubmit={handleAppWaitlistSubmit}
-                    className="w-full mt-6 flex flex-col sm:flex-row gap-2"
-                  >
-                    <input
-                      type="email"
-                      value={appEmail}
-                      onChange={(e) => {
-                        setAppEmail(e.target.value);
-                        if (appError) setAppError(null);
-                      }}
-                      disabled={appSubmitting}
-                      placeholder="Enter your email"
-                      autoComplete="email"
-                      className="flex-1 min-w-0 h-11 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm placeholder:text-text-subtle focus:outline-none focus:border-primary transition-colors disabled:opacity-60"
-                    />
-                    <button
-                      type="submit"
-                      disabled={appSubmitting}
-                      className="shrink-0 h-11 px-5 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300 inline-flex items-center justify-center gap-1.5 whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      <Bell className="w-4 h-4" />
-                      {appSubmitting ? "Submitting…" : "Notify me"}
-                    </button>
-                  </form>
-
-                  {appError && (
-                    <p className="text-xs text-red-500 mt-2">{appError}</p>
-                  )}
-                </>
-              )}
-
-              {/* Store badges placeholder */}
-              <div className="flex gap-3 mt-6">
-                <div className="h-10 px-4 rounded-xl bg-bg border border-border-light flex items-center gap-2 text-text-secondary text-xs">
-                  <Smartphone className="w-4 h-4" />
-                  iOS
-                </div>
-                <div className="h-10 px-4 rounded-xl bg-bg border border-border-light flex items-center gap-2 text-text-secondary text-xs">
-                  <Smartphone className="w-4 h-4" />
-                  Android
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };
