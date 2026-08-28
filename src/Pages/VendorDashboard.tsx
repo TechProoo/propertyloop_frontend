@@ -244,6 +244,7 @@ const VendorDashboard = () => {
   // ─── Service menu (bookable services CRUD) ────────────────────────────────
   const [services, setServices] = useState<VendorService[]>([]);
   const [servicesLoading, setServicesLoading] = useState(false);
+  const [servicesLoaded, setServicesLoaded] = useState(false);
   const [serviceModal, setServiceModal] = useState<null | { mode: "add" | "edit"; service?: VendorService }>(null);
   const [svcName, setSvcName] = useState("");
   const [svcDesc, setSvcDesc] = useState("");
@@ -803,6 +804,7 @@ const VendorDashboard = () => {
     setServicesLoading(true);
     try {
       setServices(await vendorServicesService.list());
+      setServicesLoaded(true);
     } catch {
       /* ignore */
     } finally {
@@ -810,8 +812,15 @@ const VendorDashboard = () => {
     }
   };
 
+  // Overview needs the menu too - a vendor with no services can't be booked at
+  // all, so the dashboard has to be able to say so on the landing tab.
   useEffect(() => {
-    if (activeNav === "services" && services.length === 0 && !servicesLoading) {
+    if (
+      (activeNav === "services" || activeNav === "overview") &&
+      services.length === 0 &&
+      !servicesLoading &&
+      !servicesLoaded
+    ) {
       loadServices();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1259,6 +1268,36 @@ const VendorDashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease }}
             >
+              {/* Without a posted service there is no price to book against,
+                  so the vendor is invisible to buyers until they add one. */}
+              {servicesLoaded && services.length === 0 && (
+                <div className="mb-6 bg-amber-50 border border-amber-200 rounded-[20px] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                    <ClipboardList className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-heading font-bold text-amber-900 text-sm">
+                      Customers can't book you yet
+                    </h3>
+                    <p className="text-amber-800/80 text-xs leading-relaxed mt-1">
+                      Your profile shows "Contact for pricing" until you post at
+                      least one service with a price. Add one and you'll appear
+                      as bookable straight away.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setActiveNav("services");
+                      openServiceModal("add");
+                    }}
+                    className="h-10 px-5 rounded-full bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition-colors shrink-0 inline-flex items-center gap-2"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Add your first service
+                  </button>
+                </div>
+              )}
+
               {dashLoading ? (
                 <StatSkeleton />
               ) : (
@@ -1902,6 +1941,13 @@ const VendorDashboard = () => {
                   <p className="text-text-secondary text-sm mt-1">
                     Add your first bookable service so customers can hire you.
                   </p>
+                  <button
+                    onClick={() => openServiceModal("add")}
+                    className="mt-4 h-10 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add a service
+                  </button>
                 </div>
               ) : (
                 <div className="flex flex-col gap-6">

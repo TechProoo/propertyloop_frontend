@@ -8,6 +8,7 @@ import type {
   VendorBlackout,
   VendorPublic,
   VendorReview,
+  VendorService,
   VendorStats,
 } from "../types";
 
@@ -61,6 +62,18 @@ const vendorsService = {
   async getById(id: string): Promise<VendorPublic & { reviews: VendorReview[] }> {
     const { data } = await api.get(`/vendors/${id}`);
     return data;
+  },
+
+  /**
+   * A vendor's public service menu - active services only, in display order.
+   * This is what a buyer picks from when booking; the selected service's
+   * priceNaira is the price, so never substitute a guessed figure for it.
+   */
+  async getPublicServices(vendorId: string): Promise<VendorService[]> {
+    const { data } = await api.get(`/vendors/${vendorId}/services`);
+    return Array.isArray(data)
+      ? data
+      : ((data as { items?: VendorService[] })?.items ?? []);
   },
 
   async getMe(): Promise<VendorPublic & { settings: unknown }> {

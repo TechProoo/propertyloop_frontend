@@ -154,8 +154,10 @@ const Services = () => {
     rating: v.rating,
     jobs: v.jobsCount,
     location: v.location || "",
-    price: v.priceLabel || "From ₦15,000",
-    priceNum: Math.max(v.priceNum || 0, 15000),
+    // Never invent a price: a vendor who hasn't set one shows as "Contact for
+    // pricing" rather than a made-up floor the buyer would be held to.
+    price: v.priceLabel || "Contact for pricing",
+    priceNum: v.priceNum ?? 0,
     verified: v.verified,
     phone: v.phone || "",
     bio: v.bio || "",

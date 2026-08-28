@@ -30,7 +30,7 @@ import vendorJobsService from "../api/services/vendorJobs";
 import uploadService from "../api/services/upload";
 import { formatTel } from "../lib/phone";
 import { useAuth } from "../context/AuthContext";
-import type { VendorPublic } from "../api/types";
+import type { VendorPublic, VendorService } from "../api/types";
 import FallbackImg from "../assets/fallback.png";
 // Chat and booking data now handled via API services
 type ChatMessage = {
@@ -237,6 +237,8 @@ const BookService = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [vendor, setVendor] = useState<VendorPublic | null>(null);
+  const [services, setServices] = useState<VendorService[]>([]);
+  const [serviceId, setServiceId] = useState<string | null>(null);
   const [loadingVendor, setLoadingVendor] = useState(true);
 
   useEffect(() => {
@@ -244,12 +246,32 @@ const BookService = () => {
       setLoadingVendor(false);
       return;
     }
-    vendorsService
-      .getById(id)
-      .then(setVendor)
-      .catch(() => {})
-      .finally(() => setLoadingVendor(false));
+    let live = true;
+    Promise.all([
+      vendorsService.getById(id).catch(() => null),
+      vendorsService.getPublicServices(id).catch(() => [] as VendorService[]),
+    ])
+      .then(([v, s]) => {
+        if (!live) return;
+        if (v) setVendor(v);
+        setServices(s);
+        setServiceId(s[0]?.id ?? null);
+      })
+      .finally(() => live && setLoadingVendor(false));
+    return () => {
+      live = false;
+    };
   }, [id]);
+
+  /**
+   * The booking price is the vendor's own listed price for the selected
+   * service - never a guessed figure. The backend takes dto.vendorFee at face
+   * value and splits it 90/10, so sending anything invented would bill the
+   * buyer and pay the vendor the wrong amount.
+   */
+  const selectedService = services.find((s) => s.id === serviceId) ?? null;
+  const isOwnVendor = !!user?.id && user.id === id;
+  const canBook = !!selectedService && !isOwnVendor;
 
   // Form state
   const [jobDescription, setJobDescription] = useState("");
@@ -387,6 +409,14 @@ const BookService = () => {
       });
       return;
     }
+    if (!selectedService) {
+      setSendError("Pick a service before sending your request.");
+      return;
+    }
+    if (isOwnVendor) {
+      setSendError("You can't book your own service.");
+      return;
+    }
 
     setSending(true);
     setAttachmentError(null);
@@ -414,11 +444,11 @@ const BookService = () => {
       // Create the VendorJob booking record
       await vendorJobsService.createBooking({
         vendorId: vendor.id,
-        title: vendor.category || "Service",
+        title: selectedService.name,
         description: jobDescription,
         address: propertyAddress || "Not specified",
         category: vendor.category || "Service",
-        vendorFee: Math.max(vendor.priceNum ?? 0, 15000),
+        vendorFee: selectedService.priceNaira,
         scheduledFor: preferredDate
           ? new Date(`${preferredDate}T${preferredTime}`).toISOString()
           : new Date().toISOString(),
@@ -610,6 +640,77 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                     */}
                   </Link>
 
+                  {/* Service picker - the price of the chosen service is what
+                      the buyer is billed, so this has to be an explicit pick. */}
+                  {services.length > 0 ? (
+                    <div className="mb-6">
+                      <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
+                        Which service?
+                      </label>
+                      <div className="flex flex-col gap-2.5">
+                        {services.map((s) => {
+                          const picked = s.id === serviceId;
+                          return (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => setServiceId(s.id)}
+                              aria-pressed={picked}
+                              className={`w-full text-left rounded-2xl border px-4 py-3.5 transition-all ${
+                                picked
+                                  ? "border-primary bg-primary/[0.06] shadow-[0_2px_10px_rgba(31,111,67,0.10)]"
+                                  : "border-border-light bg-white/70 hover:border-primary/40"
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <span
+                                  className={`mt-0.5 w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${
+                                    picked
+                                      ? "border-primary"
+                                      : "border-border"
+                                  }`}
+                                >
+                                  {picked && (
+                                    <span className="w-2 h-2 rounded-full bg-primary" />
+                                  )}
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="block font-heading font-bold text-primary-dark text-sm">
+                                    {s.name}
+                                  </span>
+                                  {s.description && (
+                                    <span className="block text-text-secondary text-xs leading-relaxed mt-0.5">
+                                      {s.description}
+                                    </span>
+                                  )}
+                                  {s.duration && (
+                                    <span className="block text-text-subtle text-[11px] mt-1">
+                                      {s.duration}
+                                    </span>
+                                  )}
+                                </span>
+                                <span className="font-heading font-bold text-primary-dark text-sm whitespace-nowrap shrink-0">
+                                  {s.priceLabel}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mb-6 rounded-2xl border border-border-light bg-white/70 px-4 py-4">
+                      <p className="font-heading font-bold text-primary-dark text-sm">
+                        No bookable services yet
+                      </p>
+                      <p className="text-text-secondary text-xs leading-relaxed mt-1">
+                        {vendor.name.split(" ")[0]} hasn't published a service
+                        menu, so there's no price to book against. Send an
+                        enquiry below or call them to agree the work first.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="flex flex-col gap-4">
                     <div>
                       <label className="text-xs font-heading font-semibold text-primary-dark mb-1.5 block">
@@ -781,7 +882,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                   <div className="flex justify-end mt-6">
                     <button
                       onClick={handleSendNegotiationRequest}
-                      disabled={!jobDescription.trim() || sending}
+                      disabled={!jobDescription.trim() || !canBook || sending}
                       className="flex items-center gap-2 px-8 py-2.5 rounded-full bg-primary text-white font-heading font-semibold text-sm shadow-lg shadow-glow/40 hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {sending ? (
@@ -897,10 +998,24 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
                       </span>
                     </div>
                     <div className="h-px bg-border-light mb-3" />
-                    <p className="font-heading font-bold text-primary-dark text-lg">
-                      {vendor.priceLabel ??
-                        `From ₦${Math.max(vendor.priceNum ?? 0, 15000).toLocaleString()}`}
-                    </p>
+                    {selectedService ? (
+                      <>
+                        <p className="text-text-subtle text-[11px] font-semibold uppercase tracking-wide">
+                          {selectedService.name}
+                        </p>
+                        <p className="font-heading font-bold text-primary-dark text-lg mt-0.5">
+                          {selectedService.priceLabel}
+                        </p>
+                        <p className="text-text-subtle text-[11px] mt-1">
+                          You pay the vendor's listed price - PropertyLoop's
+                          commission comes out of their cut, not on top.
+                        </p>
+                      </>
+                    ) : (
+                      <p className="font-heading font-bold text-primary-dark text-lg">
+                        Contact for pricing
+                      </p>
+                    )}
                     <p className="text-text-secondary text-xs mt-2 leading-relaxed">
                       {vendor.bio}
                     </p>

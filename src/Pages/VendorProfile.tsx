@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
+  ArrowRight,
   Star,
   Phone,
   Mail,
@@ -23,6 +24,8 @@ import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
 import vendorsService from "../api/services/vendors";
+import type { VendorService } from "../api/types";
+import { useAuth } from "../context/AuthContext";
 import api from "../api/client";
 import FallbackImg from "../assets/fallback.png";
 import { BANNER_FALLBACK } from "../lib/bannerFallback";
@@ -251,8 +254,10 @@ const ReviewDisputeSection = ({
 
 const VendorProfile = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [vendor, setVendor] = useState<any>(null);
   const [reviews, setReviews] = useState<any[]>([]);
+  const [services, setServices] = useState<VendorService[]>([]);
   const [loadingVendor, setLoadingVendor] = useState(true);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
@@ -267,9 +272,10 @@ const VendorProfile = () => {
 
   const loadVendor = useCallback(async () => {
     if (!id) return;
-    const [vendorData, reviewsData] = await Promise.all([
+    const [vendorData, reviewsData, servicesData] = await Promise.all([
       vendorsService.getById(id).catch(() => null),
       vendorsService.listReviews(id).catch(() => [] as any[]),
+      vendorsService.getPublicServices(id).catch(() => [] as VendorService[]),
     ]);
     if (vendorData) {
       setVendor({
@@ -296,7 +302,11 @@ const VendorProfile = () => {
       });
     }
     setReviews(reviewsData || []);
+    setServices(servicesData || []);
   }, [id]);
+
+  // A vendor can't book themselves — the backend rejects it, so don't offer it.
+  const isOwnProfile = !!user?.id && user.id === id;
 
   useEffect(() => {
     if (!id) {
@@ -652,6 +662,63 @@ const VendorProfile = () => {
                 </div>
               </motion.div>
 
+              {/* Services - the vendor's bookable menu with their own prices */}
+              {services.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12, duration: 0.4, ease }}
+                  className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sm:p-8 mb-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-heading font-bold text-primary-dark text-lg">
+                      Services
+                    </h2>
+                    <span className="text-text-subtle text-xs">
+                      {services.length}{" "}
+                      {services.length === 1 ? "service" : "services"}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {services.map((s) => (
+                      <div
+                        key={s.id}
+                        className="flex items-start gap-4 rounded-2xl border border-border-light bg-white/70 px-4 py-3.5"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-heading font-bold text-primary-dark text-sm">
+                            {s.name}
+                          </p>
+                          {s.description && (
+                            <p className="text-text-secondary text-xs leading-relaxed mt-1">
+                              {s.description}
+                            </p>
+                          )}
+                          {s.duration && (
+                            <p className="text-text-subtle text-[11px] mt-1.5 flex items-center gap-1.5">
+                              <Clock className="w-3 h-3" />
+                              {s.duration}
+                            </p>
+                          )}
+                        </div>
+                        <p className="font-heading font-bold text-primary-dark text-sm whitespace-nowrap shrink-0">
+                          {s.priceLabel}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  {!isOwnProfile && (
+                    <Link
+                      to={`/book-service/${vendor.id}`}
+                      className="mt-5 inline-flex items-center gap-2 h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors"
+                    >
+                      Book a service
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  )}
+                </motion.div>
+              )}
+
               {/* Portfolio */}
               {vendor.portfolioImages && vendor.portfolioImages.length > 0 && (
                 <motion.div
@@ -774,6 +841,41 @@ const VendorProfile = () => {
                         </p>
                       </div>
                     </div>
+
+                    {/* Price + hire. Mirrors the app: a vendor with no posted
+                        services can't be booked, only contacted. */}
+                    {!isOwnProfile && (
+                      <div className="rounded-2xl border border-border-light bg-primary/[0.04] px-4 py-3.5 mb-5">
+                        {services.length > 0 ? (
+                          <>
+                            <p className="text-text-subtle text-[11px] font-semibold uppercase tracking-wide">
+                              From
+                            </p>
+                            <p className="font-heading font-bold text-primary-dark text-xl mt-0.5">
+                              {services[0].priceLabel.replace(/^from\s+/i, "")}
+                            </p>
+                            <Link
+                              to={`/book-service/${vendor.id}`}
+                              className="mt-3 w-full h-10 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
+                            >
+                              Hire {vendor.name.split(" ")[0]}
+                              <ArrowRight className="w-4 h-4" />
+                            </Link>
+                          </>
+                        ) : (
+                          <>
+                            <p className="font-heading font-bold text-primary-dark text-sm">
+                              Contact for pricing
+                            </p>
+                            <p className="text-text-secondary text-xs leading-relaxed mt-1">
+                              {vendor.name.split(" ")[0]} hasn't published a
+                              service menu yet. Reach out to discuss what you
+                              need.
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    )}
 
                     <div className="space-y-3 mb-5">
                       <a

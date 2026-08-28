@@ -272,6 +272,42 @@ const Dashboard = () => {
     Record<string, boolean>
   >({});
 
+  /**
+   * Self-heal a paid-but-unlocked escrow, same as the app does on the service
+   * job screen. If the buyer left the Paystack return page before it finished
+   * verifying, the job still reads escrowStatus NONE and the dashboard would
+   * prompt them to pay a second time. Re-verify by reference (idempotent
+   * server-side) and patch the row in place.
+   */
+  const reconcilePendingEscrow = async (list: VendorJob[]) => {
+    const stranded = list.filter(
+      (j) => j.escrowId && (j.escrowStatus ?? "NONE") === "NONE",
+    );
+    if (stranded.length === 0) return;
+    await Promise.all(
+      stranded.map(async (job) => {
+        for (let attempt = 0; attempt < 2; attempt++) {
+          try {
+            const res = await paymentsService.verifyPayment(job.escrowId!);
+            if (res.escrowStatus && res.escrowStatus !== "NONE") {
+              setJobs((prev) =>
+                prev.map((j) =>
+                  j.id === job.id
+                    ? { ...j, escrowStatus: res.escrowStatus as VendorJob["escrowStatus"] }
+                    : j,
+                ),
+              );
+              return;
+            }
+          } catch {
+            /* transient - the webhook is still the backstop */
+          }
+          await new Promise((r) => setTimeout(r, 1500));
+        }
+      }),
+    );
+  };
+
   useEffect(() => {
     Promise.all([
       listingsService
@@ -288,7 +324,10 @@ const Dashboard = () => {
         .catch(() => {}),
       vendorJobsService
         .listMine()
-        .then((r) => setJobs(r.items))
+        .then((r) => {
+          setJobs(r.items);
+          void reconcilePendingEscrow(r.items);
+        })
         .catch(() => setJobs([])),
     ]).finally(() => {
       setJobsLoading(false);
