@@ -207,24 +207,33 @@ const projects = [
   {
     name: "Radisson Collection Hotel",
     location: "Ikoyi, Lagos",
-    image: umProjRad,
+    image: umProjRadisson,
   },
   { name: "Chelsea Hotel", location: "Abuja", image: umProjChelsea },
   { name: "Ibis Hotel", location: "Ajao Estate, Lagos", image: umProjIbis },
+  {
+    name: "Four Points by Sheraton",
+    location: "Victoria Island, Lagos",
+    image: umProjFourPoints,
+  },
+  { name: "D'Podium", location: "Ikeja, Lagos", image: umProjDPodium },
+  { name: "CBN Office", location: "Ado-Ekiti Branch", image: umProjCbn },
+  {
+    name: "Moorehouse Hotel",
+    location: "Ikoyi, Lagos",
+    image: umProjMoorehouse,
+  },
   {
     name: "Greystone Tower",
     location: "Victoria Island, Lagos",
     image: umProjGreystone,
   },
   { name: "Ahmadu Bello Way", location: "Lagos", image: umProjAhmadu },
-  { name: "D'Podium", location: "Ikeja, Lagos", image: umProjCityHall },
-  { name: "CBN Office", location: "Ado-Ekiti Branch", image: umSite1 },
-  { name: "Kellogg's Factory", location: "Ibeju-Lekki, Lagos", image: umSite2 },
-];
-
-const otherProjects = [
-  "Four Points by Sheraton, VI, Lagos",
-  "Moorehouse Hotel, Ikoyi, Lagos",
+  {
+    name: "Kellogg's Factory",
+    location: "Ibeju-Lekki, Lagos",
+    image: umProjKelloggs,
+  },
 ];
 
 const serviceOptions = [
@@ -727,18 +736,12 @@ const FacilityManagement = () => {
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 mt-5">
-              <span className="text-text-subtle text-xs">Also delivered:</span>
-              {otherProjects.map((p) => (
-                <span
-                  key={p}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-border-light text-primary-dark text-xs font-medium"
-                >
-                  <Building2 className="w-3.5 h-3.5 text-primary" />
-                  {p}
-                </span>
-              ))}
-            </div>
+            <p className="flex items-center gap-2 text-text-subtle text-xs mt-5">
+              <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
+              Ten recent MEP projects across hotels, banking, government and
+              manufacturing - the same team now available for ongoing facility
+              management.
+            </p>
           </section>
 
           {/* ─── Enquiry ─── */}
