@@ -71,6 +71,7 @@ const footerLinks = {
   ],
   Services: [
     { label: "Artisan Corner", href: "/services" },
+    { label: "Facility Management", href: "/facility-management" },
     { label: "Plumbing", href: "/services" },
     { label: "Electrical", href: "/services" },
     { label: "Cleaning", href: "/services" },

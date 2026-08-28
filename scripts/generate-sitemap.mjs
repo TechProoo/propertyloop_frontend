@@ -31,6 +31,7 @@ const STATIC_ROUTES = [
   ["/featured", "daily", "0.8"],
   ["/sell", "weekly", "0.8"],
   ["/services", "weekly", "0.8"],
+  ["/facility-management", "monthly", "0.7"],
   ["/new-developments", "weekly", "0.7"],
   ["/find-agent", "weekly", "0.7"],
   ["/video-tours", "weekly", "0.7"],

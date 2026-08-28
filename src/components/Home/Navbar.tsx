@@ -199,6 +199,13 @@ const Navbar = () => {
                 isActive={path === "/services"}
               />
             </li>
+            <li data-nav-link>
+              <FlipLink
+                label="Facilities"
+                href="/facility-management"
+                isActive={path === "/facility-management"}
+              />
+            </li>
             <li data-nav-link className="relative">
               <FlipLink label="Feed" href="/feed" isActive={path === "/feed"} />
               <span className="absolute -top-2 -right-6 bg-primary text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-full pointer-events-none">
@@ -325,6 +332,13 @@ const Navbar = () => {
               className={`py-2 hover:text-primary ${path === "/services" ? "text-primary font-semibold" : ""}`}
             >
               Artisan Corner
+            </Link>
+            <Link
+              to="/facility-management"
+              onClick={closeMobileMenu}
+              className={`py-2 hover:text-primary ${path === "/facility-management" ? "text-primary font-semibold" : ""}`}
+            >
+              Facility Management
             </Link>
             <Link
               to="/feed"

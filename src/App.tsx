@@ -19,6 +19,7 @@ import About from "./Pages/About";
 import Shortlet from "./Pages/Shortlet";
 import NewDevelopments from "./Pages/NewDevelopments";
 import Services from "./Pages/Services";
+import FacilityManagement from "./Pages/FacilityManagement";
 import PropertyDetail from "./Pages/PropertyDetail";
 import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
@@ -169,6 +170,10 @@ function AppContent() {
           <Route path="/advertise" element={<Advertise />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/services" element={<Services />} />
+          <Route
+            path="/facility-management"
+            element={<FacilityManagement />}
+          />
           <Route path="/property/:id" element={<PropertyDetail />} />
           <Route path="/featured" element={<FeaturedProperties />} />
           <Route path="/featured-property/:id" element={<FeaturedPropertyDetail />} />
