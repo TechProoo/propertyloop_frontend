@@ -121,6 +121,14 @@
   40% { transform: translateY(-9px); opacity: 1; }
 }
 
+/* ─── Facility gallery slide timer ───
+   A CSS animation rather than a JS-driven one so `animation-play-state`
+   can freeze the bar exactly where it is when autoplay pauses. */
+@keyframes pl-slide-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
 /* ─── Rent page area ticker (marquee) ─── */
 @keyframes pl-ticker {
   from { transform: translateX(0); }

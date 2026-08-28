@@ -20,6 +20,7 @@ import {
   Globe,
   BadgeCheck,
   Activity,
+  Settings2,
   Users,
   FileCheck,
   Sparkles,
@@ -28,15 +29,22 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
+import FacilityGallery from "../components/FacilityGallery";
 
 import umLogo from "../assets/ultramodern/logo.jpeg";
 import umTower from "../assets/ultramodern/site-3.jpg";
-import umHvac from "../assets/ultramodern/hvac.jpg";
 import umHvacDuct from "../assets/ultramodern/hvac-duct.jpg";
 import umPlumbing from "../assets/ultramodern/plumbing.jpg";
 import umFire from "../assets/ultramodern/fire.jpg";
-import umElectrical from "../assets/ultramodern/electrical.png";
-import umTeam from "../assets/ultramodern/site-works.jpg";
+import umChillers from "../assets/ultramodern/pdf-ccr-chillers.jpeg";
+import umSubstation from "../assets/ultramodern/pdf-substation.jpeg";
+import umLaboratory from "../assets/ultramodern/pdf-laboratory.jpeg";
+import umTeam from "../assets/ultramodern/pdf-workshop.jpeg";
+import umDangoteDuct from "../assets/ultramodern/pdf-dangote-ducting.jpeg";
+import umFabPlasma from "../assets/ultramodern/pdf-fab-plasma.jpeg";
+import umFabRolling from "../assets/ultramodern/pdf-fab-rolling.jpeg";
+import umFabLockForming from "../assets/ultramodern/pdf-fab-lockforming.jpeg";
+import umFabSpiral from "../assets/ultramodern/pdf-fab-spiral.jpeg";
 import umProjRadisson from "../assets/ultramodern/p1-radisson.jpeg";
 import umProjChelsea from "../assets/ultramodern/p2-chelsea.jpeg";
 import umProjIbis from "../assets/ultramodern/p3-ibis.jpeg";
@@ -60,7 +68,8 @@ const UM_ADDRESS = "No 33, Fatai Irawo Street, Ajao Estate, Lagos, Nigeria.";
 /* ─── Data ─── */
 
 const heroStats = [
-  { value: "10+", label: "Landmark projects delivered" },
+  { value: "30+", label: "Projects delivered" },
+  { value: "21+", label: "Years in the MEP industry" },
   { value: "4", label: "MEP disciplines in-house" },
   { value: "6", label: "Sectors served" },
 ];
@@ -71,7 +80,7 @@ const disciplines = [
     name: "HVAC",
     tagline: "Heating, ventilation & air conditioning",
     icon: <Wind className="w-5 h-5" />,
-    image: umHvac,
+    image: umChillers,
     blurb:
       "HVAC system solutions tailored to your needs, maximizing energy efficiency and minimizing costs.",
     scope: [
@@ -115,16 +124,55 @@ const disciplines = [
     name: "Electrical",
     tagline: "Power, electronics & extra low voltage",
     icon: <Zap className="w-5 h-5" />,
-    image: umElectrical,
+    image: umSubstation,
     blurb:
       "We are safety conscious and fully strap our engineers with state of the art safety gears on field duty.",
     scope: [
-      "High & medium voltage",
-      "Low voltage",
-      "Extra low voltage systems",
-      "Electronics & building systems",
+      "High & medium voltage infrastructure",
+      "Low voltage (LV) systems",
+      "Extra low voltage (ELV)",
+      "BMS / DDC building controls",
     ],
   },
+];
+
+/* Board of directors, from the Ultramodern corporate profile */
+const leadership = [
+  {
+    name: "Engr Oyewo Yinusa",
+    role: "Chairman",
+    bio: "Expert industrialist, Lagos State Polytechnic (Mechanical Engineering). 14 years at Nairda Limited, with key projects including CBN HQ Abuja, Federal Palace Hotel and Golden Tulip Hotel. 21+ years in the MEP industry.",
+  },
+  {
+    name: "Engr Ebhodaghe, Godwin Stanley",
+    role: "Executive Director",
+    bio: "Member of the International Professional Manager Association (UK), with experience across notable MEP firms. Delivered Hotel Ibis for Nairda and was subsequently hired by Ibis as Assistant Chief Engineer.",
+  },
+  {
+    name: "Falade Kayode Gabriel",
+    role: "Operations Director / QS",
+    bio: "HND in Quantity Surveying and member of the Nigerian Institute of Quantity Surveyors, with 20 years of experience including a tenure at Bee Que.",
+  },
+];
+
+/* In-house duct fabrication workshop, from the profile's fabrication gallery */
+const fabrication = [
+  { name: "Plasma cutting", image: umFabPlasma },
+  { name: "Rolling machine", image: umFabRolling },
+  { name: "Lock forming", image: umFabLockForming },
+  { name: "Spiral duct machine", image: umFabSpiral },
+];
+
+const fabricationKit = [
+  "Plasma machine",
+  "Laser machine",
+  "Spiral duct machine",
+  "Lock forming machine",
+  "Rolling machine",
+  "Hydraulic bending machine",
+  "Corrugation / bending machine",
+  "Swaging machine",
+  "Clinching machine",
 ];
 
 const included = [
@@ -195,8 +243,8 @@ const steps = [
 
 const sectors = [
   "Federal & State Governments",
-  "Banking",
-  "Hospitals",
+  "Banking Industry",
+  "Healthcare & Hospitals",
   "Hotels & Leisure",
   "Real Estate",
   "Oil & Gas",
@@ -228,11 +276,101 @@ const projects = [
     location: "Victoria Island, Lagos",
     image: umProjGreystone,
   },
-  { name: "Ahmadu Bello Way", location: "Lagos", image: umProjAhmadu },
+  {
+    name: "Ahmadu Bello Shopping Complex",
+    location: "Victoria Island, Lagos",
+    image: umProjAhmadu,
+  },
   {
     name: "Kellogg's Factory",
     location: "Ibeju-Lekki, Lagos",
     image: umProjKelloggs,
+  },
+  {
+    name: "Dangote Fertilizer",
+    location: "Ibeju-Lekki, Lagos",
+    image: umDangoteDuct,
+  },
+  {
+    name: "Dangote Central Control Room",
+    location: "Ibeju-Lekki, Lagos",
+    image: umChillers,
+  },
+];
+
+/* Selected rows from the profile's completed-projects schedule */
+const completed = [
+  {
+    project: "Dangote Fertilizer Plant",
+    scope: "Annual maintenance contract of all installations",
+    client: "Aliko Dangote",
+    status: "Ongoing",
+  },
+  {
+    project: "Dangote's Refinery",
+    scope: "HVAC",
+    client: "Dangote Refinery",
+    status: "Ongoing",
+  },
+  {
+    project: "Radisson Collection, Ikoyi",
+    scope: "MEP: plumbing, HVAC, fire fighting, WTP/STP",
+    client: "Chief Patrick C.",
+    status: "Ongoing",
+  },
+  {
+    project: "Four Points by Sheraton, Oniru",
+    scope: "HVAC, chilled water, ducting, fire fighting, WTP/STP",
+    client: "Four Points Sheraton",
+    status: "Completed",
+  },
+  {
+    project: "Kellogg's Factory, LFTZ",
+    scope: "MEP, HVAC, chilled water, fire systems, WTP/STP, gen tanks",
+    client: "Kellogg's",
+    status: "Completed",
+  },
+  {
+    project: "CBN Ado Ekiti",
+    scope: "HVAC, chilled water, fire fighting, plumbing, WTP/STP",
+    client: "CBN",
+    status: "Completed",
+  },
+  {
+    project: "River State Water Board",
+    scope: "Water storage, HVAC, fire fighting, WTP and STP",
+    client: "European Union",
+    status: "Completed",
+  },
+  {
+    project: "Greystone Tower, VI",
+    scope: "HVAC and ducting works",
+    client: "Nairda",
+    status: "Completed",
+  },
+  {
+    project: "Saipem Contracting Nigeria",
+    scope: "Fire fighting (60kL tank), water treatment plant",
+    client: "Filnicon Eng",
+    status: "Completed",
+  },
+  {
+    project: "New Gen Access Bank",
+    scope: "VRV installation and ducting works",
+    client: "Kenol Nig Ltd",
+    status: "Completed",
+  },
+  {
+    project: "Emerald Hotel, Lekki",
+    scope: "Chiller piping, ducting, fire fighting, plumbing",
+    client: "ETCO",
+    status: "Completed",
+  },
+  {
+    project: "Padah LNG FZ, Akwa Ibom",
+    scope: "Chiller refurbishment and piping network installation",
+    client: "Padah LNG FZ",
+    status: "Completed",
   },
 ];
 
@@ -404,11 +542,11 @@ const FacilityManagement = () => {
                 {/* Stat card */}
                 <div className="absolute bottom-5 left-5 right-5 rounded-[1.25rem] bg-white/15 backdrop-blur-md border border-white/25 p-5">
                   <p className="font-heading text-white text-[2.25rem] leading-none font-bold">
-                    10+
+                    30+
                   </p>
                   <p className="text-white/75 text-xs mt-1.5 leading-relaxed">
-                    Hotels, banks, factories and towers already delivered across
-                    Lagos, Abuja and Ekiti
+                    Hotels, banks, refineries, factories and towers delivered
+                    across Lagos, Abuja, Kano, Ekiti and Akwa Ibom
                   </p>
                 </div>
               </div>
@@ -472,23 +610,23 @@ const FacilityManagement = () => {
                     Managed by Ultramodern Engineering Limited
                   </h2>
                   <p className="text-primary text-sm font-medium mt-2">
-                    "Where We Build Your Visions"
+                    "Excellence in electromechanical innovation"
                   </p>
 
                   <div className="mt-5 space-y-4 max-w-2xl">
                     <p className="text-text-secondary text-sm leading-relaxed">
                       Ultramodern Engineering Limited is an incorporated
-                      electromechanical company in Nigeria, providing
-                      high-quality MEP (Mechanical, Electrical and Plumbing)
-                      solutions to Federal and State Governments, the banking
-                      industry, hospitals, hotels and leisure, real estate and
-                      the oil &amp; gas sector.
+                      electromechanical company in Nigeria and a leading
+                      electromechanical contractor, providing high-quality MEP
+                      (Mechanical, Electrical and Plumbing) solutions across a
+                      broad range of sectors.
                     </p>
                     <p className="text-text-secondary text-sm leading-relaxed">
-                      "The company hold both engineering and construction
-                      capabilities and utilizes it to provide personalized,
-                      professional, cost effective solutions to our clients
-                      without compromising the quality."
+                      Their stated mission is "to meet our client's needs
+                      through the provision of expertise engineering services of
+                      international standard at perfection and reasonable cost"
+                      - and they specifically concentrate on projects and
+                      clients with expectations for high quality.
                     </p>
                   </div>
 
@@ -603,6 +741,9 @@ const FacilityManagement = () => {
             </div>
           </section>
 
+          {/* ─── Site works gallery ─── */}
+          <FacilityGallery />
+
           {/* ─── What a contract covers ─── */}
           <section className="mb-20">
             <div className="text-center mb-12">
@@ -631,6 +772,33 @@ const FacilityManagement = () => {
                   </p>
                 </div>
               ))}
+            </div>
+
+            {/* Proof: they already run an annual maintenance contract */}
+            <div className="mt-6 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col md:flex-row">
+              <div className="relative md:w-72 shrink-0 min-h-[180px]">
+                <img
+                  src={umLaboratory}
+                  alt="Chiller plant serving a laboratory building maintained by Ultramodern"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 p-7 sm:p-9">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+                  <CalendarClock className="w-3.5 h-3.5" />
+                  Currently running
+                </span>
+                <h3 className="font-heading font-bold text-primary-dark text-lg mt-4">
+                  They already hold a live annual maintenance contract
+                </h3>
+                <p className="text-text-secondary text-sm leading-relaxed mt-2 max-w-2xl">
+                  Ultramodern's profile lists an ongoing annual maintenance
+                  contract covering all installations at the Dangote Fertilizer
+                  Plant, alongside ongoing HVAC works at Dangote's Refinery.
+                  Long-run upkeep of live plant is work they do today - not a
+                  new line of business bolted on for this page.
+                </p>
+              </div>
             </div>
 
             <div className="mt-6 bg-primary-dark rounded-3xl p-7 sm:p-9 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
@@ -738,10 +906,159 @@ const FacilityManagement = () => {
 
             <p className="flex items-center gap-2 text-text-subtle text-xs mt-5">
               <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
-              Ten recent MEP projects across hotels, banking, government and
+              Recent MEP projects across hotels, banking, government and
               manufacturing - the same team now available for ongoing facility
               management.
             </p>
+
+            {/* Completed projects schedule */}
+            <div className="mt-8 bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] overflow-hidden">
+              <div className="p-6 sm:p-8 pb-4">
+                <h3 className="font-heading font-bold text-primary-dark text-base">
+                  Selected project schedule
+                </h3>
+                <p className="text-text-secondary text-sm mt-1">
+                  From Ultramodern's corporate profile - scope and client as
+                  they record them.
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-left">
+                  <thead>
+                    <tr className="border-y border-border-light bg-primary/[0.03]">
+                      <th className="font-heading text-primary-dark text-xs font-bold px-6 sm:px-8 py-3">
+                        Project
+                      </th>
+                      <th className="font-heading text-primary-dark text-xs font-bold px-4 py-3">
+                        Scope
+                      </th>
+                      <th className="font-heading text-primary-dark text-xs font-bold px-4 py-3">
+                        Client
+                      </th>
+                      <th className="font-heading text-primary-dark text-xs font-bold px-6 sm:px-8 py-3">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {completed.map((c) => (
+                      <tr
+                        key={c.project}
+                        className="border-b border-border-light last:border-b-0"
+                      >
+                        <td className="text-primary-dark text-xs font-semibold px-6 sm:px-8 py-3.5 align-top">
+                          {c.project}
+                        </td>
+                        <td className="text-text-secondary text-xs px-4 py-3.5 align-top">
+                          {c.scope}
+                        </td>
+                        <td className="text-text-secondary text-xs px-4 py-3.5 align-top whitespace-nowrap">
+                          {c.client}
+                        </td>
+                        <td className="px-6 sm:px-8 py-3.5 align-top">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap ${
+                              c.status === "Ongoing"
+                                ? "bg-accent/15 text-accent"
+                                : "bg-primary/10 text-primary"
+                            }`}
+                          >
+                            {c.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          {/* ─── In-house fabrication ─── */}
+          <section className="mb-20">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-5">
+                <p className="text-primary text-sm font-medium tracking-wide uppercase mb-2">
+                  In-house fabrication
+                </p>
+                <h2 className="font-heading text-[1.5rem] sm:text-[2rem] lg:text-[2.5rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
+                  Ductwork made,{" "}
+                  <span className="text-primary">not ordered</span>
+                </h2>
+                <p className="text-text-secondary text-sm leading-relaxed mt-4">
+                  Ultramodern runs its own duct fabrication workshop. When a
+                  replacement section or a fitting is needed on your building,
+                  it gets made rather than waiting on an importer - which is
+                  usually the difference between a repair measured in days and
+                  one measured in months.
+                </p>
+
+                <div className="flex flex-wrap gap-2 mt-6">
+                  {fabricationKit.map((m) => (
+                    <span
+                      key={m}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border border-border-light text-primary-dark text-xs font-medium"
+                    >
+                      <Settings2 className="w-3.5 h-3.5 text-primary" />
+                      {m}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {fabrication.map((f) => (
+                  <div
+                    key={f.name}
+                    className="relative h-44 sm:h-56 rounded-3xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
+                  >
+                    <img
+                      src={f.image}
+                      alt={f.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-primary-dark/85 to-transparent" />
+                    <p className="absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight">
+                      {f.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ─── Leadership ─── */}
+          <section className="mb-20">
+            <div className="text-center mb-12">
+              <p className="text-primary text-sm font-medium tracking-wide uppercase mb-2">
+                Leadership
+              </p>
+              <h2 className="font-heading text-[1.5rem] sm:text-[2rem] lg:text-[2.5rem] leading-[1.1] font-bold text-primary-dark tracking-tight">
+                Who you're <span className="text-primary">dealing with</span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {leadership.map((l) => (
+                <div
+                  key={l.name}
+                  className="bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-7"
+                >
+                  <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-5">
+                    <HardHat className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-heading font-bold text-primary-dark text-base">
+                    {l.name}
+                  </h3>
+                  <p className="text-primary text-xs font-semibold uppercase tracking-wide mt-1">
+                    {l.role}
+                  </p>
+                  <p className="text-text-secondary text-sm leading-relaxed mt-3">
+                    {l.bio}
+                  </p>
+                </div>
+              ))}
+            </div>
           </section>
 
           {/* ─── Enquiry ─── */}
@@ -897,11 +1214,14 @@ const FacilityManagement = () => {
                     Facility management desk
                   </span>
                   <h3 className="font-heading font-bold text-white text-xl mt-5">
-                    Ultramodern Engineering Limited
+                    Engr Oyewo Yinusa
                   </h3>
-                  <p className="text-white/55 text-sm leading-relaxed mt-2">
-                    Reach the team directly - by phone during working hours, or
-                    by email any time.
+                  <p className="text-white/70 text-xs font-semibold uppercase tracking-wide mt-1">
+                    Chairman, Ultramodern Engineering Limited
+                  </p>
+                  <p className="text-white/55 text-sm leading-relaxed mt-3">
+                    Reach him directly - by phone during working hours, or by
+                    email any time.
                   </p>
 
                   <div className="flex flex-col gap-3 mt-7">
@@ -981,7 +1301,7 @@ const FacilityManagement = () => {
           {/* ─── Closing stats ─── */}
           <section className="mb-20">
             <div className="bg-white/60 backdrop-blur-sm border border-border-light rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.04)] p-8 sm:p-10">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                 {heroStats.map((s) => (
                   <div key={s.label} className="text-center">
                     <p className="font-heading text-primary text-[2.5rem] leading-none font-bold">
