@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import type { OnboardingData } from "../../Pages/Onboarding";
+import partialSignupsService from "../../api/services/partialSignups";
 import {
   ArrowRight,
   ArrowLeft,
@@ -20,6 +21,8 @@ interface Props {
   fromWaitlist?: boolean;
 }
 
+const EMAIL_RULE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const roleLabels = {
   buyer: "Buyer / Renter",
   agent: "Real Estate Agent",
@@ -34,7 +37,7 @@ const Signup = ({ data, updateData, onBack, onContinue, fromWaitlist = false }: 
     const newErrors: Record<string, string> = {};
     if (!data.fullName.trim()) newErrors.fullName = "Full name is required";
     if (!data.email.trim()) newErrors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
+    else if (!EMAIL_RULE.test(data.email))
       newErrors.email = "Enter a valid email";
     if (!data.phone.trim()) newErrors.phone = "Phone number is required";
     else if (!/^(\+?234|0)[789]\d{9}$/.test(data.phone.replace(/\s/g, "")))
@@ -45,6 +48,50 @@ const Signup = ({ data, updateData, onBack, onContinue, fromWaitlist = false }: 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  // ─── Abandoned-signup capture ─────────────────────────────────────────────
+  //
+  // The account isn't created until Continue is pressed, so anyone who leaves
+  // this step takes their email with them. Send it as soon as it's usable
+  // instead, on field blur — an unload handler is the obvious trigger but the
+  // wrong one: browsers routinely kill in-flight requests while tearing the
+  // page down, and mobile Safari often fires nothing at all when a tab is
+  // closed from the switcher.
+  //
+  // Never the password: capture() sends an explicit field list, and the
+  // backend DTO rejects anything outside it.
+  const lastCaptured = useRef("");
+
+  const captureProgress = () => {
+    // A waitlist arrival is already on file, and the field is read-only.
+    if (fromWaitlist) return;
+    const email = data.email.trim().toLowerCase();
+    if (!EMAIL_RULE.test(email)) return;
+    const payload = {
+      email,
+      name: data.fullName.trim() || undefined,
+      phone: data.phone.trim() || undefined,
+      role: data.role
+        ? (data.role.toUpperCase() as "BUYER" | "AGENT" | "VENDOR")
+        : undefined,
+      step: "signup" as const,
+    };
+    // Blur fires on every tab-out; only send when something actually changed.
+    const signature = JSON.stringify(payload);
+    if (signature === lastCaptured.current) return;
+    lastCaptured.current = signature;
+    partialSignupsService.capture(payload);
+  };
+
+  // Backstop for an edit made after the last blur — switching tabs or
+  // minimising still leaves the page alive long enough for this to complete.
+  useEffect(() => {
+    const onHidden = () => {
+      if (document.visibilityState === "hidden") captureProgress();
+    };
+    document.addEventListener("visibilitychange", onHidden);
+    return () => document.removeEventListener("visibilitychange", onHidden);
+  });
 
   const handleContinue = () => {
     if (validate()) onContinue();
@@ -106,6 +153,7 @@ const Signup = ({ data, updateData, onBack, onContinue, fromWaitlist = false }: 
                   updateData({ fullName: e.target.value });
                   if (errors.fullName) setErrors((p) => ({ ...p, fullName: "" }));
                 }}
+                onBlur={captureProgress}
                 className={inputClass("fullName")}
               />
             </div>
@@ -131,6 +179,7 @@ const Signup = ({ data, updateData, onBack, onContinue, fromWaitlist = false }: 
                   updateData({ email: e.target.value });
                   if (errors.email) setErrors((p) => ({ ...p, email: "" }));
                 }}
+                onBlur={captureProgress}
                 className={`${inputClass("email")} ${fromWaitlist ? "cursor-not-allowed" : ""}`}
               />
             </div>
@@ -159,6 +208,7 @@ const Signup = ({ data, updateData, onBack, onContinue, fromWaitlist = false }: 
                   updateData({ phone: e.target.value });
                   if (errors.phone) setErrors((p) => ({ ...p, phone: "" }));
                 }}
+                onBlur={captureProgress}
                 className={inputClass("phone")}
               />
             </div>
