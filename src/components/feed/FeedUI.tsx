@@ -592,9 +592,14 @@ export const PostCard = ({
           nothing until one is actually played. */}
       {post.videos?.length > 0 && (
         <video
-          src={post.videos[0]}
+          // #t=0.1 is the poster: it tells the browser to seek a fraction in
+          // and paint that frame, which is the only way to get a still without
+          // storing a separate thumbnail. preload="none" left the tile black —
+          // "metadata" fetches the header and that one frame, not the clip, so
+          // a feed of videos still costs almost nothing to scroll past.
+          src={`${post.videos[0]}#t=0.1`}
           controls
-          preload="none"
+          preload="metadata"
           playsInline
           className="mt-4 rounded-2xl w-full max-h-[420px] bg-[#16321f]"
         />
