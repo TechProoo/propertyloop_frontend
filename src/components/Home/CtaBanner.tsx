@@ -88,20 +88,29 @@ const PhoneFrame = ({
 const shotAt = (i: number) =>
   screenshots.length ? screenshots[i % screenshots.length] : undefined;
 
+// The store badges are the primary call to action now that the app has
+// shipped, so they're sized to read as buttons rather than footnotes: a hard
+// drop shadow gives the flat black artwork weight against the pale card, and
+// the lift on hover is big enough to feel clickable.
+const badgeLinkClass =
+  "inline-flex rounded-[0.9rem] shadow-[0_10px_28px_rgba(0,0,0,0.28)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(0,0,0,0.35)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary";
+
+const badgeImgClass = "h-16 sm:h-[4.75rem] w-auto";
+
 const StoreBadges = ({ className = "" }: { className?: string }) => (
-  <div className={`flex flex-wrap items-center gap-3 ${className}`}>
+  <div className={`flex flex-wrap items-center gap-4 sm:gap-5 ${className}`}>
     <a
       data-cb-btn
       href={APP_STORE_URL}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Download PropertyLoop on the App Store"
-      className="inline-flex rounded-xl transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+      className={badgeLinkClass}
     >
       <img
         src={appStoreBadge}
         alt="Download on the App Store"
-        className="h-12 w-auto"
+        className={badgeImgClass}
       />
     </a>
     <a
@@ -110,12 +119,12 @@ const StoreBadges = ({ className = "" }: { className?: string }) => (
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Get PropertyLoop on Google Play"
-      className="inline-flex rounded-xl transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+      className={badgeLinkClass}
     >
       <img
         src={playStoreBadge}
         alt="Get it on Google Play"
-        className="h-12 w-auto"
+        className={badgeImgClass}
       />
     </a>
   </div>
@@ -266,7 +275,7 @@ const CtaBanner = () => {
 
                   {/* Store badges */}
                   <div className="mt-8">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-subtle mb-3">
+                    <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary-dark mb-4">
                       Download the app
                     </p>
                     <StoreBadges />
