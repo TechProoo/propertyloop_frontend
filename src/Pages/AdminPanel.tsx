@@ -9,6 +9,9 @@ import {
   Settings,
   BarChart3,
   LogOut,
+  MailQuestion,
+  Download,
+  Trash2,
 } from "lucide-react";
 import { toast } from "../lib/toast";
 import Navbar from "../components/Home/Navbar";
@@ -16,10 +19,21 @@ import Footer from "../components/Home/Footer";
 import { useListings } from "../api/hooks";
 import { StatSkeleton, ListRowSkeleton } from "../components/ui/Skeleton";
 import adminService from "../api/services/admin";
+import {
+  adminPartialSignups,
+  type PartialSignup,
+  type PartialSignupPage,
+} from "../api/services/partialSignups";
 
 const ease = [0.23, 1, 0.32, 1] as const;
 
-type AdminTab = "overview" | "users" | "listings" | "orders" | "disputes";
+type AdminTab =
+  | "overview"
+  | "users"
+  | "listings"
+  | "orders"
+  | "disputes"
+  | "signups";
 
 const statusBadge: Record<string, string> = {
   ACTIVE: "bg-green-50 text-green-600",
@@ -34,6 +48,8 @@ const AdminPanel = () => {
   const [users, setUsers] = useState<any>(null);
   const [orders, setOrders] = useState<any>(null);
   const [disputes, setDisputes] = useState<any>(null);
+  const [signups, setSignups] = useState<PartialSignupPage | null>(null);
+  const [exporting, setExporting] = useState(false);
   const [loading, setLoading] = useState(false);
   // User id whose force-logout request is in flight ("*" = everyone).
   const [loggingOutId, setLoggingOutId] = useState<string | null>(null);
@@ -71,6 +87,17 @@ const AdminPanel = () => {
         .listOrders(1, 50)
         .then(setOrders)
         .catch(() => setOrders(null))
+        .finally(() => setLoading(false));
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === "signups") {
+      setLoading(true);
+      adminPartialSignups
+        .list(1, 100)
+        .then(setSignups)
+        .catch(() => setSignups(null))
         .finally(() => setLoading(false));
     }
   }, [activeTab]);
@@ -124,6 +151,36 @@ const AdminPanel = () => {
     }
   };
 
+  const handleExportSignups = async () => {
+    setExporting(true);
+    try {
+      await adminPartialSignups.downloadCsv();
+    } catch {
+      toast.error("Couldn't export the CSV - try again");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDeleteSignup = async (entry: PartialSignup) => {
+    if (!window.confirm(`Delete ${entry.email} from the list?`)) return;
+    try {
+      await adminPartialSignups.remove(entry.id);
+      // Drop it locally rather than refetching - the list is a flat page.
+      setSignups((prev) =>
+        prev
+          ? {
+              ...prev,
+              items: prev.items.filter((i) => i.id !== entry.id),
+              total: prev.total - 1,
+            }
+          : prev,
+      );
+    } catch {
+      toast.error("Couldn't delete that entry - try again");
+    }
+  };
+
   const tabs = [
     {
       key: "overview" as const,
@@ -150,6 +207,12 @@ const AdminPanel = () => {
       key: "disputes" as const,
       label: "Disputes",
       icon: <Shield className="w-4 h-4" />,
+    },
+    {
+      key: "signups" as const,
+      label: "Signups",
+      icon: <MailQuestion className="w-4 h-4" />,
+      count: signups?.total,
     },
   ];
 
@@ -514,6 +577,79 @@ const AdminPanel = () => {
                     <div className="p-12 text-center">
                       <p className="text-text-secondary text-sm">
                         No disputes found.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* SIGNUPS — people who gave an email but never registered:
+                  either they abandoned the signup form, or they left details
+                  in the guest prompt while browsing the app. */}
+              {activeTab === "signups" && (
+                <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
+                  <div className="px-6 py-5 border-b border-white/30 flex items-center justify-between gap-4">
+                    <div>
+                      <h3 className="font-heading font-bold text-primary-dark text-base">
+                        Unfinished Signups
+                      </h3>
+                      <p className="text-text-secondary text-xs mt-0.5">
+                        Captured before an account existed. Anyone who later
+                        registered is filtered out.
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleExportSignups}
+                      disabled={exporting || !signups?.items?.length}
+                      className="flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/10 hover:bg-primary/20 disabled:opacity-50 px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      {exporting ? "Preparing…" : "Export CSV"}
+                    </button>
+                  </div>
+                  {loading ? (
+                    <ListRowSkeleton />
+                  ) : signups?.items && signups.items.length > 0 ? (
+                    <div className="divide-y divide-white/30">
+                      {signups.items.map((entry: PartialSignup) => (
+                        <div
+                          key={entry.id}
+                          className="px-6 py-4 flex items-center gap-4 hover:bg-white/30 transition-colors"
+                        >
+                          <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+                            <MailQuestion className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-heading font-semibold text-primary-dark text-sm truncate">
+                              {entry.name || "No name given"}
+                            </p>
+                            <p className="text-text-secondary text-xs truncate">
+                              {entry.email}
+                              {entry.phone ? ` · ${entry.phone}` : ""}
+                            </p>
+                          </div>
+                          <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full shrink-0">
+                            {entry.step === "guest_modal"
+                              ? "Guest prompt"
+                              : "Left the form"}
+                          </span>
+                          <span className="text-[11px] text-text-secondary shrink-0 hidden sm:block">
+                            {new Date(entry.createdAt).toLocaleDateString()}
+                          </span>
+                          <button
+                            onClick={() => handleDeleteSignup(entry)}
+                            className="text-text-secondary hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg transition-colors shrink-0"
+                            title="Delete this entry"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-12 text-center">
+                      <p className="text-text-secondary text-sm">
+                        No unfinished signups yet.
                       </p>
                     </div>
                   )}
