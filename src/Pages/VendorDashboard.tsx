@@ -2415,6 +2415,18 @@ const VendorDashboard = () => {
                         </p>
                         <p className="text-text-secondary text-xs mt-0.5">
                           {earning.client}
+                          {/* A job pays out in two halves, so without this the
+                              same title appears twice with no way to tell the
+                              deposit from the balance. */}
+                          {earning.kind === "DEPOSIT" && (
+                            <span className="text-text-subtle"> · Deposit</span>
+                          )}
+                          {earning.kind === "FINAL" && (
+                            <span className="text-text-subtle">
+                              {" "}
+                              · On completion
+                            </span>
+                          )}
                         </p>
                       </div>
                       <span className="text-text-subtle text-xs shrink-0 hidden sm:block">

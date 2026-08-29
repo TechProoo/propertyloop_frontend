@@ -420,6 +420,13 @@ export interface VendorJob {
 
 // ─── Vendor Earnings ────────────────────────────────────────────────────────
 
+/**
+ * Which half of a job's fee a row represents. The vendor fee is paid out in
+ * two parts: DEPOSIT lands when they start work, FINAL when the buyer confirms.
+ * Jobs predating the split payout carry a single FINAL row worth the whole fee.
+ */
+export type EarningKind = "DEPOSIT" | "FINAL";
+
 export interface VendorEarning {
   id: string;
   vendorUserId: string;
@@ -427,6 +434,7 @@ export interface VendorEarning {
   jobTitle: string;
   clientName: string;
   amount: number;
+  kind: EarningKind;
   status: EarningStatus;
   paidAt?: string | null;
   createdAt: string;
