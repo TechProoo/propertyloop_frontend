@@ -95,7 +95,11 @@ const shotAt = (i: number) =>
 const badgeLinkClass =
   "inline-flex rounded-[0.9rem] shadow-[0_10px_28px_rgba(0,0,0,0.28)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(0,0,0,0.35)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary";
 
-const badgeImgClass = "h-16 sm:h-[4.75rem] w-auto";
+// Both badge PNGs were cropped to the same ink-to-canvas ratio (~0.78), so a
+// single height renders them at matching visual size. They previously carried
+// very different amounts of built-in white padding — 28.6% vs 40.5% badge
+// fill — which made the App Store one look a third smaller at equal height.
+const badgeImgClass = "h-14 sm:h-16 w-auto";
 
 const StoreBadges = ({ className = "" }: { className?: string }) => (
   <div className={`flex flex-wrap items-center gap-4 sm:gap-5 ${className}`}>
@@ -300,7 +304,7 @@ const CtaBanner = () => {
                 {/* Right - app screenshots */}
                 <div data-cb-phone className="shrink-0">
                   {/* Fanned trio on desktop */}
-                  <div className="relative hidden lg:block w-[27rem] h-[31rem]">
+                  <div className="relative hidden lg:block w-108 h-124">
                     <PhoneFrame
                       src={shotAt(1)}
                       alt="PropertyLoop app - property search"
