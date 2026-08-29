@@ -1,7 +1,6 @@
 import Seo from "../components/Seo";
 import Navbar from "../components/Home/Navbar";
 import Hero from "../components/Home/Hero";
-import PromoReel from "../components/Home/PromoReel";
 // import TrustedSection from "../components/Home/TrustedSection";
 import FeaturedHomes from "../components/Home/FeaturedHomes";
 import VideoListings from "../components/Home/VideoListings";
@@ -29,8 +28,6 @@ const Home = () => {
       />
       <Navbar />
       <Hero />
-      {/* Brand film — the 60s PropertyLoop spot */}
-      <PromoReel />
       {/* Paid brand placement - renders nothing when no campaign is live */}
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8 my-20">
         <AdSlot placement="HOME_BANNER" className="mt-8 sm:mt-10" />
