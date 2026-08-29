@@ -47,6 +47,7 @@ import {
   Camera,
   ChevronLeft,
   ChevronRight,
+  Video,
 } from "lucide-react";
 
 /* ── tokens / helpers ────────────────────────────────────────────────── */
@@ -586,7 +587,20 @@ export const PostCard = ({
         </div>
       )}
 
-      {post.images.length > 0 && (
+      {/* Either a collage or one clip, never both — the server drops images
+          when a video is present. preload="none" so a feed of clips costs
+          nothing until one is actually played. */}
+      {post.videos?.length > 0 && (
+        <video
+          src={post.videos[0]}
+          controls
+          preload="none"
+          playsInline
+          className="mt-4 rounded-2xl w-full max-h-[420px] bg-[#16321f]"
+        />
+      )}
+
+      {post.videos?.length === 0 && post.images.length > 0 && (
         <div
           className={`mt-4 rounded-2xl overflow-hidden grid gap-1 ${
             post.images.length === 1
@@ -800,7 +814,18 @@ export const PostCard = ({
 
 /* ── composer modal ──────────────────────────────────────────────────── */
 
-const COMPOSER_TYPES = ["Photos", "Insight", "Project", "Listing", "Poll"];
+const COMPOSER_TYPES = [
+  "Photos",
+  "Video",
+  "Insight",
+  "Project",
+  "Listing",
+  "Poll",
+];
+
+// Matches the presign route's advisory cap — rejected here so an oversized
+// clip never starts uploading.
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
 
 export const ComposerModal = ({
   initialType,
@@ -828,6 +853,10 @@ export const ComposerModal = ({
   const [images, setImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
+
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPct, setVideoPct] = useState<number | null>(null);
+  const videoRef = useRef<HTMLInputElement | null>(null);
 
   const [insightMetric, setInsightMetric] = useState("");
   const [insightPeriod, setInsightPeriod] = useState("");
@@ -880,6 +909,25 @@ export const ComposerModal = ({
     if (type === "Photos") {
       payload.type = "UPDATE";
       payload.images = images;
+    } else if (type === "Video") {
+      payload.type = "UPDATE";
+      if (!videoFile) {
+        onError("Pick a video first");
+        return;
+      }
+      // Uploaded on submit, not on pick, so abandoning the composer leaves
+      // nothing orphaned in the bucket.
+      setPosting(true);
+      try {
+        const url = await feedService.uploadVideo(videoFile, setVideoPct);
+        payload.videos = [url];
+      } catch {
+        setPosting(false);
+        setVideoPct(null);
+        onError("Video upload failed");
+        return;
+      }
+      setVideoPct(null);
     } else if (type === "Insight") {
       payload.type = "INSIGHT";
       if (insightMetric.trim()) {
@@ -1057,6 +1105,58 @@ export const ComposerModal = ({
                     : type === "Project"
                       ? "Add before / after photos"
                       : "Click to upload photos (up to 4)"}
+                </button>
+              )}
+            </div>
+          )}
+
+          <input
+            ref={videoRef}
+            type="file"
+            accept="video/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (!f) return;
+              if (f.size > MAX_VIDEO_BYTES) {
+                onError("Video must be 50MB or smaller");
+                return;
+              }
+              setVideoFile(f);
+            }}
+          />
+          {type === "Video" && (
+            <div className="mb-3">
+              {videoFile ? (
+                <div className="flex items-center gap-3 border border-line rounded-xl px-4 py-3">
+                  <Video className="w-5 h-5 text-primary shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-bold text-ink truncate">
+                      {videoFile.name}
+                    </div>
+                    <div className="text-xs text-ink-3">
+                      {videoPct !== null
+                        ? `Uploading ${videoPct}%`
+                        : `${(videoFile.size / 1024 / 1024).toFixed(1)}MB · uploads when you post`}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setVideoFile(null)}
+                    className="w-7 h-7 rounded-full bg-surface-2 grid place-items-center shrink-0"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => videoRef.current?.click()}
+                  className="w-full border border-dashed border-line rounded-xl py-8 grid place-items-center gap-2 text-ink-2 hover:border-primary transition-colors"
+                >
+                  <Video className="w-6 h-6" />
+                  <span className="text-sm font-bold">Choose a video</span>
+                  <span className="text-xs text-ink-3">
+                    One clip, 50MB max
+                  </span>
                 </button>
               )}
             </div>

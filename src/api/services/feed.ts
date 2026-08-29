@@ -1,3 +1,4 @@
+import axios from "axios";
 import api from "../client";
 import type { Paginated } from "../types";
 
@@ -47,6 +48,8 @@ export interface FeedPost {
   type: FeedPostType;
   body: string;
   images: string[];
+  /** At most one clip. Mutually exclusive with `images`. */
+  videos: string[];
   createdAt: string;
   author: FeedAuthor;
   listing: FeedListingCard | null;
@@ -120,6 +123,7 @@ export interface CreateFeedPostPayload {
   type?: FeedPostType;
   body: string;
   images?: string[];
+  videos?: string[];
   listingId?: string;
   insightMetric?: string;
   insightPeriod?: string;
@@ -220,6 +224,36 @@ const feedService = {
   async report(postId: string, reason?: string): Promise<{ reported: boolean }> {
     const { data } = await api.post(`/feed/${postId}/report`, { reason });
     return data;
+  },
+
+  /**
+   * Upload one post video. Presigned direct-to-R2 rather than the multipart
+   * route images use: a 50MB clip proxied through the API hits the edge
+   * timeout, which is why listing videos take this path too. `onProgress`
+   * reports 0-100 so the composer can show a bar.
+   */
+  async uploadVideo(
+    file: File,
+    onProgress?: (pct: number) => void,
+  ): Promise<string> {
+    const { data: presign } = await api.post<{
+      uploadUrl: string;
+      fileUrl: string;
+    }>("/upload/feed-video/presign", {
+      filename: file.name,
+      contentType: file.type || "video/mp4",
+      size: file.size,
+    });
+
+    await axios.put(presign.uploadUrl, file, {
+      headers: { "Content-Type": file.type || "video/mp4" },
+      onUploadProgress: (e) => {
+        if (!onProgress || !e.total) return;
+        onProgress(Math.round((e.loaded / e.total) * 100));
+      },
+    });
+
+    return presign.fileUrl;
   },
 
   async uploadImage(file: File): Promise<{ url: string }> {
