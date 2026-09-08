@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { sizedImage, IMG } from "../lib/imageSize";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useListings } from "../api/hooks";
@@ -631,7 +632,7 @@ const Rent = () => {
                   {/* photo */}
                   <div className="relative h-[210px] bg-[#ece6df] overflow-hidden">
                     <img
-                      src={l.coverImage}
+                      src={sizedImage(l.coverImage, IMG.card)}
                       alt={l.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />

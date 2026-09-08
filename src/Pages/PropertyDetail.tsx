@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { sizedImage, IMG } from "../lib/imageSize";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DOMPurify from "dompurify";
@@ -1438,7 +1439,7 @@ const PropertyDetail = () => {
                       >
                         <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 relative">
                           <img
-                            src={s.coverImage}
+                            src={sizedImage(s.coverImage, IMG.card)}
                             alt={s.title}
                             onError={handleBannerError}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
