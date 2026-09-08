@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { sizedImage, IMG } from "../../lib/imageSize";
 import { Link } from "react-router-dom";
 import { CalendarDays, MapPin } from "lucide-react";
 import AuthGate from "../ui/AuthGate";
@@ -264,7 +265,7 @@ const ShortletSpotlight = () => {
                 <div className="h-56 overflow-hidden relative bg-bg-accent">
                   {s.coverImage ? (
                     <img
-                      src={s.coverImage}
+                      src={sizedImage(s.coverImage, IMG.card)}
                       alt={s.title}
                       onError={handleBannerError}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

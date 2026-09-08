@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { sizedImage, IMG } from "../../lib/imageSize";
 import {
   ArrowUpRight,
   Bed,
@@ -203,7 +204,7 @@ const FeaturedHomes = () => {
                 {/* Image - tall, rounded top */}
                 <div className="h-[320px] overflow-hidden rounded-t-[24px] relative">
                   <img
-                    src={home.coverImage}
+                    src={sizedImage(home.coverImage, IMG.card)}
                     alt={home.title}
                     onError={handleBannerError}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

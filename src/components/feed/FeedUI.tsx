@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useNavigate } from "react-router-dom";
+import { sizedImage, IMG } from "../../lib/imageSize";
 import { useAuth } from "../../context/AuthContext";
 import feedService, {
   type FeedPost,
@@ -682,7 +683,7 @@ export const PostCard = ({
         >
           <div className="w-[120px] sm:w-[150px] shrink-0 bg-[#16321f]">
             <img
-              src={post.listing.coverImage}
+              src={sizedImage(post.listing.coverImage, IMG.card)}
               alt={post.listing.title}
               className="w-full h-full object-cover"
             />
@@ -1245,7 +1246,7 @@ export const ComposerModal = ({
                     >
                       <div className="w-16 h-16 rounded-[10px] overflow-hidden bg-surface-2 shrink-0">
                         <img
-                          src={l.coverImage}
+                          src={sizedImage(l.coverImage, IMG.card)}
                           alt={l.title}
                           className="w-full h-full object-cover"
                         />
