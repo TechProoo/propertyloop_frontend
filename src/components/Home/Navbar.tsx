@@ -520,7 +520,7 @@ const Navbar = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="fixed inset-x-0 top-16 bottom-0 z-40 overflow-y-auto backdrop-blur-xl bg-white/80 border-b border-white/30 shadow-lg lg:hidden py-4 px-6 flex flex-col gap-1 text-sm font-medium text-primary-dark"
+            className="fixed inset-x-0 top-[calc(4rem+var(--dl-bar-h))] bottom-0 z-40 overflow-y-auto backdrop-blur-xl bg-white/80 border-b border-white/30 shadow-lg lg:hidden py-4 px-6 flex flex-col gap-1 text-sm font-medium text-primary-dark"
           >
             {[
               { label: "Buy", href: "/buy" },

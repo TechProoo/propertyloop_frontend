@@ -944,7 +944,7 @@ Let's negotiate the scope and pricing. Looking forward to your response!`;
 
             {/* Right - Vendor summary */}
             <div className="lg:w-85 shrink-0">
-              <div className="sticky top-8 flex flex-col gap-4">
+              <div className="sticky top-[calc(2rem+var(--dl-bar-h))] flex flex-col gap-4">
                 <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                   <Link to={`/vendor/${vendor.id}`}>
                     <img

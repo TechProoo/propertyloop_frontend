@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { sizedImage, IMG } from "../lib/imageSize";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useListings } from "../api/hooks";
@@ -367,7 +368,7 @@ const Buy = () => {
           {/* Right - featured photo with detail card */}
           <div className="relative rounded-[8px_8px_60px_8px] overflow-hidden aspect-[4/5] bg-[#16321f] shadow-[0_30px_60px_rgba(0,0,0,0.16)]">
             <img
-              src={featured?.coverImage || FALLBACK_HERO}
+              src={sizedImage(featured?.coverImage, IMG.hero) || FALLBACK_HERO}
               alt={featured?.title || "Featured home"}
               className="w-full h-full object-cover"
             />
@@ -415,7 +416,7 @@ const Buy = () => {
       </section>
 
       {/* ── STICKY FILTER BAR ────────────────────────────────── */}
-      <div className="sticky top-3 z-30 max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
+      <div className="sticky top-[calc(0.75rem+var(--dl-bar-h))] z-30 max-w-7xl mx-auto px-6 md:px-12 lg:px-20">
         <div className="bg-white border border-line-2 rounded-[20px] p-3.5 flex items-center gap-3 flex-wrap shadow-[0_12px_36px_rgba(0,0,0,0.08)]">
           <div className="flex-1 min-w-[200px] flex items-center gap-2.5 bg-surface-2 rounded-full px-4 py-2.5">
             <Search className="w-[18px] h-[18px] text-ink-3 shrink-0" />
@@ -622,7 +623,7 @@ const Buy = () => {
                       {/* photo */}
                       <div className="relative h-[200px] sm:h-[230px] bg-surface-2 overflow-hidden">
                         <img
-                          src={l.coverImage}
+                          src={sizedImage(l.coverImage, IMG.card)}
                           alt={l.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
@@ -740,7 +741,7 @@ const Buy = () => {
           </div>
 
           {/* RIGHT - sticky map */}
-          <div className="hidden lg:block lg:sticky lg:top-24 h-[calc(100vh-7rem)]">
+          <div className="hidden lg:block lg:sticky lg:top-[calc(6rem+var(--dl-bar-h))] h-[calc(100vh-7rem-var(--dl-bar-h))]">
             {allListings.length > 0 ? (
               <PropertyMap
                 listings={mapListings}

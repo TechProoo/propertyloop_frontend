@@ -495,7 +495,7 @@ const Checkout = () => {
 
             {/* Order summary */}
             <aside className="lg:w-90 shrink-0">
-              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-3xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sticky top-8">
+              <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-3xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 sticky top-[calc(2rem+var(--dl-bar-h))]">
                 <h3 className="font-heading font-bold text-primary-dark text-sm mb-4">
                   Order Summary
                 </h3>

@@ -156,7 +156,7 @@ const Feed = () => {
 
       <div className="max-w-[1320px] mx-auto px-6 md:px-10 pt-8 pb-20 grid lg:grid-cols-[248px_1fr_320px] gap-8 items-start">
         {/* ── LEFT RAIL ── */}
-        <aside className="hidden lg:block sticky top-8">
+        <aside className="hidden lg:block sticky top-[calc(2rem+var(--dl-bar-h))]">
           <h2 className="font-display font-semibold text-[1.875rem] tracking-[-0.02em] text-ink">
             Community
           </h2>
@@ -359,7 +359,7 @@ const Feed = () => {
         </main>
 
         {/* ── RIGHT RAIL ── */}
-        <aside className="hidden lg:flex flex-col gap-5 sticky top-8">
+        <aside className="hidden lg:flex flex-col gap-5 sticky top-[calc(2rem+var(--dl-bar-h))]">
           <div className="bg-white rounded-[18px] p-4.5 shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
             <h4 className="flex items-center gap-2 text-[13px] font-extrabold tracking-[0.04em] uppercase text-ink-3 mb-2">
               <TrendingUp className="w-[15px] h-[15px]" /> Trending now

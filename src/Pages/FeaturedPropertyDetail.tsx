@@ -314,7 +314,7 @@ export default function FeaturedPropertyDetail() {
             </div>
 
             {/* Right column - contact + list CTA */}
-            <div className="space-y-5 lg:sticky lg:top-24 self-start">
+            <div className="space-y-5 lg:sticky lg:top-[calc(6rem+var(--dl-bar-h))] self-start">
               {/* Contact card */}
               <div className="bg-white rounded-2xl border border-border-light p-5 shadow-sm">
                 <h2 className="font-heading font-bold text-primary-dark text-base mb-1">

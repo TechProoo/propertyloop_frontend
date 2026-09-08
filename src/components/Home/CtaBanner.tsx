@@ -4,13 +4,13 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import appStoreBadge from "../../assets/appstore.png";
 import playStoreBadge from "../../assets/playstore.png";
+import { APP_STORE_URL, PLAY_STORE_URL } from "../../lib/appLinks";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export const APP_STORE_URL =
-  "https://apps.apple.com/mx/app/propertyloop/id6790199019?l=en-GB";
-export const PLAY_STORE_URL =
-  "https://play.google.com/store/apps/details?id=ng.propertyloop.app&pcampaignid=web_share";
+// Single source of truth lives in src/lib/appLinks.ts; re-exported here
+// because this section was the original home of the store links.
+export { APP_STORE_URL, PLAY_STORE_URL };
 
 /**
  * App screenshots are picked up from src/assets by filename (app_ss1, app_ss2,

@@ -192,7 +192,7 @@ const PropertyLogbook = () => {
         {/* Header */}
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-20">
           {/* Left - intro (sticky on desktop) */}
-          <div className="lg:w-95 shrink-0 lg:sticky lg:top-8 lg:self-start">
+          <div className="lg:w-95 shrink-0 lg:sticky lg:top-[calc(2rem+var(--dl-bar-h))] lg:self-start">
             <p
               data-pl-label
               className="text-primary text-sm font-medium tracking-wide uppercase mb-2"

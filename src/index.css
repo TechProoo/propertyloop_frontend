@@ -142,3 +142,20 @@
   will-change: transform;
 }
 .pl-ticker-mask:hover .pl-ticker-track { animation-play-state: paused; }
+
+/* ── App-download bar ──────────────────────────────────────────────────
+   AppDownloadBar sets data-dl-bar on <html> while it is mounted and this
+   publishes its height, so sticky sidebars and full-height sections can
+   offset themselves with calc(... + var(--dl-bar-h)) and stay clear of it.
+   Stays 0px on the routes where the bar is hidden. */
+:root {
+  --dl-bar-h: 0px;
+}
+html[data-dl-bar] {
+  --dl-bar-h: 2.5rem;
+}
+@media (min-width: 640px) {
+  html[data-dl-bar] {
+    --dl-bar-h: 2.75rem;
+  }
+}

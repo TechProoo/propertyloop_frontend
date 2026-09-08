@@ -228,7 +228,7 @@ const NewDevelopments = () => {
           {/* ─── Sidebar + Grid ─── */}
           <div className="flex flex-col lg:flex-row gap-8 mb-10">
             {/* Left - sidebar */}
-            <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-8 lg:self-start">
+            <div className="hidden lg:block lg:w-70 shrink-0 lg:sticky lg:top-[calc(2rem+var(--dl-bar-h))] lg:self-start">
               {/* Categories */}
               <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-border-light">

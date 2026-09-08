@@ -232,7 +232,7 @@ const Hero = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full lg:h-[calc(100vh-64px)] overflow-x-hidden"
+      className="relative w-full lg:h-[calc(100vh-64px-var(--dl-bar-h))] overflow-x-hidden"
     >
       {/* Decorative shape - upper area, green-tinted glass */}
       <div

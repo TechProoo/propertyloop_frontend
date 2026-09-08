@@ -73,6 +73,7 @@ import Advertise from "./Pages/Advertise";
 import NotFound from "./Pages/NotFound";
 import NetworkError from "./Pages/NetworkError";
 import ScrollToTop from "./components/ScrollToTop";
+import AppDownloadBar from "./components/AppDownloadBar";
 import { Toaster } from "./lib/toast";
 import { useOnlineStatus } from "./hooks/useOnlineStatus";
 import { isOnboardingRouteHeld } from "./lib/onboardingFlag";
@@ -137,6 +138,7 @@ function AppContent() {
       <AnimatePresence mode="wait">
         {loading && <SplashLoader key="splash-loader" />}
       </AnimatePresence>
+      {!loading && <AppDownloadBar />}
       {!loading && (
         <Routes>
           <Route path="/" element={<Home />} />

@@ -827,7 +827,7 @@ const VendorProfile = () => {
 
             {/* Right sidebar - Contact + CTA */}
             <div className="lg:w-80 shrink-0">
-              <div className="sticky top-8">
+              <div className="sticky top-[calc(2rem+var(--dl-bar-h))]">
                 {/* Contact card */}
                 <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden mb-4">
                   <div className="h-24 bg-linear-to-r from-primary-dark to-primary/60" />
