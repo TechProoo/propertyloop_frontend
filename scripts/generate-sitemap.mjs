@@ -34,6 +34,8 @@ const STATIC_ROUTES = [
   ["/facility-management", "monthly", "0.7"],
   ["/new-developments", "weekly", "0.7"],
   ["/find-agent", "weekly", "0.7"],
+  // Agent Partner Programme — the recruitment page realtors are sent to.
+  ["/realtors/partners", "monthly", "0.8"],
   ["/video-tours", "weekly", "0.7"],
   ["/how-it-works", "monthly", "0.6"],
   ["/pricing", "monthly", "0.6"],

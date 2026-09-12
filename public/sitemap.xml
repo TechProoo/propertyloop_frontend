@@ -37,6 +37,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://propertyloop.ng/facility-management</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://propertyloop.ng/new-developments</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -45,6 +50,11 @@
     <loc>https://propertyloop.ng/find-agent</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/realtors/partners</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/video-tours</loc>
@@ -112,50 +122,836 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://propertyloop.ng/property/cmtvcevoz00012kpmnutap395</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtuu74x4003q2kllyyujdzc8</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtutuow0003o2kllavfiswnn</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtucqf5w003a2kllrzpko463</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtmrbno000kl2koboit81mv6</loc>
+    <lastmod>2026-09-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtkado6200ec2kobase5gmes</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtjy6ind00ct2kob9l1ptsn0</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtg9sx7300132kobjkx5yqil</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtetiqj000032krpyhb9y4wt</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtdiy1i4001i2ks5mey1coom</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtd762nu001a2ks5gstxn0c3</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtd3x0ns00042ks5ktg1uo73</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcwulqx00cj1cqyv29pm0a4</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcwpzjt00ci1cqyatrll588</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcwhumc00cf1cqy8n863kml</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcwakq800cc1cqymeju153i</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcw4hnj00c91cqyzts613hb</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcvx2kf00c81cqy3maqxz23</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcvq5gf00by1cqy1wvfxtd7</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcvlou300bq1cqy1kg19y2o</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcvh4wn00bo1cqypfwhtsen</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcvby5a00bn1cqyizyu1fls</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcv2n7u00bk1cqy9mrz2yce</loc>
+    <lastmod>2026-09-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcuyy9v00bj1cqylrzvt8x4</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcuu6zs00bg1cqy5zwiv267</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcuqwip00bf1cqyybc6qtxv</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcun5dk00bb1cqy2tz8pl2g</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcuikxs00b71cqym6c004kx</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcudnop00b61cqywl5fhamj</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcu8dai00b31cqy5b49p1ac</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcu4ssw00ay1cqy5gnuauou</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcu10e900av1cqydwpzoc8k</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtctv8hu00as1cqy0nattoih</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtctp8xg00ap1cqykdl5hhic</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtctl58800am1cqyrzp87oga</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtct20gj00aa1cqydp9sopht</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcsxykw00a91cqyx9blhndq</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcstwyp00a81cqygpnra9ax</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcsqcps00a51cqy19nq3edf</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcslv5500a41cqyiqa3jl3m</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcshrrh00a11cqylrr5dugt</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcsenbm00a01cqywtb1hdn5</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcsavir009z1cqy2ywtuwhe</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcs5i67009w1cqymhbg0pxb</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcs1l1t009v1cqy31o23cj8</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcrxwrj009s1cqykmj2e4yc</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcru0f4009r1cqybjw1utx2</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcrkifg009q1cqybets5erz</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcrdm55009n1cqy9o4nxuiz</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcra5o8009m1cqysw9y61ta</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcr4ywr009l1cqyg3dhurik</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcr19pq009i1cqylhoofs5r</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcqwerd009f1cqyeg19hjdr</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcqik3e00981cqyy5xc2aql</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcpu9pz00931cqyyfuosrfp</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcpnewq00911cqyon5crjes</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcpjvs1008x1cqy9pdv1qji</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcpgpde008w1cqybtpys0iz</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcpbxln008v1cqyozmw8rq1</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtcp6yqp008t1cqywdstf9re</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtc2nai700871cqyfokc0jtd</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbudymd007d1cqynsgi0z5a</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbu85wa007c1cqyodxlsn4s</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbu2bm0007b1cqyymk0njzy</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbtyatd007a1cqymy55j52o</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbtqx2d00751cqyyleh3r2i</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbtmtko00741cqy1jc5cjtw</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbthogv00731cqysc4p0vbk</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbtccen00721cqyadq0xlt8</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbsvdhi006z1cqyh9t0uy1p</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbsqm05006y1cqy87qfq84c</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbskkeo006v1cqy2c61vyae</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbsczwq006q1cqyngkengeb</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbs8mgp006p1cqye68p785i</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbs32i7006o1cqytf0ezg84</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbry7k2006n1cqypacbol55</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbrrlnc006k1cqyd65vf987</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbrna07006j1cqy5hp1tvr3</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbrgyf1006g1cqyhp7vbbob</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbr8dly00651cqyegi8f26t</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbqxa7h005y1cqycj7913cl</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbqrvon005u1cqyc9fphtwj</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbqnrr7005t1cqy4pct49zc</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbqiwkm005s1cqykmlnynte</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbqaxbm005h1cqyzr1kxlph</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbq6j97005g1cqyouvg1pc8</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbpzk31005f1cqyuhxvfsnb</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbpr314005c1cqyejl6o617</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbpn92l005b1cqyl4wq3k6h</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbpjr9a005a1cqyl2pvdgn3</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbpfxkl00591cqy6f6z0xfq</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbp97g500561cqyvphn1yhv</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbp5er000551cqyvzpzzs3m</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbntci800501cqyd1r0grey</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbnq808004z1cqyn0i9n324</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbnlx1j004y1cqypgogvmh9</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbnhh67004x1cqymf0v7nnd</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbmkk8z004s1cqyayhmrv6t</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbma7qi004q1cqyzzygru1m</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbm06us004k1cqywg2wrhct</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbldg6z004d1cqy6lznce5r</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbl4pne004b1cqyh1eao1b9</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbkzf9d004a1cqyeik9585u</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbku6z800461cqyoc6hmafa</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbkpj3q00451cqybenl9qhl</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbkl2kt00411cqyt02c867v</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbkgs0300401cqyd4teuo06</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbkconu003z1cqyiwrp4sos</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbk90pc003y1cqy42brh873</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbk52xv003u1cqy1h9w06u5</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbjwa6j003q1cqyjn1sa9mm</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbjqfpg003h1cqy67kbdnsp</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbjlfmc003g1cqyny9pxz0r</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbj4ymk003d1cqy9nipbbbd</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbizmbm003c1cqy35ahxvvf</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbipskv00371cqynbsfzds1</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbil43n00361cqy8a9ehrsh</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbigvhn00351cqy1rfombpt</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbi7l9g002z1cqysyuep4pk</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbi18pq002y1cqydj0904rj</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbhvvmq002x1cqyv8clfpag</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbhcd1h002t1cqyg4weo85d</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbh6p7g002s1cqy7tcl4xjz</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbgl0zs002g1cqyzrw99zy4</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbga8zq002d1cqy2moe9ayl</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbg5bck002c1cqyl1mo3b1i</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbfysm0002b1cqyty2gwt5h</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbf4jhk00281cqy59a8e4co</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbevuqe00241cqy11zpppvg</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbbccrl000t1cqy4bi75gq8</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/property/cmtbaixqn000q1cqye9u1lj6m</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://propertyloop.ng/property/cmt48397n000y1cqj8bsxih5l</loc>
-    <lastmod>2026-08-22</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmsfwn83p005s1ok1fgk4v04o</loc>
-    <lastmod>2026-08-22</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cms61mbwh002u1ok17ufcd8sn</loc>
-    <lastmod>2026-08-20</lastmod>
+    <lastmod>2026-08-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cms1u9yti00101ok1pjdy3gpw</loc>
-    <lastmod>2026-08-20</lastmod>
+    <lastmod>2026-09-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmrz9p0u4000r1ok1bj0wu6b6</loc>
-    <lastmod>2026-08-20</lastmod>
+    <lastmod>2026-09-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmrz8h36x000l1ok1iexqhamr</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmrua2ebc00231oqlq3bur8m9</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmrp70ykh00031oql6a8epmp1</loc>
-    <lastmod>2026-08-19</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -167,7 +963,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmroxa4q6002o1orxkq3ulrel</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-09-10</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -197,7 +993,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmrm7ok6q000j1onli8yacjsi</loc>
-    <lastmod>2026-07-15</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -215,7 +1011,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmr4tsotr00171opbeq0ob3cq</loc>
-    <lastmod>2026-07-17</lastmod>
+    <lastmod>2026-09-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -245,7 +1041,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmqjb9zbc003y1omuj9rw2t9i</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -257,7 +1053,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmqf6f3n300101omufwj6123h</loc>
-    <lastmod>2026-08-01</lastmod>
+    <lastmod>2026-08-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -269,7 +1065,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmqf569ep000r1omuqrqnvhnq</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -281,7 +1077,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmpxv96mi000d1oor26xmnrhh</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -293,31 +1089,31 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmp2u4b4w000m1cmrfgdjxbop</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-08-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmp2royqi000k1cmrzx8mhykg</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-08-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmp17qdmh00031co5kivjl9vg</loc>
-    <lastmod>2026-08-22</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmp17h3wg00011co5pejxzm9q</loc>
-    <lastmod>2026-07-03</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmoxf41s200511cpkh0pjxe4p</loc>
-    <lastmod>2026-07-27</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -341,13 +1137,13 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmot7pc1k001x1cpksqao0xl4</loc>
-    <lastmod>2026-08-19</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmot7eyop001w1cpkcqgo5uq3</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-08-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -365,13 +1161,13 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmot5yqs8001q1cpkrwg84wgu</loc>
-    <lastmod>2026-05-05</lastmod>
+    <lastmod>2026-08-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmot5rmyi001p1cpkw3fqe8x9</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-09-08</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -395,7 +1191,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmorij39c001j1codp7vsc08n</loc>
-    <lastmod>2026-06-25</lastmod>
+    <lastmod>2026-09-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -407,31 +1203,31 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmor3r0nc000n1codfnspeg1s</loc>
-    <lastmod>2026-08-14</lastmod>
+    <lastmod>2026-09-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmor06668000c1codg0o5cx5j</loc>
-    <lastmod>2026-08-14</lastmod>
+    <lastmod>2026-09-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmoqz6fcu00081cod2ahr4pgw</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmoo1bn1i0014289zo91g9nz4</loc>
-    <lastmod>2026-07-06</lastmod>
+    <lastmod>2026-08-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmonxppw0000y289ztpmrjzbk</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-09-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -532,20 +1328,20 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://propertyloop.ng/agent/cmojy37i7000f28d64i79c5cj</loc>
+    <lastmod>2026-04-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmolgv32e000127d0p9pzj7l5</loc>
+    <lastmod>2026-04-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://propertyloop.ng/agent/cmomsldfp000u288ig82l8zpd</loc>
     <lastmod>2026-05-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cmopgu3tv001c289zuasxwy6d</loc>
-    <lastmod>2026-05-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cmontmhuy000l289zath980e5</loc>
-    <lastmod>2026-05-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -562,68 +1358,14 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://propertyloop.ng/agent/cmrndhjcm00071op30z5jado0</loc>
-    <lastmod>2026-07-16</lastmod>
+    <loc>https://propertyloop.ng/agent/cmontmhuy000l289zath980e5</loc>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://propertyloop.ng/agent/cmrqaja2n000o1oqleziqrewh</loc>
-    <lastmod>2026-07-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cmojy37i7000f28d64i79c5cj</loc>
-    <lastmod>2026-04-29</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cms8oknjn003g1ok1s8tdp0a5</loc>
-    <lastmod>2026-07-31</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cmqtfcgoi004o1onudxo18xsw</loc>
-    <lastmod>2026-06-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cmsfwcvp7005i1ok17mhjg80s</loc>
-    <lastmod>2026-08-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cmrot65zw001f1orx1f9ceidu</loc>
-    <lastmod>2026-07-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cmrw63vvm002r1oql75zoa0ji</loc>
-    <lastmod>2026-07-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cmt070qvz00001cs73ieutuhc</loc>
-    <lastmod>2026-08-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cmoiykn59000w29dq0dwgs0hh</loc>
-    <lastmod>2026-04-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://propertyloop.ng/agent/cmrfa12wn00041oqqihrs9wyb</loc>
-    <lastmod>2026-07-10</lastmod>
+    <loc>https://propertyloop.ng/agent/cmopgu3tv001c289zuasxwy6d</loc>
+    <lastmod>2026-05-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -634,20 +1376,38 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://propertyloop.ng/agent/cmqtfcgoi004o1onudxo18xsw</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmrndhjcm00071op30z5jado0</loc>
+    <lastmod>2026-07-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://propertyloop.ng/agent/cmror6h37000n1orxpwe8r4hi</loc>
     <lastmod>2026-07-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://propertyloop.ng/agent/cms2pa1n200151ok1rct44bgj</loc>
-    <lastmod>2026-07-27</lastmod>
+    <loc>https://propertyloop.ng/agent/cmrot65zw001f1orx1f9ceidu</loc>
+    <lastmod>2026-07-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://propertyloop.ng/agent/cmolgv32e000127d0p9pzj7l5</loc>
-    <lastmod>2026-04-30</lastmod>
+    <loc>https://propertyloop.ng/agent/cmrqaja2n000o1oqleziqrewh</loc>
+    <lastmod>2026-07-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmrw63vvm002r1oql75zoa0ji</loc>
+    <lastmod>2026-07-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -658,14 +1418,188 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://propertyloop.ng/vendor/cmqgq33it003b1omulmlsathc</loc>
-    <lastmod>2026-06-16</lastmod>
+    <loc>https://propertyloop.ng/agent/cms8oknjn003g1ok1s8tdp0a5</loc>
+    <lastmod>2026-07-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://propertyloop.ng/vendor/cms99jy1q004d1ok1y71nt24h</loc>
-    <lastmod>2026-07-31</lastmod>
+    <loc>https://propertyloop.ng/agent/cmsfwcvp7005i1ok17mhjg80s</loc>
+    <lastmod>2026-08-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmt070qvz00001cs73ieutuhc</loc>
+    <lastmod>2026-08-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmt8hl6pw00001cqya30m7oy1</loc>
+    <lastmod>2026-08-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmt8ipfip000x1cqyzzkowtl8</loc>
+    <lastmod>2026-08-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmta8lbjf004m1cqyp30mao1b</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtb7b9ym000f1cqytatiisr5</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtbdnzri001g1cqy2629cvda</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtbqgcob005k1cqygyzdxee0</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtd4lteq00052ks5uy6fgotx</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtd5it1f000j2ks59bkgz9ap</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtd62ejp000z2ks54qvx4mf1</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtfwx6jt000d2kobryrnrvr8</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtg0toth000t2kobkwfo1n59</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtigm68t005e2kob59xfpc9y</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtiiirjh005v2kob27x6rarc</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtiqah0u007r2kob783tpgag</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtiwc12j00822koboc2ljhuk</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtjlpf0a00a02kobqfvjzc4i</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtjpuktx00an2kob8rwi10to</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtjw732200c72kob3hopba37</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtjwb9f200cf2kobwfpklhk1</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtkhydad00fk2kobamf60rzs</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtl0scyn00gz2kobqa5hshc0</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtovzgrf00mf2kobckroex8v</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtu62f5c002k2kllcgp5c4xy</loc>
+    <lastmod>2026-09-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtuqcr6n003f2kllc44mey9i</loc>
+    <lastmod>2026-09-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtwmsb0o000r2kpmkm2kcc4x</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmoiykn59000w29dq0dwgs0hh</loc>
+    <lastmod>2026-04-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/agent/cmtx65at9001h2kpmeo3x3ajb</loc>
+    <lastmod>2026-09-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmqgq33it003b1omulmlsathc</loc>
+    <lastmod>2026-06-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -780,6 +1714,126 @@
   <url>
     <loc>https://propertyloop.ng/vendor/cmoszwfno001g1cpkh0maklfv</loc>
     <lastmod>2026-05-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmt8juppo002w1cqyevxa0wct</loc>
+    <lastmod>2026-08-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmt95x17v003j1cqyrxdaf9dn</loc>
+    <lastmod>2026-08-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmt9wjm1j003u1cqy58uvmt1w</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtbjs5fn003i1cqyywmnuizj</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtbh3nku002k1cqyy5o85wyw</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtby0jci007i1cqyzszq2qqo</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtby23w3007o1cqyyetib2sw</loc>
+    <lastmod>2026-08-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtctiif900ag1cqys7reaorc</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtgxixwn001j2kob2icb19v4</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtigbom2004w2kobz2pu6390</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtigkyez00562kob5fc5totq</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtj174hl00932kobk195j8ik</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtj1c0tm009g2kobqqxu5jmq</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtjt5h7m00b92kobchmidwmc</loc>
+    <lastmod>2026-09-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtljxrad00hw2kobsm5yuuhf</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtlqoofj00ig2kobg26zae4r</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtp5hhir00mt2kobvdbnvuk7</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmttvabnc001h2kllp82mvk80</loc>
+    <lastmod>2026-09-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmtu3robj00262kllablipcry</loc>
+    <lastmod>2026-09-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cms99jy1q004d1ok1y71nt24h</loc>
+    <lastmod>2026-07-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

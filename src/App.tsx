@@ -36,6 +36,7 @@ import AgentLogbook from "./Pages/agent/Logbook";
 import AgentSubscription from "./Pages/agent/Subscription";
 import SubscriptionCallback from "./Pages/agent/SubscriptionCallback";
 import Pricing from "./Pages/Pricing";
+import RealtorPartners from "./Pages/RealtorPartners";
 import AgentSettings from "./Pages/agent/Settings";
 import ServiceEscrow from "./Pages/ServiceEscrow";
 import ShortletBooking from "./Pages/ShortletBooking";
@@ -161,6 +162,8 @@ function AppContent() {
             }
           />
           <Route path="/find-agent" element={<FindAgent />} />
+          {/* Agent Partner Programme — free realtor registration. */}
+          <Route path="/realtors/partners" element={<RealtorPartners />} />
           <Route path="/agent/:id" element={<AgentProfile />} />
           <Route path="/vendor/:id" element={<VendorProfile />} />
           <Route
