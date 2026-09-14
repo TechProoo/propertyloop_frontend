@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowUpRight,
@@ -54,15 +54,33 @@ const categories = [
 const Shortlet = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All Shortlets");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  // Prefilled when arriving from the homepage hero search.
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get("q") ?? "",
+  );
   const [contactCard, setContactCard] = useState<number | null>(null);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
 
-  const { items: apiListings, loading: listingsLoading } = useListings({
+  const {
+    items: apiListings,
+    loading: listingsLoading,
+    params,
+    updateParams,
+  } = useListings({
     type: "SHORTLET",
     limit: 50,
+    search: searchQuery.trim() || undefined,
   });
+
+  // Debounced search box.
+  useEffect(() => {
+    const search = searchQuery.trim() || undefined;
+    if (search === params.search) return;
+    const t = setTimeout(() => updateParams({ search }), 400);
+    return () => clearTimeout(t);
+  }, [searchQuery, params.search, updateParams]);
 
   const currentListings = apiListings.map((l) => ({
     id: l.id,

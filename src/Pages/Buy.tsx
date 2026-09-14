@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { sizedImage, IMG } from "../lib/imageSize";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useListings } from "../api/hooks";
 import listingsService from "../api/services/listings";
@@ -117,8 +117,12 @@ const Buy = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [searchParams] = useSearchParams();
+  // Prefilled when arriving from the homepage hero search.
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get("q") ?? "",
+  );
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
   const [priceRange, setPriceRange] = useState("any");
   const [bedsFilter, setBedsFilter] = useState("any");
   const [typeFilter, setTypeFilter] = useState("All Property");

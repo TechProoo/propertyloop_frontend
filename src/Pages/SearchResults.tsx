@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useListings } from "../api/hooks";
@@ -23,10 +23,18 @@ const SearchResults = () => {
   const searchQuery = searchParams.get("q") || "";
   const [heroQuery, setHeroQuery] = useState(searchQuery);
 
-  const { items: listings, loading, page, pages, nextPage } = useListings({
-    search: searchQuery,
-    limit: 20,
-  });
+  const { items: listings, loading, page, pages, nextPage, params, updateParams } =
+    useListings({
+      search: searchQuery,
+      limit: 20,
+    });
+
+  // The hook only reads its initial params once, so a new ?q= (e.g. searching
+  // again from this page) has to be pushed in explicitly.
+  useEffect(() => {
+    setHeroQuery(searchQuery);
+    if (params.search !== searchQuery) updateParams({ search: searchQuery });
+  }, [searchQuery, params.search, updateParams]);
 
   const currentListings = listings.map((l) => ({
     id: l.id,

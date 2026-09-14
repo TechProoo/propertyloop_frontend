@@ -7,7 +7,11 @@ import gsap from "gsap";
 import featuredPropertiesService from "../../api/services/featuredProperties";
 import type { FeaturedProperty } from "../../api/services/featuredProperties";
 
-const tabs = ["Buy", "Rent", "Shortlet"] as const;
+const tabs = [
+  { label: "Buy", path: "/buy" },
+  { label: "Rent", path: "/rent" },
+  { label: "Shortlet", path: "/shortlet" },
+] as const;
 
 type HeroProperty = {
   title: string;
@@ -18,7 +22,6 @@ type HeroProperty = {
 
 const Hero = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>("Buy");
   const [activeSlide, setActiveSlide] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [properties, setProperties] = useState<HeroProperty[]>([]);
@@ -83,9 +86,14 @@ const Hero = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
+    const q = searchQuery.trim();
+    if (q) navigate(`/search?q=${encodeURIComponent(q)}`);
+  };
+
+  // Tabs open their category directly; any typed text carries over as ?q=.
+  const openTab = (path: string) => {
+    const q = searchQuery.trim();
+    navigate(q ? `${path}?q=${encodeURIComponent(q)}` : path);
   };
 
   // ─── GSAP cinematic entrance ───────────────────────────────────────────
@@ -309,16 +317,12 @@ const Hero = () => {
           <div className="inline-flex gap-1.5 bg-bg-accent p-1 rounded-full self-start">
             {tabs.map((tab) => (
               <button
-                key={tab}
+                key={tab.label}
                 type="button"
-                onClick={() => setActiveTab(tab)}
-                className={`px-5 py-1.5 text-xs font-semibold rounded-full transition-all ${
-                  activeTab === tab
-                    ? "bg-white text-primary-dark shadow-sm"
-                    : "bg-transparent text-text-secondary"
-                }`}
+                onClick={() => openTab(tab.path)}
+                className="px-5 py-1.5 text-xs font-semibold rounded-full transition-all bg-transparent text-text-secondary active:bg-white active:text-primary-dark"
               >
-                {tab}
+                {tab.label}
               </button>
             ))}
           </div>
@@ -459,16 +463,12 @@ const Hero = () => {
             <div className="inline-flex gap-1.5 bg-bg-accent p-1.5 rounded-full self-start">
               {tabs.map((tab) => (
                 <button
-                  key={tab}
+                  key={tab.label}
                   type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-2 text-sm font-semibold rounded-full transition-all ${
-                    activeTab === tab
-                      ? "bg-white text-primary-dark shadow-sm"
-                      : "bg-transparent text-text-secondary hover:text-primary-dark"
-                  }`}
+                  onClick={() => openTab(tab.path)}
+                  className="px-6 py-2 text-sm font-semibold rounded-full transition-all bg-transparent text-text-secondary hover:bg-white hover:text-primary-dark hover:shadow-sm"
                 >
-                  {tab}
+                  {tab.label}
                 </button>
               ))}
             </div>
