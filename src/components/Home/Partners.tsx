@@ -12,6 +12,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import utModern from "../../assets/ut_modern.jpeg";
 import paystack from "../../assets/pt_2.png";
+import redan from "../../assets/redan.png";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -23,6 +24,10 @@ const partners = [
   {
     name: "Paystack",
     logo: paystack,
+  },
+  {
+    name: "REDAN - Real Estate Developers Association of Nigeria",
+    logo: redan,
   },
 ];
 
