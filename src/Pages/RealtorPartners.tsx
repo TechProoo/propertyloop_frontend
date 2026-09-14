@@ -999,6 +999,21 @@ function Registered({ result }: { result: PartnerRegistrationResult }) {
             </p>
           )}
 
+          {/* Without this, a new partner has a number and no idea where to
+              use it. Their account is an agent account, so the dashboard is
+              the same one every agent already signs in to. */}
+          <p className="mt-6 text-left text-xs leading-relaxed text-text-secondary">
+            Set your password from the email we sent, then sign in. Stock you
+            can sell and your commissions are in your dashboard under{" "}
+            <a
+              href="/agent-dashboard/partnership"
+              className="font-semibold text-primary underline underline-offset-2"
+            >
+              Partnership
+            </a>
+            .
+          </p>
+
           <div className="mt-8 flex flex-col gap-2.5 sm:flex-row sm:justify-center">
             <a
               href="https://wa.me/2347053053040"

@@ -38,6 +38,8 @@ import SubscriptionCallback from "./Pages/agent/SubscriptionCallback";
 import Pricing from "./Pages/Pricing";
 import RealtorPartners from "./Pages/RealtorPartners";
 import AgentSettings from "./Pages/agent/Settings";
+import AgentPartnerStock from "./Pages/agent/PartnerStock";
+import AgentPartnership from "./Pages/agent/Partnership";
 import ServiceEscrow from "./Pages/ServiceEscrow";
 import ShortletBooking from "./Pages/ShortletBooking";
 import RentalEscrow from "./Pages/RentalEscrow";
@@ -220,6 +222,10 @@ function AppContent() {
             <Route path="listings" element={<AgentListings />} />
             <Route path="listings/:id" element={<AgentManageListing />} />
             <Route path="offers" element={<AgentOffers />} />
+            {/* Agent Partner Programme — the website twin of the app's PL stock
+                tab and partnership screen. */}
+            <Route path="stock" element={<AgentPartnerStock />} />
+            <Route path="partnership" element={<AgentPartnership />} />
             <Route path="analytics" element={<AgentAnalytics />} />
             <Route path="viewings" element={<AgentViewings />} />
             <Route path="logbook" element={<AgentLogbook />} />
