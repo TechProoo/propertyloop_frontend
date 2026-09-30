@@ -21,7 +21,6 @@ import {
   PageHeader,
   EmptyState,
   BouncyLoader,
-  naira,
 } from "../../components/agent/ui";
 import PartnerJoinCard from "../../components/agent/PartnerJoinCard";
 
@@ -51,7 +50,6 @@ export default function AgentPartnerStock() {
   const [partner, setPartner] = useState<PartnerMe | null>(null);
   const [stock, setStock] = useState<HouseListing[]>([]);
   const [total, setTotal] = useState(0);
-  const [commissionPct, setCommissionPct] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
   const [introducing, setIntroducing] = useState<HouseListing | null>(null);
@@ -68,7 +66,6 @@ export default function AgentPartnerStock() {
         const inv = await partnersService.inventory({ limit: 60 });
         setStock(inv.items);
         setTotal(inv.total);
-        setCommissionPct(inv.commissionPercent);
       }
     } catch {
       setFailed(true);
@@ -132,9 +129,7 @@ export default function AgentPartnerStock() {
     <div className="space-y-6">
       <PageHeader
         title="PropertyLoop stock"
-        subtitle={`${total} ${total === 1 ? "property" : "properties"} you can sell${
-          commissionPct !== null ? ` · ${commissionPct}% commission` : ""
-        }`}
+        subtitle={`${total} ${total === 1 ? "property" : "properties"} you can sell · commission agreed per property`}
         actions={
           <Link
             to="/agent-dashboard/partnership"
@@ -172,7 +167,6 @@ export default function AgentPartnerStock() {
             <StockCard
               key={l.id}
               listing={l}
-              commissionPct={commissionPct}
               onIntroduce={() => setIntroducing(l)}
             />
           ))}
@@ -188,7 +182,6 @@ export default function AgentPartnerStock() {
       {introducing && (
         <BringBuyerModal
           listing={introducing}
-          commissionPct={commissionPct}
           onClose={() => setIntroducing(null)}
         />
       )}
@@ -200,17 +193,11 @@ export default function AgentPartnerStock() {
 
 function StockCard({
   listing,
-  commissionPct,
   onIntroduce,
 }: {
   listing: HouseListing;
-  commissionPct: number | null;
   onIntroduce: () => void;
 }) {
-  const cut =
-    commissionPct !== null
-      ? Math.round((listing.priceNaira * commissionPct) / 100)
-      : null;
 
   return (
     <Card className="overflow-hidden flex flex-col" style={{ padding: 0 }}>
@@ -286,16 +273,14 @@ function StockCard({
           style={{ borderTop: `1px solid ${C.line2}`, marginTop: 16 }}
         >
           <div>
-            {cut !== null && (
-              <>
-                <p className="text-[10px] tracking-wider uppercase" style={{ color: C.ink3 }}>
-                  You earn
-                </p>
-                <p className="text-sm font-bold" style={{ color: C.primaryInk }}>
-                  {naira(cut)}
-                </p>
-              </>
-            )}
+            {/* No rate: commission is negotiated per property, so a figure
+                here would read as a promise. */}
+            <p className="text-[10px] tracking-wider uppercase" style={{ color: C.ink3 }}>
+              You earn
+            </p>
+            <p className="text-xs font-semibold" style={{ color: C.primaryInk }}>
+              Commission agreed per property
+            </p>
           </div>
           <button
             onClick={onIntroduce}
@@ -315,11 +300,9 @@ function StockCard({
 
 function BringBuyerModal({
   listing,
-  commissionPct,
   onClose,
 }: {
   listing: HouseListing;
-  commissionPct: number | null;
   onClose: () => void;
 }) {
   const [name, setName] = useState("");
@@ -407,8 +390,8 @@ function BringBuyerModal({
               Bring a buyer
             </h3>
             <p className="text-xs mt-1" style={{ color: C.ink2 }}>
-              {listing.title} · {listing.priceLabel}
-              {commissionPct !== null && ` · ${commissionPct}% to you`}
+              {listing.title} · {listing.priceLabel} · commission agreed per
+              property
             </p>
 
             <label className="block text-xs font-bold mt-4 mb-1.5" style={{ color: C.ink }}>
