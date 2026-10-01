@@ -240,6 +240,8 @@ export default function RealtorPartners() {
   const [banks, setBanks] = useState<Bank[]>([]);
   const [consent, setConsent] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
+  const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<PartnerRegistrationResult | null>(null);
@@ -364,6 +366,16 @@ export default function RealtorPartners() {
     if (!email.trim()) next.email = "Your partner number is sent here.";
     else if (!isValidEmail(email)) next.email = "Check this email address.";
 
+    // A password here is what lets them come back to their dashboard later —
+    // without one, registering was a one-way door.
+    if (!password) next.password = "Choose a password so you can sign in later.";
+    else if (password.length < 8)
+      next.password = "Use at least 8 characters.";
+    else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password))
+      next.password = "Include a capital letter, a small letter and a number.";
+    else if (password2 !== password)
+      next.password2 = "The two passwords do not match.";
+
     // The payout half is optional as a whole, but half-finished bank details
     // are worse than none — they look complete on a list and fail at payment.
     if (showPayout) {
@@ -399,6 +411,7 @@ export default function RealtorPartners() {
         operatingState: operatingState || undefined,
         referredByCode: referral.trim().toUpperCase() || undefined,
         consentedToTerms: true,
+        password,
         ...(showPayout && {
           passportPhotoUrl: photo?.url,
           bankCode: bankCode || undefined,
@@ -511,6 +524,34 @@ export default function RealtorPartners() {
                     type="email"
                     inputMode="email"
                     error={errors.email}
+                  />
+                </label>
+              </div>
+
+              {/* The way back in. Registering used to be a one-way door: there
+                  was no password, so nobody could return to add a bank
+                  account or copy their link. */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <Label hint="You will sign in with this to reach your dashboard.">
+                    Choose a password
+                  </Label>
+                  <Input
+                    value={password}
+                    onChange={setPassword}
+                    placeholder="At least 8 characters"
+                    type="password"
+                    error={errors.password}
+                  />
+                </label>
+                <label className="block">
+                  <Label>Type it again</Label>
+                  <Input
+                    value={password2}
+                    onChange={setPassword2}
+                    placeholder="Repeat your password"
+                    type="password"
+                    error={errors.password2}
                   />
                 </label>
               </div>
@@ -1003,8 +1044,11 @@ function Registered({ result }: { result: PartnerRegistrationResult }) {
               use it. Their account is an agent account, so the dashboard is
               the same one every agent already signs in to. */}
           <p className="mt-6 text-left text-xs leading-relaxed text-text-secondary">
-            Set your password from the email we sent, then sign in. Stock you
-            can sell and your commissions are in your dashboard under{" "}
+            {result.canSignIn
+              ? "Sign in with the password you just chose — or your existing PropertyLoop password if you already had an account."
+              : "Set a password from the email we sent, then sign in."}{" "}
+            Your dashboard is where you edit your details, add your bank
+            account and copy your referral link, under{" "}
             <a
               href="/agent-dashboard/partnership"
               className="font-semibold text-primary underline underline-offset-2"
@@ -1013,6 +1057,15 @@ function Registered({ result }: { result: PartnerRegistrationResult }) {
             </a>
             .
           </p>
+
+          <div className="mt-5 flex justify-center">
+            <a
+              href="/login"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-ink"
+            >
+              Sign in to your dashboard
+            </a>
+          </div>
 
           <div className="mt-8 flex flex-col gap-2.5 sm:flex-row sm:justify-center">
             <a

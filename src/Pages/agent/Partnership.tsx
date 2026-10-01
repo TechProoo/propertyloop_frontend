@@ -26,6 +26,7 @@ import {
   naira,
 } from "../../components/agent/ui";
 import PartnerJoinCard from "../../components/agent/PartnerJoinCard";
+import PartnerDetailsForm from "../../components/agent/PartnerDetailsForm";
 
 const STATUS_UI: Record<PartnerStatus, { label: string; bg: string; fg: string }> = {
   NEW: { label: "Registered", bg: "#f5ead4", fg: "#6b4a16" },
@@ -270,16 +271,27 @@ export default function AgentPartnership() {
               Still needed: <strong>{partner.payoutGaps.join(", ")}</strong>. You
               can keep selling — this only blocks the transfer.
             </p>
-            <Link
-              to="/realtors/partners"
+            {/* Used to send people back to the public sign-up form, where
+                they were told they had already registered. The details are
+                edited here instead. */}
+            <a
+              href="#your-details"
               className="inline-block text-sm font-bold underline underline-offset-4 mt-2"
               style={{ color: C.accentInk }}
             >
               Complete my details
-            </Link>
+            </a>
           </div>
         </div>
       )}
+
+      <div id="your-details" className="scroll-mt-24">
+        <PartnerDetailsForm
+          details={partner.details}
+          payoutGaps={partner.payoutGaps}
+          onSaved={setPartner}
+        />
+      </div>
 
       <div>
         <p

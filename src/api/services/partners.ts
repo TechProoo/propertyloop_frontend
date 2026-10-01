@@ -39,6 +39,11 @@ export interface PartnerRegistration extends PartnerPayoutDetails {
   referredByCode?: string;
   /** Explicit, timestamped by the server on arrival. */
   consentedToTerms: boolean;
+  /**
+   * What they will sign in with. Ignored when the email already has a
+   * PropertyLoop account — that password stays as it is.
+   */
+  password?: string;
 }
 
 export interface PartnerRegistrationResult {
@@ -49,6 +54,8 @@ export interface PartnerRegistrationResult {
   email: string;
   /** True when payout details are complete enough to be paid. */
   payoutReady: boolean;
+  /** Whether they can sign in now, or still have to set a password first. */
+  canSignIn: boolean;
 }
 
 /* ─── After registration ─────────────────────────────────────────────────
@@ -76,6 +83,37 @@ export interface PartnerCommission {
   paidAt: string | null;
 }
 
+/** Everything a partner may edit, as it stands. Prefills the dashboard form. */
+export interface PartnerDetails {
+  fullName: string;
+  /** The sign-in, and not editable here. */
+  email: string;
+  whatsapp: string;
+  experience: "NEW" | "ONE_TO_THREE" | "THREE_PLUS" | null;
+  agencyName: string | null;
+  operatingState: string | null;
+  passportPhotoUrl: string | null;
+  bankCode: string | null;
+  bankName: string | null;
+  accountNumber: string | null;
+  accountName: string | null;
+  nin: string | null;
+  tin: string | null;
+  payerId: string | null;
+  /** YYYY-MM-DD, ready for a date input. */
+  dateOfBirth: string | null;
+  residentialAddress: string | null;
+  residentialState: string | null;
+  rcNumber: string | null;
+}
+
+/** A change to those details. Only what is sent is written. */
+export type UpdatePartnerPayload = Partial<
+  Omit<PartnerDetails, "email" | "experience">
+> & {
+  experience?: "NEW" | "ONE_TO_THREE" | "THREE_PLUS";
+};
+
 export interface PartnerMe {
   code: string;
   status: PartnerStatus;
@@ -83,6 +121,7 @@ export interface PartnerMe {
   payoutReady: boolean;
   /** Exactly what is still missing, e.g. ["NIN", "bank account"]. */
   payoutGaps: string[];
+  details: PartnerDetails;
   introductions: number;
   commissions: PartnerCommission[];
 }
@@ -163,6 +202,16 @@ const partnersService = {
       if (status === 403 || status === 404) return null;
       throw e;
     }
+  },
+
+  /**
+   * The partner editing their own details — bank account, NIN, address.
+   * Returns the whole partnership back, so payout gaps update without a
+   * second request.
+   */
+  async updateMe(payload: UpdatePartnerPayload): Promise<PartnerMe> {
+    const { data } = await api.patch<PartnerMe>("/partners/me", payload);
+    return data;
   },
 
   /** Published PropertyLoop stock. Needs a partner account. */
