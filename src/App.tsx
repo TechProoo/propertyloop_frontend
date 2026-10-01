@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { BookmarkProvider } from "./context/BookmarkContext";
 import { AnimatePresence } from "framer-motion";
 import SplashLoader from "./components/ui/SplashLoader";
+import IndependenceSplash from "./components/ui/IndependenceSplash";
 import Home from "./Pages/Home";
 import HowItWorks from "./Pages/HowItWorks";
 import Buy from "./Pages/Buy";
@@ -142,6 +143,7 @@ function AppContent() {
         {loading && <SplashLoader key="splash-loader" />}
       </AnimatePresence>
       {!loading && <AppDownloadBar />}
+      {!loading && <IndependenceSplash />}
       {!loading && (
         <Routes>
           <Route path="/" element={<Home />} />
