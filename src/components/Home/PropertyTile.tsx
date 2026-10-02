@@ -94,7 +94,7 @@ export default function PropertyTile({
   badge?: string;
 }) {
   const price = (
-    <p className="font-heading text-[19px] font-bold leading-none text-primary-dark">
+    <p className="font-heading truncate text-[17px] font-bold leading-none text-primary-dark sm:text-[19px]">
       {data.priceLabel}
       {data.period && (
         <span className="ml-1 text-[12px] font-semibold text-text-subtle">
@@ -120,7 +120,7 @@ export default function PropertyTile({
         <Photo data={data} badge={badge} width={640} className="mt-3 aspect-[4/5] w-full" />
 
         <div className="mt-3.5 flex items-end justify-between gap-3">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             {price}
             <Meta data={data} />
           </div>
@@ -145,7 +145,7 @@ export default function PropertyTile({
         </p>
         <Meta data={data} />
         <div className="mt-auto flex items-end justify-between gap-2 pt-3">
-          {price}
+          <span className="min-w-0 flex-1">{price}</span>
           <span className="inline-flex shrink-0 items-center gap-1 text-[12.5px] font-bold text-primary transition-transform duration-300 group-hover:translate-x-0.5">
             View
             <ArrowRight className="h-3.5 w-3.5" />
