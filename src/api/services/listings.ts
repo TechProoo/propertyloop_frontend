@@ -18,6 +18,8 @@ export interface ListListingsParams {
   minBeds?: number;
   minBaths?: number;
   status?: ListingStatus;
+  /** HOUSE is PropertyLoop's own stock; AGENT_OWN is an agent's listing. */
+  ownership?: "HOUSE" | "AGENT_OWN";
   sort?: "newest" | "price_asc" | "price_desc" | "top_rated";
   page?: number;
   limit?: number;

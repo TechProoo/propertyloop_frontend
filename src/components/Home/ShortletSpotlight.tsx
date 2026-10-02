@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { sizedImage, IMG } from "../../lib/imageSize";
 import { Link } from "react-router-dom";
 import { CalendarDays, MapPin } from "lucide-react";
 import AuthGate from "../ui/AuthGate";
 import listingsService from "../../api/services/listings";
+import PropertyTile from "./PropertyTile";
+import { listingToTile } from "./tileData";
 import type { Listing } from "../../api/types";
-import { handleBannerError } from "../../lib/bannerFallback";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -256,58 +256,9 @@ const ShortletSpotlight = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {shortlets.map((s) => (
-              <AuthGate
-                key={s.id}
-                href={`/property/${s.id}`}
-                data-ss-card
-                className="group relative bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 overflow-hidden block"
-              >
-                <div className="h-56 overflow-hidden relative bg-bg-accent">
-                  {s.coverImage ? (
-                    <img
-                      src={sizedImage(s.coverImage, IMG.card)}
-                      alt={s.title}
-                      onError={handleBannerError}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <CalendarDays className="w-10 h-10 text-text-subtle" />
-                    </div>
-                  )}
-                  <span className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm text-primary-dark text-xs font-semibold">
-                    Verified host
-                  </span>
-                  {s.rating > 0 && (
-                    <span className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-[#1a2120] text-white text-xs font-bold">
-                      ★ {s.rating.toFixed(1)}
-                    </span>
-                  )}
-                </div>
-                <div className="p-5">
-                  <h3 className="font-heading font-bold text-primary-dark text-[16px] leading-snug line-clamp-1">
-                    {s.title}
-                  </h3>
-                  <div className="flex items-center gap-1.5 text-text-subtle text-xs mt-1.5">
-                    <MapPin className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">{s.location}</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-border-light">
-                    <span className="font-heading font-bold text-primary-dark text-lg tracking-tight">
-                      {s.priceLabel}
-                      {s.period && (
-                        <span className="text-text-subtle text-xs font-normal">
-                          {" "}
-                          /{s.period.replace(/^\//, "")}
-                        </span>
-                      )}
-                    </span>
-                    <span className="text-xs font-semibold text-text-secondary bg-bg px-3 py-1.5 rounded-full">
-                      {s.beds} {s.beds === 1 ? "bed" : "beds"}
-                    </span>
-                  </div>
-                </div>
-              </AuthGate>
+              <div key={s.id} data-ss-card>
+                <PropertyTile data={listingToTile(s)} />
+              </div>
             ))}
           </div>
         )}

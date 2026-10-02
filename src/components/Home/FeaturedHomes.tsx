@@ -1,18 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { sizedImage, IMG } from "../../lib/imageSize";
 import {
-  ArrowUpRight,
   Bed,
-  Bath,
-  Maximize,
   WifiOff,
   RotateCcw,
 } from "lucide-react";
 import AuthGate from "../ui/AuthGate";
 import { CardSkeleton } from "../ui/Skeleton";
 import listingsService from "../../api/services/listings";
+import PropertyTile from "./PropertyTile";
+import { listingToTile } from "./tileData";
 import type { Listing } from "../../api/types";
-import { handleBannerError } from "../../lib/bannerFallback";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -24,27 +21,39 @@ const FeaturedHomes = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const fetchHomes = () => {
-    setLoading(true);
-    setError(false);
+  // Bumped by the retry button. The request lives in the effect so nothing is
+  // set during render, and a stale response cannot land on a newer one.
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
     listingsService
       .list({ limit: 12, sort: "newest" })
       .then((res) => {
-        const mixed = res.items
-          .filter((l) => l.type === "SALE" || l.type === "RENT")
-          .slice(0, 3);
-        setHomes(mixed);
+        if (!alive) return;
+        setHomes(
+          res.items
+            .filter((l) => l.type === "SALE" || l.type === "RENT")
+            .slice(0, 3),
+        );
+        setError(false);
       })
       .catch(() => {
-        setError(true);
+        if (alive) setError(true);
       })
-      .finally(() => setLoading(false));
-  };
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [attempt]);
 
-  useEffect(() => {
-    fetchHomes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const fetchHomes = () => {
+    setLoading(true);
+    setError(false);
+    setAttempt((n) => n + 1);
+  };
 
   useEffect(() => {
     if (loading || homes.length === 0) return;
@@ -195,67 +204,9 @@ const FeaturedHomes = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {homes.map((home) => (
-              <AuthGate
-                key={home.id}
-                href={`/property/${home.id}`}
-                data-fh-card
-                className="group relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 transition-all duration-300 cursor-pointer block"
-              >
-                {/* Image - tall, rounded top */}
-                <div className="h-[320px] overflow-hidden rounded-t-[24px] relative">
-                  <img
-                    src={sizedImage(home.coverImage, IMG.card)}
-                    alt={home.title}
-                    onError={handleBannerError}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {/* Sale / Rent tag */}
-                  <span
-                    className={`absolute top-4 left-4 px-3.5 py-1.5 rounded-full text-white text-xs font-semibold tracking-wide shadow-sm ${
-                      home.type === "SALE" ? "bg-primary" : "bg-primary-light"
-                    }`}
-                  >
-                    {home.type === "SALE" ? "For Sale" : "For Rent"}
-                  </span>
-                  <div className="absolute top-4 right-4 w-11 h-11 bg-[#1a2120] rounded-full flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
-                    <ArrowUpRight className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-
-                {/* Overlapping glass info card */}
-                <div className="mx-3.5 mb-3.5 -mt-24 relative z-10 bg-white/85 backdrop-blur-md border border-white/60 rounded-[20px] px-5 pt-4 pb-5 shadow-[0_14px_36px_rgba(0,0,0,0.10)]">
-                  <p className="font-heading font-bold text-primary-dark text-[20px] tracking-tight">
-                    {home.priceLabel}
-                  </p>
-                  <h3 className="font-heading font-bold text-primary-dark text-[15px] leading-snug mt-1.5 truncate">
-                    {home.title}
-                  </h3>
-                  <p className="text-text-subtle text-xs mt-1 truncate">
-                    {home.address}
-                  </p>
-
-                  {/* Spec row - 3 columns */}
-                  <div className="flex gap-2 mt-4 pt-4 border-t border-border-light">
-                    {[
-                      { Icon: Bed, value: home.beds, label: "Beds" },
-                      { Icon: Bath, value: home.baths, label: "Baths" },
-                      { Icon: Maximize, value: home.sqft, label: "m²" },
-                    ].map(({ Icon, value, label }) => (
-                      <div key={label} className="flex-1 flex items-center gap-2 min-w-0">
-                        <Icon className="w-4 h-4 text-text-subtle shrink-0" />
-                        <span className="leading-tight min-w-0">
-                          <b className="block text-sm font-extrabold text-primary-dark truncate">
-                            {value}
-                          </b>
-                          <span className="text-[11px] text-text-subtle">
-                            {label}
-                          </span>
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </AuthGate>
+              <div key={home.id} data-fh-card>
+                <PropertyTile data={listingToTile(home)} />
+              </div>
             ))}
           </div>
         )}
