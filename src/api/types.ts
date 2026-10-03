@@ -263,6 +263,8 @@ export interface Listing {
   viewsCount: number;
   featured?: boolean;
   openToOffers?: boolean;
+  /** HOUSE is PropertyLoop's own stock; AGENT_OWN is an agent's listing. */
+  ownership?: "HOUSE" | "AGENT_OWN";
   createdAt: string;
   updatedAt?: string;
   documents?: ListingDocument[];

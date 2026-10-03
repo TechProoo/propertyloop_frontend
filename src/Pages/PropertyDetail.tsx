@@ -31,6 +31,7 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
+import plLogo from "../assets/logo_2.jpg";
 import listingsService from "../api/services/listings";
 import api from "../api/client";
 import messagesService from "../api/services/messages";
@@ -162,6 +163,12 @@ const PropertyDetail = () => {
       </div>
     );
   }
+
+  // PropertyLoop's own stock is filed by a staff member, so the listing's
+  // "agent" is their personal account. Buyers deal with the company, not with
+  // whoever happened to post it — and that account has no public profile,
+  // rating or listing count worth showing.
+  const isHouseStock = listing.ownership === "HOUSE";
 
   const agent = listing.agent
     ? {
@@ -969,31 +976,43 @@ const PropertyDetail = () => {
                   </h3>
                   <div className="flex items-center gap-4 mb-4">
                     <img
-                      src={agent.photo}
-                      alt={agent.name}
+                      src={isHouseStock ? plLogo : agent.photo}
+                      alt={isHouseStock ? "PropertyLoop" : agent.name}
                       onError={(e) => { e.currentTarget.src = FallbackImg; }}
-                      className="w-14 h-14 rounded-full object-cover object-top border-2 border-white shadow-sm"
+                      className={`w-14 h-14 rounded-full border-2 border-white shadow-sm ${
+                        isHouseStock
+                          ? "bg-white object-contain p-1"
+                          : "object-cover object-top"
+                      }`}
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
                         <p className="font-heading font-bold text-primary-dark text-sm truncate">
-                          {agent.name}
+                          {isHouseStock ? "PropertyLoop" : agent.name}
                         </p>
-                        {agent.verified && (
+                        {(isHouseStock || agent.verified) && (
                           <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0" />
                         )}
                       </div>
-                      <p className="text-text-secondary text-xs">
-                        {agent.agency}
-                      </p>
-                      <div className="flex items-center gap-3 text-text-secondary text-xs mt-1">
-                        <span className="flex items-center gap-1">
-                          <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />
-                          {agent.rating}
-                        </span>
-                        <span>{agent.listings} listings</span>
-                        <span>{agent.soldRented} closed</span>
-                      </div>
+                      {isHouseStock ? (
+                        <p className="text-text-secondary text-xs">
+                          Listed and checked by our own team
+                        </p>
+                      ) : (
+                        <>
+                          <p className="text-text-secondary text-xs">
+                            {agent.agency}
+                          </p>
+                          <div className="flex items-center gap-3 text-text-secondary text-xs mt-1">
+                            <span className="flex items-center gap-1">
+                              <Star className="w-3 h-3 text-[#F5A623] fill-[#F5A623]" />
+                              {agent.rating}
+                            </span>
+                            <span>{agent.listings} listings</span>
+                            <span>{agent.soldRented} closed</span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -1020,10 +1039,12 @@ const PropertyDetail = () => {
                       className="h-11 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2 shadow-lg shadow-glow/40"
                     >
                       <Send className="w-4 h-4" />
-                      Message Agent
+                      {isHouseStock ? "Message PropertyLoop" : "Message Agent"}
                     </button>
                     <a
-                      href={`mailto:${agent.email}?subject=Enquiry: ${listing.title}`}
+                      href={`mailto:${
+                        isHouseStock ? "support.propertyloop@propertyloop.ng" : agent.email
+                      }?subject=Enquiry: ${listing.title}`}
                       className="h-11 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all inline-flex items-center justify-center gap-2"
                     >
                       <Mail className="w-4 h-4" />
@@ -1056,12 +1077,15 @@ const PropertyDetail = () => {
                     </button>
                   )}
 
-                  <Link
-                    to={`/agent/${agent.id}`}
-                    className="block text-center text-primary text-xs font-medium mt-3 hover:underline"
-                  >
-                    View full agent profile
-                  </Link>
+                  {/* A staff account has no public profile to show. */}
+                  {!isHouseStock && (
+                    <Link
+                      to={`/agent/${agent.id}`}
+                      className="block text-center text-primary text-xs font-medium mt-3 hover:underline"
+                    >
+                      View full agent profile
+                    </Link>
+                  )}
 
                   {/* Report listing */}
                   <div className="mt-4 border-t border-border-light pt-4">
