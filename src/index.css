@@ -115,6 +115,10 @@
 }
 .pl-prose a:hover { color: #1a3d2a; }
 
+/* ─── Hide scrollbar but allow scrolling ─── */
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
 /* Bouncy dot loader (agent dashboard) */
 @keyframes pl-bounce {
   0%, 80%, 100% { transform: translateY(0); opacity: 0.55; }
