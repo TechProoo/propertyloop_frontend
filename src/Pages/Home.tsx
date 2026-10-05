@@ -6,7 +6,8 @@ import FeaturedRail from "../components/Home/FeaturedRail";
 // import TrustedSection from "../components/Home/TrustedSection";
 import FeaturedHomes from "../components/Home/FeaturedHomes";
 import VideoListings from "../components/Home/VideoListings";
-import ServiceLoop from "../components/Home/ServiceLoop";
+// // Artisan Corner is hidden (src/config/features.ts). Nothing is deleted.
+// import ServiceLoop from "../components/Home/ServiceLoop";
 import PropertyLogbook from "../components/Home/PropertyLogbook";
 import AgentSpotlight from "../components/Home/AgentSpotlight";
 import ShortletSpotlight from "../components/Home/ShortletSpotlight";
@@ -41,7 +42,7 @@ const Home = () => {
       <AdvertiseSpotlight />
       {/* <TrustedSection /> */}
       <FeaturedHomes />
-      <ServiceLoop />
+      {/* <ServiceLoop /> — Artisan Corner is hidden */}
       <ShortletSpotlight />
       <VideoListings />
       <AgentSpotlight />

@@ -69,13 +69,16 @@ const footerLinks = {
     { label: "Find Agent", href: "/find-agent" },
     { label: "Property Logbook", href: "/logbook" },
   ],
+  // Artisan Corner is hidden (src/config/features.ts), so the trades that
+  // pointed at it are gone from the footer. Facility Management and Materials
+  // are their own things and stay.
   Services: [
-    { label: "Artisan Corner", href: "/services" },
+    // { label: "Artisan Corner", href: "/services" },
     { label: "Facility Management", href: "/facility-management" },
-    { label: "Plumbing", href: "/services" },
-    { label: "Electrical", href: "/services" },
-    { label: "Cleaning", href: "/services" },
-    { label: "Building", href: "/services" },
+    // { label: "Plumbing", href: "/services" },
+    // { label: "Electrical", href: "/services" },
+    // { label: "Cleaning", href: "/services" },
+    // { label: "Building", href: "/services" },
     { label: "Materials", href: "/marketplace" },
   ],
   Company: [

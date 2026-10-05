@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { ARTISAN_CORNER } from "../../config/features";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, LogOut, Menu, Plus, Search, Settings, X } from "lucide-react";
@@ -28,7 +29,7 @@ const CATEGORY_LINKS = [
   { label: "Sell", href: "/sell" },
   { label: "Shortlet", href: "/shortlet" },
   { label: "Feed", href: "/feed", badge: "New" },
-  { label: "Services", href: "/services" },
+  // { label: "Services", href: "/services" },  // Artisan Corner is hidden (src/config/features.ts). Nothing is deleted.
   { label: "Find Agent", href: "/find-agent" },
   { label: "Facility Management", href: "/facility-management" },
   { label: "About", href: "/about" },
@@ -124,7 +125,7 @@ const Navbar = () => {
   const dashboardHref =
     user?.role === "AGENT"
       ? "/agent-dashboard"
-      : user?.role === "VENDOR"
+      : user?.role === "VENDOR" && ARTISAN_CORNER
         ? "/vendor-dashboard"
         : "/dashboard";
 

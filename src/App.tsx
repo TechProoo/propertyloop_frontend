@@ -1,6 +1,7 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ARTISAN_CORNER } from "./config/features";
 import { BookmarkProvider } from "./context/BookmarkContext";
 import { AnimatePresence } from "framer-motion";
 import SplashLoader from "./components/ui/SplashLoader";
@@ -85,7 +86,9 @@ import { isOnboardingRouteHeld } from "./lib/onboardingFlag";
 const roleDashboard: Record<string, string> = {
   BUYER: "/dashboard",
   AGENT: "/agent-dashboard",
-  VENDOR: "/vendor-dashboard",
+  // Artisan Corner is hidden, so a vendor account lands on the ordinary
+  // dashboard rather than a route that no longer exists.
+  VENDOR: ARTISAN_CORNER ? "/vendor-dashboard" : "/dashboard",
 };
 
 function ProtectedRoute({
@@ -169,7 +172,9 @@ function AppContent() {
           {/* Agent Partner Programme — free realtor registration. */}
           <Route path="/realtors/partners" element={<RealtorPartners />} />
           <Route path="/agent/:id" element={<AgentProfile />} />
-          <Route path="/vendor/:id" element={<VendorProfile />} />
+          {ARTISAN_CORNER && (
+            <Route path="/vendor/:id" element={<VendorProfile />} />
+          )}
           <Route
             path="/add-property"
             element={
@@ -189,7 +194,9 @@ function AppContent() {
           <Route path="/about" element={<About />} />
           <Route path="/advertise" element={<Advertise />} />
           <Route path="/pricing" element={<Pricing />} />
-          <Route path="/services" element={<Services />} />
+          {ARTISAN_CORNER && (
+            <Route path="/services" element={<Services />} />
+          )}
           <Route
             path="/facility-management"
             element={<FacilityManagement />}
@@ -236,15 +243,19 @@ function AppContent() {
             <Route path="subscription" element={<AgentSubscription />} />
             <Route path="settings" element={<AgentSettings />} />
           </Route>
-          <Route
-            path="/vendor-dashboard"
-            element={
-              <ProtectedRoute allowedRoles={["VENDOR"]}>
-                <VendorDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/escrow" element={<ServiceEscrow />} />
+          {ARTISAN_CORNER && (
+            <Route
+              path="/vendor-dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["VENDOR"]}>
+                  <VendorDashboard />
+                </ProtectedRoute>
+              }
+            />
+          )}
+          {ARTISAN_CORNER && (
+            <Route path="/escrow" element={<ServiceEscrow />} />
+          )}
           <Route path="/payment-callback" element={<PaymentCallback />} />
           <Route path="/shortlet-booking" element={<ShortletBooking />} />
           <Route path="/rental-escrow" element={<RentalEscrow />} />
@@ -273,7 +284,9 @@ function AppContent() {
           <Route path="/search" element={<SearchResults />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
-          <Route path="/book-service/:id" element={<BookService />} />
+          {ARTISAN_CORNER && (
+            <Route path="/book-service/:id" element={<BookService />} />
+          )}
           <Route
             path="/disputes"
             element={

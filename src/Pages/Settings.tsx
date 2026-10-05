@@ -1213,7 +1213,7 @@ const Settings = () => {
                               </span>
                               <a
                                 href={`https://wa.me/?text=${encodeURIComponent(
-                                  `Join me on PropertyLoop - find homes, agents and trusted artisans in one place. Sign up with my link: ${referralInfo.referralLink}`,
+                                  `Join me on PropertyLoop - find homes and verified agents in one place. Sign up with my link: ${referralInfo.referralLink}`,
                                 )}`}
                                 target="_blank"
                                 rel="noreferrer"

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ARTISAN_CORNER } from "../config/features";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -85,11 +86,12 @@ const navItems = [
     label: "Bookmarks",
     id: "saved",
   },
-  {
-    icon: <Wrench className="w-5 h-5" />,
-    label: "Vendors",
-    id: "vendors",
-  },
+  // Artisan Corner is hidden (src/config/features.ts).
+  // {
+  //   icon: <Wrench className="w-5 h-5" />,
+  //   label: "Vendors",
+  //   id: "vendors",
+  // },
   {
     icon: <MessageCircle className="w-5 h-5" />,
     label: "Messages",
@@ -551,13 +553,14 @@ const Dashboard = () => {
       color: "text-red-400",
       bg: "bg-red-50",
     },
-    {
-      icon: <Wrench className="w-5 h-5" />,
-      value: String(jobs.length),
-      label: "Booked Services",
-      color: "text-primary",
-      bg: "bg-primary/10",
-    },
+    // Artisan Corner is hidden (src/config/features.ts).
+    // {
+    //   icon: <Wrench className="w-5 h-5" />,
+    //   value: String(jobs.length),
+    //   label: "Booked Services",
+    //   color: "text-primary",
+    //   bg: "bg-primary/10",
+    // },
   ];
 
   return (
@@ -987,17 +990,13 @@ const Dashboard = () => {
                       </div>
 
                       {/* Booked Services */}
+                      {ARTISAN_CORNER && (
                       <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                         <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
                           <h2 className="font-heading font-bold text-primary-dark text-base">
                             Booked Services ({jobs.length})
                           </h2>
-                          <Link
-                            to="/services"
-                            className="text-primary text-xs font-medium hover:underline"
-                          >
-                            Browse vendors
-                          </Link>
+                          {/* Artisan Corner is hidden — see src/config/features.ts */}
                         </div>
                         <div className="p-4 flex flex-col gap-3">
                           {jobs.length > 0 ? (
@@ -1197,16 +1196,12 @@ const Dashboard = () => {
                               <p className="text-text-secondary text-xs">
                                 No booked services yet
                               </p>
-                              <Link
-                                to="/services"
-                                className="text-primary text-xs font-medium mt-1 inline-flex items-center gap-1"
-                              >
-                                Find a vendor <ArrowRight className="w-3 h-3" />
-                              </Link>
+                              {/* Artisan Corner is hidden — see src/config/features.ts */}
                             </div>
                           )}
                         </div>
                       </div>
+                      )}
                     </div>
 
                     {/* Right */}
@@ -1251,11 +1246,12 @@ const Dashboard = () => {
                               label: "Find an Agent",
                               href: "/find-agent",
                             },
-                            {
-                              icon: <Wrench className="w-4 h-4" />,
-                              label: "Book a Service",
-                              href: "/services",
-                            },
+                            // Artisan Corner is hidden (src/config/features.ts).
+                            // {
+                            //   icon: <Wrench className="w-4 h-4" />,
+                            //   label: "Book a Service",
+                            //   href: "/services",
+                            // },
                           ].map((action) => (
                             <Link
                               key={action.label}
@@ -1457,18 +1453,14 @@ const Dashboard = () => {
                   })()}
 
                   {/* Bookmarked Vendors */}
+                  {ARTISAN_CORNER && (
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
                     <div className="px-6 py-5 border-b border-border-light flex items-center justify-between">
                       <h2 className="font-heading font-bold text-primary-dark text-base flex items-center gap-2">
                         <Wrench className="w-4 h-4 text-[#F5A623]" /> Vendors (
                         {savedVendors.length})
                       </h2>
-                      <Link
-                        to="/services"
-                        className="text-primary text-xs font-medium hover:underline flex items-center gap-1"
-                      >
-                        View More <ArrowRight className="w-3 h-3" />
-                      </Link>
+                      {/* Artisan Corner is hidden — see src/config/features.ts */}
                     </div>
                     {savedVendors.length > 0 ? (
                       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -1528,15 +1520,11 @@ const Dashboard = () => {
                         <p className="text-text-secondary text-sm">
                           No bookmarked vendors
                         </p>
-                        <Link
-                          to="/services"
-                          className="text-primary text-xs font-medium mt-1 inline-flex items-center gap-1"
-                        >
-                          Browse vendors <ArrowRight className="w-3 h-3" />
-                        </Link>
+                        {/* Artisan Corner is hidden — see src/config/features.ts */}
                       </div>
                     )}
                   </div>
+                  )}
 
                   {/* Bookmarked Materials */}
                   <div className="bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden">
@@ -1605,7 +1593,7 @@ const Dashboard = () => {
               )}
 
               {/* ─── Marketplace Panel ─── */}
-              {activeNav === "vendors" && (
+              {ARTISAN_CORNER && activeNav === "vendors" && (
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -1623,13 +1611,7 @@ const Dashboard = () => {
                           {filteredVendors.length === 1 ? "" : "s"} found
                         </p>
                       </div>
-                      <Link
-                        to="/services"
-                        className="h-9 px-4 rounded-full bg-primary text-white text-xs font-semibold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-1.5"
-                      >
-                        View Full Artisan Corner{" "}
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
+                      {/* Artisan Corner is hidden — see src/config/features.ts */}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1845,12 +1827,7 @@ const Dashboard = () => {
                             >
                               Browse properties
                             </Link>
-                            <Link
-                              to="/services"
-                              className="h-10 px-5 rounded-full bg-white/80 border border-border-light text-primary-dark text-sm font-medium hover:border-primary transition-colors inline-flex items-center"
-                            >
-                              Find a vendor
-                            </Link>
+                            {/* Artisan Corner is hidden — see src/config/features.ts */}
                           </div>
                         </div>
                       </motion.div>
@@ -2678,12 +2655,7 @@ const Dashboard = () => {
                         When you book and complete vendor services, they'll
                         automatically appear here as a permanent record.
                       </p>
-                      <Link
-                        to="/services"
-                        className="mt-4 inline-flex items-center gap-2 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors"
-                      >
-                        Browse vendors <ArrowRight className="w-4 h-4" />
-                      </Link>
+                      {/* Artisan Corner is hidden — see src/config/features.ts */}
                     </div>
                   )}
                 </motion.div>
@@ -2944,7 +2916,7 @@ const Dashboard = () => {
                           </span>
                           <a
                             href={`https://wa.me/?text=${encodeURIComponent(
-                              `Join me on PropertyLoop - find homes, agents and trusted artisans in one place. Sign up with my link: ${referralInfo.referralLink}`,
+                              `Join me on PropertyLoop - find homes and verified agents in one place. Sign up with my link: ${referralInfo.referralLink}`,
                             )}`}
                             target="_blank"
                             rel="noreferrer"

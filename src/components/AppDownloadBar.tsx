@@ -14,7 +14,7 @@ import {
 const HIDDEN_PREFIXES = [
   "/dashboard",
   "/agent-dashboard",
-  "/vendor-dashboard",
+  // "/vendor-dashboard",  // Artisan Corner hidden
   "/messages",
   "/settings",
   "/disputes",

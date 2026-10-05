@@ -99,7 +99,7 @@ const faqs = [
   },
   {
     q: "How do I find the right vendor?",
-    a: "Browse Artisan Corner by category and location. Filter by rating, see job history, and message vendors directly to discuss your needs.",
+    a: "Browse our vendor directory by category and location. Filter by rating, see job history, and message vendors directly to discuss your needs.",
   },
   {
     q: "Can I see a vendor's past work?",
@@ -268,7 +268,7 @@ const HowItWorks = () => {
                 Common Questions
               </h2>
               <p className="text-text-secondary text-sm mt-2">
-                Everything you need to know about Artisan Corner
+                Everything you need to know about our service vendors
               </p>
             </div>
 

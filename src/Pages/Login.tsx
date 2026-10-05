@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ARTISAN_CORNER } from "../config/features";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
@@ -19,7 +20,8 @@ const ease = [0.23, 1, 0.32, 1] as const;
 const roleDashboard: Record<string, string> = {
   BUYER: "/dashboard",
   AGENT: "/agent-dashboard",
-  VENDOR: "/vendor-dashboard",
+  // Artisan Corner is hidden, so a vendor signs in to the ordinary dashboard.
+  VENDOR: ARTISAN_CORNER ? "/vendor-dashboard" : "/dashboard",
 };
 
 const Login = () => {

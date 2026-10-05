@@ -65,7 +65,7 @@ const problems = [
 
 const differentiators = [
   {
-    title: "Artisan Corner",
+    title: "Artisan Corner (coming back soon)",
     description:
       "Verified home service vendors - plumbers, electricians, builders - bookable and contactable inside the platform. No more hunting for tradespeople after you move in.",
     icon: <Wrench className="w-6 h-6" />,
