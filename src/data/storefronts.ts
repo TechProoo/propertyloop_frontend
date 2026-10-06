@@ -27,6 +27,7 @@ export type StoreProduct = {
 };
 
 export type Storefront = {
+  ownerUserId?: string;
   slug: string;
   name: string;
   tagline: string;

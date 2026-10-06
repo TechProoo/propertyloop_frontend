@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   BadgeCheck,
   ShieldCheck,
@@ -29,7 +29,9 @@ import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
 import { type Storefront } from "../data/storefronts";
 import marketplaceService from "../api/services/marketplace";
+import messagesService from "../api/services/messages";
 import { useStoreCart } from "../context/StoreCartContext";
+import { useAuth } from "../context/AuthContext";
 
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG");
 
@@ -97,6 +99,30 @@ const VendorStorefront = () => {
   const [promoCopied, setPromoCopied] = useState(false);
 
   const { count, addItem } = useStoreCart();
+  const { user, isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+  const [messagingVendor, setMessagingVendor] = useState(false);
+
+  const handleMessageVendor = async () => {
+    if (!isLoggedIn) {
+      navigate(`/login?redirect=/store/${slug}`);
+      return;
+    }
+    if (!store?.ownerUserId || messagingVendor) return;
+    setMessagingVendor(true);
+    try {
+      const { conversationId } = await messagesService.createOrFind({
+        recipientId: store.ownerUserId,
+        recipientRole: "VENDOR",
+        senderRole: user?.role === "AGENT" ? "AGENT" : "BUYER",
+      });
+      navigate(`/messages?with=${conversationId}`);
+    } catch {
+      alert("Could not start conversation. Please try again.");
+    } finally {
+      setMessagingVendor(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -262,9 +288,17 @@ const VendorStorefront = () => {
                 <Share2 className="h-3.5 w-3.5" />
                 Share store
               </button>
-              <button className="h-10 px-4 rounded-full bg-white text-primary-dark text-xs font-semibold inline-flex items-center gap-1.5 hover:bg-white/90 transition-colors shadow">
-                <MessageCircle className="h-3.5 w-3.5" />
-                Message vendor
+              <button
+                onClick={handleMessageVendor}
+                disabled={messagingVendor}
+                className="h-10 px-4 rounded-full bg-white text-primary-dark text-xs font-semibold inline-flex items-center gap-1.5 hover:bg-white/90 transition-colors shadow disabled:opacity-60"
+              >
+                {messagingVendor ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <MessageCircle className="h-3.5 w-3.5" />
+                )}
+                {messagingVendor ? "Opening chat…" : "Message vendor"}
               </button>
               <Link
                 to="/marketplace/cart"

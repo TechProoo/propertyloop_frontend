@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ARTISAN_CORNER, PRODUCT_MARKETPLACE } from "../config/features";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -31,6 +31,8 @@ const roleDashboard: Record<string, string> = {
 const Login = () => {
   const { login, user, isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -59,7 +61,7 @@ const Login = () => {
           navigate("/verify-email-required");
           return;
         }
-        const dest = roleDashboard[loggedInUser.role] || "/dashboard";
+        const dest = redirectTo || roleDashboard[loggedInUser.role] || "/dashboard";
         navigate(dest);
       }, 1500);
     } catch (err: any) {
@@ -144,12 +146,12 @@ const Login = () => {
                       navigate("/verify-email-required");
                       return;
                     }
-                    navigate(roleDashboard[user.role] || "/dashboard");
+                    navigate(redirectTo || roleDashboard[user.role] || "/dashboard");
                   }}
                   className="w-full h-11 px-6 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors inline-flex items-center justify-center gap-2"
                 >
                   <ArrowRight className="w-4 h-4" />
-                  {user.emailVerifiedAt ? "Go to dashboard" : "Continue setup"}
+                  {user.emailVerifiedAt ? (redirectTo ? "Continue" : "Go to dashboard") : "Continue setup"}
                 </button>
                 <button
                   onClick={async () => {
@@ -173,13 +175,13 @@ const Login = () => {
                 Welcome back!
               </h2>
               <p className="text-text-secondary text-sm mt-2">
-                You've signed in successfully. Redirecting to your dashboard...
+                You've signed in successfully. Redirecting{redirectTo ? "" : " to your dashboard"}...
               </p>
               <Link
-                to={roleDashboard[user?.role || "BUYER"] || "/dashboard"}
+                to={redirectTo || roleDashboard[user?.role || "BUYER"] || "/dashboard"}
                 className="mt-6 inline-flex items-center gap-2 h-11 px-8 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary-dark transition-colors shadow-lg shadow-glow/40"
               >
-                Go to Dashboard
+                {redirectTo ? "Continue" : "Go to Dashboard"}
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
