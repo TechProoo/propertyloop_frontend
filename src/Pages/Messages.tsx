@@ -17,6 +17,7 @@ import {
   X,
   FileText,
   Image as ImageIcon,
+  ArrowRight,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -126,7 +127,10 @@ const Messages = () => {
   useEffect(() => {
     if (chat.loading) return;
     const fromQuery = searchParams.get("with");
-    if (fromQuery && chat.conversations.length > 0) {
+    if (fromQuery) {
+      // The ?with= param always wins — open the conversation immediately.
+      // It works even if the conversation isn't in the sidebar yet because
+      // openConversation fetches messages by ID from REST.
       chat.openConversation(fromQuery);
       setMobileShowChat(true);
     } else if (!chat.activeConversationId && chat.conversations.length > 0) {
@@ -277,10 +281,13 @@ const Messages = () => {
                   <ConversationsSkeleton />
                 ) : list.length === 0 ? (
                   <div className="text-center py-16 px-6">
-                    <div className="w-12 h-12 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mx-auto mb-3">
-                      <MessageCircle className="w-5 h-5 text-text-subtle" />
+                    <div className="w-12 h-12 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center mx-auto mb-3">
+                      <MessageCircle className="w-5 h-5 text-primary" />
                     </div>
-                    <p className="text-text-secondary text-sm">No conversations yet</p>
+                    <p className="font-heading font-bold text-primary-dark text-sm">No conversations yet</p>
+                    <p className="text-text-secondary text-xs mt-1">
+                      Message a vendor from their storefront to start chatting.
+                    </p>
                   </div>
                 ) : (
                   list.map((c) => {
@@ -488,13 +495,26 @@ const Messages = () => {
                 </>
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-10">
-                  <div className="w-16 h-16 rounded-full bg-bg-accent border border-border-light flex items-center justify-center mb-4">
-                    <MessageCircle className="w-7 h-7 text-text-subtle" />
+                  <div className="w-16 h-16 rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center mb-4">
+                    <MessageCircle className="w-7 h-7 text-primary" />
                   </div>
-                  <h3 className="font-heading font-bold text-primary-dark text-lg">Select a conversation</h3>
+                  <h3 className="font-heading font-bold text-primary-dark text-lg">
+                    {list.length === 0 ? "No conversations yet" : "Select a conversation"}
+                  </h3>
                   <p className="text-text-secondary text-sm mt-2 max-w-xs">
-                    Pick a chat from the list to view messages and reply.
+                    {list.length === 0
+                      ? "When you message a vendor or agent, your conversations will appear here."
+                      : "Pick a chat from the list to view messages and reply."}
                   </p>
+                  {list.length === 0 && (
+                    <Link
+                      to="/marketplace"
+                      className="mt-5 inline-flex items-center gap-2 h-10 px-5 rounded-full bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors"
+                    >
+                      Browse marketplace
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  )}
                 </div>
               )}
             </section>

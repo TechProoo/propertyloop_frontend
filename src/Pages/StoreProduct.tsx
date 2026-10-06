@@ -28,6 +28,9 @@ import marketplaceService, {
   type ProductDetail,
 } from "../api/services/marketplace";
 import { useStoreCart } from "../context/StoreCartContext";
+import { useAuth } from "../context/AuthContext";
+import messagesService from "../api/services/messages";
+import { sharePage } from "../lib/share";
 
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG");
 
@@ -80,8 +83,16 @@ const StoreProductPage = () => {
   );
   const [saved, setSaved] = useState(false);
   const [addedFlash, setAddedFlash] = useState(false);
+  const [messagingVendor, setMessagingVendor] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   const { addItem } = useStoreCart();
+  const { user, isLoggedIn } = useAuth();
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -150,6 +161,38 @@ const StoreProductPage = () => {
   const handleBuyNow = () => {
     handleAdd();
     navigate("/marketplace/cart");
+  };
+
+  const handleMessageVendor = async () => {
+    if (!isLoggedIn) {
+      navigate(`/login?redirect=/store/${store.slug}/product/${product.id}`);
+      return;
+    }
+    if (!store.ownerUserId || messagingVendor) return;
+    setMessagingVendor(true);
+    try {
+      const { conversationId } = await messagesService.createOrFind({
+        recipientId: store.ownerUserId,
+        recipientRole: "VENDOR",
+        senderRole: user?.role === "AGENT" ? "AGENT" : "BUYER",
+        productId: product.id,
+      });
+      navigate(`/messages?with=${conversationId}`);
+    } catch {
+      showToast("Could not start conversation. Please try again.");
+    } finally {
+      setMessagingVendor(false);
+    }
+  };
+
+  const handleShareProduct = async () => {
+    const result = await sharePage({
+      title: `${product.name} - ${store.name} on PropertyLoop`,
+      text: `Check out ${product.name} for ${naira(product.priceNaira)} on PropertyLoop`,
+      url: `${window.location.origin}/store/${store.slug}/product/${product.id}`,
+    });
+    if (result === "copied") showToast("Product link copied to clipboard");
+    else if (result === "failed") showToast("Could not share. Copy the URL from your address bar.");
   };
 
   const policyIcon = {
@@ -496,7 +539,10 @@ const StoreProductPage = () => {
                       <Heart className={`h-3.5 w-3.5 ${saved ? "fill-current" : ""}`} />
                       {saved ? "Saved" : "Save"}
                     </button>
-                    <button className="flex-1 h-10 rounded-full border border-border-light bg-white text-text-secondary text-xs font-semibold inline-flex items-center justify-center gap-1.5 hover:border-primary hover:text-primary transition-colors">
+                    <button
+                      onClick={handleShareProduct}
+                      className="flex-1 h-10 rounded-full border border-border-light bg-white text-text-secondary text-xs font-semibold inline-flex items-center justify-center gap-1.5 hover:border-primary hover:text-primary transition-colors"
+                    >
                       <Share2 className="h-3.5 w-3.5" />
                       Share
                     </button>
@@ -553,15 +599,28 @@ const StoreProductPage = () => {
                 </ul>
               </div>
 
-              {/* Message vendor */}
-              <Link
-                to={`/store/${store.slug}`}
-                className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-full border border-border-light bg-white text-primary-dark text-xs font-semibold hover:border-primary hover:text-primary transition-colors"
-              >
-                <MessageCircle className="h-3.5 w-3.5" />
-                Visit {store.name}
-                <ChevronRight className="h-3.5 w-3.5" />
-              </Link>
+              {/* Message vendor + visit store */}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleMessageVendor}
+                  disabled={messagingVendor}
+                  className="flex-1 h-11 rounded-full bg-primary-dark text-white text-xs font-semibold inline-flex items-center justify-center gap-2 hover:bg-black transition-colors disabled:opacity-60"
+                >
+                  {messagingVendor ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <MessageCircle className="h-3.5 w-3.5" />
+                  )}
+                  {messagingVendor ? "Opening…" : "Message vendor"}
+                </button>
+                <Link
+                  to={`/store/${store.slug}`}
+                  className="flex-1 h-11 rounded-full border border-border-light bg-white text-primary-dark text-xs font-semibold inline-flex items-center justify-center gap-2 hover:border-primary hover:text-primary transition-colors"
+                >
+                  <StoreIcon className="h-3.5 w-3.5" />
+                  Visit store
+                </Link>
+              </div>
             </div>
           </aside>
         </div>
@@ -622,6 +681,16 @@ const StoreProductPage = () => {
       </main>
 
       <Footer />
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-[fadeInUp_0.25s_ease-out]">
+          <div className="flex items-center gap-2 px-5 py-3 rounded-full bg-primary-dark text-white text-sm font-medium shadow-lg shadow-black/20">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            {toast}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

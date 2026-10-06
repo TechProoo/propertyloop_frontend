@@ -32,6 +32,7 @@ import marketplaceService from "../api/services/marketplace";
 import messagesService from "../api/services/messages";
 import { useStoreCart } from "../context/StoreCartContext";
 import { useAuth } from "../context/AuthContext";
+import { sharePage } from "../lib/share";
 
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG");
 
@@ -102,6 +103,12 @@ const VendorStorefront = () => {
   const { user, isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [messagingVendor, setMessagingVendor] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
+  };
 
   const handleMessageVendor = async () => {
     if (!isLoggedIn) {
@@ -118,10 +125,21 @@ const VendorStorefront = () => {
       });
       navigate(`/messages?with=${conversationId}`);
     } catch {
-      alert("Could not start conversation. Please try again.");
+      showToast("Could not start conversation. Please try again.");
     } finally {
       setMessagingVendor(false);
     }
+  };
+
+  const handleShareStore = async () => {
+    if (!store) return;
+    const result = await sharePage({
+      title: `${store.name} on PropertyLoop`,
+      text: store.tagline,
+      url: `${window.location.origin}/store/${store.slug}`,
+    });
+    if (result === "copied") showToast("Store link copied to clipboard");
+    else if (result === "failed") showToast("Could not share. Copy the URL from your address bar.");
   };
 
   useEffect(() => {
@@ -284,7 +302,10 @@ const VendorStorefront = () => {
             </div>
 
             <div className="lg:ml-auto flex flex-wrap items-center gap-2">
-              <button className="h-10 px-4 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors">
+              <button
+                onClick={handleShareStore}
+                className="h-10 px-4 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
+              >
                 <Share2 className="h-3.5 w-3.5" />
                 Share store
               </button>
@@ -731,6 +752,16 @@ const VendorStorefront = () => {
       </main>
 
       <Footer />
+
+      {/* Toast notification */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-[fadeInUp_0.25s_ease-out]">
+          <div className="flex items-center gap-2 px-5 py-3 rounded-full bg-primary-dark text-white text-sm font-medium shadow-lg shadow-black/20">
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            {toast}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

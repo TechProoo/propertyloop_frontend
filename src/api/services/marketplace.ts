@@ -28,6 +28,7 @@ export interface Paginated<T> {
 
 export interface ProductDetail extends ProductWithStore {
   store: {
+    ownerUserId?: string;
     slug: string;
     name: string;
     logo: string;
