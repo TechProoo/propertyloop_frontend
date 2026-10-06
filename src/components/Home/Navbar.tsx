@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { ARTISAN_CORNER } from "../../config/features";
+import { ARTISAN_CORNER, PRODUCT_MARKETPLACE } from "../../config/features";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, LogOut, Menu, Plus, Search, Settings, X } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Plus, Search, Settings, ShoppingBag, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { useStoreCart } from "../../context/StoreCartContext";
 import Logo from "../../assets/logo.png";
 import gsap from "gsap";
 
@@ -30,6 +31,9 @@ const CATEGORY_LINKS = [
   { label: "Shortlet", href: "/shortlet" },
   { label: "Feed", href: "/feed", badge: "New" },
   // { label: "Services", href: "/services" },  // Artisan Corner is hidden (src/config/features.ts). Nothing is deleted.
+  ...(PRODUCT_MARKETPLACE
+    ? [{ label: "Marketplace", href: "/marketplace", badge: "New" } as const]
+    : []),
   { label: "Find Agent", href: "/find-agent" },
   { label: "Facility Management", href: "/facility-management" },
   { label: "About", href: "/about" },
@@ -46,6 +50,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const path = location.pathname;
   const { user, isLoggedIn, logoutWithRedirect, loggingOut } = useAuth();
+  const { count: cartCount } = useStoreCart();
   const navRef = useRef<HTMLElement>(null);
   const accountRef = useRef<HTMLDivElement>(null);
 
@@ -194,6 +199,21 @@ const Navbar = () => {
 
           {/* Right actions – desktop */}
           <div className="hidden items-center gap-3 lg:flex">
+            {PRODUCT_MARKETPLACE && (
+              <Link
+                data-nav-action
+                to="/marketplace/cart"
+                aria-label="Marketplace cart"
+                className="relative inline-flex h-9 w-9 items-center justify-center rounded-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-extrabold text-white">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </span>
+                )}
+              </Link>
+            )}
             {isLoggedIn ? (
               <>
                 {user?.role === "AGENT" && (

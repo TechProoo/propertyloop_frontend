@@ -16,3 +16,12 @@
  * their open jobs and payouts are settled off-platform.
  */
 export const ARTISAN_CORNER = false;
+
+/**
+ * Product Marketplace — real-estate commerce layer that replaces Artisan
+ * Corner's slot in the product. Vendors build branded storefronts (their own
+ * URL, logo, colours and inventory), customers check out through our cart,
+ * and PropertyLoop takes a commission on every sale. Discovery is driven by
+ * the hub page plus featured storefronts surfaced on the home page.
+ */
+export const PRODUCT_MARKETPLACE = true;

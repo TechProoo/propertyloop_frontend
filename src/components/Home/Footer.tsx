@@ -69,17 +69,15 @@ const footerLinks = {
     { label: "Find Agent", href: "/find-agent" },
     { label: "Property Logbook", href: "/logbook" },
   ],
-  // Artisan Corner is hidden (src/config/features.ts), so the trades that
-  // pointed at it are gone from the footer. Facility Management and Materials
-  // are their own things and stay.
-  Services: [
-    // { label: "Artisan Corner", href: "/services" },
+  // Artisan Corner is hidden (src/config/features.ts). The new marketplace
+  // and facility management are now the active commerce links in this
+  // column. Nothing is deleted so a flag flip restores the trades links.
+  Marketplace: [
+    { label: "Browse marketplace", href: "/marketplace" },
+    { label: "All products", href: "/marketplace/products" },
+    { label: "Your cart", href: "/marketplace/cart" },
+    { label: "Sell on PropertyLoop", href: "/onboarding?role=vendor" },
     { label: "Facility Management", href: "/facility-management" },
-    // { label: "Plumbing", href: "/services" },
-    // { label: "Electrical", href: "/services" },
-    // { label: "Cleaning", href: "/services" },
-    // { label: "Building", href: "/services" },
-    { label: "Materials", href: "/marketplace" },
   ],
   Company: [
     { label: "About Us", href: "/about" },

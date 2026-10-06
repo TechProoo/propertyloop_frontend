@@ -1,8 +1,9 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { ARTISAN_CORNER } from "./config/features";
+import { ARTISAN_CORNER, PRODUCT_MARKETPLACE } from "./config/features";
 import { BookmarkProvider } from "./context/BookmarkContext";
+import { StoreCartProvider } from "./context/StoreCartContext";
 import { AnimatePresence } from "framer-motion";
 import SplashLoader from "./components/ui/SplashLoader";
 import IndependenceSplash from "./components/ui/IndependenceSplash";
@@ -56,6 +57,13 @@ import Cart from "./Pages/Cart";
 import BookService from "./Pages/BookService";
 import VendorDashboard from "./Pages/VendorDashboard";
 import VendorProfile from "./Pages/VendorProfile";
+import MarketplaceHub from "./Pages/MarketplaceHub";
+import MarketplaceProducts from "./Pages/MarketplaceProducts";
+import MarketplaceCart from "./Pages/MarketplaceCart";
+import MarketplaceCheckout from "./Pages/MarketplaceCheckout";
+import MarketplaceOrderConfirmation from "./Pages/MarketplaceOrderConfirmation";
+import VendorStorefront from "./Pages/VendorStorefront";
+import StoreProductPage from "./Pages/StoreProduct";
 import PaymentCallback from "./Pages/PaymentCallback";
 import BlogPost from "./Pages/BlogPost";
 import JobDetail from "./Pages/JobDetail";
@@ -273,6 +281,39 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          {PRODUCT_MARKETPLACE && (
+            <Route path="/marketplace" element={<MarketplaceHub />} />
+          )}
+          {PRODUCT_MARKETPLACE && (
+            <Route
+              path="/marketplace/products"
+              element={<MarketplaceProducts />}
+            />
+          )}
+          {PRODUCT_MARKETPLACE && (
+            <Route path="/marketplace/cart" element={<MarketplaceCart />} />
+          )}
+          {PRODUCT_MARKETPLACE && (
+            <Route
+              path="/marketplace/checkout"
+              element={<MarketplaceCheckout />}
+            />
+          )}
+          {PRODUCT_MARKETPLACE && (
+            <Route
+              path="/marketplace/order/:reference"
+              element={<MarketplaceOrderConfirmation />}
+            />
+          )}
+          {PRODUCT_MARKETPLACE && (
+            <Route path="/store/:slug" element={<VendorStorefront />} />
+          )}
+          {PRODUCT_MARKETPLACE && (
+            <Route
+              path="/store/:slug/product/:productId"
+              element={<StoreProductPage />}
+            />
+          )}
           <Route path="/checkout" element={<Checkout />} />
           <Route
             path="/order-confirmation/:id"
@@ -338,8 +379,10 @@ function App() {
       </a>
       <AuthProvider>
         <BookmarkProvider>
-          <AppContent />
-          <Toaster />
+          <StoreCartProvider>
+            <AppContent />
+            <Toaster />
+          </StoreCartProvider>
         </BookmarkProvider>
       </AuthProvider>
     </BrowserRouter>
