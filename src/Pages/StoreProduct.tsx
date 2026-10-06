@@ -531,7 +531,7 @@ const StoreProductPage = () => {
                   Delivery &amp; buyer protection
                 </h3>
                 <ul className="space-y-3">
-                  {store.policies.map((p) => {
+                  {(store.policies ?? []).map((p) => {
                     const Icon = policyIcon[p.icon];
                     return (
                       <li

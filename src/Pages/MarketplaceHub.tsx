@@ -113,7 +113,7 @@ const MarketplaceHub = () => {
               "url(https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1600&h=800&fit=crop)",
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/95 via-primary-dark/85 to-primary-dark/60" />
+        <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/35 to-transparent" />
         <span className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-amber-300/10 blur-3xl" />
         <span className="pointer-events-none absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-emerald-300/10 blur-3xl" />
 
@@ -284,7 +284,7 @@ const MarketplaceHub = () => {
                     <div
                       className="absolute inset-0"
                       style={{
-                        background: `linear-gradient(135deg, ${s.accent}cc 0%, transparent 60%)`,
+                        background: `linear-gradient(135deg, ${s.accent}55 0%, transparent 45%)`,
                       }}
                     />
                     {!s.live && (

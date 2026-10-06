@@ -103,13 +103,13 @@ const MarketplaceSpotlight = () => {
               style={{ backgroundColor: s.accent }}
             >
               <div
-                className="absolute inset-0 bg-cover bg-center opacity-40 group-hover:opacity-50 transition-opacity duration-500"
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
                 style={{ backgroundImage: `url(${s.hero})` }}
               />
               <div
                 className="absolute inset-0"
                 style={{
-                  background: `linear-gradient(170deg, ${s.accent}30 0%, ${s.accent} 70%)`,
+                  background: `linear-gradient(180deg, transparent 0%, transparent 40%, ${s.accent}d9 100%)`,
                 }}
               />
 

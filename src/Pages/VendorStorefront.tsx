@@ -106,7 +106,17 @@ const VendorStorefront = () => {
     marketplaceService
       .getStore(slug)
       .then((s) => {
-        if (!cancelled) setStore(s);
+        if (cancelled) return;
+        // The API omits lists a vendor hasn't filled in (and has no reviews
+        // feed yet); default them so the page never maps over undefined.
+        setStore({
+          ...s,
+          products: s.products ?? [],
+          policies: s.policies ?? [],
+          collections: s.collections ?? [],
+          deliveryAreas: s.deliveryAreas ?? [],
+          reviewsList: s.reviewsList ?? [],
+        });
       })
       .catch(() => {
         if (!cancelled) setStore(null);
@@ -184,13 +194,13 @@ const VendorStorefront = () => {
         style={{ backgroundColor: store.accent }}
       >
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-25"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${store.banner})` }}
         />
         <div
           className="absolute inset-0"
           style={{
-            background: `linear-gradient(135deg, ${store.accent} 0%, ${store.accent}cc 50%, ${store.accent}ee 100%)`,
+            background: `linear-gradient(90deg, ${store.accent}ee 0%, ${store.accent}99 45%, ${store.accent}33 100%)`,
           }}
         />
         <span className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
