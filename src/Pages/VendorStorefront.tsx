@@ -23,10 +23,12 @@ import {
   Home,
   Store,
 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
-import { STOREFRONTS, type Storefront } from "../data/storefronts";
+import { type Storefront } from "../data/storefronts";
+import marketplaceService from "../api/services/marketplace";
 import { useStoreCart } from "../context/StoreCartContext";
 
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG");
@@ -86,7 +88,8 @@ function StorefrontNotFound({ slug }: { slug: string }) {
 
 const VendorStorefront = () => {
   const { slug = "" } = useParams<{ slug: string }>();
-  const store = STOREFRONTS[slug];
+  const [store, setStore] = useState<Storefront | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const [activeCollection, setActiveCollection] = useState<string>("all");
   const [query, setQuery] = useState("");
@@ -96,8 +99,24 @@ const VendorStorefront = () => {
   const { count, addItem } = useStoreCart();
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
     setActiveCollection("all");
     setQuery("");
+    marketplaceService
+      .getStore(slug)
+      .then((s) => {
+        if (!cancelled) setStore(s);
+      })
+      .catch(() => {
+        if (!cancelled) setStore(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
 
   const products = useMemo(() => {
@@ -115,6 +134,18 @@ const VendorStorefront = () => {
       return inCollection && matches;
     });
   }, [store, activeCollection, query]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f5f0eb]">
+        <Navbar />
+        <div className="flex items-center justify-center py-40">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!store) return <StorefrontNotFound slug={slug} />;
 

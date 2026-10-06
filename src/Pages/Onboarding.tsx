@@ -19,6 +19,7 @@ import {
   holdOnboardingRoute,
   releaseOnboardingRoute,
 } from "../lib/onboardingFlag";
+import { PRODUCT_MARKETPLACE } from "../config/features";
 
 export type UserRole = "buyer" | "agent" | "vendor";
 
@@ -50,11 +51,12 @@ export interface OnboardingData {
 type Step = "role" | "signup" | "setup" | "service" | "welcome";
 
 /**
- * Vendors get an extra step to post their first bookable service, matching the
- * app's setup -> first service flow. Everyone else goes straight to welcome.
+ * Artisan Corner vendors posted a first bookable service during onboarding.
+ * Marketplace vendors skip that — they set up their storefront and products in
+ * their dashboard after signing in — so everyone goes straight to welcome.
  */
 const stepsForRole = (role: UserRole | null): Step[] =>
-  role === "vendor"
+  role === "vendor" && !PRODUCT_MARKETPLACE
     ? ["role", "signup", "setup", "service", "welcome"]
     : ["role", "signup", "setup", "welcome"];
 
@@ -204,9 +206,12 @@ const Onboarding = () => {
       // referrer again if another account signs up from this browser.
       localStorage.removeItem("pl_ref");
 
-      // Vendors post their first service before landing on welcome - the POST
-      // needs the auth token we only have now that signup has succeeded.
-      setCurrentStep(data.role === "vendor" ? "service" : "welcome");
+      // Artisan Corner vendors posted their first service before welcome.
+      // Marketplace vendors skip straight to welcome and set up their store in
+      // the dashboard, so only route to "service" when the marketplace is off.
+      setCurrentStep(
+        data.role === "vendor" && !PRODUCT_MARKETPLACE ? "service" : "welcome",
+      );
     } catch (err: any) {
       setSignupError(
         err?.response?.data?.message || "Signup failed. Please try again.",

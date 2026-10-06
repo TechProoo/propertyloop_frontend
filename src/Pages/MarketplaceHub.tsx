@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -25,59 +25,27 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
-import {
-  STOREFRONTS,
-  TEASER_STORES,
-  ALL_PRODUCTS,
-} from "../data/storefronts";
+import { TEASER_STORES, type StoreTeaser } from "../data/storefronts";
+import marketplaceService, {
+  type ProductWithStore,
+} from "../api/services/marketplace";
 import { useStoreCart } from "../context/StoreCartContext";
 
-/* ─── Static catalogue ──────────────────────────────────────────────────────
+/* ─── Hub ────────────────────────────────────────────────────────────────────
  *
- * Discovery entries for the hub. Live stores come from the shared storefronts
- * module so a product change in one place is reflected everywhere; teaser
- * cards sit next to them so the directory looks fuller than it is.
+ * Live stores and trending products come from the marketplace API; the static
+ * TEASER_STORES sit beside them as "opening soon" cards so the directory looks
+ * fuller than it is while vendors are still onboarding.
  */
 
 const CATEGORIES = [
-  { icon: Sofa, label: "Furniture", stores: 42 },
-  { icon: Lamp, label: "Lighting & Decor", stores: 28 },
-  { icon: Hammer, label: "Building Materials", stores: 61 },
-  { icon: Zap, label: "Smart Home", stores: 19 },
-  { icon: Wrench, label: "Tools & Hardware", stores: 23 },
-  { icon: Trees, label: "Landscaping", stores: 12 },
+  { icon: Sofa, label: "Furniture" },
+  { icon: Lamp, label: "Lighting & Decor" },
+  { icon: Hammer, label: "Building Materials" },
+  { icon: Zap, label: "Smart Home" },
+  { icon: Wrench, label: "Tools & Hardware" },
+  { icon: Trees, label: "Landscaping" },
 ] as const;
-
-type StoreCard = {
-  slug: string;
-  name: string;
-  tagline: string;
-  category: string;
-  logo: string;
-  banner: string;
-  accent: string;
-  rating: number;
-  productsCount: number;
-  verified: boolean;
-  live: boolean;
-};
-
-const FEATURED_STORES: StoreCard[] = [
-  ...Object.values(STOREFRONTS).map((s) => ({
-    slug: s.slug,
-    name: s.name,
-    tagline: s.tagline,
-    category: s.category,
-    logo: s.logo,
-    banner: s.banner,
-    accent: s.accent,
-    rating: s.rating,
-    productsCount: s.products.length,
-    verified: s.verified,
-    live: true,
-  })),
-  ...TEASER_STORES,
-];
 
 /* ─── Formatting helpers ─────────────────────────────────────────────────── */
 
@@ -90,15 +58,34 @@ const MarketplaceHub = () => {
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const { count: cartCount } = useStoreCart();
 
-  const trending = useMemo(
-    () =>
-      ALL_PRODUCTS.slice()
-        .sort((a, b) => b.reviews - a.reviews)
-        .slice(0, 4),
-    [],
+  const [liveStores, setLiveStores] = useState<StoreTeaser[]>([]);
+  const [trending, setTrending] = useState<ProductWithStore[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    marketplaceService
+      .listStores()
+      .then((s) => {
+        if (!cancelled) setLiveStores(s);
+      })
+      .catch(() => undefined);
+    marketplaceService
+      .listProducts({ sort: "popular", limit: 4 })
+      .then((res) => {
+        if (!cancelled) setTrending(res.items);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const featuredStores = useMemo<StoreTeaser[]>(
+    () => [...liveStores, ...TEASER_STORES],
+    [liveStores],
   );
 
-  const visibleStores = FEATURED_STORES.filter((s) => {
+  const visibleStores = featuredStores.filter((s) => {
     const matchesCategory =
       activeCategory === "All" || s.category === activeCategory;
     const matchesQuery =
@@ -186,18 +173,16 @@ const MarketplaceHub = () => {
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
               {[
-                { v: "180+", l: "verified stores" },
-                { v: "4,200+", l: "products" },
-                { v: "Lagos-wide", l: "delivery" },
-              ].map((s) => (
+                "Verified vendors",
+                "Secure Paystack checkout",
+                "Buyer protection",
+              ].map((l) => (
                 <div
-                  key={s.l}
+                  key={l}
                   className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-xs"
                 >
-                  <span className="font-heading font-bold text-white">
-                    {s.v}
-                  </span>
-                  <span className="text-white/60">{s.l}</span>
+                  <BadgeCheck className="h-3.5 w-3.5 text-amber-200" />
+                  <span className="text-white/80">{l}</span>
                 </div>
               ))}
             </div>
@@ -219,7 +204,7 @@ const MarketplaceHub = () => {
             </div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {CATEGORIES.map(({ icon: Icon, label, stores }) => (
+            {CATEGORIES.map(({ icon: Icon, label }) => (
               <button
                 key={label}
                 onClick={() => setActiveCategory(label)}
@@ -240,13 +225,6 @@ const MarketplaceHub = () => {
                 </span>
                 <p className="font-heading font-bold text-sm leading-tight">
                   {label}
-                </p>
-                <p
-                  className={`text-xs mt-0.5 ${
-                    activeCategory === label ? "text-white/60" : "text-text-subtle"
-                  }`}
-                >
-                  {stores} stores
                 </p>
               </button>
             ))}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Home,
   ChevronRight,
@@ -25,11 +25,7 @@ import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
 import { useStoreCart } from "../context/StoreCartContext";
 import { useAuth } from "../context/AuthContext";
-import {
-  getPaystackPublicKey,
-  makeOrderReference,
-  openPaystackCheckout,
-} from "../lib/paystack";
+import marketplaceService from "../api/services/marketplace";
 
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG");
 
@@ -64,13 +60,11 @@ const NIGERIAN_CITIES = [
 const DRAFT_KEY = "pl-marketplace-checkout-draft.v1";
 
 const MarketplaceCheckout = () => {
-  const navigate = useNavigate();
-  const { itemsByStore, subtotal, count, clear } = useStoreCart();
+  const { items, itemsByStore, subtotal, count } = useStoreCart();
   const { user } = useAuth();
-
   const [stage, setStage] = useState<Stage>("contact");
   const [paying, setPaying] = useState(false);
-  const [paystackError, setPaystackError] = useState<string | null>(null);
+  const [payError, setPayError] = useState<string | null>(null);
 
   const [contact, setContact] = useState<ContactForm>({
     name: user?.name ?? "",
@@ -117,8 +111,6 @@ const MarketplaceCheckout = () => {
     return { platformFee, deliveryFee, total, freeShip };
   }, [subtotal]);
 
-  const publicKey = getPaystackPublicKey();
-
   const canContinueContact =
     contact.name.trim().length >= 2 &&
     /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact.email.trim()) &&
@@ -161,100 +153,53 @@ const MarketplaceCheckout = () => {
   }
 
   const payWithPaystack = async () => {
-    setPaystackError(null);
-    if (!publicKey) {
-      setPaystackError(
-        "Payment is not configured yet. The Paystack public key is missing — contact support.",
-      );
-      return;
-    }
+    setPayError(null);
     if (!canContinueContact || !canContinueDelivery) {
-      setPaystackError("Please complete every delivery and contact field.");
+      setPayError("Please complete every delivery and contact field.");
       return;
     }
 
     setPaying(true);
-    const reference = makeOrderReference();
     try {
-      const response = await openPaystackCheckout({
-        key: publicKey,
-        email: contact.email.trim().toLowerCase(),
-        amount: totals.total * 100, // kobo
-        ref: reference,
-        currency: "NGN",
-        channels: ["card", "bank", "ussd", "bank_transfer", "qr"],
-        metadata: {
-          source: "marketplace",
-          buyer: {
-            name: contact.name.trim(),
-            phone: contact.phone.trim(),
-          },
-          delivery: {
-            address: delivery.address.trim(),
-            city: delivery.city,
-            state: delivery.state,
-            notes: delivery.notes.trim() || undefined,
-          },
-          totals: {
-            subtotal,
-            deliveryFee: totals.deliveryFee,
-            platformFee: totals.platformFee,
-            total: totals.total,
-          },
-          stores: itemsByStore.map((g) => ({
-            slug: g.storeSlug,
-            name: g.storeName,
-            subtotal: g.subtotal,
-            items: g.items.map((i) => ({
-              productId: i.productId,
-              name: i.name,
-              quantity: i.quantity,
-              unitPrice: i.priceNaira,
-              options: i.options,
-            })),
-          })),
-          custom_fields: [
-            {
-              display_name: "Order type",
-              variable_name: "order_type",
-              value: "marketplace",
-            },
-            {
-              display_name: "Stores",
-              variable_name: "stores",
-              value: itemsByStore.map((g) => g.storeName).join(", "),
-            },
-          ],
-        },
+      // The server recomputes every price and the total from the database, so
+      // the amount charged can't be tampered with from the client. It returns a
+      // Paystack checkout URL that already knows the order and the callback.
+      const result = await marketplaceService.createOrder({
+        buyerName: contact.name.trim(),
+        buyerEmail: contact.email.trim().toLowerCase(),
+        buyerPhone: contact.phone.trim(),
+        address: delivery.address.trim(),
+        city: delivery.city,
+        state: delivery.state,
+        notes: delivery.notes.trim() || undefined,
+        items: items.map((i) => ({
+          productId: i.productId,
+          quantity: i.quantity,
+          options: i.options,
+        })),
       });
 
-      // Persist the completed order locally so the confirmation page can show
-      // it without a backend round-trip while the webhook is processing.
+      // Clear the local draft; the cart is cleared on the confirmation page once
+      // payment is verified, so an abandoned checkout keeps the cart intact.
       try {
-        window.localStorage.setItem(
-          `pl-marketplace-order-${response.reference}`,
-          JSON.stringify({
-            reference: response.reference,
-            placedAt: new Date().toISOString(),
-            contact,
-            delivery,
-            totals: { ...totals, subtotal },
-            itemsByStore,
-          }),
-        );
         window.localStorage.removeItem(DRAFT_KEY);
       } catch {
         /* non-fatal */
       }
 
-      clear();
-      navigate(`/marketplace/order/${response.reference}`);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Payment failed.";
-      if (msg !== "Payment window closed") {
-        setPaystackError(msg);
-      }
-    } finally {
+      // Hand off to Paystack's hosted checkout. Paystack redirects back to
+      // /marketplace/order/:orderNumber, which verifies server-side.
+      window.location.href = result.paymentUrl;
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string | string[] } } })
+          ?.response?.data?.message;
+      setPayError(
+        Array.isArray(message)
+          ? message[0]
+          : (message ??
+              "We could not start the payment. Please try again."),
+      );
       setPaying(false);
     }
   };
@@ -591,29 +536,10 @@ const MarketplaceCheckout = () => {
                   </div>
                 </div>
 
-                {paystackError && (
+                {payError && (
                   <div className="mt-4 flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
                     <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                    <span>{paystackError}</span>
-                  </div>
-                )}
-
-                {!publicKey && (
-                  <div className="mt-4 flex items-start gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-800">
-                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">
-                        Paystack is not configured for this environment.
-                      </p>
-                      <p className="mt-0.5 leading-relaxed">
-                        Set{" "}
-                        <code className="rounded bg-amber-100 px-1 py-0.5">
-                          VITE_PAYSTACK_PUBLIC_KEY
-                        </code>{" "}
-                        in <code className="rounded bg-amber-100 px-1 py-0.5">.env</code>{" "}
-                        and rebuild. The checkout will enable automatically.
-                      </p>
-                    </div>
+                    <span>{payError}</span>
                   </div>
                 )}
 
@@ -626,7 +552,7 @@ const MarketplaceCheckout = () => {
                     Back
                   </button>
                   <button
-                    disabled={paying || !publicKey}
+                    disabled={paying}
                     onClick={payWithPaystack}
                     className="h-12 px-7 rounded-full bg-primary-dark text-white text-sm font-bold inline-flex items-center gap-2 hover:bg-black transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                   >

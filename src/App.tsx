@@ -62,6 +62,7 @@ import MarketplaceProducts from "./Pages/MarketplaceProducts";
 import MarketplaceCart from "./Pages/MarketplaceCart";
 import MarketplaceCheckout from "./Pages/MarketplaceCheckout";
 import MarketplaceOrderConfirmation from "./Pages/MarketplaceOrderConfirmation";
+import MarketplaceVendorDashboard from "./Pages/MarketplaceVendorDashboard";
 import VendorStorefront from "./Pages/VendorStorefront";
 import StoreProductPage from "./Pages/StoreProduct";
 import PaymentCallback from "./Pages/PaymentCallback";
@@ -94,9 +95,14 @@ import { isOnboardingRouteHeld } from "./lib/onboardingFlag";
 const roleDashboard: Record<string, string> = {
   BUYER: "/dashboard",
   AGENT: "/agent-dashboard",
-  // Artisan Corner is hidden, so a vendor account lands on the ordinary
-  // dashboard rather than a route that no longer exists.
-  VENDOR: ARTISAN_CORNER ? "/vendor-dashboard" : "/dashboard",
+  // Marketplace vendors manage their storefront here. Artisan Corner's vendor
+  // dashboard stays reachable only while that feature is switched back on;
+  // otherwise a vendor with no marketplace lands on the ordinary dashboard.
+  VENDOR: PRODUCT_MARKETPLACE
+    ? "/marketplace/vendor"
+    : ARTISAN_CORNER
+      ? "/vendor-dashboard"
+      : "/dashboard",
 };
 
 function ProtectedRoute({
@@ -312,6 +318,16 @@ function AppContent() {
             <Route
               path="/store/:slug/product/:productId"
               element={<StoreProductPage />}
+            />
+          )}
+          {PRODUCT_MARKETPLACE && (
+            <Route
+              path="/marketplace/vendor"
+              element={
+                <ProtectedRoute allowedRoles={["VENDOR"]}>
+                  <MarketplaceVendorDashboard />
+                </ProtectedRoute>
+              }
             />
           )}
           <Route path="/checkout" element={<Checkout />} />

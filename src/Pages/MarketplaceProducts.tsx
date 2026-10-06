@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Search,
@@ -13,16 +13,13 @@ import {
   BadgeCheck,
   Store,
   X,
+  Loader2,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
-import {
-  ALL_PRODUCTS,
-  STOREFRONTS,
-  listAllCategories,
-  type ProductWithStore,
-} from "../data/storefronts";
+import type { ProductWithStore, StoreTeaser } from "../data/storefronts";
+import marketplaceService from "../api/services/marketplace";
 import { useStoreCart } from "../context/StoreCartContext";
 
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG");
@@ -55,14 +52,54 @@ const MarketplaceProducts = () => {
 
   const { addItem, count } = useStoreCart();
 
-  const categories = useMemo(() => ["All", ...listAllCategories()], []);
+  const [allProducts, setAllProducts] = useState<ProductWithStore[]>([]);
+  const [storeList, setStoreList] = useState<StoreTeaser[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([
+      marketplaceService.listProducts({ limit: 200 }).catch(() => ({
+        items: [] as ProductWithStore[],
+        total: 0,
+        page: 1,
+        limit: 200,
+        pages: 0,
+      })),
+      marketplaceService.listStores().catch(() => [] as StoreTeaser[]),
+    ])
+      .then(([prodRes, stores]) => {
+        if (cancelled) return;
+        setAllProducts(prodRes.items);
+        setStoreList(stores);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of allProducts) set.add(p.category);
+    return ["All", ...[...set].sort()];
+  }, [allProducts]);
+
+  const storeNameBySlug = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const s of storeList) m.set(s.slug, s.name);
+    return m;
+  }, [storeList]);
+
   const stores = useMemo(
-    () => ["All", ...Object.values(STOREFRONTS).map((s) => s.slug)],
-    [],
+    () => ["All", ...storeList.map((s) => s.slug)],
+    [storeList],
   );
 
   const products = useMemo(() => {
-    let list: ProductWithStore[] = ALL_PRODUCTS.slice();
+    let list: ProductWithStore[] = allProducts.slice();
     if (query) {
       const q = query.toLowerCase();
       list = list.filter(
@@ -95,7 +132,7 @@ const MarketplaceProducts = () => {
         list.sort((a, b) => b.reviews - a.reviews);
     }
     return list;
-  }, [query, category, storeSlug, priceIdx, sort]);
+  }, [allProducts, query, category, storeSlug, priceIdx, sort]);
 
   const toggleWishlist = (id: string) => {
     setWishlist((prev) => {
@@ -254,7 +291,7 @@ const MarketplaceProducts = () => {
                           : "text-text-body hover:bg-black/5"
                       }`}
                     >
-                      {s === "All" ? "All stores" : STOREFRONTS[s]?.name ?? s}
+                      {s === "All" ? "All stores" : storeNameBySlug.get(s) ?? s}
                     </button>
                   ))}
                 </div>
@@ -299,7 +336,11 @@ const MarketplaceProducts = () => {
               </div>
             </div>
 
-            {products.length === 0 ? (
+            {loading ? (
+              <div className="flex items-center justify-center py-32">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : products.length === 0 ? (
               <div className="text-center py-20 bg-white/60 rounded-3xl border border-border-light">
                 <div className="w-14 h-14 mx-auto rounded-full bg-white border border-border-light flex items-center justify-center mb-3">
                   <Package className="w-6 h-6 text-text-subtle" />
@@ -441,7 +482,7 @@ const MarketplaceProducts = () => {
                 </h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {Object.values(STOREFRONTS).map((s) => (
+                {storeList.map((s) => (
                   <Link
                     key={s.slug}
                     to={`/store/${s.slug}`}
@@ -459,7 +500,7 @@ const MarketplaceProducts = () => {
                         {s.name}
                       </p>
                       <p className="text-text-secondary text-xs">
-                        {s.category} · {s.products.length} products
+                        {s.category} · {s.productsCount} products
                       </p>
                     </div>
                     <ArrowRight className="h-4 w-4 text-text-subtle group-hover:text-primary group-hover:translate-x-0.5 transition-all" />

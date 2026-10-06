@@ -122,8 +122,14 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://propertyloop.ng/property/cmuweajw0002v2kmr9b31fyn0</loc>
+    <lastmod>2026-10-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://propertyloop.ng/property/cmus5zssy0000uguatmq7l5x9</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -147,7 +153,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmuo76ywe00ha2knxavun11pq</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -177,7 +183,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmue9gucf00c42knxotm51a57</loc>
-    <lastmod>2026-09-27</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -189,7 +195,7 @@
   </url>
   <url>
     <loc>https://propertyloop.ng/property/cmue8ymdx00c02knxfhpmoytu</loc>
-    <lastmod>2026-09-27</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1700,12 +1706,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://propertyloop.ng/agent/cmu35lpdk00462knxklfizp0q</loc>
-    <lastmod>2026-09-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://propertyloop.ng/agent/cmu4ejqut00752knxw7dkrcr7</loc>
     <lastmod>2026-09-16</lastmod>
     <changefreq>weekly</changefreq>
@@ -2020,6 +2020,12 @@
   <url>
     <loc>https://propertyloop.ng/vendor/cmuel3aj200cd2knxp5noe6tv</loc>
     <lastmod>2026-09-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://propertyloop.ng/vendor/cmu35lpdk00462knxklfizp0q</loc>
+    <lastmod>2026-09-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -7,46 +8,61 @@ import {
   Star,
   Store,
 } from "lucide-react";
+import marketplaceService from "../../api/services/marketplace";
+import type { StoreTeaser } from "../../data/storefronts";
 
 /* ─── Home spotlight for the vendor marketplace ──────────────────────────── */
 
-const FEATURED = [
-  {
-    slug: "casa-nova-interiors",
-    name: "Casa Nova Interiors",
-    tagline: "Furniture that moves in before you do.",
-    category: "Furniture & Interiors",
-    accent: "#2b4e3b",
-    rating: 4.8,
-    products: 128,
-    logo: "https://images.unsplash.com/photo-1618220179428-22790b461013?w=400&h=400&fit=crop",
-    hero: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop",
-  },
-  {
-    slug: "ironworks-building-co",
-    name: "Ironworks Building Co.",
-    tagline: "Materials sized for your site.",
-    category: "Building Materials",
-    accent: "#8a3b1f",
-    rating: 4.7,
-    products: 86,
-    logo: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=400&fit=crop",
-    hero: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&h=600&fit=crop",
-  },
-  {
-    slug: "lumen-lighting",
-    name: "Lumen Lighting",
-    tagline: "Warmer rooms, piece by piece.",
-    category: "Lighting & Decor",
-    accent: "#3b3b6b",
-    rating: 4.9,
-    products: 54,
-    logo: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=400&h=400&fit=crop",
-    hero: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=800&h=600&fit=crop",
-  },
-];
+type Card = {
+  slug: string;
+  name: string;
+  tagline: string;
+  category: string;
+  accent: string;
+  rating: number;
+  products: number;
+  logo: string;
+  hero: string;
+};
+
+const toCard = (s: StoreTeaser): Card => ({
+  slug: s.slug,
+  name: s.name,
+  tagline: s.tagline,
+  category: s.category,
+  accent: s.accent,
+  rating: s.rating,
+  products: s.productsCount,
+  logo: s.logo,
+  hero: s.banner,
+});
 
 const MarketplaceSpotlight = () => {
+  const [featured, setFeatured] = useState<Card[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    marketplaceService
+      .listStores()
+      .then((stores) => {
+        if (!cancelled) setFeatured(stores.slice(0, 3).map(toCard));
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (!cancelled) setLoaded(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Nothing to show until at least one live store exists — hide the section
+  // rather than render a placeholder.
+  if (loaded && featured.length === 0) return null;
+
+  const FEATURED = featured;
+
   return (
     <section className="relative py-20 sm:py-28 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-transparent pointer-events-none" />

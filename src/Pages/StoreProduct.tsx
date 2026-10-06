@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   Home,
@@ -19,11 +19,14 @@ import {
   CheckCircle2,
   MessageCircle,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import Seo from "../components/Seo";
-import { findProduct, type StoreProduct } from "../data/storefronts";
+import marketplaceService, {
+  type ProductDetail,
+} from "../api/services/marketplace";
 import { useStoreCart } from "../context/StoreCartContext";
 
 const naira = (n: number) => "₦" + n.toLocaleString("en-NG");
@@ -60,15 +63,16 @@ function ProductNotFound() {
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
 const StoreProductPage = () => {
-  const { slug = "", productId = "" } = useParams<{
+  const { productId = "" } = useParams<{
     slug: string;
     productId: string;
   }>();
   const navigate = useNavigate();
-  const match = findProduct(slug, productId);
 
   // Hooks must run on every render — define state before any early return
   // so React never sees a different hook count between loads.
+  const [data, setData] = useState<ProductDetail | null>(null);
+  const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(
@@ -79,16 +83,45 @@ const StoreProductPage = () => {
 
   const { addItem } = useStoreCart();
 
-  const related = useMemo<StoreProduct[]>(() => {
-    if (!match) return [];
-    return match.store.products
-      .filter((p) => p.id !== match.product.id)
-      .slice(0, 4);
-  }, [match]);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setActiveImage(0);
+    setQuantity(1);
+    setSelectedOptions({});
+    marketplaceService
+      .getProduct(productId)
+      .then((p) => {
+        if (!cancelled) setData(p);
+      })
+      .catch(() => {
+        if (!cancelled) setData(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [productId]);
 
-  if (!match) return <ProductNotFound />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#f5f0eb]">
+        <Navbar />
+        <div className="flex items-center justify-center py-40">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
-  const { store, product } = match;
+  if (!data) return <ProductNotFound />;
+
+  const product = data;
+  const store = data.store;
+  const related = data.related ?? [];
   const gallery = product.gallery?.length ? product.gallery : [product.image];
   const discount = product.compareAtNaira
     ? Math.round(

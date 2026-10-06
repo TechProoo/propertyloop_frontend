@@ -1,15 +1,17 @@
 import { motion } from "framer-motion";
 import type { UserRole } from "../../Pages/Onboarding";
+import { PRODUCT_MARKETPLACE } from "../../config/features";
 import {
   Home,
   Briefcase,
-  // Wrench,  // Artisan Corner hidden
+  Store,
   ArrowRight,
   Search,
   BarChart3,
   ShieldCheck,
   Star,
-  // Wallet,  // Artisan Corner hidden
+  Percent,
+  Package,
   Layers,
   ClipboardList,
   Shield,
@@ -63,12 +65,23 @@ const roles: {
     ],
     kycNote: "KYC verification required",
   },
-  // Artisan Corner is hidden (src/config/features.ts).
-  // {
-  //   id: "vendor",
-  //   title: "Service Vendor",
-  //   ...
-  // },
+  ...(PRODUCT_MARKETPLACE
+    ? [
+        {
+          id: "vendor" as UserRole,
+          title: "Marketplace Vendor",
+          subtitle: "Sell your products",
+          description:
+            "Open your own branded storefront, list products, and sell to buyers across PropertyLoop.",
+          icon: <Store className="w-6 h-6" />,
+          features: [
+            { icon: <Package className="w-3.5 h-3.5" />, text: "Your own storefront & inventory" },
+            { icon: <Percent className="w-3.5 h-3.5" />, text: "Low commission, no listing fees" },
+            { icon: <ShieldCheck className="w-3.5 h-3.5" />, text: "Secure Paystack checkout" },
+          ],
+        },
+      ]
+    : []),
 ];
 
 const cardVariants = {
