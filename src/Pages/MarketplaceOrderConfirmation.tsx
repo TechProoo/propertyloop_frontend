@@ -17,6 +17,8 @@ import {
   Receipt,
   Loader2,
   Clock,
+  AlertTriangle,
+  X,
 } from "lucide-react";
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
@@ -36,6 +38,8 @@ const MarketplaceOrderConfirmation = () => {
   const [order, setOrder] = useState<MarketplaceOrder | null>(null);
   const [phase, setPhase] = useState<Phase>("verifying");
   const [copied, setCopied] = useState(false);
+  const [disputeOpen, setDisputeOpen] = useState(false);
+  const [disputed, setDisputed] = useState(false);
   const clearedRef = useRef(false);
 
   useEffect(() => {
@@ -400,13 +404,171 @@ const MarketplaceOrderConfirmation = () => {
                 All products
               </Link>
             </div>
+
+            {/* Report a problem — opens a dispute our team reviews. */}
+            <div className="mt-6 text-center">
+              {disputed || order.status === "DISPUTED" ? (
+                <p className="inline-flex items-center gap-1.5 text-[13px] font-medium text-amber-700">
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  Our team is reviewing your report. We'll be in touch.
+                </p>
+              ) : order.status === "REFUNDED" ? (
+                <p className="text-[13px] font-medium text-text-secondary">
+                  This order has been refunded.
+                </p>
+              ) : (
+                <button
+                  onClick={() => setDisputeOpen(true)}
+                  className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-text-secondary underline-offset-2 hover:text-primary-dark hover:underline"
+                >
+                  <AlertTriangle className="h-3.5 w-3.5" />
+                  Something wrong with this order? Report a problem
+                </button>
+              )}
+            </div>
           </>
         )}
       </main>
+
+      {disputeOpen && order && (
+        <DisputeModal
+          orderNumber={order.orderNumber}
+          onClose={() => setDisputeOpen(false)}
+          onDone={() => {
+            setDisputeOpen(false);
+            setDisputed(true);
+          }}
+        />
+      )}
 
       <Footer />
     </div>
   );
 };
+
+/* ─── Dispute modal ──────────────────────────────────────────────────── */
+
+const DISPUTE_REASONS = [
+  "Item not delivered",
+  "Item damaged or faulty",
+  "Wrong item received",
+  "Item not as described",
+  "Other",
+];
+
+function DisputeModal({
+  orderNumber,
+  onClose,
+  onDone,
+}: {
+  orderNumber: string;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const [reason, setReason] = useState(DISPUTE_REASONS[0]);
+  const [details, setDetails] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit() {
+    if (details.trim().length < 10) {
+      setError("Please describe the problem in a little more detail.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await marketplaceService.raiseDispute(orderNumber, {
+        reason,
+        details: details.trim(),
+      });
+      onDone();
+    } catch {
+      setError("We couldn't submit your report. Please try again.");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute inset-0 bg-black/40"
+      />
+      <div className="relative z-10 w-full max-w-lg rounded-t-3xl bg-white p-6 shadow-2xl sm:rounded-3xl">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="font-heading text-xl font-bold text-primary-dark">
+              Report a problem
+            </h3>
+            <p className="mt-1 text-[13px] text-text-secondary">
+              Order {orderNumber}. Our team reviews every report and will
+              refund you if it's warranted.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="rounded-full p-1.5 text-text-subtle hover:bg-gray-100"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mt-5 space-y-4">
+          <label className="block">
+            <span className="mb-1.5 block text-[12px] font-semibold text-primary-dark">
+              What went wrong?
+            </span>
+            <select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="w-full rounded-xl border border-border-light bg-white px-3.5 py-2.5 text-sm text-[#0f1111] outline-none focus:border-primary"
+            >
+              {DISPUTE_REASONS.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-[12px] font-semibold text-primary-dark">
+              Tell us more
+            </span>
+            <textarea
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              rows={4}
+              placeholder="Describe what happened so we can look into it."
+              className="w-full resize-y rounded-xl border border-border-light bg-white px-3.5 py-2.5 text-sm text-[#0f1111] outline-none focus:border-primary"
+            />
+          </label>
+
+          {error && <p className="text-[13px] text-red-600">{error}</p>}
+        </div>
+
+        <div className="mt-6 flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="h-11 rounded-full px-5 text-sm font-semibold text-text-secondary hover:text-primary-dark"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={submit}
+            disabled={busy}
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-primary-dark px-6 text-sm font-bold text-white hover:bg-black disabled:opacity-60"
+          >
+            {busy ? "Submitting…" : "Submit report"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default MarketplaceOrderConfirmation;

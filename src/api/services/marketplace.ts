@@ -65,7 +65,13 @@ export interface MarketplaceOrder {
   id: string;
   orderNumber: string;
   reference: string;
-  status: "PENDING" | "PAID" | "FULFILLED" | "CANCELLED" | "REFUNDED";
+  status:
+    | "PENDING"
+    | "PAID"
+    | "FULFILLED"
+    | "CANCELLED"
+    | "DISPUTED"
+    | "REFUNDED";
   buyerName: string;
   buyerEmail: string;
   buyerPhone: string;
@@ -140,6 +146,19 @@ const marketplaceService = {
   async myOrders(): Promise<Paginated<MarketplaceOrder>> {
     const { data } = await api.get<Paginated<MarketplaceOrder>>(
       "/marketplace/orders/mine",
+    );
+    return data;
+  },
+
+  // Buyer opens a dispute on a paid order. Keyed by order number, so a guest
+  // who kept their confirmation can dispute too.
+  async raiseDispute(
+    orderNumber: string,
+    payload: { reason: string; details: string },
+  ): Promise<{ id: string; status: string }> {
+    const { data } = await api.post<{ id: string; status: string }>(
+      `/marketplace/orders/${orderNumber}/dispute`,
+      payload,
     );
     return data;
   },
