@@ -3,12 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   BadgeCheck,
+  Building2,
   ChevronRight,
+  KeyRound,
+  Palmtree,
   RotateCcw,
   Search,
   ShoppingBag,
   Star,
   Store,
+  UserRound,
   WifiOff,
 } from "lucide-react";
 import listingsService from "../../api/services/listings";
@@ -32,12 +36,12 @@ const SEARCH_CATS = [
 ] as const;
 
 const QUICK_LINKS = [
-  { label: "Buy a home", href: "/buy", icon: "🏠" },
-  { label: "Rent", href: "/rent", icon: "🔑" },
-  { label: "Shortlet", href: "/shortlet", icon: "🌴" },
-  { label: "Find an agent", href: "/find-agent", icon: "👤" },
+  { label: "Buy a home", href: "/buy", icon: Building2 },
+  { label: "Rent", href: "/rent", icon: KeyRound },
+  { label: "Shortlet", href: "/shortlet", icon: Palmtree },
+  { label: "Find an agent", href: "/find-agent", icon: UserRound },
   ...(PRODUCT_MARKETPLACE
-    ? [{ label: "Marketplace", href: "/marketplace", icon: "🛒" }]
+    ? [{ label: "Marketplace", href: "/marketplace", icon: ShoppingBag }]
     : []),
 ];
 
@@ -215,7 +219,7 @@ export default function StockHero() {
                 to={link.href}
                 className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-2 text-[12.5px] font-medium text-white/70 transition-all hover:border-white/30 hover:bg-white/10 hover:text-white"
               >
-                <span>{link.icon}</span>
+                <link.icon className="h-3.5 w-3.5" />
                 {link.label}
               </Link>
             ))}
