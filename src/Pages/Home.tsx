@@ -8,8 +8,9 @@ import FeaturedHomes from "../components/Home/FeaturedHomes";
 import VideoListings from "../components/Home/VideoListings";
 // // Artisan Corner is hidden (src/config/features.ts). Nothing is deleted.
 // import ServiceLoop from "../components/Home/ServiceLoop";
-import MarketplaceSpotlight from "../components/Home/MarketplaceSpotlight";
-import { PRODUCT_MARKETPLACE } from "../config/features";
+// MarketplaceSpotlight is now integrated into StockHero.
+// import MarketplaceSpotlight from "../components/Home/MarketplaceSpotlight";
+// import { PRODUCT_MARKETPLACE } from "../config/features";
 import PropertyLogbook from "../components/Home/PropertyLogbook";
 import AgentSpotlight from "../components/Home/AgentSpotlight";
 import ShortletSpotlight from "../components/Home/ShortletSpotlight";
@@ -45,7 +46,7 @@ const Home = () => {
       {/* <TrustedSection /> */}
       <FeaturedHomes />
       {/* <ServiceLoop /> — Artisan Corner is hidden */}
-      {PRODUCT_MARKETPLACE && <MarketplaceSpotlight />}
+      {/* MarketplaceSpotlight is now integrated into StockHero */}
       <ShortletSpotlight />
       <VideoListings />
       <AgentSpotlight />
