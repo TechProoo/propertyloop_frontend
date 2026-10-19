@@ -165,8 +165,8 @@ const Partners = () => {
             <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
             <div className="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-white/5 blur-2xl" />
 
-            <div className="relative flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:gap-14">
-              <div className="min-w-0 flex-1">
+            <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-14">
+              <div className="min-w-0">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.15em] text-white/80 backdrop-blur-sm">
                   <Handshake className="h-3 w-3" />
                   Partnership programme
@@ -197,7 +197,7 @@ const Partners = () => {
                 </div>
               </div>
 
-              <div className="w-full lg:w-auto lg:min-w-70">
+              <div className="max-w-sm lg:max-w-xs">
                 <p className="mb-3 text-[10.5px] font-bold uppercase tracking-[0.15em] text-white/50">
                   We work with
                 </p>
