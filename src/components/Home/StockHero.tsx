@@ -5,15 +5,22 @@ import {
   BadgeCheck,
   Building2,
   ChevronRight,
+  Hammer,
   KeyRound,
+  Lamp,
+  LayoutGrid,
   Palmtree,
   RotateCcw,
   Search,
   ShoppingBag,
+  Sofa,
   Star,
   Store,
+  Trees,
   UserRound,
   WifiOff,
+  Wrench,
+  Zap,
 } from "lucide-react";
 import listingsService from "../../api/services/listings";
 import marketplaceService from "../../api/services/marketplace";
@@ -43,6 +50,57 @@ const QUICK_LINKS = [
   ...(PRODUCT_MARKETPLACE
     ? [{ label: "Marketplace", href: "/marketplace", icon: ShoppingBag }]
     : []),
+];
+
+/**
+ * The category quick-strip at the very top of the hero — properties plus the
+ * things our vendors sell. Properties lead; the rest deep-link into the
+ * marketplace filtered to that category, and "All" opens the whole store.
+ */
+const CATEGORY_TILES: {
+  label: string;
+  href: string;
+  icon: typeof Building2;
+  tint: string;
+}[] = [
+  { label: "Properties", href: "/buy", icon: Building2, tint: "#1f6f43" },
+  {
+    label: "Furniture",
+    href: "/marketplace?category=Furniture",
+    icon: Sofa,
+    tint: "#b9842c",
+  },
+  {
+    label: "Lighting",
+    href: "/marketplace?category=Lighting%20%26%20Decor",
+    icon: Lamp,
+    tint: "#c2410c",
+  },
+  {
+    label: "Materials",
+    href: "/marketplace?category=Building%20Materials",
+    icon: Hammer,
+    tint: "#2563eb",
+  },
+  {
+    label: "Smart Home",
+    href: "/marketplace?category=Smart%20Home",
+    icon: Zap,
+    tint: "#7c3aed",
+  },
+  {
+    label: "Tools",
+    href: "/marketplace?category=Tools%20%26%20Hardware",
+    icon: Wrench,
+    tint: "#be123c",
+  },
+  {
+    label: "Garden",
+    href: "/marketplace?category=Landscaping",
+    icon: Trees,
+    tint: "#15803d",
+  },
+  { label: "All", href: "/marketplace", icon: LayoutGrid, tint: "#4b5563" },
 ];
 
 const STOCK_COUNT = 4;
@@ -161,7 +219,25 @@ export default function StockHero() {
         <div className="pointer-events-none absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-primary/20 blur-[120px]" />
         <div className="pointer-events-none absolute -bottom-60 -left-40 h-[500px] w-[500px] rounded-full bg-accent/10 blur-[100px]" />
 
-        <div className="relative mx-auto max-w-360 px-4 pb-12 pt-10 sm:px-6 sm:pb-16 sm:pt-14 lg:px-8 lg:pb-20 lg:pt-16">
+        <div className="relative mx-auto max-w-360 px-4 pb-12 pt-6 sm:px-6 sm:pb-16 sm:pt-8 lg:px-8 lg:pb-20 lg:pt-10">
+          {/* ── Category quick-strip — properties + what our vendors sell ── */}
+          <div className="mb-8 flex gap-3 overflow-x-auto pb-1 sm:mb-10 sm:justify-center [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {CATEGORY_TILES.map(({ label, href, icon: Icon, tint }) => (
+              <Link
+                key={label}
+                to={href}
+                className="group flex w-[68px] shrink-0 flex-col items-center gap-2 sm:w-[82px]"
+              >
+                <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-[0_4px_14px_rgba(0,0,0,0.18)] transition-transform duration-200 group-hover:-translate-y-0.5 sm:h-[72px] sm:w-[72px]">
+                  <Icon className="h-7 w-7" style={{ color: tint }} strokeWidth={1.75} />
+                </span>
+                <span className="text-center text-[11.5px] font-medium leading-tight text-white/80 group-hover:text-white sm:text-[12.5px]">
+                  {label}
+                </span>
+              </Link>
+            ))}
+          </div>
+
           {/* Headline */}
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="font-heading text-[32px] font-extrabold leading-[1.08] tracking-tight text-white sm:text-[44px] lg:text-[56px]">
