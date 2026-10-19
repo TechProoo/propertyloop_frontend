@@ -493,9 +493,12 @@ const PropertyDetail = () => {
               </div>
             </div>
 
-            {/* Thumbnail strip */}
+            {/* Thumbnail strip — scrolls horizontally so every photo stays
+                reachable. The gallery card is overflow-hidden, so without this
+                any thumbnail past the first rowful (often the last several) was
+                clipped off the edge and could never be opened. */}
             {listing.images.length > 1 && (
-              <div className="flex gap-2 p-3 bg-white/70 backdrop-blur-md">
+              <div className="flex gap-2 p-3 bg-white/70 backdrop-blur-md overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {listing.images.map((img, i) => (
                   <button
                     key={i}
