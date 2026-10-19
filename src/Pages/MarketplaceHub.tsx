@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowRight,
   Search,
@@ -54,8 +54,12 @@ const naira = (n: number) => "₦" + n.toLocaleString("en-NG");
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
 const MarketplaceHub = () => {
+  const [searchParams] = useSearchParams();
   const [query, setQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string>("All");
+  // Open filtered when a category is deep-linked from the home showcase.
+  const [activeCategory, setActiveCategory] = useState<string>(
+    () => searchParams.get("category") || "All",
+  );
   const { count: cartCount } = useStoreCart();
 
   const [liveStores, setLiveStores] = useState<StoreTeaser[]>([]);

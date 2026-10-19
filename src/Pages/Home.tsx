@@ -10,7 +10,7 @@ import VideoListings from "../components/Home/VideoListings";
 // import ServiceLoop from "../components/Home/ServiceLoop";
 // MarketplaceSpotlight is now integrated into StockHero.
 // import MarketplaceSpotlight from "../components/Home/MarketplaceSpotlight";
-// import { PRODUCT_MARKETPLACE } from "../config/features";
+import MarketplaceShowcase from "../components/Home/MarketplaceShowcase";
 import PropertyLogbook from "../components/Home/PropertyLogbook";
 import AgentSpotlight from "../components/Home/AgentSpotlight";
 import ShortletSpotlight from "../components/Home/ShortletSpotlight";
@@ -38,6 +38,8 @@ const Home = () => {
       {/* Paid placements, which used to be the hero carousel. */}
       <FeaturedRail />
       <AgentListings />
+      {/* The retail half of the home — shop the marketplace (carousel). */}
+      <MarketplaceShowcase />
       {/* Paid brand placement - renders nothing when no campaign is live */}
       <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8 my-20">
         <AdSlot placement="HOME_BANNER" className="mt-8 sm:mt-10" />
