@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ShieldCheck, Home, Clock } from "lucide-react";
+import { ArrowRight, Clock, Home, ShieldCheck } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import listingsService from "../../api/services/listings";
@@ -14,11 +14,6 @@ const PropertyLogbook = () => {
   const [logbookListings, setLogbookListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch sold/rented/recently-updated listings for logbook display.
-  // We blend three sources so the section reflects all meaningful activity:
-  //   1. Closed sales (SOLD)
-  //   2. Closed rentals (RENTED)
-  //   3. Active listings that have been edited since posting
   useEffect(() => {
     const fetchLogbookData = async () => {
       try {
@@ -36,17 +31,13 @@ const PropertyLogbook = () => {
             .catch(() => ({ items: [] as Listing[] })),
         ]);
 
-        // Filter active listings to only those that have been edited
-        // (updatedAt drifts noticeably past createdAt).
         const editedActive = (active.items || []).filter((l) => {
           if (!l.updatedAt) return false;
           const created = new Date(l.createdAt).getTime();
           const updated = new Date(l.updatedAt).getTime();
-          // 60 second buffer so freshly created listings aren't flagged as "updated"
           return updated - created > 60_000;
         });
 
-        // Merge and dedupe by id (later sources lose to earlier ones).
         const merged: Listing[] = [];
         const seen = new Set<string>();
         for (const l of [
@@ -59,14 +50,12 @@ const PropertyLogbook = () => {
           merged.push(l);
         }
 
-        // Sort by most recent activity (updatedAt falling back to createdAt).
         merged.sort((a, b) => {
           const aT = new Date(a.updatedAt ?? a.createdAt).getTime();
           const bT = new Date(b.updatedAt ?? b.createdAt).getTime();
           return bT - aT;
         });
 
-        // If nothing matched (fresh deployment), fall back to any listings.
         const final = merged.length > 0 ? merged : active.items || [];
         setLogbookListings(final.slice(0, HOME_LIMIT));
       } catch (error) {
@@ -79,211 +68,104 @@ const PropertyLogbook = () => {
     fetchLogbookData();
   }, []);
 
-  // Animation timeline
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-
-    const label = el.querySelector("[data-pl-label]");
-    const heading = el.querySelector("[data-pl-heading]");
-    const desc = el.querySelector("[data-pl-desc]");
-    const propCard = el.querySelector("[data-pl-propcard]");
-    const learnBtn = el.querySelector("[data-pl-learn]");
-    const timelineLine = el.querySelector("[data-pl-line]");
-    const timelineCards = el.querySelectorAll("[data-pl-entry]");
-
+    const entries = el.querySelectorAll("[data-pl-entry]");
     const tl = gsap.timeline({
       defaults: { ease: "power3.out" },
-      scrollTrigger: { trigger: el, start: "top 75%", once: true },
+      scrollTrigger: { trigger: el, start: "top 80%", once: true },
     });
-
-    // Label
-    if (label) {
+    if (entries.length) {
       tl.fromTo(
-        label,
-        { y: -15, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 },
+        entries,
+        { x: 40, opacity: 0, scale: 0.97 },
+        { x: 0, opacity: 1, scale: 1, duration: 0.7, stagger: 0.12, ease: "power4.out" },
       );
     }
-
-    // Heading - clip-path wipe
-    if (heading) {
-      tl.fromTo(
-        heading,
-        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        {
-          clipPath: "inset(0 0% 0 0)",
-          opacity: 1,
-          duration: 0.9,
-          ease: "power4.out",
-        },
-        "-=0.2",
-      );
-    }
-
-    // Description
-    if (desc) {
-      tl.fromTo(
-        desc,
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6 },
-        "-=0.4",
-      );
-    }
-
-    // Property card - scale-in with spring
-    if (propCard) {
-      tl.fromTo(
-        propCard,
-        { y: 40, opacity: 0, scale: 0.92 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.3)" },
-        "-=0.3",
-      );
-    }
-
-    // Learn button
-    if (learnBtn) {
-      tl.fromTo(
-        learnBtn,
-        { scale: 0.8, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.6)" },
-        "-=0.4",
-      );
-    }
-
-    // Timeline vertical line - grow from top
-    if (timelineLine) {
-      tl.fromTo(
-        timelineLine,
-        { scaleY: 0, transformOrigin: "top center" },
-        { scaleY: 1, duration: 1.0, ease: "power4.out" },
-        "-=0.6",
-      );
-    }
-
-    // Timeline entries - stagger slide-in from right
-    if (timelineCards.length) {
-      tl.fromTo(
-        timelineCards,
-        { x: 60, opacity: 0, scale: 0.95 },
-        {
-          x: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.2,
-          ease: "power4.out",
-        },
-        "-=0.7",
-      );
-    }
-
-    return () => {
-      tl.kill();
-    };
-  }, []);
+    return () => { tl.kill(); };
+  }, [loading, logbookListings.length]);
 
   return (
-    <section
-      ref={sectionRef}
-      className="w-full px-6 md:px-12 lg:px-20 py-10 sm:py-14 lg:py-28 bg-bg overflow-hidden"
-    >
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-20">
-          {/* Left - intro (sticky on desktop) */}
-          <div className="lg:w-95 shrink-0 lg:sticky lg:top-[calc(2rem+var(--dl-bar-h))] lg:self-start">
-            <p
-              data-pl-label
-              className="text-primary text-sm font-medium tracking-wide uppercase mb-2"
-            >
-              Property Logbook
-            </p>
-            <h2
-              data-pl-heading
-              className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
-            >
-              Every Repair. <span className="text-primary">Every Record.</span>
+    <section ref={sectionRef} className="bg-[#f5f0eb]">
+      <div className="mx-auto max-w-360 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div className="flex flex-col gap-10 lg:flex-row lg:gap-16">
+          {/* Left — intro */}
+          <div className="shrink-0 lg:w-95 lg:sticky lg:top-[calc(2rem+var(--dl-bar-h))] lg:self-start">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.15em] text-primary">
+              <ShieldCheck className="h-3 w-3" />
+              Property logbook
+            </span>
+            <h2 className="font-heading mt-3 text-[26px] font-bold leading-[1.1] tracking-tight text-primary-dark sm:text-[34px]">
+              Every repair. Every record.
             </h2>
-            <p
-              data-pl-desc
-              className="text-text-secondary text-sm leading-relaxed mt-4"
-            >
+            <p className="mt-2 text-[14px] leading-relaxed text-text-secondary">
               Every property on PropertyLoop gets a permanent digital logbook.
               All maintenance, repairs, and services are recorded with verified
-              vendor details - building trust and transparency for buyers,
+              vendor details — building trust and transparency for buyers,
               tenants, and owners.
             </p>
 
             {/* Sample property card */}
-            <div
-              data-pl-propcard
-              className="mt-8 relative overflow-hidden bg-white/80 backdrop-blur-sm border border-border-light rounded-[20px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-5"
-            >
+            <div className="mt-6 relative overflow-hidden rounded-2xl border border-border-light bg-white p-5 shadow-sm">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                  <Home className="w-6 h-6" />
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Home className="h-6 w-6" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-heading font-bold text-primary-dark text-[15px]">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[14px] font-bold text-primary-dark">
                     4-Bed Villa, Lekki Phase 1
                   </h3>
-                  <p className="text-text-secondary text-xs">
+                  <p className="text-xs text-text-secondary">
                     Property ID: PL-00482
                   </p>
                 </div>
               </div>
-              <div className="h-px bg-border-light my-4" />
+              <div className="my-3 h-px bg-border-light" />
               <div className="flex items-center justify-between text-xs text-text-secondary">
                 <span>6 service records</span>
                 <span>Last updated: Mar 2026</span>
               </div>
-
-              {/* Clipped circle */}
-              <div className="w-16 h-16 bg-primary/10 rounded-full absolute -right-3 -top-3">
-                <ShieldCheck className="absolute bottom-4 left-4 w-5 h-5 text-primary" />
+              <div className="absolute -right-3 -top-3 h-14 w-14 rounded-full bg-primary/10">
+                <ShieldCheck className="absolute bottom-3.5 left-3.5 h-5 w-5 text-primary" />
               </div>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-5 flex flex-wrap gap-3">
               <Link
                 to="/logbook/about"
-                data-pl-learn
-                className="inline-flex items-center justify-center h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium leading-none hover:bg-primary hover:text-white hover:border-primary transition-all duration-300"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 px-5 py-2.5 text-[13px] font-bold text-primary-dark transition-colors hover:bg-primary hover:text-white"
               >
                 Learn about logbooks
               </Link>
               {logbookListings.length >= 5 && (
                 <Link
                   to="/logbook"
-                  className="inline-flex items-center justify-center h-10 px-6 rounded-full bg-primary text-white text-sm font-bold leading-none hover:bg-primary-dark transition-colors shadow-lg shadow-primary/25"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-primary/25 transition-colors hover:bg-primary-dark"
                 >
                   View more
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               )}
             </div>
           </div>
 
-          {/* Right - timeline */}
-          <div className="flex-1 min-w-0 overflow-hidden relative">
+          {/* Right — timeline */}
+          <div className="relative min-w-0 flex-1 overflow-hidden">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 animate-pulse">
-                  <ShieldCheck className="w-8 h-8 text-primary/50" />
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="mb-4 flex h-14 w-14 animate-pulse items-center justify-center rounded-full bg-primary/10">
+                  <ShieldCheck className="h-6 w-6 text-primary/50" />
                 </div>
-                <p className="text-text-secondary text-sm">
+                <p className="text-sm text-text-secondary">
                   Loading logbooks...
                 </p>
               </div>
             ) : logbookListings.length > 0 ? (
               <>
-                <div
-                  data-pl-line
-                  className="absolute left-8 top-0 bottom-0 w-1 bg-linear-to-b from-primary to-primary/20 rounded-full"
-                />
-                <div className="space-y-6 pl-20">
+                <div className="absolute bottom-0 left-8 top-0 w-1 rounded-full bg-gradient-to-b from-primary to-primary/20" />
+                <div className="space-y-4 pl-20">
                   {logbookListings.map((property) => {
-                    // Determine entry label/badge from status + edit history
                     const created = new Date(property.createdAt).getTime();
                     const updated = property.updatedAt
                       ? new Date(property.updatedAt).getTime()
@@ -309,14 +191,11 @@ const PropertyLogbook = () => {
                     ).toLocaleDateString();
                     return (
                       <div key={property.id} data-pl-entry className="relative">
-                        {/* Timeline dot */}
-                        <div className="absolute -left-14 top-1.5 w-6 h-6 rounded-full bg-primary border-4 border-white shadow-lg flex items-center justify-center">
-                          <div className="w-2 h-2 rounded-full bg-white" />
+                        <div className="absolute -left-14 top-1.5 flex h-6 w-6 items-center justify-center rounded-full border-4 border-white bg-primary shadow-lg">
+                          <div className="h-2 w-2 rounded-full bg-white" />
                         </div>
-
-                        {/* Card */}
-                        <div className="bg-white/80 backdrop-blur-sm border border-border-light rounded-2xl p-4 hover:shadow-[0_8px_24px_rgba(31,111,67,0.15)] transition-shadow">
-                          <div className="flex items-start gap-3 mb-3">
+                        <div className="rounded-2xl border border-border-light bg-white p-4 shadow-sm transition-shadow hover:shadow-[0_6px_20px_rgba(31,111,67,0.1)]">
+                          <div className="mb-3 flex items-start gap-3">
                             <img
                               src={
                                 property.coverImage ||
@@ -324,32 +203,32 @@ const PropertyLogbook = () => {
                               }
                               alt={property.title}
                               onError={handleBannerError}
-                              className="w-12 h-12 rounded-lg object-cover"
+                              className="h-12 w-12 rounded-lg object-cover"
                             />
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-heading font-bold text-primary-dark text-sm truncate">
+                            <div className="min-w-0 flex-1">
+                              <h4 className="truncate text-[13px] font-bold text-primary-dark">
                                 {property.title}
                               </h4>
-                              <p className="text-text-secondary text-xs">
+                              <p className="text-xs text-text-secondary">
                                 {property.location}
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-text-secondary mb-2">
-                            <Clock className="w-3.5 h-3.5" />
+                          <div className="mb-2 flex items-center gap-2 text-xs text-text-secondary">
+                            <Clock className="h-3.5 w-3.5" />
                             <span>
-                              {label} • {eventDate}
+                              {label} · {eventDate}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-medium text-primary-dark">
                               {property.beds} bed
-                              {property.beds !== 1 ? "s" : ""} •{" "}
+                              {property.beds !== 1 ? "s" : ""} ·{" "}
                               {property.baths} bath
                               {property.baths !== 1 ? "s" : ""}
                             </span>
                             <span
-                              className={`px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}
+                              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${badgeClass}`}
                             >
                               {label}
                             </span>
@@ -361,20 +240,15 @@ const PropertyLogbook = () => {
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <ShieldCheck className="w-8 h-8 text-primary/50" />
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                  <ShieldCheck className="h-6 w-6 text-primary/50" />
                 </div>
-                <h3 className="font-heading font-bold text-primary-dark text-lg">
-                  Property Logbooks Coming Soon
-                </h3>
-                <p className="text-text-secondary text-sm mt-2 max-w-sm">
-                  Mark properties as sold or rented to see them in the logbook.
-                  Currently showing properties from your listings.
+                <p className="text-sm font-semibold text-primary-dark">
+                  Property logbooks coming soon
                 </p>
-                <p className="text-text-subtle text-xs mt-4 max-w-sm">
-                  Tip: To test, mark a listing as SOLD or RENTED from your agent
-                  dashboard.
+                <p className="mt-1 max-w-sm text-[13px] text-text-secondary">
+                  Mark properties as sold or rented to see them in the logbook.
                 </p>
               </div>
             )}

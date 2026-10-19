@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ArrowRight, Home, UserCheck, Shield, MapPin, Smartphone } from "lucide-react";
+import { ArrowRight, Home, MapPin, Shield, Smartphone, UserCheck } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import appStoreBadge from "../../assets/appstore.png";
@@ -8,16 +8,8 @@ import { APP_STORE_URL, PLAY_STORE_URL } from "../../lib/appLinks";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Single source of truth lives in src/lib/appLinks.ts; re-exported here
-// because this section was the original home of the store links.
 export { APP_STORE_URL, PLAY_STORE_URL };
 
-/**
- * App screenshots are picked up from src/assets by filename (app_ss1, app_ss2,
- * app_ss3 - any image extension). Resolved at build time, so dropping the files
- * in is all that's needed; while they're absent this is simply empty and the
- * showcase falls back to a plain device frame rather than breaking the build.
- */
 const screenshots = Object.entries(
   import.meta.glob<string>("../../assets/app_ss*.{png,jpg,jpeg,webp,avif}", {
     eager: true,
@@ -28,25 +20,12 @@ const screenshots = Object.entries(
   .map(([, src]) => src);
 
 const stats = [
-  { icon: <Home className="w-4 h-4" />, value: "20,000+", label: "Listings" },
-  {
-    icon: <UserCheck className="w-4 h-4" />,
-    value: "1,200+",
-    label: "Verified Agents",
-  },
-  {
-    icon: <Shield className="w-4 h-4" />,
-    value: "8,500+",
-    label: "Verified Vendors",
-  },
-  {
-    icon: <MapPin className="w-4 h-4" />,
-    value: "5",
-    label: "Cities",
-  },
+  { icon: Home, value: "20,000+", label: "Listings" },
+  { icon: UserCheck, value: "1,200+", label: "Verified Agents" },
+  { icon: Shield, value: "8,500+", label: "Verified Vendors" },
+  { icon: MapPin, value: "5", label: "Cities" },
 ];
 
-/** A single device frame. `src` omitted renders the branded empty state. */
 const PhoneFrame = ({
   src,
   alt,
@@ -57,79 +36,56 @@ const PhoneFrame = ({
   className?: string;
 }) => (
   <div
-    className={`relative rounded-[2rem] bg-white/80 backdrop-blur-md border border-border-light p-2 shadow-[0_12px_40px_rgba(0,0,0,0.14)] ${className}`}
+    className={`relative rounded-[2rem] border border-border-light bg-white/80 p-2 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-md ${className}`}
   >
-    <div className="relative overflow-hidden rounded-[1.65rem] bg-bg-accent aspect-[9/19.5]">
+    <div className="relative aspect-[9/19.5] overflow-hidden rounded-[1.65rem] bg-[#f5f0eb]">
       {src ? (
         <img
           src={src}
           alt={alt}
           loading="lazy"
-          className="absolute inset-0 w-full h-full object-cover object-top"
+          className="absolute inset-0 h-full w-full object-cover object-top"
         />
       ) : (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4 text-center">
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-            <Smartphone className="w-7 h-7 text-primary" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+            <Smartphone className="h-7 w-7 text-primary" />
           </div>
-          <p className="font-heading font-bold text-primary-dark text-sm">
-            PropertyLoop
-          </p>
-          <p className="text-text-subtle text-xs">Out now on iOS &amp; Android</p>
+          <p className="text-sm font-bold text-primary-dark">PropertyLoop</p>
+          <p className="text-xs text-text-subtle">Out now on iOS &amp; Android</p>
         </div>
       )}
     </div>
-    {/* Notch */}
-    <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-16 h-4 rounded-full bg-white/90 border border-border-light" />
+    <div className="absolute left-1/2 top-3.5 h-4 w-16 -translate-x-1/2 rounded-full border border-border-light bg-white/90" />
   </div>
 );
 
-/** Cycles the available screenshots so 1, 2 or 3 files all lay out sensibly. */
 const shotAt = (i: number) =>
   screenshots.length ? screenshots[i % screenshots.length] : undefined;
 
-// The store badges are the primary call to action now that the app has
-// shipped, so they're sized to read as buttons rather than footnotes: a hard
-// drop shadow gives the flat black artwork weight against the pale card, and
-// the lift on hover is big enough to feel clickable.
 const badgeLinkClass =
-  "inline-flex rounded-[0.9rem] shadow-[0_10px_28px_rgba(0,0,0,0.28)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(0,0,0,0.35)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary";
-
-// Both badge PNGs were cropped to the same ink-to-canvas ratio (~0.78), so a
-// single height renders them at matching visual size. They previously carried
-// very different amounts of built-in white padding — 28.6% vs 40.5% badge
-// fill — which made the App Store one look a third smaller at equal height.
+  "inline-flex rounded-[0.9rem] shadow-[0_8px_24px_rgba(0,0,0,0.24)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_32px_rgba(0,0,0,0.3)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary";
 const badgeImgClass = "h-14 sm:h-16 w-auto";
 
 const StoreBadges = ({ className = "" }: { className?: string }) => (
-  <div className={`flex flex-wrap items-center gap-4 sm:gap-5 ${className}`}>
+  <div className={`flex flex-wrap items-center gap-4 ${className}`}>
     <a
-      data-cb-btn
       href={APP_STORE_URL}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Download PropertyLoop on the App Store"
       className={badgeLinkClass}
     >
-      <img
-        src={appStoreBadge}
-        alt="Download on the App Store"
-        className={badgeImgClass}
-      />
+      <img src={appStoreBadge} alt="Download on the App Store" className={badgeImgClass} />
     </a>
     <a
-      data-cb-btn
       href={PLAY_STORE_URL}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Get PropertyLoop on Google Play"
       className={badgeLinkClass}
     >
-      <img
-        src={playStoreBadge}
-        alt="Get it on Google Play"
-        className={badgeImgClass}
-      />
+      <img src={playStoreBadge} alt="Get it on Google Play" className={badgeImgClass} />
     </a>
   </div>
 );
@@ -140,222 +96,140 @@ const CtaBanner = () => {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-
-    const label = el.querySelector("[data-cb-label]");
-    const heading = el.querySelector("[data-cb-heading]");
-    const desc = el.querySelector("[data-cb-desc]");
-    const btns = el.querySelectorAll("[data-cb-btn]");
     const phone = el.querySelector("[data-cb-phone]");
     const statCards = el.querySelectorAll("[data-cb-stat]");
-
     const tl = gsap.timeline({
       defaults: { ease: "power3.out" },
-      scrollTrigger: { trigger: el, start: "top 75%", once: true },
+      scrollTrigger: { trigger: el, start: "top 80%", once: true },
     });
-
-    if (label)
-      tl.fromTo(
-        label,
-        { y: -15, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 },
-      );
-
-    if (heading) {
-      tl.fromTo(
-        heading,
-        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        {
-          clipPath: "inset(0 0% 0 0)",
-          opacity: 1,
-          duration: 0.9,
-          ease: "power4.out",
-        },
-        "-=0.2",
-      );
-    }
-
-    if (desc)
-      tl.fromTo(
-        desc,
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6 },
-        "-=0.4",
-      );
-
-    if (btns.length) {
-      tl.fromTo(
-        btns,
-        { scale: 0.8, opacity: 0 },
-        {
-          scale: 1,
-          opacity: 1,
-          duration: 0.5,
-          stagger: 0.12,
-          ease: "back.out(1.6)",
-        },
-        "-=0.2",
-      );
-    }
-
     if (phone) {
       tl.fromTo(
         phone,
-        { x: 80, opacity: 0, rotateY: -12 },
-        { x: 0, opacity: 1, rotateY: 0, duration: 1, ease: "power4.out" },
-        "-=0.6",
+        { x: 60, opacity: 0, rotateY: -10 },
+        { x: 0, opacity: 1, rotateY: 0, duration: 0.9, ease: "power4.out" },
       );
     }
-
     if (statCards.length) {
       tl.fromTo(
         statCards,
-        { y: 40, opacity: 0, scale: 0.92 },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.7,
-          stagger: 0.1,
-          ease: "power4.out",
-        },
-        "-=0.3",
+        { y: 30, opacity: 0, scale: 0.95 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.08, ease: "power4.out" },
+        "-=0.4",
       );
     }
-
-    return () => {
-      tl.kill();
-    };
+    return () => { tl.kill(); };
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="w-full px-6 md:px-12 lg:px-20 py-10 sm:py-14 lg:py-28 bg-bg"
-    >
-      <div className="max-w-7xl mx-auto">
-        {/* Outer glass card */}
-        <div className="relative overflow-hidden bg-white/60 backdrop-blur-sm border border-border-light rounded-[28px] shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-3">
-          {/* Inner content card */}
-          <div className="relative overflow-hidden bg-white/80 backdrop-blur-md border border-white/40 rounded-[22px] shadow-[0_4px_16px_rgba(0,0,0,0.04)]">
-            {/* Decorative circles */}
-            <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-primary/5" />
-            <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-primary/5" />
+    <section ref={sectionRef} className="bg-[#f5f0eb]">
+      <div className="mx-auto max-w-360 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div className="overflow-hidden rounded-2xl border border-border-light bg-white shadow-sm">
+          <div className="relative px-5 py-10 sm:px-10 sm:py-14 lg:px-14">
+            <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary/5" />
+            <div className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-primary/5" />
 
-            <div className="relative z-10 px-5 sm:px-10 lg:px-16 py-10 sm:py-14 lg:py-20">
-              {/* Top - content */}
-              <div className="flex flex-col lg:flex-row lg:items-center gap-10 sm:gap-12 lg:gap-20">
-                {/* Left text */}
-                <div className="flex-1">
-                  <div data-cb-label className="flex items-center gap-3 mb-3">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-white shadow-[0_2px_10px_rgba(31,111,67,0.35)]">
-                      <span className="relative flex h-1.5 w-1.5">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
-                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
-                      </span>
-                      Out now
+            <div className="relative flex flex-col items-center gap-10 lg:flex-row lg:gap-16">
+              {/* Left text */}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.15em] text-white shadow-[0_2px_10px_rgba(31,111,67,0.3)]">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-white" />
                     </span>
-                    <p className="text-primary text-sm font-medium tracking-wide uppercase">
-                      On iOS &amp; Android
-                    </p>
-                  </div>
-
-                  <h2
-                    data-cb-heading
-                    className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
-                  >
-                    Find your next home.
-                    <br />
-                    <span className="text-primary">Close the loop.</span>
-                  </h2>
-                  <p
-                    data-cb-desc
-                    className="text-text-secondary text-sm leading-relaxed mt-5 max-w-md"
-                  >
-                    From first search to signed contract - and everything after
-                    the keys are handed over. The PropertyLoop app has landed:
-                    download it free on the App Store or Google Play, or sign up
-                    on the web to get started.
+                    Out now
+                  </span>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary">
+                    On iOS &amp; Android
                   </p>
-
-                  {/* Store badges */}
-                  <div className="mt-8">
-                    <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-primary-dark mb-4">
-                      Download the app
-                    </p>
-                    <StoreBadges />
-                  </div>
-
-                  {/* Secondary CTA */}
-                  <div className="flex flex-wrap items-center gap-4 mt-7 pt-6 border-t border-border-light">
-                    <a
-                      data-cb-btn
-                      href="/onboarding"
-                      className="h-12 px-8 rounded-full bg-primary text-white font-bold text-sm hover:bg-primary-dark transition-colors duration-300 inline-flex items-center gap-2 shadow-[0_4px_16px_rgba(31,111,67,0.3)]"
-                    >
-                      Sign up free
-                      <ArrowRight className="w-4 h-4" />
-                    </a>
-                    <span className="text-text-subtle text-xs">
-                      Prefer the browser? Everything works on the web too.
-                    </span>
-                  </div>
                 </div>
 
-                {/* Right - app screenshots */}
-                <div data-cb-phone className="shrink-0">
-                  {/* Fanned trio on desktop */}
-                  <div className="relative hidden lg:block w-108 h-124">
-                    <PhoneFrame
-                      src={shotAt(1)}
-                      alt="PropertyLoop app - property search"
-                      className="absolute left-0 top-12 w-40 -rotate-[8deg]"
-                    />
-                    <PhoneFrame
-                      src={shotAt(2)}
-                      alt="PropertyLoop app - listing details"
-                      className="absolute right-0 top-12 w-40 rotate-[8deg]"
-                    />
-                    <PhoneFrame
-                      src={shotAt(0)}
-                      alt="PropertyLoop app - home screen"
-                      className="absolute left-1/2 -translate-x-1/2 top-0 w-52 z-10"
-                    />
-                  </div>
+                <h2 className="font-heading mt-4 text-[26px] font-bold leading-[1.1] tracking-tight text-primary-dark sm:text-[34px]">
+                  Find your next home.{" "}
+                  <span className="text-primary">Close the loop.</span>
+                </h2>
+                <p className="mt-3 max-w-md text-[14px] leading-relaxed text-text-secondary">
+                  From first search to signed contract — and everything after
+                  the keys are handed over. The PropertyLoop app has landed:
+                  download it free on the App Store or Google Play, or sign up
+                  on the web to get started.
+                </p>
 
-                  {/* Single phone on mobile / tablet */}
-                  <div className="lg:hidden flex justify-center">
-                    <PhoneFrame
-                      src={shotAt(0)}
-                      alt="PropertyLoop app - home screen"
-                      className="w-44 sm:w-52"
-                    />
-                  </div>
+                <div className="mt-7">
+                  <p className="mb-3 text-[10.5px] font-bold uppercase tracking-[0.15em] text-primary-dark">
+                    Download the app
+                  </p>
+                  <StoreBadges />
+                </div>
+
+                <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-border-light pt-5">
+                  <a
+                    href="/onboarding"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-[13px] font-bold text-white shadow-lg shadow-primary/25 transition-colors hover:bg-primary-dark"
+                  >
+                    Sign up free
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </a>
+                  <span className="text-xs text-text-subtle">
+                    Prefer the browser? Everything works on the web too.
+                  </span>
                 </div>
               </div>
 
-              {/* Bottom - stats row */}
-              <div className="mt-10 sm:mt-14 pt-6 sm:pt-8 border-t border-border-light">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
-                  {stats.map((stat, i) => (
+              {/* Right — app screenshots */}
+              <div data-cb-phone className="shrink-0">
+                <div className="relative hidden h-124 w-108 lg:block">
+                  <PhoneFrame
+                    src={shotAt(1)}
+                    alt="PropertyLoop app - property search"
+                    className="absolute left-0 top-12 w-40 -rotate-[8deg]"
+                  />
+                  <PhoneFrame
+                    src={shotAt(2)}
+                    alt="PropertyLoop app - listing details"
+                    className="absolute right-0 top-12 w-40 rotate-[8deg]"
+                  />
+                  <PhoneFrame
+                    src={shotAt(0)}
+                    alt="PropertyLoop app - home screen"
+                    className="absolute left-1/2 top-0 z-10 w-52 -translate-x-1/2"
+                  />
+                </div>
+                <div className="flex justify-center lg:hidden">
+                  <PhoneFrame
+                    src={shotAt(0)}
+                    alt="PropertyLoop app - home screen"
+                    className="w-44 sm:w-52"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Stats row */}
+            <div className="mt-10 border-t border-border-light pt-6">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                {stats.map((stat, i) => {
+                  const Icon = stat.icon;
+                  return (
                     <div
                       key={i}
                       data-cb-stat
-                      className="bg-white/60 backdrop-blur-sm border border-border-light rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 shadow-[0_2px_8px_rgba(0,0,0,0.04)] min-w-0"
+                      className="min-w-0 rounded-xl border border-border-light bg-[#f5f0eb]/60 px-4 py-3 shadow-sm"
                     >
-                      <div className="flex items-start gap-1.5 sm:gap-2 text-text-secondary mb-1.5 sm:mb-2">
-                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full  bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                          {stat.icon}
+                      <div className="mb-1.5 flex items-center gap-1.5">
+                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                          <Icon className="h-3.5 w-3.5" />
                         </div>
-                        <span className="text-[11px] sm:text-xs leading-tight text-nowrap">
+                        <span className="text-[11px] leading-tight text-text-secondary">
                           {stat.label}
                         </span>
                       </div>
-                      <p className="font-heading font-bold text-primary-dark text-[1.5rem] sm:text-xl leading-none">
+                      <p className="font-heading text-xl font-bold leading-none text-primary-dark">
                         {stat.value}
                       </p>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight,
   Handshake,
-  TrendingUp,
   Shield,
+  TrendingUp,
   Users,
   Zap,
 } from "lucide-react";
@@ -17,41 +17,32 @@ import redan from "../../assets/redan.png";
 gsap.registerPlugin(ScrollTrigger);
 
 const partners = [
-  {
-    name: "Ultramodern",
-    logo: utModern,
-  },
-  {
-    name: "Paystack",
-    logo: paystack,
-  },
-  {
-    name: "REDAN - Real Estate Developers Association of Nigeria",
-    logo: redan,
-  },
+  { name: "Ultramodern", logo: utModern },
+  { name: "Paystack", logo: paystack },
+  { name: "REDAN - Real Estate Developers Association of Nigeria", logo: redan },
 ];
 
 const partnerBenefits = [
   {
-    icon: <TrendingUp className="w-5 h-5" />,
+    icon: TrendingUp,
     title: "Grow Your Reach",
     description:
       "Access thousands of active property buyers, sellers, and renters across Nigeria.",
   },
   {
-    icon: <Shield className="w-5 h-5" />,
+    icon: Shield,
     title: "Trusted Ecosystem",
     description:
       "Join a verified, KYC-checked platform that prioritises transparency and trust.",
   },
   {
-    icon: <Users className="w-5 h-5" />,
+    icon: Users,
     title: "Co-Branded Exposure",
     description:
       "Get featured across our platform, marketing channels, and partner showcases.",
   },
   {
-    icon: <Zap className="w-5 h-5" />,
+    icon: Zap,
     title: "API Integrations",
     description:
       "Seamlessly integrate your services with our platform via modern APIs and webhooks.",
@@ -73,288 +64,148 @@ const Partners = () => {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-
-    const label = el.querySelector("[data-pt-label]");
-    const heading = el.querySelector("[data-pt-heading]");
-    const subtitle = el.querySelector("[data-pt-subtitle]");
-    const logoBox = el.querySelector("[data-pt-logobox]");
     const logos = el.querySelectorAll("[data-pt-logo]");
-    const whyHeading = el.querySelector("[data-pt-why-heading]");
-    const whySubtitle = el.querySelector("[data-pt-why-subtitle]");
-    const benefitCards = el.querySelectorAll("[data-pt-benefit]");
-    const ctaBanner = el.querySelector("[data-pt-cta]");
-    const pills = el.querySelectorAll("[data-pt-pill]");
-
+    const benefits = el.querySelectorAll("[data-pt-benefit]");
     const tl = gsap.timeline({
       defaults: { ease: "power3.out" },
-      scrollTrigger: { trigger: el, start: "top 75%", once: true },
+      scrollTrigger: { trigger: el, start: "top 80%", once: true },
     });
-
-    if (label)
-      tl.fromTo(
-        label,
-        { y: -15, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 },
-      );
-
-    if (heading) {
-      tl.fromTo(
-        heading,
-        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        {
-          clipPath: "inset(0 0% 0 0)",
-          opacity: 1,
-          duration: 0.9,
-          ease: "power4.out",
-        },
-        "-=0.2",
-      );
-    }
-
-    if (subtitle)
-      tl.fromTo(
-        subtitle,
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6 },
-        "-=0.4",
-      );
-
-    if (logoBox)
-      tl.fromTo(
-        logoBox,
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.7 },
-        "-=0.3",
-      );
-
     if (logos.length) {
       tl.fromTo(
         logos,
-        { scale: 0.6, opacity: 0 },
-        {
-          scale: 1,
-          opacity: 1,
-          duration: 0.5,
-          stagger: 0.07,
-          ease: "back.out(1.6)",
-        },
-        "-=0.3",
+        { scale: 0.7, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, stagger: 0.08, ease: "back.out(1.6)" },
       );
     }
-
-    if (whyHeading) {
+    if (benefits.length) {
       tl.fromTo(
-        whyHeading,
-        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        {
-          clipPath: "inset(0 0% 0 0)",
-          opacity: 1,
-          duration: 0.8,
-          ease: "power4.out",
-        },
-        "-=0.1",
-      );
-    }
-
-    if (whySubtitle)
-      tl.fromTo(
-        whySubtitle,
-        { y: 18, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 },
-        "-=0.3",
-      );
-
-    if (benefitCards.length) {
-      tl.fromTo(
-        benefitCards,
-        { y: 50, opacity: 0, rotateY: -6, scale: 0.93 },
-        {
-          y: 0,
-          opacity: 1,
-          rotateY: 0,
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "power4.out",
-        },
+        benefits,
+        { y: 40, opacity: 0, scale: 0.96 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.08, ease: "power4.out" },
         "-=0.2",
       );
     }
-
-    if (ctaBanner) {
-      tl.fromTo(
-        ctaBanner,
-        { y: 60, opacity: 0, scale: 0.96 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.9, ease: "power4.out" },
-        "-=0.2",
-      );
-    }
-
-    if (pills.length) {
-      tl.fromTo(
-        pills,
-        { x: -20, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.4,
-          stagger: 0.06,
-          ease: "back.out(1.4)",
-        },
-        "-=0.5",
-      );
-    }
-
-    return () => {
-      tl.kill();
-    };
+    return () => { tl.kill(); };
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="w-full px-6 md:px-12 lg:px-20 py-10 sm:py-14 lg:py-24 bg-bg"
-    >
-      <div className="max-w-7xl mx-auto">
+    <section ref={sectionRef} className="bg-[#f5f0eb]">
+      <div className="mx-auto max-w-360 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
         {/* Heading */}
-        <div className="text-center mb-12">
-          <p
-            data-pt-label
-            className="text-primary text-sm font-medium tracking-wide uppercase mb-3"
-          >
-            Our Partners
-          </p>
-          <h2
-            data-pt-heading
-            className="font-heading text-[1.75rem] sm:text-[2rem] lg:text-[2.5rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
-          >
-            Trusted by <span className="text-primary">industry leaders</span>
+        <div className="text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.15em] text-primary">
+            <Handshake className="h-3 w-3" />
+            Our partners
+          </span>
+          <h2 className="font-heading mt-3 text-[26px] font-bold leading-[1.1] tracking-tight text-primary-dark sm:text-[34px]">
+            Trusted by industry leaders
           </h2>
-          <p
-            data-pt-subtitle
-            className="text-text-secondary text-sm leading-relaxed mt-4 max-w-lg mx-auto"
-          >
+          <p className="mx-auto mt-2 max-w-lg text-[14px] leading-relaxed text-text-secondary">
             We partner with top financial institutions, payment providers, and
             organisations to deliver a seamless property experience.
           </p>
         </div>
 
         {/* Logo grid */}
-        <div
-          data-pt-logobox
-          className="flex flex-wrap justify-center gap-4 sm:gap-6"
-        >
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
           {partners.map((partner) => (
             <div
               key={partner.name}
               data-pt-logo
-              className="flex items-center justify-center bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.08)] border border-border-light px-8 py-6 w-[160px] sm:w-[180px] h-[100px] sm:h-[110px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-300"
+              className="flex h-24 w-40 items-center justify-center rounded-2xl border border-border-light bg-white px-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] sm:h-[100px] sm:w-[180px]"
             >
               <img
                 src={partner.logo}
                 alt={partner.name}
-                className="max-h-14 sm:max-h-16 w-full object-contain"
+                className="max-h-12 w-full object-contain sm:max-h-14"
               />
             </div>
           ))}
         </div>
 
-        {/* ─── Why Partner With Us ─── */}
-        <div className="mt-16 lg:mt-20">
-          <div className="text-center mb-10">
-            <h3
-              data-pt-why-heading
-              className="font-heading text-[1.5rem] sm:text-[1.75rem] font-bold text-primary-dark tracking-tight"
-            >
-              Why partner with{" "}
-              <span className="text-primary">PropertyLoop?</span>
+        {/* Why Partner */}
+        <div className="mt-12">
+          <div className="text-center">
+            <h3 className="font-heading text-[22px] font-bold tracking-tight text-primary-dark sm:text-[26px]">
+              Why partner with PropertyLoop?
             </h3>
-            <p
-              data-pt-why-subtitle
-              className="text-text-secondary text-sm leading-relaxed mt-3 max-w-md mx-auto"
-            >
-              Whether you're a bank, fintech, or service provider - there's a
+            <p className="mx-auto mt-2 max-w-md text-[14px] leading-relaxed text-text-secondary">
+              Whether you are a bank, fintech, or service provider — there is a
               seat at the table for you.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {partnerBenefits.map((benefit) => (
-              <div
-                key={benefit.title}
-                data-pt-benefit
-                className="group bg-white/70 backdrop-blur-md border border-white/40 rounded-[20px] shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 hover:shadow-[0_8px_28px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                  {benefit.icon}
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {partnerBenefits.map((b) => {
+              const Icon = b.icon;
+              return (
+                <div
+                  key={b.title}
+                  data-pt-benefit
+                  className="group rounded-2xl border border-border-light bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_6px_24px_rgba(0,0,0,0.08)]"
+                >
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-white">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h4 className="text-[14px] font-bold text-primary-dark">
+                    {b.title}
+                  </h4>
+                  <p className="mt-1 text-[13px] leading-relaxed text-text-secondary">
+                    {b.description}
+                  </p>
                 </div>
-                <h4 className="font-heading font-bold text-primary-dark text-[15px] mb-2">
-                  {benefit.title}
-                </h4>
-                <p className="text-text-secondary text-xs leading-relaxed">
-                  {benefit.description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* ─── Partner Types + CTA ─── */}
-        <div className="mt-14 lg:mt-16">
-          <div
-            data-pt-cta
-            className="bg-linear-to-br from-primary-dark via-primary-dark to-primary rounded-[28px] shadow-[0_8px_32px_rgba(0,0,0,0.15)] overflow-hidden relative"
-          >
-            {/* Decorative circles */}
-            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-primary/20 blur-3xl" />
-            <div className="absolute -bottom-16 -left-16 w-48 h-48 rounded-full bg-white/5 blur-2xl" />
+        {/* Partner CTA */}
+        <div className="mt-10 overflow-hidden rounded-2xl bg-gradient-to-br from-primary-dark via-primary-dark to-primary shadow-[0_6px_24px_rgba(0,0,0,0.12)]">
+          <div className="relative px-6 py-10 sm:px-10 sm:py-12 lg:px-14">
+            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-white/5 blur-2xl" />
 
-            <div className="relative z-10 px-8 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-20 flex flex-col lg:flex-row items-start lg:items-center gap-10 lg:gap-16">
-              {/* Left side */}
-              <div className="flex-1">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 text-white/80 text-xs font-medium mb-5">
-                  <Handshake className="w-3.5 h-3.5" />
-                  Partnership Programme
-                </div>
-                <h3 className="font-heading text-[1.6rem] sm:text-[2rem] font-bold text-white leading-tight tracking-tight">
-                  Become a partner
-                  <br />
-                  <span className="text-primary-light opacity-80">today</span>
+            <div className="relative flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:gap-14">
+              <div className="min-w-0 flex-1">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.15em] text-white/80 backdrop-blur-sm">
+                  <Handshake className="h-3 w-3" />
+                  Partnership programme
+                </span>
+                <h3 className="font-heading mt-4 text-[24px] font-bold leading-tight tracking-tight text-white sm:text-[28px]">
+                  Become a partner today
                 </h3>
-                <p className="text-white/60 text-sm leading-relaxed mt-4 max-w-md">
-                  Join Nigeria's fastest-growing property platform. We're
+                <p className="mt-2 max-w-md text-[14px] leading-relaxed text-white/60">
+                  Join Nigeria's fastest-growing property platform. We are
                   building partnerships that make real estate simpler, safer,
                   and more accessible for everyone.
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mt-8">
+                <div className="mt-6 flex flex-wrap items-center gap-3">
                   <Link
                     to="/contact"
-                    className="h-11 px-7 text-nowrap rounded-full bg-white text-primary-dark text-sm font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-2 shadow-[0_4px_12px_rgba(0,0,0,0.15)]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-[13px] font-bold text-primary-dark shadow-[0_4px_12px_rgba(0,0,0,0.12)] transition-colors hover:bg-white/90"
                   >
-                    Get in Touch
-                    <ArrowRight className="w-4 h-4" />
+                    Get in touch
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                   <a
                     href="mailto:support.propertyloop@propertyloop.ng"
-                    className="h-11 px-7 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm font-medium hover:bg-white/20 transition-colors inline-flex items-center gap-2"
+                    className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-[13px] font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/20"
                   >
                     support.propertyloop@propertyloop.ng
                   </a>
                 </div>
               </div>
 
-              {/* Right side - partner types */}
               <div className="w-full lg:w-auto lg:min-w-70">
-                <p className="text-white/50 text-xs font-medium uppercase tracking-wide mb-4">
+                <p className="mb-3 text-[10.5px] font-bold uppercase tracking-[0.15em] text-white/50">
                   We work with
                 </p>
-                <div className="flex flex-wrap gap-2.5">
+                <div className="flex flex-wrap gap-2">
                   {partnerTypes.map((type) => (
                     <span
                       key={type}
-                      data-pt-pill
-                      className="px-3.5 py-2 rounded-xl bg-white/8 backdrop-blur-sm border border-white/10 text-white/80 text-xs font-medium hover:bg-white/15 hover:text-white transition-all duration-200 cursor-default"
+                      className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-white/80 backdrop-blur-sm transition-colors hover:bg-white/15 hover:text-white"
                     >
                       {type}
                     </span>

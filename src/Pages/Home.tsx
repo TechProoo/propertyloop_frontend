@@ -41,8 +41,8 @@ const Home = () => {
       {/* The retail half of the home — shop the marketplace (carousel). */}
       <MarketplaceShowcase />
       {/* Paid brand placement - renders nothing when no campaign is live */}
-      <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8 my-20">
-        <AdSlot placement="HOME_BANNER" className="mt-8 sm:mt-10" />
+      <div className="mx-auto max-w-360 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <AdSlot placement="HOME_BANNER" />
       </div>
       <AdvertiseSpotlight />
       {/* <TrustedSection /> */}

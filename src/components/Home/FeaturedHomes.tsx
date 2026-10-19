@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import {
+  ArrowRight,
   Bed,
+  Sparkles,
   WifiOff,
   RotateCcw,
 } from "lucide-react";
-import AuthGate from "../ui/AuthGate";
 import { CardSkeleton } from "../ui/Skeleton";
 import listingsService from "../../api/services/listings";
 import PropertyTile from "./PropertyTile";
@@ -20,9 +22,6 @@ const FeaturedHomes = () => {
   const [homes, setHomes] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-
-  // Bumped by the retry button. The request lives in the effect so nothing is
-  // set during render, and a stale response cannot land on a newer one.
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
@@ -60,65 +59,17 @@ const FeaturedHomes = () => {
     const el = sectionRef.current;
     if (!el) return;
 
-    const heading = el.querySelector("[data-fh-heading]");
-    const subtitle = el.querySelector("[data-fh-subtitle]");
-    const viewAll = el.querySelector("[data-fh-viewall]");
     const cards = el.querySelectorAll("[data-fh-card]");
-
     const tl = gsap.timeline({
       defaults: { ease: "power3.out" },
-      scrollTrigger: { trigger: el, start: "top 75%", once: true },
+      scrollTrigger: { trigger: el, start: "top 80%", once: true },
     });
 
-    // Heading - clip-path wipe
-    if (heading) {
-      tl.fromTo(
-        heading,
-        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        {
-          clipPath: "inset(0 0% 0 0)",
-          opacity: 1,
-          duration: 0.9,
-          ease: "power4.out",
-        },
-      );
-    }
-
-    // Subtitle - fade up
-    if (subtitle) {
-      tl.fromTo(
-        subtitle,
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6 },
-        "-=0.4",
-      );
-    }
-
-    // View-all button - pop in
-    if (viewAll) {
-      tl.fromTo(
-        viewAll,
-        { scale: 0.8, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.6)" },
-        "-=0.3",
-      );
-    }
-
-    // Cards - stagger rise with slight 3D rotation
     if (cards.length) {
       tl.fromTo(
         cards,
-        { y: 80, opacity: 0, rotateY: -6, scale: 0.95 },
-        {
-          y: 0,
-          opacity: 1,
-          rotateY: 0,
-          scale: 1,
-          duration: 0.9,
-          stagger: 0.15,
-          ease: "power4.out",
-        },
-        "-=0.3",
+        { y: 50, opacity: 0, scale: 0.96 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.7, stagger: 0.12, ease: "power4.out" },
       );
     }
 
@@ -131,78 +82,61 @@ const FeaturedHomes = () => {
   }, [loading, homes]);
 
   return (
-    <section
-      ref={sectionRef}
-      className="w-full px-6 md:px-12 lg:px-20 py-10 sm:py-14 lg:py-28 bg-bg"
-    >
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
+    <section ref={sectionRef} className="bg-[#f5f0eb]">
+      <div className="mx-auto max-w-360 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2
-              data-fh-heading
-              className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
-            >
-              Featured <span className="text-primary">Properties</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.15em] text-primary">
+              <Sparkles className="h-3 w-3" />
+              Featured properties
+            </span>
+            <h2 className="font-heading mt-3 text-[26px] font-bold leading-[1.1] tracking-tight text-primary-dark sm:text-[34px]">
+              Hand-picked &amp; verified
             </h2>
-            <p
-              data-fh-subtitle
-              className="text-text-secondary text-sm leading-relaxed mt-3 max-w-lg"
-            >
-              Hand-picked properties verified by our agents with full logbook
-              history and transparent pricing.
+            <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-text-secondary">
+              Properties selected by our team with full logbook history and
+              transparent pricing.
             </p>
           </div>
-          <AuthGate
-            href="/featured"
-            className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
+          <Link
+            to="/featured"
+            className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 px-5 py-2.5 text-[13px] font-bold text-primary-dark transition-colors hover:bg-primary hover:text-white"
           >
-            <span data-fh-viewall>View all</span>
-          </AuthGate>
+            View all
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
 
-        {/* Cards grid - 3 per row */}
         {loading ? (
-          <CardSkeleton count={3} />
+          <div className="mt-6">
+            <CardSkeleton count={3} />
+          </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-4">
-              <WifiOff className="w-8 h-8 text-red-400" />
-            </div>
-            <h3 className="font-heading font-bold text-primary-dark text-lg">
-              Couldn’t load properties
-            </h3>
-            <p className="text-text-secondary text-sm mt-2 max-w-sm">
-              Check your internet connection and try again.
+          <div className="mt-6 flex flex-col items-center gap-3 rounded-2xl bg-white px-6 py-12 text-center shadow-sm">
+            <WifiOff className="h-6 w-6 text-text-subtle" />
+            <p className="text-sm text-text-secondary">
+              These properties could not be loaded.
             </p>
             <button
               onClick={fetchHomes}
-              className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center gap-2"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 text-[13px] font-bold text-white"
             >
-              <RotateCcw className="w-4 h-4" /> Try Again
+              <RotateCcw className="h-3.5 w-3.5" />
+              Try again
             </button>
           </div>
         ) : homes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Bed className="w-8 h-8 text-primary/50" />
-            </div>
-            <h3 className="font-heading font-bold text-primary-dark text-lg">
-              Featured Homes Coming Soon
-            </h3>
-            <p className="text-text-secondary text-sm mt-2 max-w-sm">
-              Our agents are curating the best properties for you. Check back
-              soon to discover hand-picked homes.
+          <div className="mt-6 flex flex-col items-center gap-3 rounded-2xl bg-white px-6 py-12 text-center shadow-sm">
+            <Bed className="h-6 w-6 text-text-subtle" />
+            <p className="text-sm font-semibold text-primary-dark">
+              Featured homes coming soon
             </p>
-            <a
-              href="/search"
-              className="mt-6 h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors inline-flex items-center"
-            >
-              Browse All Properties
-            </a>
+            <p className="max-w-sm text-[13px] text-text-secondary">
+              Our agents are curating the best properties for you.
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {homes.map((home) => (
               <div key={home.id} data-fh-card>
                 <PropertyTile data={listingToTile(home)} />

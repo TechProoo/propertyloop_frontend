@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { CalendarDays, MapPin } from "lucide-react";
-import AuthGate from "../ui/AuthGate";
+import { ArrowRight, CalendarDays, MapPin, Palmtree } from "lucide-react";
 import listingsService from "../../api/services/listings";
 import PropertyTile from "./PropertyTile";
 import { listingToTile } from "./tileData";
@@ -10,7 +9,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
-
 
 const ShortletSpotlight = () => {
   const [checkIn, setCheckIn] = useState("");
@@ -40,174 +38,86 @@ const ShortletSpotlight = () => {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
-
-    const label = el.querySelector("[data-ss-label]");
-    const heading = el.querySelector("[data-ss-heading]");
-    const subtitle = el.querySelector("[data-ss-subtitle]");
-    const viewAll = el.querySelector("[data-ss-viewall]");
-    const datePicker = el.querySelector("[data-ss-datepicker]");
     const cards = el.querySelectorAll("[data-ss-card]");
-
     const tl = gsap.timeline({
       defaults: { ease: "power3.out" },
-      scrollTrigger: { trigger: el, start: "top 75%", once: true },
+      scrollTrigger: { trigger: el, start: "top 80%", once: true },
     });
-
-    // Label
-    if (label) {
-      tl.fromTo(
-        label,
-        { y: -15, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 },
-      );
-    }
-
-    // Heading - clip-path wipe
-    if (heading) {
-      tl.fromTo(
-        heading,
-        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
-        {
-          clipPath: "inset(0 0% 0 0)",
-          opacity: 1,
-          duration: 0.9,
-          ease: "power4.out",
-        },
-        "-=0.2",
-      );
-    }
-
-    // Subtitle
-    if (subtitle) {
-      tl.fromTo(
-        subtitle,
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6 },
-        "-=0.4",
-      );
-    }
-
-    // View-all button
-    if (viewAll) {
-      tl.fromTo(
-        viewAll,
-        { scale: 0.8, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.6)" },
-        "-=0.3",
-      );
-    }
-
-    // Date picker bar - expand from center
-    if (datePicker) {
-      tl.fromTo(
-        datePicker,
-        { scaleX: 0.6, opacity: 0, transformOrigin: "center" },
-        { scaleX: 1, opacity: 1, duration: 0.8, ease: "power4.out" },
-        "-=0.2",
-      );
-    }
-
-    // Shortlet cards - stagger rise with scale
     if (cards.length) {
       tl.fromTo(
         cards,
-        { y: 80, opacity: 0, scale: 0.92 },
-        {
-          y: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.9,
-          stagger: 0.18,
-          ease: "power4.out",
-        },
-        "-=0.3",
+        { y: 50, opacity: 0, scale: 0.96 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.7, stagger: 0.12, ease: "power4.out" },
       );
     }
-
-    return () => {
-      tl.kill();
-    };
-  }, []);
+    return () => { tl.kill(); };
+  }, [loading, shortlets.length]);
 
   return (
-    <section
-      ref={sectionRef}
-      className="w-full px-6 md:px-12 lg:px-20 py-10 sm:py-14 lg:py-28 bg-bg"
-    >
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+    <section ref={sectionRef} className="bg-[#f5f0eb]">
+      <div className="mx-auto max-w-360 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p
-              data-ss-label
-              className="text-primary text-sm font-medium tracking-wide uppercase mb-2"
-            >
-              Short-Term Stays
-            </p>
-            <h2
-              data-ss-heading
-              className="font-heading text-[2rem] sm:text-[2.5rem] lg:text-[3rem] leading-[1.1] font-bold text-primary-dark tracking-tight"
-            >
-              Shortlet <span className="text-primary">Spotlight</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.15em] text-primary">
+              <Palmtree className="h-3 w-3" />
+              Short-term stays
+            </span>
+            <h2 className="font-heading mt-3 text-[26px] font-bold leading-[1.1] tracking-tight text-primary-dark sm:text-[34px]">
+              Shortlet spotlight
             </h2>
-            <p
-              data-ss-subtitle
-              className="text-text-secondary text-sm leading-relaxed mt-3 max-w-lg"
-            >
-              Browse verified short-term apartments by the night. Transparent
-              pricing and direct contact with the host.
+            <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-text-secondary">
+              Verified short-term apartments by the night. Transparent pricing
+              and direct contact with the host.
             </p>
           </div>
-          <AuthGate
-            href="/shortlet"
-            className="shrink-0 h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 inline-flex items-center"
+          <Link
+            to="/shortlet"
+            className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 px-5 py-2.5 text-[13px] font-bold text-primary-dark transition-colors hover:bg-primary hover:text-white"
           >
-            <span data-ss-viewall>View all shortlets</span>
-          </AuthGate>
+            View all shortlets
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
 
         {/* Date picker bar */}
-        <div
-          data-ss-datepicker
-          className="bg-white border border-border-light rounded-[24px] shadow-[0_2px_14px_rgba(0,0,0,0.04)] px-5 sm:px-8 py-7 mb-10 flex flex-col sm:flex-row sm:items-end gap-5"
-        >
-          <div className="flex items-center gap-2 text-primary shrink-0 sm:pb-1">
-            <CalendarDays className="w-5 h-5" />
-            <span className="font-heading font-bold text-primary-dark text-sm">
+        <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-border-light bg-white px-5 py-5 shadow-sm sm:flex-row sm:items-end sm:px-6">
+          <div className="flex shrink-0 items-center gap-2 text-primary sm:pb-1">
+            <CalendarDays className="h-4 w-4" />
+            <span className="text-[13px] font-bold text-primary-dark">
               Pick your dates
             </span>
           </div>
 
-          <div className="w-full flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid w-full flex-1 grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="min-w-0">
-              <label className="text-text-secondary text-xs font-medium block mb-1.5">
+              <label className="mb-1 block text-[11px] font-medium text-text-secondary">
                 Check in
               </label>
               <input
                 type="date"
                 value={checkIn}
                 onChange={(e) => setCheckIn(e.target.value)}
-                className="w-full h-10 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                className="h-10 w-full rounded-full border border-border-light bg-[#f5f0eb]/60 px-4 text-sm text-primary-dark transition-colors focus:border-primary focus:outline-none"
               />
             </div>
             <div className="min-w-0">
-              <label className="text-text-secondary text-xs font-medium block mb-1.5">
+              <label className="mb-1 block text-[11px] font-medium text-text-secondary">
                 Check out
               </label>
               <input
                 type="date"
                 value={checkOut}
                 onChange={(e) => setCheckOut(e.target.value)}
-                className="w-full h-10 px-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors"
+                className="h-10 w-full rounded-full border border-border-light bg-[#f5f0eb]/60 px-4 text-sm text-primary-dark transition-colors focus:border-primary focus:outline-none"
               />
             </div>
             <div className="min-w-0">
-              <label className="text-text-secondary text-xs font-medium block mb-1.5">
+              <label className="mb-1 block text-[11px] font-medium text-text-secondary">
                 Location
               </label>
               <div className="relative">
-                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-subtle" />
-                <select className="w-full h-10 pl-9 pr-4 rounded-full bg-white/80 backdrop-blur-sm border border-border-light text-primary-dark text-sm focus:outline-none focus:border-primary transition-colors appearance-none truncate">
+                <MapPin className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+                <select className="h-10 w-full appearance-none truncate rounded-full border border-border-light bg-[#f5f0eb]/60 pl-9 pr-4 text-sm text-primary-dark transition-colors focus:border-primary focus:outline-none">
                   <option>All Lagos</option>
                   <option>Victoria Island</option>
                   <option>Lekki</option>
@@ -219,58 +129,42 @@ const ShortletSpotlight = () => {
             </div>
           </div>
 
-          <button className="shrink-0 self-center sm:self-auto h-10 px-6 rounded-full bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors duration-300">
+          <button className="h-10 shrink-0 self-center rounded-full bg-primary px-6 text-[13px] font-bold text-white transition-colors hover:bg-primary-dark sm:self-auto">
             Search
           </button>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-white/60 border border-border-light rounded-[20px] overflow-hidden animate-pulse"
+                className="animate-pulse rounded-2xl bg-white p-3"
               >
-                <div className="h-48 bg-border-light/40" />
-                <div className="p-4 space-y-2">
-                  <div className="h-4 w-2/3 bg-border-light/60 rounded-full" />
-                  <div className="h-3 w-1/2 bg-border-light/60 rounded-full" />
-                  <div className="h-3 w-1/3 bg-border-light/60 rounded-full" />
-                </div>
+                <div className="aspect-[4/3] w-full rounded-xl bg-primary/5" />
+                <div className="mt-3 h-4 w-2/3 rounded-full bg-primary/10" />
+                <div className="mt-2 h-3 w-1/2 rounded-full bg-primary/5" />
               </div>
             ))}
           </div>
         ) : shortlets.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center rounded-[28px] bg-white/30 border border-border-light">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <CalendarDays className="w-8 h-8 text-primary/50" />
-            </div>
-            <h3 className="font-heading font-bold text-primary-dark text-lg">
-              Shortlets Coming Soon
-            </h3>
-            <p className="text-text-secondary text-sm mt-2 max-w-sm">
+          <div className="mt-6 flex flex-col items-center gap-3 rounded-2xl bg-white px-6 py-12 text-center shadow-sm">
+            <CalendarDays className="h-6 w-6 text-text-subtle" />
+            <p className="text-sm font-semibold text-primary-dark">
+              Shortlets coming soon
+            </p>
+            <p className="max-w-sm text-[13px] text-text-secondary">
               Browse verified short-term apartments by the night and message
               hosts directly.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {shortlets.map((s) => (
               <div key={s.id} data-ss-card>
                 <PropertyTile data={listingToTile(s)} />
               </div>
             ))}
-          </div>
-        )}
-
-        {!loading && shortlets.length > 0 && (
-          <div className="mt-8 text-center">
-            <Link
-              to="/shortlet"
-              className="inline-flex h-10 px-6 rounded-full border border-border bg-white/80 backdrop-blur-sm text-primary-dark text-sm font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 items-center"
-            >
-              View all shortlets
-            </Link>
           </div>
         )}
       </div>
