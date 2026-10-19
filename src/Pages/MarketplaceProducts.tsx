@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   Search,
   SlidersHorizontal,
@@ -42,8 +42,12 @@ const PRICE_BUCKETS: { label: string; min: number; max: number }[] = [
 ];
 
 const MarketplaceProducts = () => {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string>("All");
+  // Seeded from the URL so the home hero's "Shop" search lands with results.
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
+  const [category, setCategory] = useState<string>(
+    () => searchParams.get("category") || "All",
+  );
   const [storeSlug, setStoreSlug] = useState<string>("All");
   const [priceIdx, setPriceIdx] = useState<number | null>(null);
   const [sort, setSort] = useState<SortKey>("popular");

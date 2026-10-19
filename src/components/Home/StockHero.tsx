@@ -1,26 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   BadgeCheck,
-  Building2,
   ChevronRight,
-  Hammer,
-  KeyRound,
-  Lamp,
-  LayoutGrid,
-  Palmtree,
   RotateCcw,
-  Search,
   ShoppingBag,
-  Sofa,
   Star,
   Store,
-  Trees,
-  UserRound,
   WifiOff,
-  Wrench,
-  Zap,
 } from "lucide-react";
 import listingsService from "../../api/services/listings";
 import marketplaceService from "../../api/services/marketplace";
@@ -28,80 +16,13 @@ import type { Listing } from "../../api/types";
 import type { StoreTeaser } from "../../data/storefronts";
 import PropertyTile from "./PropertyTile";
 import { listingToTile } from "./tileData";
+import HomeHero from "./HomeHero";
 import { PRODUCT_MARKETPLACE } from "../../config/features";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    StockHero — unified hero that combines property search, PropertyLoop stock,
    and the marketplace in one premium section.
    ═══════════════════════════════════════════════════════════════════════════ */
-
-const SEARCH_CATS = [
-  { label: "All", path: "/buy" },
-  { label: "Buy", path: "/buy" },
-  { label: "Rent", path: "/rent" },
-  { label: "Shortlet", path: "/shortlet" },
-] as const;
-
-const QUICK_LINKS = [
-  { label: "Buy a home", href: "/buy", icon: Building2 },
-  { label: "Rent", href: "/rent", icon: KeyRound },
-  { label: "Shortlet", href: "/shortlet", icon: Palmtree },
-  { label: "Find an agent", href: "/find-agent", icon: UserRound },
-  ...(PRODUCT_MARKETPLACE
-    ? [{ label: "Marketplace", href: "/marketplace", icon: ShoppingBag }]
-    : []),
-];
-
-/**
- * The category quick-strip at the very top of the hero — properties plus the
- * things our vendors sell. Properties lead; the rest deep-link into the
- * marketplace filtered to that category, and "All" opens the whole store.
- */
-const CATEGORY_TILES: {
-  label: string;
-  href: string;
-  icon: typeof Building2;
-  tint: string;
-}[] = [
-  { label: "Properties", href: "/buy", icon: Building2, tint: "#1f6f43" },
-  {
-    label: "Furniture",
-    href: "/marketplace?category=Furniture",
-    icon: Sofa,
-    tint: "#b9842c",
-  },
-  {
-    label: "Lighting",
-    href: "/marketplace?category=Lighting%20%26%20Decor",
-    icon: Lamp,
-    tint: "#c2410c",
-  },
-  {
-    label: "Materials",
-    href: "/marketplace?category=Building%20Materials",
-    icon: Hammer,
-    tint: "#2563eb",
-  },
-  {
-    label: "Smart Home",
-    href: "/marketplace?category=Smart%20Home",
-    icon: Zap,
-    tint: "#7c3aed",
-  },
-  {
-    label: "Tools",
-    href: "/marketplace?category=Tools%20%26%20Hardware",
-    icon: Wrench,
-    tint: "#be123c",
-  },
-  {
-    label: "Garden",
-    href: "/marketplace?category=Landscaping",
-    icon: Trees,
-    tint: "#15803d",
-  },
-  { label: "All", href: "/marketplace", icon: LayoutGrid, tint: "#4b5563" },
-];
 
 const STOCK_COUNT = 4;
 
@@ -141,10 +62,6 @@ const toStoreCard = (s: StoreTeaser): StoreCard => ({
 });
 
 export default function StockHero() {
-  const navigate = useNavigate();
-  const [searchCat, setSearchCat] = useState("All");
-  const [searchQ, setSearchQ] = useState("");
-
   /* ── Stock ─────────────────────────────────────────────── */
   const [stock, setStock] = useState<Listing[]>([]);
   const [stockLoading, setStockLoading] = useState(true);
@@ -198,15 +115,6 @@ export default function StockHero() {
     };
   }, []);
 
-  /* ── Search ────────────────────────────────────────────── */
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    const q = searchQ.trim();
-    const cat = SEARCH_CATS.find((c) => c.label === searchCat);
-    const base = cat?.path ?? "/buy";
-    navigate(q ? `${base}?q=${encodeURIComponent(q)}` : base);
-  }
-
   const showStores = PRODUCT_MARKETPLACE && storesLoaded && stores.length > 0;
 
   return (
@@ -214,94 +122,7 @@ export default function StockHero() {
       {/* ═══════════════════════════════════════════════════════════════════
           PART 1 — The hero banner
           ═══════════════════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden bg-[#0f2e1b]">
-        {/* Decorative gradient orbs */}
-        <div className="pointer-events-none absolute -top-40 -right-40 h-[600px] w-[600px] rounded-full bg-primary/20 blur-[120px]" />
-        <div className="pointer-events-none absolute -bottom-60 -left-40 h-[500px] w-[500px] rounded-full bg-accent/10 blur-[100px]" />
-
-        <div className="relative mx-auto max-w-360 px-4 pb-12 pt-6 sm:px-6 sm:pb-16 sm:pt-8 lg:px-8 lg:pb-20 lg:pt-10">
-          {/* ── Category quick-strip — properties + what our vendors sell ── */}
-          <div className="mb-8 flex gap-3 overflow-x-auto pb-1 sm:mb-10 sm:justify-center [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {CATEGORY_TILES.map(({ label, href, icon: Icon, tint }) => (
-              <Link
-                key={label}
-                to={href}
-                className="group flex w-[68px] shrink-0 flex-col items-center gap-2 sm:w-[82px]"
-              >
-                <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-[0_4px_14px_rgba(0,0,0,0.18)] transition-transform duration-200 group-hover:-translate-y-0.5 sm:h-[72px] sm:w-[72px]">
-                  <Icon className="h-7 w-7" style={{ color: tint }} strokeWidth={1.75} />
-                </span>
-                <span className="text-center text-[11.5px] font-medium leading-tight text-white/80 group-hover:text-white sm:text-[12.5px]">
-                  {label}
-                </span>
-              </Link>
-            ))}
-          </div>
-
-          {/* Headline */}
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="font-heading text-[32px] font-extrabold leading-[1.08] tracking-tight text-white sm:text-[44px] lg:text-[56px]">
-              Find your next home.
-              <br />
-              <span className="bg-gradient-to-r from-[#4ade80] to-[#a3e635] bg-clip-text text-transparent">
-                Shop for it too.
-              </span>
-            </h1>
-            <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-white/60 sm:text-base">
-              Nigeria's property marketplace — verified listings, trusted agents,
-              and everything you need to furnish and finish your home, all in one
-              place.
-            </p>
-          </div>
-
-          {/* Search bar */}
-          <form
-            onSubmit={handleSearch}
-            className="mx-auto mt-8 flex max-w-2xl overflow-hidden rounded-full bg-white shadow-[0_8px_32px_rgba(0,0,0,0.3)] sm:mt-10"
-          >
-            <select
-              value={searchCat}
-              onChange={(e) => setSearchCat(e.target.value)}
-              aria-label="Search category"
-              className="hidden border-none bg-gray-50 px-4 py-3 text-[13px] font-semibold text-[#0f2e1b] outline-none sm:block"
-            >
-              {SEARCH_CATS.map((c) => (
-                <option key={c.label} value={c.label}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-            <input
-              value={searchQ}
-              onChange={(e) => setSearchQ(e.target.value)}
-              placeholder="Search by area, city or landmark"
-              aria-label="Search properties"
-              className="min-w-0 flex-1 border-none px-5 py-3.5 text-sm text-[#0f1111] outline-none placeholder:text-gray-400"
-            />
-            <button
-              type="submit"
-              className="m-1.5 flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-primary-dark sm:px-6"
-            >
-              <Search className="h-4 w-4" />
-              <span className="hidden sm:inline">Search</span>
-            </button>
-          </form>
-
-          {/* Quick-link pills */}
-          <div className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-2">
-            {QUICK_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                to={link.href}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-4 py-2 text-[12.5px] font-medium text-white/70 transition-all hover:border-white/30 hover:bg-white/10 hover:text-white"
-              >
-                <link.icon className="h-3.5 w-3.5" />
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      <HomeHero stock={stock} stockLoading={stockLoading} />
 
       {/* ═══════════════════════════════════════════════════════════════════
           PART 2 — PropertyLoop stock + marketplace grid
