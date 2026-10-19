@@ -26,14 +26,44 @@ function nearestWidth(want: number): number {
   );
 }
 
+/**
+ * The origin the app actually talks to, derived from the same env the API
+ * client uses. Property photos are served through the backend's watermark
+ * proxy as ABSOLUTE urls baked server-side from PUBLIC_API_URL — so if the
+ * backend ever moves host (or that env drifts), every stored image url points
+ * at the old origin and 404s. Re-pointing the proxy path at the origin we're
+ * actually using keeps images loading regardless.
+ */
+const API_ORIGIN = (() => {
+  try {
+    return new URL(
+      import.meta.env.VITE_API_URL || "http://localhost:3000/api",
+    ).origin;
+  } catch {
+    return "";
+  }
+})();
+
+const PROXY_PATH = "/api/media/img";
+
+/** Point a watermark-proxy image url at the API origin we're actually using. */
+export function fixMediaOrigin<T extends string | null | undefined>(url: T): T {
+  if (!url || !API_ORIGIN) return url;
+  if (!/^https?:\/\//i.test(url)) return url; // relative — already same-origin
+  const i = url.indexOf(PROXY_PATH);
+  if (i <= 0) return url; // not a proxied image
+  return (API_ORIGIN + url.slice(i)) as T;
+}
+
 export function sizedImage<T extends string | null | undefined>(
   url: T,
   width: number,
 ): T {
-  if (!url || !url.includes("/api/media/img")) return url;
-  if (/[?&]w=/.test(url)) return url; // already sized
-  const sep = url.includes("?") ? "&" : "?";
-  return `${url}${sep}w=${nearestWidth(width)}` as T;
+  const fixed = fixMediaOrigin(url);
+  if (!fixed || !fixed.includes(PROXY_PATH)) return fixed;
+  if (/[?&]w=/.test(fixed)) return fixed; // already sized
+  const sep = fixed.includes("?") ? "&" : "?";
+  return `${fixed}${sep}w=${nearestWidth(width)}` as T;
 }
 
 /**

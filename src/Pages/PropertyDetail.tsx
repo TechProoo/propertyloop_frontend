@@ -407,7 +407,7 @@ const PropertyDetail = () => {
                   The main image then sits centered at its native size via
                   object-contain - sharp, no stretching artifacts. */}
               <img
-                src={listing.images[activeImage]}
+                src={sizedImage(listing.images[activeImage], IMG.card)}
                 alt=""
                 aria-hidden="true"
                 onError={handleBannerError}
@@ -415,7 +415,7 @@ const PropertyDetail = () => {
               />
               <img
                 key={listing.images[activeImage]}
-                src={listing.images[activeImage]}
+                src={sizedImage(listing.images[activeImage], IMG.gallery)}
                 alt={listing.title}
                 loading="eager"
                 decoding="async"
@@ -510,7 +510,7 @@ const PropertyDetail = () => {
                     }`}
                   >
                     <img
-                      src={img}
+                      src={sizedImage(img, IMG.thumb)}
                       alt={`View ${i + 1}`}
                       onError={handleBannerError}
                       className="w-full h-full object-cover"
