@@ -8,21 +8,15 @@ import {
   Bed,
   Building2,
   Check,
-  Hammer,
   KeyRound,
-  Lamp,
-  LayoutGrid,
   MapPin,
+  MoreHorizontal,
   Palmtree,
   Plus,
   Search,
   ShieldCheck,
   ShoppingBag,
-  Sofa,
   Store,
-  Trees,
-  Wrench,
-  Zap,
 } from "lucide-react";
 import marketplaceService from "../../api/services/marketplace";
 import type { ProductWithStore } from "../../api/services/marketplace";
@@ -31,6 +25,13 @@ import { useStoreCart } from "../../context/StoreCartContext";
 import { PRODUCT_MARKETPLACE } from "../../config/features";
 import { IMG, sizedImage } from "../../lib/imageSize";
 import { listingToTile } from "./tileData";
+import imgProperties from "../../assets/categories/properties.webp";
+import imgFurniture from "../../assets/categories/furniture.webp";
+import imgLighting from "../../assets/categories/lighting.webp";
+import imgMaterials from "../../assets/categories/materials.webp";
+import imgSmartHome from "../../assets/categories/smarthome.webp";
+import imgTools from "../../assets/categories/tools.webp";
+import imgGarden from "../../assets/categories/garden.webp";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    HomeHero — the first screen of propertyloop.ng.
@@ -45,16 +46,33 @@ import { listingToTile } from "./tileData";
 const LIME = "#a3e635";
 const FIELD = "#0f2e1b";
 
-/** Properties lead; the rest deep-link into the marketplace, filtered. */
-const CATEGORY_TILES = [
-  { label: "Properties", href: "/buy", icon: Building2, tint: "#1f6f43", lead: true },
-  { label: "Furniture", href: "/marketplace?category=Furniture", icon: Sofa, tint: "#b9842c" },
-  { label: "Lighting", href: "/marketplace?category=Lighting%20%26%20Decor", icon: Lamp, tint: "#c2410c" },
-  { label: "Materials", href: "/marketplace?category=Building%20Materials", icon: Hammer, tint: "#2563eb" },
-  { label: "Smart Home", href: "/marketplace?category=Smart%20Home", icon: Zap, tint: "#7c3aed" },
-  { label: "Tools", href: "/marketplace?category=Tools%20%26%20Hardware", icon: Wrench, tint: "#be123c" },
-  { label: "Garden", href: "/marketplace?category=Landscaping", icon: Trees, tint: "#15803d" },
-  { label: "All", href: "/marketplace", icon: LayoutGrid, tint: "#4b5563" },
+/**
+ * Properties lead; the rest deep-link into the marketplace, filtered.
+ *
+ * Photos are CC0 / public domain (free for commercial use, no attribution
+ * required), cropped to 256px squares and stored locally:
+ *   properties  stocksnap.io/photo/house-home-LJ515CPAKI
+ *   furniture   rawpixel.com/image/6328657
+ *   lighting    rawpixel.com/image/6035773
+ *   materials   stocksnap.io/photo/bricks-wall-4YCB0VAY1L
+ *   smart home  rawpixel.com/image/6329874
+ *   tools       rawpixel.com/image/6041584
+ *   garden      rawpixel.com/image/6040660
+ */
+const CATEGORY_TILES: {
+  label: string;
+  href: string;
+  image?: string;
+  lead?: boolean;
+}[] = [
+  { label: "Properties", href: "/buy", image: imgProperties, lead: true },
+  { label: "Furniture", href: "/marketplace?category=Furniture", image: imgFurniture },
+  { label: "Lighting", href: "/marketplace?category=Lighting%20%26%20Decor", image: imgLighting },
+  { label: "Materials", href: "/marketplace?category=Building%20Materials", image: imgMaterials },
+  { label: "Smart Home", href: "/marketplace?category=Smart%20Home", image: imgSmartHome },
+  { label: "Tools", href: "/marketplace?category=Tools%20%26%20Hardware", image: imgTools },
+  { label: "Garden", href: "/marketplace?category=Landscaping", image: imgGarden },
+  { label: "All", href: "/marketplace" },
 ].filter((t) => PRODUCT_MARKETPLACE || t.lead);
 
 type Mode = "buy" | "rent" | "shortlet" | "shop";
@@ -221,18 +239,29 @@ export default function HomeHero({
           aria-label="Shop by category"
           className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:justify-center sm:gap-4 sm:px-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {CATEGORY_TILES.map(({ label, href, icon: Icon, tint, lead }) => (
+          {CATEGORY_TILES.map(({ label, href, image, lead }) => (
             <Link
               key={label}
               to={href}
               className="group flex w-[68px] shrink-0 flex-col items-center gap-2 sm:w-[80px]"
             >
               <span
-                className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-[0_6px_18px_rgba(0,0,0,0.22)] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-[0_12px_26px_rgba(0,0,0,0.3)] sm:h-[72px] sm:w-[72px] ${
+                className={`flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-[0_6px_18px_rgba(0,0,0,0.22)] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-[0_12px_26px_rgba(0,0,0,0.3)] sm:h-[72px] sm:w-[72px] ${
                   lead ? "ring-2 ring-[#a3e635] ring-offset-2 ring-offset-[#0f2e1b]" : ""
                 }`}
               >
-                <Icon className="h-7 w-7" style={{ color: tint }} strokeWidth={1.75} />
+                {image ? (
+                  <img
+                    src={image}
+                    alt=""
+                    width={72}
+                    height={72}
+                    decoding="async"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : (
+                  <MoreHorizontal className="h-7 w-7 text-[#0f2e1b]" strokeWidth={2.25} />
+                )}
               </span>
               <span className="text-center text-[11.5px] font-medium leading-tight text-white/75 transition-colors group-hover:text-white sm:text-[12.5px]">
                 {label}
