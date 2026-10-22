@@ -26,11 +26,11 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-[#f5f0eb]">
       <Seo
-        title="PropertyLoop - Buy, Rent & Sell Property in Nigeria"
+        title="PropertyLoop - Find a Home, Make It Yours"
         titleSuffix=""
-        description="Nigeria's all-in-one real estate platform. Verified agents, secure escrow, shortlets, and a service vendor marketplace - all in one place."
+        description="Find verified homes to buy, rent or book as a shortlet, then shop furniture, lighting and building materials from trusted Nigerian stores on PropertyLoop."
         path="/"
-        keywords="real estate Nigeria, property Lagos, buy property Nigeria, rent Lagos, shortlet Nigeria, verified agents, escrow"
+        keywords="real estate Nigeria, property Lagos, buy property Nigeria, rent Lagos, shortlet Nigeria, verified agents, home furniture marketplace, building materials Nigeria"
       />
       <Navbar />
       {/* PropertyLoop's own stock leads; agents' listings follow. */}
