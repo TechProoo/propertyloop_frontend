@@ -12,9 +12,13 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SITE = "https://propertyloop.ng";
-const API =
+const configuredApi =
   process.env.VITE_API_URL ||
   "https://propertyloopbackend-production.up.railway.app/api";
+const API = configuredApi.replace(
+  /^https:\/\/propertyloop-backend\.up\.railway\.app(?=\/|$)/,
+  "https://propertyloopbackend-production.up.railway.app",
+);
 
 const OUT = resolve(
   dirname(fileURLToPath(import.meta.url)),

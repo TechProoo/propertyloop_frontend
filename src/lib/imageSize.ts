@@ -1,3 +1,5 @@
+import { API_BASE } from "../api/endpoint";
+
 /**
  * Requests a rendered width from the media proxy.
  *
@@ -36,9 +38,7 @@ function nearestWidth(want: number): number {
  */
 const API_ORIGIN = (() => {
   try {
-    return new URL(
-      import.meta.env.VITE_API_URL || "http://localhost:3000/api",
-    ).origin;
+    return new URL(API_BASE).origin;
   } catch {
     return "";
   }

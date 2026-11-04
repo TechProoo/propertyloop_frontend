@@ -1,8 +1,8 @@
 import { io, Socket } from "socket.io-client";
 import { tokens } from "./client";
+import { API_BASE } from "./endpoint";
 
-const SOCKET_URL =
-  (import.meta.env.VITE_API_URL || "http://localhost:3000").replace(/\/api$/, "");
+const SOCKET_URL = API_BASE.replace(/\/api$/, "");
 
 let socket: Socket | null = null;
 

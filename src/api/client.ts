@@ -7,11 +7,11 @@ import {
   reportNetworkError,
   reportNetworkRecover,
 } from "../hooks/useOnlineStatus";
+import { API_BASE } from "./endpoint";
 
 // ─── Base config ────────────────────────────────────────────────────────────
 
-export const API_BASE =
-  import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+export { API_BASE } from "./endpoint";
 
 const api = axios.create({
   baseURL: API_BASE,
