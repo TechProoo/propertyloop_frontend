@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { ARTISAN_CORNER, PRODUCT_MARKETPLACE } from "../../config/features";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, LogOut, Menu, Plus, Search, Settings, ShoppingBag, X } from "lucide-react";
+import { Bookmark, ChevronDown, LogOut, Menu, Plus, Search, Settings, ShoppingBag, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useStoreCart } from "../../context/StoreCartContext";
 import Logo from "../../assets/logo.png";
@@ -280,6 +280,9 @@ const Navbar = () => {
                               {user?.email}
                             </p>
                           </div>
+                          <Link to="/saved-searches" onClick={() => setAccountOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-[#0f1111] transition-colors hover:bg-gray-50">
+                            <Bookmark className="h-4 w-4 text-gray-400" />Saved searches
+                          </Link>
                           <Link
                             to="/settings"
                             onClick={() => setAccountOpen(false)}
@@ -418,6 +421,7 @@ const Navbar = () => {
               </Link>
             ))}
 
+            <Link to="/saved-searches" onClick={closeMobileMenu} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-[#0f1111] hover:bg-gray-50"><Bookmark className="h-4 w-4" />Saved searches</Link>
             <hr className="my-3 border-gray-200" />
 
             <p className="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400">

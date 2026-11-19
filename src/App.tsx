@@ -1,4 +1,5 @@
 import "./App.css";
+import SavedSearches from "./Pages/SavedSearches";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ARTISAN_CORNER, PRODUCT_MARKETPLACE } from "./config/features";
@@ -339,6 +340,7 @@ function AppContent() {
           <Route path="/video-tours" element={<VideoTours />} />
           <Route path="/video-tour/:id" element={<VideoTourDetail />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/saved-searches" element={<ProtectedRoute><SavedSearches /></ProtectedRoute>} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<Cart />} />
           {ARTISAN_CORNER && (

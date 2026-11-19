@@ -23,6 +23,7 @@ import Footer from "../components/Home/Footer";
 import PropertyMap from "../components/ui/PropertyMap";
 import type { MapListing } from "../components/ui/PropertyMap";
 import BookmarkButton from "../components/ui/BookmarkButton";
+import SaveSearchButton from "../components/ui/SaveSearchButton";
 import EmptyState from "../components/ui/EmptyState";
 import AdSlot from "../components/ui/AdSlot";
 import { BouncyLoader } from "../components/agent/ui";
@@ -147,6 +148,7 @@ const Buy = () => {
     pages,
     nextPage,
     updateParams,
+    params: activeSearchParams,
   } = useListings({ type: "SALE", limit: PAGE_SIZE });
 
   // Debounced search box.
@@ -460,6 +462,7 @@ const Buy = () => {
             <SlidersHorizontal className="w-[15px] h-[15px]" />
             All filters
           </button>
+          <SaveSearchButton filters={{ ...activeSearchParams, search: searchQuery.trim() || undefined }} />
         </div>
 
         {showAllFilters && (

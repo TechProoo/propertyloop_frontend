@@ -22,6 +22,7 @@ import {
 import Navbar from "../components/Home/Navbar";
 import Footer from "../components/Home/Footer";
 import BookmarkButton from "../components/ui/BookmarkButton";
+import SaveSearchButton from "../components/ui/SaveSearchButton";
 import EmptyState from "../components/ui/EmptyState";
 import { BouncyLoader } from "../components/agent/ui";
 
@@ -165,6 +166,7 @@ const Rent = () => {
     pages,
     nextPage,
     updateParams,
+    params: activeSearchParams,
   } = useListings({ type: "RENT", limit: PAGE_SIZE });
 
   // Debounce the editorial search box.
@@ -482,6 +484,7 @@ const Rent = () => {
             <SlidersHorizontal className="w-[15px] h-[15px]" />
             All filters
           </button>
+          <SaveSearchButton filters={{ ...activeSearchParams, search: searchQuery.trim() || undefined }} />
 
           <div className="ml-auto flex items-center gap-2.5">
             <span className="hidden sm:inline text-xs text-ink-3">

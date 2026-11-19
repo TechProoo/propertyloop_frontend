@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useListings } from "../api/hooks";
@@ -16,25 +16,36 @@ import Footer from "../components/Home/Footer";
 import BookmarkButton from "../components/ui/BookmarkButton";
 import EmptyState from "../components/ui/EmptyState";
 import AdSlot from "../components/ui/AdSlot";
+import SaveSearchButton from "../components/ui/SaveSearchButton";
+import {
+  listingFiltersFromQuery,
+  savedSearchQuery,
+} from "../api/services/savedSearches";
 
-const SearchResults = () => {
+const SearchResultsContent = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get("q") || "";
+  const activeFilters = listingFiltersFromQuery(searchParams);
+  const searchQuery = activeFilters.search || "";
   const [heroQuery, setHeroQuery] = useState(searchQuery);
+  const [area, setArea] = useState(activeFilters.location || "");
+  const [minimum, setMinimum] = useState(searchParams.get("minPrice") || "");
+  const [maximum, setMaximum] = useState(searchParams.get("maxPrice") || "");
+  const [bedrooms, setBedrooms] = useState(searchParams.get("minBeds") || "");
+  const [preference, setPreference] = useState(activeFilters.type || "");
+  const [filterError, setFilterError] = useState("");
 
-  const { items: listings, loading, page, pages, nextPage, params, updateParams } =
-    useListings({
-      search: searchQuery,
-      limit: 20,
-    });
+  const {
+    items: listings,
+    loading,
+    page,
+    pages,
+    nextPage,
+  } = useListings({
+    ...activeFilters,
+    limit: 20,
+  });
 
-  // The hook only reads its initial params once, so a new ?q= (e.g. searching
-  // again from this page) has to be pushed in explicitly.
-  useEffect(() => {
-    setHeroQuery(searchQuery);
-    if (params.search !== searchQuery) updateParams({ search: searchQuery });
-  }, [searchQuery, params.search, updateParams]);
 
   const currentListings = listings.map((l) => ({
     id: l.id,
@@ -52,9 +63,23 @@ const SearchResults = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (heroQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(heroQuery)}`);
+    if (minimum && maximum && Number(minimum) > Number(maximum)) {
+      setFilterError("Minimum budget cannot exceed maximum budget.");
+      return;
     }
+    const query = new URLSearchParams(savedSearchQuery(activeFilters));
+    for (const [key, value] of Object.entries({
+      search: heroQuery.trim(),
+      location: area.trim(),
+      minPrice: minimum,
+      maxPrice: maximum,
+      minBeds: bedrooms,
+      type: preference,
+    })) {
+      if (value) query.set(key, value);
+      else query.delete(key);
+    }
+    navigate(`/search?${query.toString()}`);
   };
 
   return (
@@ -71,7 +96,11 @@ const SearchResults = () => {
             <p className="text-text-secondary mb-6">
               {searchQuery && (
                 <>
-                  Showing results for "<span className="font-medium text-primary-dark">{searchQuery}</span>"
+                  Showing results for "
+                  <span className="font-medium text-primary-dark">
+                    {searchQuery}
+                  </span>
+                  "
                 </>
               )}
             </p>
@@ -79,28 +108,111 @@ const SearchResults = () => {
             {/* Search Bar */}
             <form
               onSubmit={handleSearch}
-              className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border-light rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.06)] pl-6 pr-1.5 py-1.5"
+              className="flex flex-wrap items-end gap-3 rounded-2xl border border-border-light bg-white p-4 shadow-sm"
             >
-              <input
-                type="text"
-                value={heroQuery}
-                onChange={(e) => setHeroQuery(e.target.value)}
-                placeholder="Search by location, LGA, or keyword..."
-                className="flex-1 text-sm text-primary-dark placeholder-text-subtle outline-none bg-transparent"
-              />
+              <label className="min-w-[180px] flex-1 text-xs font-semibold text-primary-dark">
+                Keyword
+                <input
+                  type="text"
+                  value={heroQuery}
+                  onChange={(e) => setHeroQuery(e.target.value)}
+                  placeholder="Search by location, LGA, or keyword..."
+                  className="mt-1 block h-10 w-full rounded-xl border border-border-light px-3 text-sm font-normal"
+                />
+              </label>
+              <label className="min-w-[150px] flex-1 text-xs font-semibold text-primary-dark">
+                Location
+                <input
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  placeholder="e.g. Lekki"
+                  maxLength={200}
+                  className="mt-1 block h-10 w-full rounded-xl border border-border-light px-3 text-sm font-normal"
+                />
+              </label>
+              <label className="text-xs font-semibold text-primary-dark">
+                Preference
+                <select
+                  aria-label="Preference"
+                  value={preference}
+                  onChange={(e) =>
+                    setPreference(e.target.value as typeof preference)
+                  }
+                  className="mt-1 block h-10 rounded-xl border border-border-light px-3 text-sm font-normal"
+                >
+                  <option value="">Rent or buy</option>
+                  <option value="RENT">Rent</option>
+                  <option value="SALE">Buy</option>
+                  <option value="SHORTLET">Shortlet</option>
+                </select>
+              </label>
+              <label className="text-xs font-semibold text-primary-dark">
+                Min budget (₦)
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  max={Number.MAX_SAFE_INTEGER}
+                  value={minimum}
+                  onChange={(e) => setMinimum(e.target.value)}
+                  placeholder="Any"
+                  className="mt-1 block h-10 w-32 rounded-xl border border-border-light px-3 text-sm font-normal"
+                />
+              </label>
+              <label className="text-xs font-semibold text-primary-dark">
+                Max budget (₦)
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  max={Number.MAX_SAFE_INTEGER}
+                  value={maximum}
+                  onChange={(e) => setMaximum(e.target.value)}
+                  placeholder="Any"
+                  className="mt-1 block h-10 w-32 rounded-xl border border-border-light px-3 text-sm font-normal"
+                />
+              </label>
+              <label className="text-xs font-semibold text-primary-dark">
+                Bedrooms
+                <select
+                  aria-label="Bedrooms"
+                  value={bedrooms}
+                  onChange={(e) => setBedrooms(e.target.value)}
+                  className="mt-1 block h-10 rounded-xl border border-border-light px-3 text-sm font-normal"
+                >
+                  <option value="">Any</option>
+                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                    <option key={n} value={n}>
+                      {n}+
+                    </option>
+                  ))}
+                </select>
+              </label>
               <button
                 type="submit"
-                className="w-10 h-10 bg-primary hover:bg-primary-dark rounded-full flex items-center justify-center transition-colors shrink-0"
+                className="h-10 rounded-full bg-primary px-5 text-sm font-bold text-white inline-flex items-center gap-2 hover:bg-primary-dark"
               >
-                <Search className="w-5 h-5 text-white" />
+                <Search className="w-4 h-4 text-white" /> Search
               </button>
             </form>
+            {filterError && (
+              <p role="alert" className="mt-2 text-sm text-red-700">
+                {filterError}
+              </p>
+            )}
+            <div className="mt-4">
+              <SaveSearchButton filters={activeFilters} />
+            </div>
           </div>
 
           {/* Results Count */}
           {!loading && (
             <p className="text-text-secondary text-sm mb-6">
-              Found <span className="font-bold text-primary-dark">{listings.length}</span> properties
+              Found{" "}
+              <span className="font-bold text-primary-dark">
+                {listings.length}
+              </span>{" "}
+              properties
             </p>
           )}
 
@@ -133,7 +245,11 @@ const SearchResults = () => {
               >
                 {/* Sponsored card interleaved into the results grid */}
                 {currentListings.length > 2 && (
-                  <AdSlot placement="SEARCH_INLINE" variant="card" className="order-3" />
+                  <AdSlot
+                    placement="SEARCH_INLINE"
+                    variant="card"
+                    className="order-3"
+                  />
                 )}
                 {currentListings.map((listing, i) => (
                   <motion.div
@@ -257,4 +373,7 @@ const SearchResults = () => {
   );
 };
 
-export default SearchResults;
+export default function SearchResults() {
+  const [params] = useSearchParams();
+  return <SearchResultsContent key={params.toString()} />;
+}
