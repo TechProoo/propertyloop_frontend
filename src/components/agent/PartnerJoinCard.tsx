@@ -44,7 +44,7 @@ export default function PartnerJoinCard({
 
       <ul className="mt-5 space-y-2">
         {[
-          "Free to join, free to list",
+          "Agent access with your PropertyLoop subscription",
           "Commission on every sale you bring",
           "Your own referral link",
         ].map((line) => (

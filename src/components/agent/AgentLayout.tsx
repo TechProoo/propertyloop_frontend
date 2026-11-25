@@ -3,7 +3,7 @@
 // screens the sidebar collapses to an icon rail (state persisted); on small
 // screens it's a slide-in drawer. Each page renders its own header/actions.
 import { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutGrid,
   Home,
@@ -19,6 +19,7 @@ import {
   FileSignature,
   Building2,
   Handshake,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { C, initials } from "./ui";
@@ -38,8 +39,8 @@ const NAV = [
   { to: "/feed", label: "Community Feed", icon: Newspaper },
 ];
 
-// PropertyLoop is free for all agents - no subscription entry here.
 const ACCOUNT_NAV = [
+  { to: "subscription", label: "Billing", icon: CreditCard },
   { to: "settings", label: "Settings", icon: SettingsIcon },
 ];
 
@@ -78,11 +79,30 @@ function Brand({ collapsed, onClick }: { collapsed: boolean; onClick?: () => voi
 
 export default function AgentLayout() {
   const { user } = useAuth();
+  const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem(STORAGE_KEY) === "1";
   });
+
+  if (!(Date.parse(user?.agentAccessUntil ?? "") > Date.now())) {
+    const currentPage = pathname.replace(/\/$/, "");
+    if (currentPage === "/agent-dashboard/subscription") {
+      return <Outlet />;
+    }
+    if (currentPage === "/agent-dashboard/settings") {
+      return (
+        <div className="mx-auto max-w-[760px] px-4 py-8">
+          <Link className="mb-5 inline-block text-sm font-semibold text-[#1f6f43]" to="/agent-dashboard/subscription">
+            Back to billing
+          </Link>
+          <Outlet />
+        </div>
+      );
+    }
+    return <Navigate to="/agent-dashboard/subscription" replace />;
+  }
 
   const toggleCollapsed = () =>
     setCollapsed((c) => {
@@ -95,7 +115,6 @@ export default function AgentLayout() {
       return next;
     });
 
-  const tier = user?.agentProfile?.subscriptionTier ?? undefined;
 
   // `isCollapsed` only applies to the desktop rail; the mobile drawer is
   // always full-width.
@@ -148,7 +167,6 @@ export default function AgentLayout() {
             </div>
             <div className="text-[11px] truncate" style={{ color: "#8aa395" }}>
               {user?.agentProfile?.agencyName ?? "Loop Realty"}
-              {tier ? ` · ${tier.charAt(0) + tier.slice(1).toLowerCase()}` : ""}
             </div>
           </div>
         )}

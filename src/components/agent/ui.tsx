@@ -118,11 +118,13 @@ export function PrimaryButton({
 export function GhostButton({
   children,
   onClick,
+  disabled,
   className = "",
   style,
 }: {
   children: ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }) {
@@ -130,7 +132,8 @@ export function GhostButton({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center justify-center gap-1.5 px-3.5 h-9 rounded-full text-[12.5px] font-bold transition-colors ${className}`}
+      disabled={disabled}
+      className={`inline-flex items-center justify-center gap-1.5 px-3.5 h-9 rounded-full text-[12.5px] font-bold transition-colors disabled:opacity-60 ${className}`}
       style={{ background: C.card, border: `1px solid ${C.line}`, color: C.ink, ...style }}
     >
       {children}

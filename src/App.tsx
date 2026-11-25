@@ -109,9 +109,11 @@ const roleDashboard: Record<string, string> = {
 function ProtectedRoute({
   children,
   allowedRoles,
+  allowUnsubscribedAgent = false,
 }: {
   children: React.ReactNode;
   allowedRoles?: string[];
+  allowUnsubscribedAgent?: boolean;
 }) {
   const { user, isLoggedIn, loading } = useAuth();
   if (loading) return null;
@@ -121,6 +123,13 @@ function ProtectedRoute({
   }
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     return <Navigate to={roleDashboard[user.role] || "/dashboard"} replace />;
+  }
+  if (
+    user?.role === "AGENT" &&
+    !allowUnsubscribedAgent &&
+    !(Date.parse(user.agentAccessUntil ?? "") > Date.now())
+  ) {
+    return <Navigate to="/agent-dashboard/subscription" replace />;
   }
   return <>{children}</>;
 }
@@ -201,7 +210,7 @@ function AppContent() {
           <Route
             path="/agent/subscription/callback"
             element={
-              <ProtectedRoute allowedRoles={["AGENT"]}>
+              <ProtectedRoute allowedRoles={["AGENT"]} allowUnsubscribedAgent>
                 <SubscriptionCallback />
               </ProtectedRoute>
             }
@@ -236,7 +245,7 @@ function AppContent() {
           <Route
             path="/agent-dashboard"
             element={
-              <ProtectedRoute allowedRoles={["AGENT"]}>
+              <ProtectedRoute allowedRoles={["AGENT"]} allowUnsubscribedAgent>
                 <AgentLayout />
               </ProtectedRoute>
             }

@@ -63,7 +63,6 @@ export default function AgentListings() {
   const activeCount = items.filter((l) => l.status === "ACTIVE").length;
   const pendingCount = items.filter((l) => l.status === "PENDING_REVIEW").length;
 
-  // PropertyLoop is free for all agents - listings are unlimited.
   const shown = items.filter((l) => FILTERS.find((f) => f.id === filter)!.match(l.status));
 
   const manage = (id: string) => navigate(`/agent-dashboard/listings/${id}`);
@@ -80,7 +79,6 @@ export default function AgentListings() {
         }
       />
 
-      {/* Quota - free for all agents, unlimited listings */}
       <Card className="mt-4 !py-4">
         <div className="flex justify-between text-[13px] font-semibold" style={{ color: C.ink2 }}>
           <span>Active listings</span>

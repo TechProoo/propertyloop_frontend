@@ -120,7 +120,9 @@ const Signup = ({ data, updateData, onBack, onContinue, fromWaitlist = false }: 
           Create your account
         </h1>
         <p className="text-text-secondary font-body text-sm mt-2">
-          Enter your details to get started on PropertyLoop
+          {data.role === "agent"
+            ? "Agent access costs ₦50,000 per month. Subscribe after verifying your email."
+            : "Enter your details to get started on PropertyLoop"}
         </p>
       </div>
 

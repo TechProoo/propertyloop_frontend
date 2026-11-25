@@ -6,21 +6,17 @@ import { useAuth } from "../context/AuthContext";
 
 const GREEN = "#1f6f43";
 
-// PropertyLoop is free for every agent - one plan, everything included.
-const FREE_FEATURES = [
+const AGENT_FEATURES = [
   "Unlimited active listings",
   "Full agent profile",
   "Buyer contact & WhatsApp enquiries",
   "Phone number on listings",
   "Search placement & listing analytics",
-  "Verified agent badge",
 ];
 
 export default function Pricing() {
   const { user } = useAuth();
-  // Existing agents land on their dashboard; everyone else starts the agent
-  // sign-up flow - no payment step.
-  const ctaHref = user?.role === "AGENT" ? "/agent-dashboard" : "/onboarding";
+  const ctaHref = user?.role === "AGENT" ? "/agent-dashboard/subscription" : "/onboarding";
 
   return (
     <div className="min-h-screen bg-[#f6f4ef]">
@@ -39,15 +35,13 @@ export default function Pricing() {
             className="mt-4 font-heading font-extrabold tracking-tight text-[#1a2120]"
             style={{ fontSize: 42, letterSpacing: "-0.03em", lineHeight: 1.08 }}
           >
-            Free for every agent
+            PropertyLoop for agents
           </h1>
           <p className="mt-3 text-[15px] text-[#4d524f]">
-            PropertyLoop is completely free for agents - unlimited listings and
-            every feature, no subscription, no card required.
+            One monthly subscription gives you agent access on the website and app.
           </p>
         </div>
 
-        {/* Single free plan */}
         <div className="mt-12 max-w-md mx-auto">
           <div
             className="rounded-[22px] p-7 flex flex-col bg-white relative"
@@ -62,17 +56,18 @@ export default function Pricing() {
             >
               Everything included
             </span>
-            <h3 className="text-[15px] font-extrabold text-[#1a2120]">Free forever</h3>
+            <h3 className="text-[15px] font-extrabold text-[#1a2120]">Agent subscription</h3>
             <div className="mt-2 flex items-baseline gap-1">
               <span
                 className="font-heading font-extrabold text-[#1a2120]"
                 style={{ fontSize: 40, letterSpacing: "-0.02em" }}
               >
-                ₦0
+                ₦50,000
               </span>
+              <span className="text-sm text-[#4d524f]">/ month</span>
             </div>
             <p className="mt-1.5 text-[13px] text-[#4d524f]">
-              List, get leads, and grow - on the house.
+              Renews monthly. Turn off automatic renewal anytime in Billing.
             </p>
 
             <Link
@@ -80,11 +75,11 @@ export default function Pricing() {
               className="mt-5 inline-flex items-center justify-center h-11 rounded-xl text-sm font-bold transition-colors"
               style={{ background: GREEN, color: "#fff" }}
             >
-              {user?.role === "AGENT" ? "Go to dashboard" : "Get started"}
+              {user?.role === "AGENT" ? "Open billing" : "Get started"}
             </Link>
 
             <ul className="mt-6 flex flex-col gap-2.5 list-none pl-0">
-              {FREE_FEATURES.map((f) => (
+              {AGENT_FEATURES.map((f) => (
                 <li key={f} className="flex items-start gap-2 text-[13px] text-[#4d524f]">
                   <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: GREEN }} />
                   {f}

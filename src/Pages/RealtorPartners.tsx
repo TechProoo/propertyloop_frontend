@@ -450,7 +450,7 @@ export default function RealtorPartners() {
     <div className="min-h-screen bg-bg">
       <Seo
         title="Agent Partner Programme"
-        description="Register free as a PropertyLoop realtor or agent. Get a partner number, your own referral link, and a profile in our verified agent directory."
+        description="Register as a PropertyLoop realtor or agent. Get a partner number and referral link. Agent platform access requires a ₦50,000 monthly subscription."
         path="/realtors/partners"
       />
       <Navbar />
@@ -932,7 +932,7 @@ function Hero() {
         </h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80">
           Register once. Your partner number and personal referral link arrive
-          by email. Free to join, free to list.
+          by email. Agent platform access costs ₦50,000 per month.
         </p>
 
         <ul className="mt-8 grid gap-3 sm:grid-cols-3">

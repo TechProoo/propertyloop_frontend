@@ -111,6 +111,7 @@ export interface User {
   createdAt: string;
   buyerProfile?: BuyerProfile | null;
   agentProfile?: AgentProfile | null;
+  agentAccessUntil?: string | null;
   vendorProfile?: VendorProfile | null;
   settings?: UserSettings | null;
 }
@@ -136,7 +137,7 @@ export interface AgentProfile {
   listingsCount: number;
   soldRentedCount: number;
   verified: boolean;
-  subscriptionTier?: "FREE" | "FOUNDING" | "STANDARD" | "PRO" | null;
+  subscriptionTier?: "FREE" | "FOUNDING" | "STANDARD" | "PRO" | "MONTHLY" | null;
   subscriptionStatus?: "ACTIVE" | "LAPSED" | "CANCELLED" | null;
   subscriptionRenewsAt?: string | null;
 }

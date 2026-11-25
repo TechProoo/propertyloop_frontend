@@ -135,6 +135,20 @@ api.interceptors.response.use(
     return res;
   },
   async (error: AxiosError) => {
+    if (
+      error.response?.status === 402 &&
+      (error.response.data as { code?: string })?.code === "AGENT_SUBSCRIPTION_REQUIRED" &&
+      ![
+        "/onboarding",
+        "/verify-email",
+        "/verify-email-required",
+        "/agent/subscription/callback",
+        "/agent-dashboard/settings",
+        "/agent-dashboard/subscription",
+      ].includes(window.location.pathname.replace(/\/$/, ""))
+    ) {
+      window.location.assign("/agent-dashboard/subscription");
+    }
     // No response means the request never reached the server - offline,
     // DNS failure, CORS preflight blocked, server down, etc. Notify the
     // global offline boundary so it can surface the network-error page.

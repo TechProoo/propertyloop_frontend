@@ -151,7 +151,7 @@ const legalContent: Record<string, { title: string; icon: React.ReactNode; updat
         "PropertyLoop does not charge agents to list properties. We earn through service fees on completed transactions (5% on sales, 5% on rental deposits). Agents set their own agency fees separately.",
       ]},
       { id: "crm", title: "4. Agent CRM & Tools", content: [
-        "Verified agents get access to the Agent Dashboard with CRM tools, lead management, listing analytics, and performance tracking. These tools are provided free as part of the platform.",
+        "An active ₦50,000 monthly subscription is required for agent access on the website and app. The subscription renews monthly through Paystack until you turn off automatic renewal. You retain access until the end of the period you have paid for.",
       ]},
       { id: "conduct", title: "5. Professional Conduct", content: [
         "Agents must respond to enquiries within 24 hours, maintain accurate availability, conduct viewings professionally, and comply with all Nigerian real estate regulations.",
