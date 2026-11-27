@@ -119,41 +119,17 @@ export default function StockHero() {
 
   return (
     <>
-      {/* ═══════════════════════════════════════════════════════════════════
-          PART 1 — The hero banner
-          ═══════════════════════════════════════════════════════════════════ */}
-      <HomeHero stock={stock} stockLoading={stockLoading} />
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          PART 2 — PropertyLoop stock + marketplace grid
-          ═══════════════════════════════════════════════════════════════════ */}
-      <section className="bg-[#f5f0eb]">
-        <div className="mx-auto max-w-360 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-          {/* ── PropertyLoop stock ─────────────────────────────────── */}
-          <div className="flex flex-wrap items-end justify-between gap-3">
+      <HomeHero />
+      <section className="landing-stock">
+        <div className="landing-chapter">
+          <div className="chapter-head">
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-[10.5px] font-bold uppercase tracking-[0.15em] text-primary">
-                <BadgeCheck className="h-3 w-3" />
-                PropertyLoop stock
-              </span>
-              <h2 className="font-heading mt-3 text-[26px] font-bold leading-[1.1] tracking-tight text-primary-dark sm:text-[34px]">
-                Listed &amp; checked by our team
-              </h2>
-              <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-text-secondary">
-                Every property here has been inspected, documented and priced by
-                PropertyLoop — papers, photographs and price, verified before it
-                reaches you.
-              </p>
+              <p className="chapter-label">PropertyLoop collection</p>
+              <h2>From our property desk</h2>
+              <p className="mt-3 text-sm text-text-secondary">Homes inspected and documented by the PropertyLoop team.</p>
             </div>
-            <Link
-              to="/buy"
-              className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 px-5 py-2.5 text-[13px] font-bold text-primary-dark transition-colors hover:bg-primary hover:text-white"
-            >
-              Browse all stock
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+            <Link to="/buy">Browse properties <ArrowRight size={15} /></Link>
           </div>
-
           {stockFailed ? (
             <div className="mt-6 flex flex-col items-center gap-3 rounded-2xl bg-white px-6 py-12 text-center shadow-sm">
               <WifiOff className="h-6 w-6 text-text-subtle" />
@@ -168,6 +144,8 @@ export default function StockHero() {
                 Try again
               </button>
             </div>
+          ) : !stockLoading && stock.length === 0 ? (
+            <p className="mt-6 text-sm text-text-secondary">Our next collection is on its way. Explore agent listings below.</p>
           ) : (
             <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {stockLoading

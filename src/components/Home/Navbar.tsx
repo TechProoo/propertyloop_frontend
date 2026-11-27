@@ -56,7 +56,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const nav = navRef.current;
-    if (!nav) return;
+    if (!nav || path === "/" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const logo = nav.querySelector("[data-nav-logo]");
     const searchBar = nav.querySelector("[data-nav-search]");
@@ -92,9 +92,9 @@ const Navbar = () => {
     );
 
     return () => {
-      tl.kill();
+      tl.revert();
     };
-  }, []);
+  }, [path]);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
@@ -150,7 +150,7 @@ const Navbar = () => {
   return (
     <>
       {/* ── Primary nav bar ─────────────────────────────────────────── */}
-      <nav ref={navRef} className="relative z-50 bg-[#0f2e1b]">
+      <nav ref={navRef} aria-label="Main navigation" className="relative z-50 bg-[#0f2e1b]">
         <div className="mx-auto flex max-w-360 items-center gap-3 px-4 py-2.5 sm:gap-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <Link to="/" data-nav-logo className="shrink-0">
@@ -162,40 +162,50 @@ const Navbar = () => {
           </Link>
 
           {/* Search bar – desktop */}
-          <form
-            onSubmit={handleSearch}
-            data-nav-search
-            className="hidden flex-1 lg:flex"
-          >
-            <div className="flex w-full overflow-hidden rounded-md">
-              <select
-                value={searchCategory}
-                onChange={(e) => setSearchCategory(e.target.value)}
-                className="border-none bg-primary-soft px-3 py-2 text-[13px] font-medium text-[#0f2e1b] outline-none"
-                aria-label="Search category"
-              >
-                {SEARCH_CATEGORIES.map((c) => (
-                  <option key={c.label} value={c.label}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-              <input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by area, city or landmark — Lekki, Epe, Ikeja GRA"
-                aria-label="Search properties"
-                className="min-w-0 flex-1 border-none bg-white px-4 py-2.5 text-sm text-[#0f1111] outline-none placeholder:text-gray-400"
-              />
-              <button
-                type="submit"
-                className="bg-accent px-4 transition-colors hover:bg-[#a3741f]"
-                aria-label="Search"
-              >
-                <Search className="h-5 w-5 text-white" />
-              </button>
+          {path === "/" ? (
+            <div className="landing-nav-links">
+              <Link to="/buy">Buy</Link>
+              <Link to="/rent">Rent</Link>
+              <Link to="/shortlet">Shortlets</Link>
+              {PRODUCT_MARKETPLACE && <Link to="/marketplace">Marketplace</Link>}
+              <Link to="/find-agent">Find an agent</Link>
             </div>
-          </form>
+          ) : (
+            <form
+              onSubmit={handleSearch}
+              data-nav-search
+              className="hidden flex-1 lg:flex"
+            >
+              <div className="flex w-full overflow-hidden rounded-md">
+                <select
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                  className="border-none bg-primary-soft px-3 py-2 text-[13px] font-medium text-[#0f2e1b] outline-none"
+                  aria-label="Search category"
+                >
+                  {SEARCH_CATEGORIES.map((c) => (
+                    <option key={c.label} value={c.label}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by area, city or landmark — Lekki, Epe, Ikeja GRA"
+                  aria-label="Search properties"
+                  className="min-w-0 flex-1 border-none bg-white px-4 py-2.5 text-sm text-[#0f1111] outline-none placeholder:text-gray-400"
+                />
+                <button
+                  type="submit"
+                  className="bg-accent px-4 transition-colors hover:bg-[#a3741f]"
+                  aria-label="Search"
+                >
+                  <Search className="h-5 w-5 text-white" />
+                </button>
+              </div>
+            </form>
+          )}
 
           {/* Right actions – desktop */}
           <div className="hidden items-center gap-3 lg:flex">
@@ -329,7 +339,7 @@ const Navbar = () => {
           <button
             className="ml-auto lg:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label="Toggle menu" aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
               <X className="h-6 w-6 text-white" />
@@ -342,7 +352,7 @@ const Navbar = () => {
         {/* Search bar – mobile */}
         <form
           onSubmit={handleSearch}
-          className="px-4 pb-2.5 lg:hidden"
+          className={path === "/" ? "hidden" : "px-4 pb-2.5 lg:hidden"}
         >
           <div className="flex overflow-hidden rounded-md">
             <input
@@ -364,7 +374,7 @@ const Navbar = () => {
       </nav>
 
       {/* ── Secondary category bar ──────────────────────────────────── */}
-      <div className="z-40 border-t border-white/10 bg-primary-dark">
+      <div className={path === "/" ? "landing-secondary" : "z-40 border-t border-white/10 bg-primary-dark"}>
         <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
           <div className="hide-scrollbar flex items-center gap-1 overflow-x-auto py-1.5 text-[13px]">
             {CATEGORY_LINKS.map((link) => (

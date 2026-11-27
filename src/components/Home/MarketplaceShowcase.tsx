@@ -49,17 +49,14 @@ function CardSkeleton() {
 export default function MarketplaceShowcase() {
   const { addItem } = useStoreCart();
   const [products, setProducts] = useState<ProductWithStore[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(PRODUCT_MARKETPLACE);
   const [added, setAdded] = useState<string | null>(null);
 
   const trackRef = useRef<HTMLDivElement>(null);
   const hoverRef = useRef(false);
 
   useEffect(() => {
-    if (!PRODUCT_MARKETPLACE) {
-      setLoading(false);
-      return;
-    }
+    if (!PRODUCT_MARKETPLACE) return;
     let alive = true;
     marketplaceService
       .listProducts({ limit: 12, sort: "newest" })
@@ -75,11 +72,11 @@ export default function MarketplaceShowcase() {
   // back to the start at the end. Pauses while the pointer is over the rail so
   // it never fights the person scrolling.
   useEffect(() => {
-    if (products.length === 0) return;
+    if (products.length === 0 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const el = trackRef.current;
     if (!el) return;
     const timer = setInterval(() => {
-      if (hoverRef.current) return;
+      if (hoverRef.current || el.contains(document.activeElement)) return;
       const card = el.querySelector<HTMLElement>("[data-card]");
       const step = card ? card.offsetWidth + 20 : 280;
       const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 8;
@@ -100,10 +97,10 @@ export default function MarketplaceShowcase() {
   }
 
   if (!PRODUCT_MARKETPLACE) return null;
-  if (!loading && products.length === 0) return null;
+
 
   return (
-    <section className="relative overflow-hidden bg-[#0f2e1b] py-16 sm:py-20">
+    <section className="relative overflow-hidden bg-[#203c32] py-16 sm:py-20">
       {/* soft glow accents */}
       <div className="pointer-events-none absolute -right-32 -top-24 h-80 w-80 rounded-full bg-accent/10 blur-[110px]" />
       <div className="pointer-events-none absolute -bottom-32 -left-24 h-80 w-80 rounded-full bg-primary/30 blur-[110px]" />
@@ -112,13 +109,12 @@ export default function MarketplaceShowcase() {
         {/* Header */}
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-[#a3e635]">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-[#ead6ad]">
               <ShoppingBag className="h-3 w-3" />
               Marketplace
             </span>
             <h2 className="font-heading mt-3 text-[28px] font-bold leading-[1.1] tracking-tight text-white sm:text-[38px]">
-              Everything for your home —{" "}
-              <span className="text-[#a3e635]">in one checkout.</span>
+              Furnish your space.
             </h2>
             <p className="mt-2.5 max-w-lg text-[14px] leading-relaxed text-white/60">
               Found the place? Furnish and finish it too. Furniture, materials,
@@ -143,14 +139,14 @@ export default function MarketplaceShowcase() {
               to={`/marketplace?category=${encodeURIComponent(label)}`}
               className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2.5 text-[13px] font-semibold text-white/80 transition-colors hover:border-white/30 hover:bg-white/10 hover:text-white"
             >
-              <Icon className="h-4 w-4 text-[#a3e635]" />
+              <Icon className="h-4 w-4 text-[#ead6ad]" />
               {label}
             </Link>
           ))}
         </div>
 
         {/* Product carousel */}
-        <div className="relative mt-8">
+        {(loading || products.length > 0) && <div className="relative mt-8">
           {/* Arrows (desktop) */}
           <button
             type="button"
@@ -275,7 +271,7 @@ export default function MarketplaceShowcase() {
                   );
                 })}
           </div>
-        </div>
+        </div>}
       </div>
     </section>
   );
