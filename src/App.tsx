@@ -1,6 +1,6 @@
 import "./App.css";
 import SavedSearches from "./Pages/SavedSearches";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ARTISAN_CORNER, PRODUCT_MARKETPLACE } from "./config/features";
 import { BookmarkProvider } from "./context/BookmarkContext";
@@ -9,6 +9,7 @@ import { AnimatePresence } from "framer-motion";
 import SplashLoader from "./components/ui/SplashLoader";
 import IndependenceSplash from "./components/ui/IndependenceSplash";
 import Home from "./Pages/Home";
+import HomeIntro from "./components/Home/HomeIntro";
 import HowItWorks from "./Pages/HowItWorks";
 import Buy from "./Pages/Buy";
 import Rent from "./Pages/Rent";
@@ -157,6 +158,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AppContent() {
+  const isHome = useLocation().pathname === "/";
   const { loading } = useAuth();
   const online = useOnlineStatus();
 
@@ -167,8 +169,9 @@ function AppContent() {
   return (
     <>
       <AnimatePresence mode="wait">
-        {loading && <SplashLoader key="splash-loader" />}
+        {!isHome && loading && <SplashLoader key="splash-loader" />}
       </AnimatePresence>
+      {isHome && <HomeIntro loading={loading} />}
       {!loading && <AppDownloadBar />}
       {!loading && <IndependenceSplash />}
       {!loading && (

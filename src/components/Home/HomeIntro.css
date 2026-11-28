@@ -1,0 +1,92 @@
+.intro-dialog[open] {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: #fff9eb;
+}
+.intro-dialog::backdrop {
+  background: transparent;
+}
+html:has(.intro-dialog[open]) {
+  overflow: hidden;
+}
+.intro-screen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #112b23;
+  isolation: isolate;
+}
+.intro-frame {
+  position: absolute;
+  inset: clamp(2rem, 8vh, 6rem) clamp(1rem, 5vw, 5rem);
+  z-index: -1;
+  overflow: hidden;
+  background: #264338;
+}
+.intro-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #09241c55, #09241c99 60%, #09241c77);
+}
+.intro-still {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.intro-title {
+  text-align: center;
+}
+.intro-mask {
+  display: block;
+  overflow: hidden;
+}
+.intro-word {
+  display: block;
+  padding: 0 0.09em 0.13em;
+  font: 400 clamp(3rem, 11vw, 11rem)/1.1 var(--font-display, Georgia, serif);
+  letter-spacing: -0.065em;
+}
+.intro-word i {
+  color: #f3dbab;
+}
+.intro-rule {
+  display: block;
+  width: 30%;
+  height: 1px;
+  margin: 0.5rem auto;
+  background: #e8ca90;
+}
+.intro-skip,
+.intro-status {
+  font: 500 0.82rem/1.5 var(--font-heading, sans-serif);
+}
+.intro-skip {
+  position: absolute;
+  right: max(5vw, 1rem);
+  bottom: max(env(safe-area-inset-bottom), 0.5rem);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.25rem 0.6rem;
+}
+.intro-skip:focus-visible {
+  outline: 2px solid #e8ca90;
+  outline-offset: 2px;
+}
+.intro-status {
+  position: absolute;
+  left: max(5vw, 1rem);
+  bottom: max(env(safe-area-inset-bottom), 1rem);
+}
