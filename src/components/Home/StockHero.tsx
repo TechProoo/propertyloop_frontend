@@ -119,13 +119,13 @@ export default function StockHero() {
 
   return (
     <>
-      <HomeHero />
+      <HomeHero stock={stock} />
       <section className="landing-stock">
         <div className="landing-chapter">
           <div className="chapter-head">
             <div>
-              <p className="chapter-label">PropertyLoop collection</p>
-              <h2>From our property desk</h2>
+              <p className="chapter-label">Listed by PropertyLoop</p>
+              <h2>The property collection</h2>
               <p className="mt-3 text-sm text-text-secondary">Homes inspected and documented by the PropertyLoop team.</p>
             </div>
             <Link to="/buy">Browse properties <ArrowRight size={15} /></Link>

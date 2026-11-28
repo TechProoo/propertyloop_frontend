@@ -2,6 +2,8 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { ArrowUpRight, MapPin, Search, ShoppingBag } from "lucide-react";
+import type { Listing } from "../../api/types";
+import { IMG, sizedImage } from "../../lib/imageSize";
 import avenue from "../../assets/hero_img_2.jpg";
 import { PRODUCT_MARKETPLACE } from "../../config/features";
 import "./landing.css";
@@ -37,7 +39,11 @@ const modes = [
     : []),
 ];
 
-export default function HomeHero() {
+export default function HomeHero({ stock }: { stock: Listing[] }) {
+  const [failedPhotos, setFailedPhotos] = useState<string[]>([]);
+  const featured = stock.find(
+    (home) => home.coverImage && !failedPhotos.includes(home.coverImage),
+  );
   const root = useRef<HTMLElement>(null);
   const [mode, setMode] = useState(modes[0]);
   const [query, setQuery] = useState("");
@@ -77,82 +83,111 @@ export default function HomeHero() {
       aria-labelledby="landing-title"
     >
       <div className="landing-spread">
-        <div className="landing-photo">
-          <img
-            src={avenue}
-            alt="A palm-lined residential street with contemporary townhouses"
-            fetchPriority="high"
-          />
-        </div>
         <div className="landing-intro">
           <p className="landing-kicker" data-enter>
-            Real estate in Nigeria
+            Property search / Nigeria
           </p>
           <h1 id="landing-title" data-enter>
-            Find a place
+            Nigerian homes,
             <br />
-            <em>to call home.</em>
+            <em>in focus.</em>
           </h1>
           <p className="landing-deck" data-enter>
-            Explore verified homes for sale, for rent and for shorter stays
-            across Nigeria.
+            Find a home to buy, a place to rent or a short stay across Nigeria.
           </p>
         </div>
-      </div>
-      <div className="landing-finder">
-        <form
-          aria-label="Find a home or product"
-          onSubmit={(event) => {
-            event.preventDefault();
-            navigate(destination(query));
-          }}
-        >
-          <div
-            className="landing-modes"
-            role="group"
-            aria-label="Search category"
+        <div className="landing-finder">
+          <form
+            aria-label="Find a home or product"
+            onSubmit={(event) => {
+              event.preventDefault();
+              navigate(destination(query));
+            }}
           >
-            {modes.map((item) => (
-              <button
-                type="button"
-                key={item.label}
-                aria-pressed={mode === item}
-                onClick={() => {
-                  setMode(item);
-                  setQuery("");
-                }}
-              >
-                {item.label}
-              </button>
+            <div
+              className="landing-modes"
+              role="group"
+              aria-label="Search category"
+            >
+              {modes.map((item) => (
+                <button
+                  type="button"
+                  key={item.label}
+                  aria-pressed={mode === item}
+                  onClick={() => {
+                    setMode(item);
+                    setQuery("");
+                  }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            <label className="landing-field">
+              {shopping ? <ShoppingBag size={20} /> : <MapPin size={20} />}
+              <span>
+                <b>{shopping ? "Product" : "Location"}</b>
+                <input
+                  aria-label={
+                    shopping ? "Product to search for" : "City, area or estate"
+                  }
+                  placeholder={mode.prompt}
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </span>
+            </label>
+            <button className="landing-submit">
+              <Search size={17} /> Search
+            </button>
+          </form>
+          <div className="landing-popular">
+            <span>Popular {shopping ? "searches" : "areas"}</span>
+            {mode.popular.map((term) => (
+              <Link key={term} to={destination(term)}>
+                {term}
+                <ArrowUpRight size={12} />
+              </Link>
             ))}
           </div>
-          <label className="landing-field">
-            {shopping ? <ShoppingBag size={20} /> : <MapPin size={20} />}
-            <span>
-              <b>{shopping ? "Product" : "Location"}</b>
-              <input
-                aria-label={
-                  shopping ? "Product to search for" : "City, area or estate"
-                }
-                placeholder={mode.prompt}
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-              />
-            </span>
-          </label>
-          <button className="landing-submit">
-            <Search size={17} /> Search
-          </button>
-        </form>
-        <div className="landing-popular">
-          <span>Popular {shopping ? "searches" : "areas"}</span>
-          {mode.popular.map((term) => (
-            <Link key={term} to={destination(term)}>
-              {term}
-              <ArrowUpRight size={12} />
-            </Link>
-          ))}
         </div>
+        <Link
+          className="landing-photo"
+          to={featured ? "/property/" + featured.id : "/buy"}
+        >
+          <img
+            key={featured?.coverImage ?? avenue}
+            src={featured ? sizedImage(featured.coverImage, IMG.hero) : avenue}
+            alt={featured ? "" : "Palm-lined avenue of contemporary townhouses"}
+            fetchPriority="high"
+            onError={
+              featured
+                ? () =>
+                    setFailedPhotos((current) => [
+                      ...current,
+                      featured.coverImage,
+                    ])
+                : undefined
+            }
+          />
+          <div className="landing-caption">
+            <div>
+              <span>
+                {featured ? featured.location : "Explore the collection"}
+              </span>
+              <strong>{featured ? featured.title : "Homes for sale"}</strong>
+              {featured && (
+                <small>
+                  {featured.priceLabel}{" "}
+                  {featured.period && "/ " + featured.period.toLowerCase()}
+                </small>
+              )}
+            </div>
+            <span className="landing-photo-arrow">
+              <ArrowUpRight aria-hidden="true" />
+            </span>
+          </div>
+        </Link>
       </div>
     </section>
   );

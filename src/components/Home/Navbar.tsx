@@ -169,6 +169,29 @@ const Navbar = () => {
               <Link to="/shortlet">Shortlets</Link>
               {PRODUCT_MARKETPLACE && <Link to="/marketplace">Marketplace</Link>}
               <Link to="/find-agent">Find an agent</Link>
+              <details
+                className="landing-more"
+                onBlur={(event) => {
+                  if (!event.currentTarget.contains(event.relatedTarget)) {
+                    event.currentTarget.open = false;
+                  }
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") {
+                    event.currentTarget.open = false;
+                    event.currentTarget.querySelector("summary")?.focus();
+                  }
+                }}
+              >
+                <summary>More <ChevronDown size={14} /></summary>
+                <div>
+                  {CATEGORY_LINKS.filter(link =>
+                    !["/buy", "/rent", "/shortlet", "/marketplace", "/find-agent"].includes(link.href)
+                  ).map(link => (
+                    <Link key={link.href} to={link.href}>{link.label}</Link>
+                  ))}
+                </div>
+              </details>
             </div>
           ) : (
             <form
@@ -374,7 +397,7 @@ const Navbar = () => {
       </nav>
 
       {/* ── Secondary category bar ──────────────────────────────────── */}
-      <div className={path === "/" ? "landing-secondary" : "z-40 border-t border-white/10 bg-primary-dark"}>
+      <div className={path === "/" ? "hidden" : "z-40 border-t border-white/10 bg-primary-dark"}>
         <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-8">
           <div className="hide-scrollbar flex items-center gap-1 overflow-x-auto py-1.5 text-[13px]">
             {CATEGORY_LINKS.map((link) => (
@@ -406,7 +429,7 @@ const Navbar = () => {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="fixed inset-x-0 top-[calc(7rem+var(--dl-bar-h,0px))] bottom-0 z-40 overflow-y-auto bg-white py-4 px-5 shadow-lg lg:hidden"
+            style={path === "/" ? { top: "calc(3.8rem + var(--dl-bar-h,0px))" } : undefined} className="fixed inset-x-0 top-[calc(7rem+var(--dl-bar-h,0px))] bottom-0 z-40 overflow-y-auto bg-white py-4 px-5 shadow-lg lg:hidden"
           >
             <p className="px-1 pb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400">
               Browse
